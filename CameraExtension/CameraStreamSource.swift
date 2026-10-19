@@ -83,7 +83,11 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
 
     /// Meeting apps may read the source; the sink permits one active local producer.
     func authorizedToStartStream(for client: CMIOExtensionClient) -> Bool {
-        direction == .source || device.authorizeProducer(client)
+        if direction == .source {
+            logger.notice("Camera consumer authorized: pid=\(client.pid), signingID=\(client.signingID ?? "unknown", privacy: .public), negotiated=\(self.frameRate) fps")
+            return true
+        }
+        return device.authorizeProducer(client)
     }
 
     /// Starts this stream independently of its counterpart.

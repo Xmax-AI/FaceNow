@@ -11,6 +11,7 @@
 @preconcurrency import CoreMediaIO
 import Foundation
 import IOKit.audio
+import IOSurface
 import os
 
 /// Owns the virtual device and serializes all extension work on the provider queue.
@@ -76,6 +77,13 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     private let frames = ScheduledFrameStore(usesHostTime: true, playoutDelay: 0)
     private var outputTick = 0
 
+    /// Five-second diagnostics compare sink input with frames submitted to CMIO consumers.
+    private var statistics = TransportStatistics()
+    private var statisticsStart: TimeInterval?
+    private var previousConsumedBuffer: CVPixelBuffer?
+    private var previousSubmittedBuffer: CVPixelBuffer?
+    private var previousSubmissionTime: TimeInterval?
+
     /// The logger records transport failures without logging frame contents.
     private let logger = Logger(subsystem: CameraConfiguration.extensionBundleID, category: "Camera")
 
@@ -125,6 +133,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
 
     /// Starts the selected stream without creating duplicate output timers.
     func start(direction: CMIOExtensionStream.Direction) throws {
+        resetStatistics()
         if direction == .source {
             consumerCount += 1
             logger.notice("Camera consumer started: negotiated output=\(self.source.frameRate) fps, extension build=\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown", privacy: .public)")
@@ -145,6 +154,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
 
     /// Stops only the selected side, preserving other conference clients.
     func stop(direction: CMIOExtensionStream.Direction) {
+        resetStatistics()
         if direction == .source {
             consumerCount = max(0, consumerCount - 1)
         } else {
@@ -168,19 +178,44 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
 
     /// Consumes at most one outstanding request and emits timestamped source frames.
     private func tick() {
+        let time = CMClockGetTime(CMClockGetHostTimeClock())
+        if statisticsStart == nil { statisticsStart = time.seconds }
+        defer { reportStatistics(at: time.seconds) }
         if producerIsRunning, !consumeIsPending, let client = producerClient {
             consume(client: client, token: producerToken)
         }
         guard consumerCount > 0 else { return }
         outputTick = (outputTick + 1) % CameraConfiguration.frameRate
         guard outputTick.isMultiple(of: CameraConfiguration.frameRate / source.frameRate) else { return }
-        let time = CMClockGetTime(CMClockGetHostTimeClock())
         // The host has already paced interpolation frames; discard transport backlog after a late timer tick.
-        let pixelBuffer = frames.frame(now: time.seconds, preferLatest: true)?.pixelBuffer ?? waitingBuffer
+        let frame = frames.frame(now: time.seconds, preferLatest: true)
+        let pixelBuffer = frame?.pixelBuffer ?? waitingBuffer
         do {
             let sample = try renderer.sampleBuffer(pixelBuffer, at: time, duration: source.frameDuration)
             source.stream.send(sample, discontinuity: [], hostTimeInNanoseconds: UInt64(time.seconds * 1_000_000_000))
+            statistics.submitted += 1
+            if let frame {
+                if Self.isDifferentSurface(pixelBuffer, from: previousSubmittedBuffer) {
+                    statistics.newSubmitted += 1
+                } else {
+                    statistics.repeated += 1
+                }
+                previousSubmittedBuffer = pixelBuffer
+                let age = max(0, time.seconds - frame.presentationTime)
+                statistics.totalFrameAge += age
+                statistics.maximumFrameAge = max(statistics.maximumFrameAge, age)
+            } else {
+                statistics.waiting += 1
+                previousSubmittedBuffer = nil
+            }
+            if let previousSubmissionTime {
+                let interval = time.seconds - previousSubmissionTime
+                statistics.maximumSubmissionInterval = max(statistics.maximumSubmissionInterval, interval)
+                if interval > source.frameDuration.seconds * 1.5 { statistics.lateSubmissions += 1 }
+            }
+            previousSubmissionTime = time.seconds
         } catch {
+            statistics.sampleErrors += 1
             logger.error("Cannot create camera sample: \(error.localizedDescription, privacy: .public)")
         }
     }
@@ -194,13 +229,26 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
                 guard let self, self.producerIsRunning, self.producerToken == token else { return }
                 self.consumeIsPending = false
                 if let error = result.error {
+                    self.statistics.consumeErrors += 1
                     self.logger.error("Sink consume failed: \(error.localizedDescription, privacy: .public)")
                 }
-                guard let sample = result.sample, let buffer = CMSampleBufferGetImageBuffer(sample),
+                guard let sample = result.sample else {
+                    self.statistics.emptyConsumes += 1
+                    return
+                }
+                guard let buffer = CMSampleBufferGetImageBuffer(sample),
                       CVPixelBufferGetWidth(buffer) == CameraConfiguration.width,
                       CVPixelBufferGetHeight(buffer) == CameraConfiguration.height,
-                      CVPixelBufferGetPixelFormatType(buffer) == CameraConfiguration.pixelFormat else { return }
+                      CVPixelBufferGetPixelFormatType(buffer) == CameraConfiguration.pixelFormat else {
+                    self.statistics.invalidSamples += 1
+                    return
+                }
                 let time = CMClockGetTime(CMClockGetHostTimeClock())
+                self.statistics.received += 1
+                if Self.isDifferentSurface(buffer, from: self.previousConsumedBuffer) {
+                    self.statistics.newReceived += 1
+                }
+                self.previousConsumedBuffer = buffer
                 self.frames.submit(buffer, producer: token, timestamp: CMSampleBufferGetPresentationTimeStamp(sample).seconds, now: time.seconds)
                 self.sink.stream.notifyScheduledOutputChanged(CMIOExtensionScheduledOutput(
                     sequenceNumber: result.sequence, hostTimeInNanoseconds: UInt64(time.seconds * 1_000_000_000)
@@ -209,6 +257,59 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
             }
         }
     }
+
+    /// Uses shared IOSurface identity because CMIO can wrap the same pixels in different CVPixelBuffer objects.
+    private static func isDifferentSurface(_ buffer: CVPixelBuffer, from previous: CVPixelBuffer?) -> Bool {
+        guard let previous else { return true }
+        guard let surface = CVPixelBufferGetIOSurface(buffer)?.takeUnretainedValue(),
+              let previousSurface = CVPixelBufferGetIOSurface(previous)?.takeUnretainedValue() else {
+            return buffer !== previous
+        }
+        return IOSurfaceGetID(surface) != IOSurfaceGetID(previousSurface)
+    }
+
+    /// Starts a fresh measurement when producer or consumer ownership changes.
+    private func resetStatistics() {
+        statistics = TransportStatistics()
+        statisticsStart = nil
+        previousConsumedBuffer = nil
+        previousSubmittedBuffer = nil
+        previousSubmissionTime = nil
+        _ = frames.takeStatistics()
+    }
+
+    /// Reports submission rates, not the conference application's display or encoding rate.
+    private func reportStatistics(at time: TimeInterval) {
+        guard let statisticsStart else { return }
+        let elapsed = time - statisticsStart
+        guard elapsed >= 5 else { return }
+        let values = statistics
+        let drops = frames.takeStatistics()
+        let videoCount = values.submitted - values.waiting
+        let averageAge = videoCount > 0 ? values.totalFrameAge / Double(videoCount) : 0
+        logger.notice("Extension frame rates: window=\(elapsed)s, consumers=\(self.consumerCount), negotiated=\(self.source.frameRate) fps, received=\(Double(values.received) / elapsed) fps, received new buffers=\(Double(values.newReceived) / elapsed) fps, submitted=\(Double(values.submitted) / elapsed) fps, submitted new buffers=\(Double(values.newSubmitted) / elapsed) fps, repeated=\(Double(values.repeated) / elapsed) fps, waiting=\(values.waiting)")
+        logger.notice("Extension queue: superseded samples=\(drops.superseded), expired=\(drops.expired), overflow=\(drops.overflow), discontinuity=\(drops.discontinuity), pending=\(self.frames.pendingFrameCount), frame age avg=\(averageAge * 1000)ms max=\(values.maximumFrameAge * 1000)ms, output gap max=\(values.maximumSubmissionInterval * 1000)ms, late submissions=\(values.lateSubmissions), consume errors=\(values.consumeErrors), empty consumes=\(values.emptyConsumes), invalid samples=\(values.invalidSamples), sample errors=\(values.sampleErrors)")
+        statistics = TransportStatistics()
+        self.statisticsStart = time
+    }
+}
+
+/// Counts transport events without copying pixels or adding per-frame log messages.
+private struct TransportStatistics {
+    var received = 0
+    var newReceived = 0
+    var submitted = 0
+    var newSubmitted = 0
+    var repeated = 0
+    var waiting = 0
+    var lateSubmissions = 0
+    var consumeErrors = 0
+    var emptyConsumes = 0
+    var invalidSamples = 0
+    var sampleErrors = 0
+    var totalFrameAge: TimeInterval = 0
+    var maximumFrameAge: TimeInterval = 0
+    var maximumSubmissionInterval: TimeInterval = 0
 }
 
 /// Retains a consumed buffer while moving the completion onto the provider queue.

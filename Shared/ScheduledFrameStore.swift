@@ -18,6 +18,14 @@ struct ScheduledVideoFrame: @unchecked Sendable {
     let presentationTime: TimeInterval
 }
 
+/// Counts discarded transport samples separately from repeated output frames.
+struct FrameQueueStatistics {
+    var overflow = 0
+    var expired = 0
+    var superseded = 0
+    var discontinuity = 0
+}
+
 /// Preserves interpolation bursts in a bounded queue without blocking SDK delivery.
 final class ScheduledFrameStore: @unchecked Sendable {
     /// The timeline mode and maximum pending work.
@@ -35,6 +43,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
     private var hostOrigin: TimeInterval?
     private var lastTimestamp: TimeInterval?
     private var nextPresentationTime: TimeInterval?
+    private var statistics = FrameQueueStatistics()
 
     /// SDK timestamps are rebased once; CMIO input already uses the host clock.
     init(usesHostTime: Bool = false, playoutDelay: TimeInterval = 1.0 / 30) {
@@ -48,6 +57,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
         defer { lock.unlock() }
         self.producer = producer
         clear()
+        statistics = FrameQueueStatistics()
     }
 
     /// Retains frames in timestamp order, rebasing interrupted or discontinuous timelines.
@@ -59,7 +69,10 @@ final class ScheduledFrameStore: @unchecked Sendable {
         let timestamp = timestamp.isFinite ? timestamp : (lastTimestamp.map { $0 + 1.0 / 60 } ?? now)
         if let lastTimestamp {
             if timestamp == lastTimestamp { return }
-            if timestamp < lastTimestamp || timestamp - lastTimestamp > CameraConfiguration.staleInterval { clear() }
+            if timestamp < lastTimestamp || timestamp - lastTimestamp > CameraConfiguration.staleInterval {
+                statistics.discontinuity += pending.count
+                clear()
+            }
         }
         if sourceOrigin == nil { sourceOrigin = timestamp; hostOrigin = now + playoutDelay }
         var due = usesHostTime ? timestamp + playoutDelay : hostOrigin! + timestamp - sourceOrigin!
@@ -68,6 +81,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
             due = max(nextPresentationTime ?? now + playoutDelay, now + playoutDelay)
         }
         if !usesHostTime, abs(due - now) > maximumLatency {
+            statistics.discontinuity += pending.count
             clear()
             sourceOrigin = timestamp
             hostOrigin = now + playoutDelay
@@ -78,18 +92,27 @@ final class ScheduledFrameStore: @unchecked Sendable {
         }
         lastTimestamp = timestamp
         pending.append(ScheduledVideoFrame(pixelBuffer: pixelBuffer, receivedAt: now, presentationTime: due))
-        if pending.count > capacity { pending.removeFirst(pending.count - capacity) }
+        if pending.count > capacity {
+            let count = pending.count - capacity
+            statistics.overflow += count
+            pending.removeFirst(count)
+        }
     }
 
     /// Presents due frames in order; lower-rate consumers may skip to the latest due frame.
     func frame(now: TimeInterval, preferLatest: Bool = false) -> ScheduledVideoFrame? {
         lock.lock()
         defer { lock.unlock() }
+        let previousCount = pending.count
         pending.removeAll { now - $0.receivedAt >= CameraConfiguration.staleInterval || now - $0.presentationTime > maximumLatency }
+        statistics.expired += previousCount - pending.count
+        var selectedCount = 0
         while let first = pending.first, first.presentationTime <= now + 0.0005 {
             displayed = pending.removeFirst()
+            selectedCount += 1
             if !preferLatest { break }
         }
+        statistics.superseded += max(0, selectedCount - 1)
         guard let displayed, now >= displayed.receivedAt,
               now - displayed.receivedAt < CameraConfiguration.staleInterval else {
             self.displayed = nil
@@ -103,6 +126,15 @@ final class ScheduledFrameStore: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         return pending.count
+    }
+
+    /// Drains interval counters without changing queued frames or their presentation times.
+    func takeStatistics() -> FrameQueueStatistics {
+        lock.lock()
+        defer { lock.unlock() }
+        let result = statistics
+        statistics = FrameQueueStatistics()
+        return result
     }
 
     /// Clears timeline state while the caller holds the lock.
