@@ -78,16 +78,24 @@ struct CameraView: View {
                     Label("Virtual camera", systemImage: "video.badge.checkmark").font(.headline)
                     Text(cameraExtension.status).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     HStack {
-                        if cameraExtension.isEnabled {
-                            Button("Remove") { cameraExtension.uninstall() }
-                        } else {
-                            Button("Install & Enable") { cameraExtension.install() }
+                        Group {
+                            if cameraExtension.isEnabled {
+                                Button("Remove") { cameraExtension.uninstall() }
+                            } else {
+                                Button(cameraExtension.isAwaitingApproval ? "Awaiting Approval" : "Install & Enable") {
+                                    cameraExtension.install()
+                                }
+                            }
                         }
+                        .disabled(cameraExtension.isBusy || cameraExtension.isRefreshing || !session.isIdle)
                         Button { cameraExtension.refresh() } label: { Image(systemName: "arrow.clockwise") }
+                            .disabled(cameraExtension.isRefreshing ||
+                                      (cameraExtension.isBusy && !cameraExtension.isAwaitingApproval) || !session.isIdle)
                     }
-                    .disabled(cameraExtension.isBusy || !session.isIdle)
                     Button("Open System Settings") { cameraExtension.openSettings() }.font(.caption)
-                    if cameraExtension.isBusy { ProgressView().controlSize(.small) }
+                    if (cameraExtension.isBusy && !cameraExtension.isAwaitingApproval) || cameraExtension.isRefreshing {
+                        ProgressView().controlSize(.small)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading).padding(8)
             }

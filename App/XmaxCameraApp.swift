@@ -34,6 +34,11 @@ final class CameraAppDelegate: NSObject, NSApplicationDelegate {
     let session = CameraSessionController()
     let cameraExtension = CameraExtensionController()
 
+    /// Reconciles approval changes when the user returns from System Settings.
+    func applicationDidBecomeActive(_ notification: Notification) {
+        cameraExtension.refresh()
+    }
+
     /// Quit and window closing both complete asynchronous shutdown.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         Task {

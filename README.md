@@ -28,7 +28,7 @@ Both targets use Team `A84PZNYY82`. Xcode must have access to this team and a va
 
 1. Build the signed **XmaxCamera** scheme.
 2. Copy **Xmax Camera.app** from the build products to **/Applications**, then launch that copy. macOS requires this location for extension activation.
-3. Click **Install & Enable** and complete the macOS approval flow. Use **Refresh** to check extension status.
+3. Click **Install & Enable**. When **Awaiting Approval** appears, keep the app running and open **System Settings → General → Login Items & Extensions → Camera Extensions**. Enable **Xmax Virtual Camera**. Return to the app or use **Refresh** to check extension status.
 4. Click **Send Test Pattern**. In a video application's camera settings, select **Xmax Virtual Camera** and confirm that the color bars and moving white marker appear.
 5. Click **Stop**. Enter an API key, select a physical camera and model, enter a **Free Prompt**, then click **Start Generation**. Grant camera access when macOS requests it.
 

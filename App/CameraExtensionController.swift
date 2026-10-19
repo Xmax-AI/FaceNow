@@ -21,19 +21,30 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
     /// Whether the system is processing a request or waiting for approval.
     @Published private(set) var isBusy = false
 
+    /// User approval is a pending action rather than indeterminate processing.
+    @Published private(set) var isAwaitingApproval = false
+
+    /// Status queries are independent of a pending activation request.
+    @Published private(set) var isRefreshing = false
+
     /// Whether an enabled matching extension was found by the system.
     @Published private(set) var isEnabled = false
 
     /// Identifies the in-flight request so delayed delegate calls cannot overwrite newer state.
     private var pendingRequest: OSSystemExtensionRequest?
     private var pendingKind: RequestKind?
+    private var propertiesRequest: OSSystemExtensionRequest?
 
     /// Refreshes system state without installing or activating anything.
     func refresh() {
-        guard !isBusy else { return }
-        submit(OSSystemExtensionRequest.propertiesRequest(
+        guard (!isBusy || isAwaitingApproval), propertiesRequest == nil else { return }
+        let request = OSSystemExtensionRequest.propertiesRequest(
             forExtensionWithIdentifier: CameraConfiguration.extensionBundleID, queue: .main
-        ), kind: .properties)
+        )
+        propertiesRequest = request
+        isRefreshing = true
+        request.delegate = self
+        OSSystemExtensionManager.shared.submitRequest(request)
     }
 
     /// Asks macOS to activate the extension packaged inside the application.
@@ -56,15 +67,16 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
 
     /// Opens the system extension settings without changing system preferences.
     func openSettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.ExtensionsPreferences") {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
             NSWorkspace.shared.open(url)
         }
     }
 
     /// Starts a request on the main queue and keeps controls stable until it finishes.
     private func submit(_ request: OSSystemExtensionRequest, kind: RequestKind) {
-        guard !isBusy else { return }
+        guard !isBusy, !isRefreshing else { return }
         isBusy = true
+        isAwaitingApproval = false
         pendingRequest = request
         pendingKind = kind
         request.delegate = self
@@ -83,7 +95,8 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
-            self.status = "Approval required in System Settings → Camera Extensions."
+            self.isAwaitingApproval = true
+            self.status = "Enable Xmax Virtual Camera in System Settings → General → Login Items & Extensions → Camera Extensions."
         }
     }
 
@@ -91,11 +104,13 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
     nonisolated func request(_ request: OSSystemExtensionRequest, didFinishWithResult result: OSSystemExtensionRequest.Result) {
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
-            guard self.pendingRequest.map(ObjectIdentifier.init) == identifier,
-                  self.pendingKind != .properties else { return }
+            guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
             self.pendingRequest = nil
             self.pendingKind = nil
             self.isBusy = false
+            self.isAwaitingApproval = false
+            self.propertiesRequest = nil
+            self.isRefreshing = false
             self.status = result == .completed ? "Request completed" : "Restart required to finish setup"
             if result == .completed { self.refresh() }
         }
@@ -106,10 +121,19 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         let message = error.localizedDescription
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
+            if self.propertiesRequest.map(ObjectIdentifier.init) == identifier {
+                self.propertiesRequest = nil
+                self.isRefreshing = false
+                if !self.isBusy { self.status = message }
+                return
+            }
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
             self.pendingRequest = nil
             self.pendingKind = nil
             self.isBusy = false
+            self.isAwaitingApproval = false
+            self.propertiesRequest = nil
+            self.isRefreshing = false
             self.status = message
         }
     }
@@ -119,15 +143,21 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         let enabled = properties.contains { $0.isEnabled && !$0.isUninstalling }
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
-            guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
-            self.pendingRequest = nil
-            self.pendingKind = nil
-            self.isBusy = false
+            guard self.propertiesRequest.map(ObjectIdentifier.init) == identifier else { return }
+            self.propertiesRequest = nil
+            self.isRefreshing = false
             self.isEnabled = enabled
+            if enabled, self.pendingKind == .activation, self.isAwaitingApproval {
+                self.pendingRequest = nil
+                self.pendingKind = nil
+                self.isBusy = false
+                self.isAwaitingApproval = false
+            }
+            guard !self.isBusy else { return }
             self.status = enabled ? "Camera extension enabled" : "Camera extension not enabled"
         }
     }
 
     /// Distinguishes a status query from an operation that needs a subsequent refresh.
-    private enum RequestKind { case properties, activation, deactivation }
+    private enum RequestKind { case activation, deactivation }
 }
