@@ -54,14 +54,14 @@ final class VideoFrameRenderer {
         waitingImage = try Self.makeWaitingImage()
     }
 
-    /// Scales the input to fit, adding opaque black bars where needed.
+    /// Fills the camera output without distortion, cropping excess content equally on opposing edges.
     func normalize(_ pixelBuffer: CVPixelBuffer) throws -> CVPixelBuffer {
         let image = CIImage(cvPixelBuffer: pixelBuffer)
-        let rect = Self.fittedRect(width: image.extent.width, height: image.extent.height)
-        let fitted = image.transformed(by: CGAffineTransform(
+        let rect = Self.filledRect(width: image.extent.width, height: image.extent.height)
+        let filled = image.transformed(by: CGAffineTransform(
             scaleX: rect.width / image.extent.width, y: rect.height / image.extent.height
         )).transformed(by: CGAffineTransform(translationX: rect.minX, y: rect.minY))
-        return try render(fitted.composited(over: CIImage(color: .black).cropped(to: bounds)))
+        return try render(filled.cropped(to: bounds))
     }
 
     /// Returns a mirrored offline card without exposing the last generated image indefinitely.
@@ -107,10 +107,10 @@ final class VideoFrameRenderer {
         return sample
     }
 
-    /// Calculates an aspect-preserving centered output rectangle.
-    static func fittedRect(width: CGFloat, height: CGFloat) -> CGRect {
+    /// Calculates a centered rectangle that covers the output while preserving aspect ratio.
+    static func filledRect(width: CGFloat, height: CGFloat) -> CGRect {
         guard width > 0, height > 0 else { return .zero }
-        let scale = min(CGFloat(CameraConfiguration.width) / width, CGFloat(CameraConfiguration.height) / height)
+        let scale = max(CGFloat(CameraConfiguration.width) / width, CGFloat(CameraConfiguration.height) / height)
         let size = CGSize(width: width * scale, height: height * scale)
         return CGRect(x: (CGFloat(CameraConfiguration.width) - size.width) / 2,
                       y: (CGFloat(CameraConfiguration.height) - size.height) / 2,

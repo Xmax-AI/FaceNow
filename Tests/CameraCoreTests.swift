@@ -133,17 +133,21 @@ final class CameraCoreTests: XCTestCase {
         XCTAssertTrue(store.frame(now: 5.04)?.pixelBuffer === resumed)
     }
 
-    /// Wide and portrait model outputs are centered with their aspect ratio intact.
-    func testAspectFitPreservesImage() {
-        let wide = VideoFrameRenderer.fittedRect(width: 1920, height: 1024)
-        XCTAssertEqual(wide.width, 1280, accuracy: 0.01)
-        XCTAssertEqual(wide.height, 682.6667, accuracy: 0.01)
+    /// Wide and portrait model outputs cover the camera frame with a centered crop.
+    func testAspectFillCropsAroundCenter() {
+        let wide = VideoFrameRenderer.filledRect(width: 1920, height: 1024)
+        XCTAssertEqual(wide.width, 1350, accuracy: 0.01)
+        XCTAssertEqual(wide.height, 720, accuracy: 0.01)
+        XCTAssertEqual(wide.midX, 640, accuracy: 0.01)
         XCTAssertEqual(wide.midY, 360, accuracy: 0.01)
-        let portrait = VideoFrameRenderer.fittedRect(width: 1024, height: 1920)
-        XCTAssertEqual(portrait.height, 720, accuracy: 0.01)
-        XCTAssertEqual(portrait.width, 384, accuracy: 0.01)
+        let portrait = VideoFrameRenderer.filledRect(width: 1024, height: 1920)
+        XCTAssertEqual(portrait.height, 2400, accuracy: 0.01)
+        XCTAssertEqual(portrait.width, 1280, accuracy: 0.01)
         XCTAssertEqual(portrait.midX, 640, accuracy: 0.01)
-        XCTAssertEqual(VideoFrameRenderer.fittedRect(width: 0, height: 0), .zero)
+        XCTAssertEqual(portrait.midY, 360, accuracy: 0.01)
+        XCTAssertEqual(VideoFrameRenderer.filledRect(width: 1920, height: 1080),
+                       CGRect(x: 0, y: 0, width: 1280, height: 720))
+        XCTAssertEqual(VideoFrameRenderer.filledRect(width: 0, height: 0), .zero)
     }
 
     /// Both generated input formats produce the same NV12 camera contract.
@@ -173,8 +177,8 @@ final class CameraCoreTests: XCTestCase {
         XCTAssertTrue(CMVideoFormatDescriptionMatchesImageBuffer(renderer.formatDescription, imageBuffer: image))
     }
 
-    /// Horizontal orientation is preserved and aspect-fit padding is opaque black.
-    func testNormalizationDoesNotMirrorAndPadsBlack() throws {
+    /// Horizontal orientation is preserved and image content reaches every output edge.
+    func testNormalizationDoesNotMirrorOrAddPadding() throws {
         let input = try makeBuffer()
         CVPixelBufferLockBaseAddress(input, [])
         let bytes = CVPixelBufferGetBaseAddress(input)!.assumingMemoryBound(to: UInt8.self)
@@ -196,8 +200,10 @@ final class CameraCoreTests: XCTestCase {
         let stride = CVPixelBufferGetBytesPerRowOfPlane(output, 0)
         let row = 360 * stride
         XCTAssertGreaterThan(Int(luma[row + 300]), Int(luma[row + 900]) + 15)
-        XCTAssertEqual(Int(luma[row]), 16, accuracy: 2)
-        XCTAssertEqual(Int(luma[row + 1279]), 16, accuracy: 2)
+        XCTAssertEqual(Int(luma[row]), Int(luma[row + 300]), accuracy: 2)
+        XCTAssertEqual(Int(luma[row + 1279]), Int(luma[row + 900]), accuracy: 2)
+        XCTAssertEqual(Int(luma[300]), Int(luma[row + 300]), accuracy: 2)
+        XCTAssertEqual(Int(luma[719 * stride + 900]), Int(luma[row + 900]), accuracy: 2)
     }
 
     /// Holding frames applies backpressure rather than allowing pool growth without bound.

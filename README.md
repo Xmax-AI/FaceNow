@@ -45,7 +45,7 @@ Physical camera → XmaxSDK → generated frame callback
                                   ↓
                          timestamped bounded queue
                                   ↓
-                  aspect fit → 1280 × 720 NV12 @ 60 fps (30 fps fallback)
+                  center crop → 1280 × 720 NV12 @ 60 fps (30 fps fallback)
                                   ↓
                  CMIO sink → Camera Extension → CMIO source
                                                     ↓
@@ -57,7 +57,7 @@ Physical camera → XmaxSDK → generated frame callback
 - `CameraExtension/` owns the stable virtual device and source/sink streams. Producer and consumer lifecycles are independent. The sink accepts a single producer with the host signing identifier; meeting clients read the source.
 - `Shared/` defines the transport contract, bounded timestamped queue and renderer. The extension uses only system frameworks and has no XmaxSDK dependency.
 
-No additional mirroring is applied to generated frames. Generation dimensions are fitted with black bars, preserving aspect ratio. Source samples use the macOS host clock. Frames older than two seconds are replaced with the waiting card. No App Group file polling or private IPC is used for video transport.
+No additional mirroring is applied to generated frames. Generated frames fill the output while preserving aspect ratio, cropping excess content equally on opposing edges without adding black bars. Source samples use the macOS host clock. Frames older than two seconds are replaced with the waiting card. No App Group file polling or private IPC is used for video transport.
 
 This project is separate from XmaxSDK and XLab. Changes to virtual camera integration belong here.
 
@@ -77,7 +77,7 @@ Run hardware-independent tests for the shared media pipeline:
 swift test --scratch-path .build/CoreTests
 ```
 
-The root Swift package exposes the shared core for tests; the application is built with the Xcode project. Tests cover producer cancellation, concurrent frame handoff, freshness, aspect fit, NV12/BGRA conversion, orientation, black padding, sample timing and allocation limits.
+The root Swift package exposes the shared core for tests; the application is built with the Xcode project. Tests cover producer cancellation, concurrent frame handoff, freshness, centered aspect-fill cropping, NV12/BGRA conversion, orientation, edge coverage, sample timing and allocation limits.
 
 Unsigned builds cannot validate camera extension activation or conference compatibility. After signing and enabling the extension, validate the test pattern, real generation, stop, app exit and restart in the installed Feishu and Tencent Meeting versions. Compatibility with those clients is not yet verified.
 
