@@ -9,6 +9,7 @@
 //
 
 @preconcurrency import CoreMediaIO
+@preconcurrency import AVFoundation
 import Foundation
 import os
 
@@ -35,6 +36,15 @@ final class VirtualCameraOutput: @unchecked Sendable {
 
     /// Opens the installed sink or returns an actionable setup error.
     func start(testPattern: Bool) async throws {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            break
+        case .notDetermined:
+            guard await AVCaptureDevice.requestAccess(for: .video) else { throw OutputError.cameraAccessDenied }
+        default:
+            throw OutputError.cameraAccessDenied
+        }
+        try Task.checkCancellation()
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             worker.async { [self] in
                 do {
@@ -50,11 +60,14 @@ final class VirtualCameraOutput: @unchecked Sendable {
                         try Self.uint32($0, selector: UInt32(kCMIOStreamPropertyDirection)) == 0
                     }) else { throw OutputError.sinkUnavailable }
                     var queue: Unmanaged<CMSimpleQueue>?
-                    try Self.check(CMIOStreamCopyBufferQueue(stream, nil, nil, &queue))
+                    try Self.check(CMIOStreamCopyBufferQueue(stream, { _, _, _ in
+                        // A non-nil callback registers the queue; the timer handles producer pacing.
+                    }, nil, &queue))
                     guard let queue else { throw OutputError.sinkUnavailable }
                     self.bufferQueue = queue.takeRetainedValue()
                     self.deviceID = device
                     self.streamID = stream
+                    self.logger.notice("Starting virtual camera sink: camera authorization=\(AVCaptureDevice.authorizationStatus(for: .video).rawValue), device=\(device), stream=\(stream)")
                     try Self.check(CMIODeviceStartStream(device, stream))
                     self.isTestPattern = testPattern
                     let timer = DispatchSource.makeTimerSource(queue: self.worker)
@@ -84,7 +97,7 @@ final class VirtualCameraOutput: @unchecked Sendable {
     /// Produces only when the sink queue has room; no waiting or frame accumulation.
     private func tick() {
         guard let renderer, let bufferQueue,
-              CMSimpleQueueGetCount(bufferQueue) < CMSimpleQueueGetCapacity(bufferQueue) else { return }
+              CMSimpleQueueGetCount(bufferQueue) < min(2, CMSimpleQueueGetCapacity(bufferQueue)) else { return }
         let time = CMClockGetTime(CMClockGetHostTimeClock())
         do {
             let buffer: CVPixelBuffer
@@ -110,7 +123,12 @@ final class VirtualCameraOutput: @unchecked Sendable {
     private func stopOnWorker() {
         timer?.cancel()
         timer = nil
-        if deviceID != 0, streamID != 0 { CMIODeviceStopStream(deviceID, streamID) }
+        if deviceID != 0, streamID != 0 {
+            CMIODeviceStopStream(deviceID, streamID)
+            var unusedQueue: Unmanaged<CMSimpleQueue>?
+            CMIOStreamCopyBufferQueue(streamID, nil, nil, &unusedQueue)
+            unusedQueue?.release()
+        }
         if let bufferQueue {
             while let pointer = CMSimpleQueueDequeue(bufferQueue) {
                 Unmanaged<CMSampleBuffer>.fromOpaque(pointer).release()
@@ -126,10 +144,6 @@ final class VirtualCameraOutput: @unchecked Sendable {
 
     /// Locates the stable device UID instead of relying on localized display names.
     private static func findDevice() throws -> CMIODeviceID {
-        var address = CMIOObjectPropertyAddress(mSelector: UInt32(kCMIOHardwarePropertyAllowScreenCaptureDevices),
-                                              mScope: UInt32(kCMIOObjectPropertyScopeGlobal), mElement: UInt32(kCMIOObjectPropertyElementMain))
-        var allow: UInt32 = 1
-        try check(CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &address, 0, nil, 4, &allow))
         for device in try objectIDs(CMIOObjectID(kCMIOObjectSystemObject), selector: UInt32(kCMIOHardwarePropertyDevices)) {
             var uidAddress = CMIOObjectPropertyAddress(mSelector: UInt32(kCMIODevicePropertyDeviceUID),
                                                      mScope: UInt32(kCMIOObjectPropertyScopeGlobal), mElement: UInt32(kCMIOObjectPropertyElementMain))
@@ -181,14 +195,16 @@ final class VirtualCameraOutput: @unchecked Sendable {
 
 /// User-facing transport failures that can be resolved during setup.
 enum OutputError: LocalizedError {
+    case cameraAccessDenied
     case cameraUnavailable
     case sinkUnavailable
 
     /// Setup guidance for missing devices or producer streams.
     var errorDescription: String? {
         switch self {
-        case .cameraUnavailable: "Xmax Virtual Camera is unavailable. Install and enable the camera extension first."
-        case .sinkUnavailable: "The camera input stream is unavailable. Quit other Xmax Camera instances and try again."
+        case .cameraAccessDenied: "Allow Xmax Camera in System Settings → Privacy & Security → Camera, then try again."
+        case .cameraUnavailable: "Xmax Virtual Camera is not visible to this app yet. Check extension status, then reopen Xmax Camera if it was just enabled."
+        case .sinkUnavailable: "The virtual camera input queue is unavailable. Reopen Xmax Camera and try again."
         }
     }
 }
