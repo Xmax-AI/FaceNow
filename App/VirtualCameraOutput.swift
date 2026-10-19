@@ -43,7 +43,9 @@ final class VirtualCameraOutput: @unchecked Sendable {
                     self.renderer = renderer
                     self.waitingBuffer = try renderer.waiting()
                     let device = try Self.findDevice()
-                    let streams = try Self.objectIDs(device, selector: UInt32(kCMIODevicePropertyStreams))
+                    let streams = try Self.objectIDs(
+                        device, selector: UInt32(kCMIODevicePropertyStreams), scope: UInt32(kCMIODevicePropertyScopeOutput)
+                    )
                     guard let stream = try streams.first(where: {
                         try Self.uint32($0, selector: UInt32(kCMIOStreamPropertyDirection)) == 0
                     }) else { throw OutputError.sinkUnavailable }
@@ -143,8 +145,12 @@ final class VirtualCameraOutput: @unchecked Sendable {
     }
 
     /// Reads an array of CMIO objects using the property's actual byte size.
-    private static func objectIDs(_ object: CMIOObjectID, selector: CMIOObjectPropertySelector) throws -> [CMIOObjectID] {
-        var address = CMIOObjectPropertyAddress(mSelector: selector, mScope: UInt32(kCMIOObjectPropertyScopeGlobal),
+    private static func objectIDs(
+        _ object: CMIOObjectID,
+        selector: CMIOObjectPropertySelector,
+        scope: CMIOObjectPropertyScope = UInt32(kCMIOObjectPropertyScopeGlobal)
+    ) throws -> [CMIOObjectID] {
+        var address = CMIOObjectPropertyAddress(mSelector: selector, mScope: scope,
                                               mElement: UInt32(kCMIOObjectPropertyElementMain))
         var size: UInt32 = 0
         try check(CMIOObjectGetPropertyDataSize(object, &address, 0, nil, &size))
