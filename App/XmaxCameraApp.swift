@@ -20,9 +20,10 @@ struct XmaxCameraApp: App {
     /// One workspace prevents concurrent producers from the same application.
     var body: some Scene {
         Window("Xmax Camera", id: "camera") {
-            CameraView(session: delegate.session, cameraExtension: delegate.cameraExtension)
+            CameraView(controller: delegate.session, cameraExtension: delegate.cameraExtension)
+                .frame(minWidth: 1180, minHeight: 760)
         }
-        .defaultSize(width: 1120, height: 700)
+        .defaultSize(width: 1360, height: 850)
         .commands { CommandGroup(replacing: .newItem) {} }
     }
 }

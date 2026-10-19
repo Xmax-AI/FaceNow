@@ -32,5 +32,7 @@
 	<string>NSApplication</string>
 	<key>NSSystemExtensionUsageDescription</key>
 	<string>Enable Xmax Virtual Camera to use generated video in meeting apps.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Xmax Camera uses your microphone when you enable microphone capture.</string>
 </dict>
 </plist>

@@ -10,56 +10,93 @@
 
 @preconcurrency import AVFoundation
 import Combine
+import CoreMedia
+import CoreGraphics
 import Foundation
+import ImageIO
 import XmaxSDK
 
-/// Coordinates SDK capture, generation and virtual output without changing SDK ownership.
+/// Coordinates the example workflow, reference uploads, and generated-frame virtual output.
 @MainActor
 final class CameraSessionController: ObservableObject {
-    /// The editable generation settings, frozen while a session is active.
+
+    /// User settings are persisted per user, matching the Web localStorage behavior.
     @Published var apiKey = UserDefaults.standard.string(forKey: "xmax.camera.apiKey") ?? "" {
         didSet { UserDefaults.standard.set(apiKey, forKey: "xmax.camera.apiKey") }
     }
-    @Published var prompt = "A cinematic portrait, natural lighting, detailed face"
-    @Published var model: RealtimeModel = .x2_1_1_preview_cn
+    @Published var prompt = ""
+    @Published var model = RealtimeModel.x2_1_1_preview_cn
+    @Published var statisticsVisible = true
+    @Published var activeMode = RealtimeExampleMode.charx {
+        didSet {
+            selectionIntent = UUID()
+            errorMessage = nil
+        }
+    }
+
+    /// Physical inputs exclude the virtual output to prevent feedback loops.
     @Published var cameraID = ""
-
-    /// Physical inputs exclude this application's virtual output to prevent feedback loops.
     @Published private(set) var cameras: [CaptureDevice] = []
+    @Published private(set) var testPatternActive = false
 
-    /// The visible workflow state and current failure, if any.
-    @Published private(set) var phase: Phase = .idle
-    @Published private(set) var status = "Ready to connect"
-    @Published private(set) var errorMessage: String?
-
-    /// The local preview must remain mounted for the SDK to become ready.
+    /// Display state
+    @Published private(set) var sessionActive = false
     @Published private(set) var localStream: RealtimeMediaStream?
     @Published private(set) var remoteStream: RealtimeMediaStream?
+    @Published private(set) var state = RealtimeState(connectionState: .idle)
+    @Published private(set) var errorMessage: String?
+    @Published private(set) var isBusy = false
+    @Published private(set) var sessionStartedAt: Date?
+    @Published private(set) var selectedReferenceID: String?
+    @Published private(set) var uploadedReferences: [RealtimeReference] = []
+    @Published private(set) var launchTiming = RealtimeLaunchTiming()
+    @Published private(set) var uplinkStatistics: UplinkVideoStatistics?
+    @Published private(set) var downlinkStatistics: DownlinkVideoStatistics?
+    @Published private(set) var networkQuality: RealtimeNetworkQuality?
+    @Published private(set) var interpolationEnabled = false
+    @Published private(set) var interpolationSwitching = false
+    @Published private(set) var remoteAudioVolume: Float = 0
 
-    /// The output worker is independent of both the SDK and the SwiftUI render loop.
+    /// SDK resources and operation ownership
     private let output = VirtualCameraOutput()
-
-    /// Strong SDK ownership lasts until shutdown completes.
+    private var cleanup: Task<Void, Never>?
     private var client: XmaxClient?
     private var manager: (any XmaxRealtimeManaging)?
+    private var lifecycleID = UUID()
+    private var selectionIntent = UUID()
+    private var pendingInitialReference: RealtimeReference?
+    private var application: Task<Void, Never>?
+    private let makeManager: (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging
+    private let uploadImage: (XmaxClient, Data, String, XmaxStorageProgressHandler?) async throws -> URL
 
-    /// Session tokens reject asynchronous callbacks from prior sessions.
-    private var sessionID = UUID()
-    private var preparationTask: Task<Void, Never>?
-    private var generationTask: Task<Void, Never>?
-    private var shutdownTask: Task<Void, Never>?
-    private var pendingPrompt: String?
-    private var isLocalReady = false
+    init(
+        makeManager: @escaping (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging = {
+            $0.createRealtimeManager(options: $1)
+        },
+        uploadImage: @escaping (XmaxClient, Data, String, XmaxStorageProgressHandler?) async throws -> URL = {
+            client, data, name, progress in
+            let storage = try client.createStorageManager()
+            return try await storage.uploadImage(data, fileName: name, contentType: "image/jpeg", progress: progress).url
+        }
+    ) {
+        self.makeManager = makeManager
+        self.uploadImage = uploadImage
+        refreshCameras()
+    }
 
-    /// Discovers inputs without starting capture or requesting permission.
-    init() { refreshCameras() }
+    var hasAPIKey: Bool { !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    var canGenerate: Bool { hasAPIKey && !isBusy && sessionActive }
+    var freeReference: RealtimeReference? { uploadedReferences.first { $0.mode == .free } }
+    var referenceUploading: Bool {
+        uploadedReferences.contains { $0.mode == activeMode && $0.uploadState == .uploading }
+    }
 
-    /// Whether setup fields may be edited.
-    var isIdle: Bool { phase == .idle }
+    /// Setup changes are disabled while capture or virtual output is in use.
+    var settingsLocked: Bool { isBusy || sessionActive || testPatternActive }
 
-    /// Refreshes attached cameras, keeping a valid current selection.
+    /// Discovers physical inputs without opening a capture session.
     func refreshCameras() {
-        guard isIdle else { return }
+        guard !settingsLocked else { return }
         let discovery = AVCaptureDevice.DiscoverySession(
             deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified
         )
@@ -70,150 +107,382 @@ final class CameraSessionController: ObservableObject {
         if !cameras.contains(where: { $0.id == cameraID }) { cameraID = cameras.first?.id ?? "" }
     }
 
-    /// Starts the same sink with color bars, without accessing the camera or Xmax service.
-    func startTestPattern() {
-        guard isIdle else { return }
+    /// Exercises the installed camera transport without starting a generation session.
+    func toggleTestPattern() async {
+        guard !isBusy, !sessionActive else { return }
+        if testPatternActive { await close(); return }
+        isBusy = true
         errorMessage = nil
-        phase = .preparing
-        status = "Connecting virtual camera…"
-        let token = UUID()
-        sessionID = token
-        preparationTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await self.output.start(testPattern: true)
-                guard self.sessionID == token, !Task.isCancelled else { return }
-                self.phase = .testing
-                self.status = "Test pattern is live"
-            } catch {
-                guard self.sessionID == token else { return }
-                self.stop(error: error.localizedDescription)
-            }
+        let operation = lifecycleID
+        await cleanup?.value
+        guard lifecycleID == operation else { return }
+        do {
+            try await output.start(testPattern: true)
+            guard lifecycleID == operation else { return }
+            testPatternActive = true
+            isBusy = false
+        } catch {
+            guard lifecycleID == operation else { return }
+            errorMessage = error.localizedDescription
+            resetSession()
         }
     }
 
-    /// Opens the sink before capture, then waits for a bound preview before generating.
-    func startGeneration() {
-        guard isIdle else { return }
-        guard !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            errorMessage = "Enter an API key and prompt to start generation."
+    /// A capture choice does not retain an AVFoundation device.
+    struct CaptureDevice: Identifiable {
+        let id: String
+        let name: String
+    }
+
+    /// Keeps the landing page during startup and mounts the local preview in the background to satisfy SDK readiness.
+    func start(useMicrophone: Bool = false) async {
+        guard !isBusy, localStream == nil else { return }
+        guard hasAPIKey else {
+            errorMessage = "API Key is required — click the key button in the top-right corner to enter it"
             return
         }
         guard !cameraID.isEmpty else {
             errorMessage = "Connect a physical camera and refresh the camera list."
             return
         }
+        if testPatternActive { resetSession() }
+        isBusy = true
         errorMessage = nil
-        phase = .preparing
-        status = "Connecting virtual camera…"
-        let token = UUID()
-        sessionID = token
-        pendingPrompt = prompt
+        let operation = UUID()
+        lifecycleID = operation
+        await cleanup?.value
+        guard lifecycleID == operation else { return }
+        activeMode = .charx
+        selectedReferenceID = nil
+        launchTiming = RealtimeLaunchTiming()
+        uplinkStatistics = nil
+        downlinkStatistics = nil
+        networkQuality = nil
         let client = XmaxClient(configuration: XmaxConfiguration(
-            apiKey: apiKey, environment: model == .x2_1_1_preview_us ? .global : .china, loggerOptions: .all
+            apiKey: apiKey,
+            environment: model == .x2_1_1_preview_us ? .global : .china,
+            loggerOptions: .all
         ))
-        let manager = client.createRealtimeManager(options: RealtimeConfiguration(model: model))
+        let manager = makeManager(client, RealtimeConfiguration(
+            model: model, isFrameInterpolationEnabled: interpolationEnabled
+        ))
         self.client = client
         self.manager = manager
-        let inputID = cameraID
-        preparationTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await self.output.start(testPattern: false)
-                guard self.sessionID == token, !Task.isCancelled else { return }
-                self.output.frames.reset(producer: token)
-                let mailbox = self.output.frames
-                await manager.setRemoteVideoFrameListener { frame in
-                    mailbox.submit(frame.pixelBuffer, producer: token,
-                                   now: CMClockGetTime(CMClockGetHostTimeClock()).seconds)
+        await manager.setLaunchTimingListener { [weak self] timing in
+            guard let self, self.lifecycleID == operation else { return }
+            self.launchTiming = timing
+        }
+        await manager.setUplinkVideoStatisticsListener { [weak self] statistics in
+            guard let self, self.lifecycleID == operation else { return }
+            self.uplinkStatistics = statistics
+        }
+        await manager.setDownlinkVideoStatisticsListener { [weak self] statistics in
+            guard let self, self.lifecycleID == operation else { return }
+            self.downlinkStatistics = statistics
+        }
+        await manager.setNetworkQualityListener { [weak self] quality in
+            guard let self, self.lifecycleID == operation else { return }
+            self.networkQuality = quality
+        }
+        await manager.setStateListener { [weak self] state in
+            guard let self, self.lifecycleID == operation else { return }
+            self.state = state
+            if [.connected, .generating].contains(state.connectionState), !self.sessionActive {
+                self.sessionActive = true
+                self.sessionStartedAt = Date()
+            }
+            if ![.connected, .generating].contains(state.connectionState) { self.remoteStream = nil }
+            if case let .failure(error) = state.reason {
+                self.errorMessage = error.message
+                if !self.sessionActive {
+                    self.resetSession()
                 }
-                await manager.setStateListener { [weak self] state in
-                    guard let self, self.sessionID == token else { return }
-                    if case let .failure(error) = state.reason {
-                        self.stop(error: error.localizedDescription)
-                        return
-                    }
-                    self.status = state.connectionState.rawValue
-                    self.isLocalReady = state.connectionState == .ready
-                    if self.isLocalReady { self.generateIfReady(token: token) }
-                }
-                guard self.sessionID == token, !Task.isCancelled else { return }
-                self.status = "Starting camera…"
-                let stream = try await manager.createLocalCameraStream(deviceID: inputID, useMicrophone: false)
-                guard self.sessionID == token, !Task.isCancelled else { return }
-                self.localStream = stream
-                self.generateIfReady(token: token)
-            } catch {
-                guard self.sessionID == token else { return }
-                self.stop(error: error.localizedDescription)
+            }
+            if state.connectionState == .ready {
+                Task { [weak self] in await self?.startPendingGeneration() }
             }
         }
-    }
-
-    /// Stops publishing immediately and closes all capture and service resources.
-    func stop(error: String? = nil) {
-        guard phase != .idle, phase != .stopping else { return }
-        sessionID = UUID()
-        pendingPrompt = nil
-        isLocalReady = false
-        preparationTask?.cancel()
-        generationTask?.cancel()
-        output.frames.reset(producer: nil)
-        phase = .stopping
-        status = "Stopping…"
-        if let error { errorMessage = error }
-        let manager = manager
-        shutdownTask = Task { [weak self] in
-            guard let self else { return }
-            await self.output.stop()
-            await manager?.setRemoteVideoFrameListener(nil)
-            await manager?.setStateListener(nil)
-            await manager?.close()
-            self.localStream = nil
-            self.remoteStream = nil
-            self.manager = nil
-            self.client = nil
-            self.preparationTask = nil
-            self.generationTask = nil
-            self.phase = .idle
-            self.status = "Ready to connect"
+        guard lifecycleID == operation else { return }
+        pendingInitialReference = RealtimeExampleMode.charx.presets.first
+        do {
+            try await output.start(testPattern: false)
+            guard lifecycleID == operation else { return }
+            output.frames.reset(producer: operation)
+            let mailbox = output.frames
+            await manager.setRemoteVideoFrameListener { frame in
+                mailbox.submit(frame.pixelBuffer, producer: operation,
+                               now: CMClockGetTime(CMClockGetHostTimeClock()).seconds)
+            }
+            guard lifecycleID == operation else { return }
+            let stream = try await manager.createLocalCameraStream(deviceID: cameraID, useMicrophone: useMicrophone)
+            guard lifecycleID == operation else { await manager.close(); return }
+            localStream = stream
+            try await manager.setRemoteAudioVolume(remoteAudioVolume)
+            await startPendingGeneration()
+        } catch {
+            guard lifecycleID == operation else { return }
+            errorMessage = error.localizedDescription
+            resetSession()
+            await cleanup?.value
         }
     }
 
-    /// Finishes cleanup before macOS terminates the host app.
+    /// Consumes the initial preset once, opens the session page after connection succeeds, and releases the camera on failure.
+    private func startPendingGeneration() async {
+        guard state.connectionState == .ready, localStream != nil,
+              let reference = pendingInitialReference else { return }
+        pendingInitialReference = nil
+        let operation = lifecycleID
+        do {
+            selectedReferenceID = reference.id
+            try await generate(reference: reference)
+        } catch {
+            guard lifecycleID == operation else { return }
+            errorMessage = error.localizedDescription
+            if !sessionActive {
+                resetSession()
+                await cleanup?.value
+            }
+        }
+        if lifecycleID == operation { isBusy = false }
+    }
+
+    /// Condition updates keep the page interactive; selections are applied serially with only the latest pending selection retained.
+    func selectReference(_ reference: RealtimeReference) async {
+        guard canGenerate, reference.uploadState != .uploading else { return }
+        let intent = UUID()
+        selectionIntent = intent
+        if reference.uploadState == .error {
+            await upload(reference: reference, intent: intent)
+        } else {
+            await enqueue(reference: reference, intent: intent)
+        }
+    }
+
+    /// Free Prompt and image selection share the generation queue; switching tabs alone does not regenerate.
+    func submitPrompt() async {
+        guard canGenerate, !referenceUploading else { return }
+        let reference = RealtimeReference(
+            id: freeReference?.id ?? UUID().uuidString, mode: .free, name: "",
+            thumbnailURL: freeReference?.thumbnailURL ?? URL(fileURLWithPath: "/"),
+            referencePath: freeReference?.referencePath ?? "", prompt: prompt
+        )
+        let intent = UUID()
+        selectionIntent = intent
+        await enqueue(reference: reference, intent: intent)
+    }
+
+    /// Local files appear first immediately; per-item progress and retries leave other controls available.
+    func uploadReference(at fileURL: URL, mode: RealtimeExampleMode) async {
+        guard canGenerate else { return }
+        let scoped = fileURL.startAccessingSecurityScopedResource()
+        defer { if scoped { fileURL.stopAccessingSecurityScopedResource() } }
+        do {
+            let data = try Data(contentsOf: fileURL)
+            guard !data.isEmpty else {
+                throw CocoaError(.fileReadCorruptFile)
+            }
+            let reference = RealtimeReference(
+                id: UUID().uuidString, mode: mode, name: fileURL.lastPathComponent,
+                thumbnailURL: fileURL, referencePath: "", thumbnailData: data,
+                prompt: mode == .free ? prompt : mode.prompt
+            )
+            uploadedReferences.insert(reference, at: 0)
+            let intent = UUID()
+            selectionIntent = intent
+            await upload(reference: reference, intent: intent)
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    private func upload(reference: RealtimeReference, intent: UUID) async {
+        guard let client, let data = reference.thumbnailData else { return }
+        let operation = lifecycleID
+        patchReference(reference.id) { $0.uploadState = .uploading; $0.uploadError = nil; $0.uploadProgress = 0 }
+        errorMessage = nil
+        do {
+            let jpeg = try await Task.detached { try Self.jpegData(data) }.value
+            let uploadedURL = try await uploadImage(
+                client, jpeg, (reference.name as NSString).deletingPathExtension + ".jpg"
+            ) { [weak self] progress in
+                let fraction = progress.fractionCompleted
+                Task { @MainActor in
+                    guard let self else { return }
+                    self.patchReference(reference.id) { $0.uploadProgress = fraction }
+                }
+            }
+            patchReference(reference.id) {
+                $0.referencePath = uploadedURL.absoluteString
+                $0.uploadState = .ready
+                $0.uploadProgress = 1
+            }
+            guard lifecycleID == operation else { return }
+            if let ready = uploadedReferences.first(where: { $0.id == reference.id }) {
+                await enqueue(reference: ready, intent: intent)
+            }
+        } catch {
+            patchReference(reference.id) { $0.uploadState = .error; $0.uploadError = error.localizedDescription }
+            guard lifecycleID == operation else { return }
+            if selectionIntent == intent { errorMessage = error.localizedDescription }
+        }
+    }
+
+    private func patchReference(_ id: String, update: (inout RealtimeReference) -> Void) {
+        guard let index = uploadedReferences.firstIndex(where: { $0.id == id }) else { return }
+        update(&uploadedReferences[index])
+    }
+
+    private func enqueue(reference: RealtimeReference, intent: UUID) async {
+        let previous = application
+        let operation = lifecycleID
+        let task = Task { [weak self] in
+            await previous?.value
+            guard let self, self.lifecycleID == operation, self.selectionIntent == intent else { return }
+            self.errorMessage = nil
+            self.selectedReferenceID = reference.mode == .free && reference.referencePath.isEmpty ? nil : reference.id
+            if reference.mode == .free { self.prompt = reference.prompt ?? self.prompt }
+            do { try await self.generate(reference: reference) }
+            catch {
+                if self.lifecycleID == operation, self.selectionIntent == intent {
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
+        application = task
+        await task.value
+    }
+
+    private func generate(reference: RealtimeReference) async throws {
+        guard let manager, let localStream else { return }
+        let operation = lifecycleID
+        let remote = try await manager.startGeneration(
+            localStream: localStream,
+            context: RealtimeContext(prompt: reference.prompt ?? reference.mode.prompt,
+                                     referencePath: reference.referencePath.isEmpty ? nil : reference.referencePath),
+            faceRestoration: reference.mode.faceRestoration
+        )
+        guard lifecycleID == operation else { return }
+        remoteStream = remote
+    }
+
+    func removeFreeReference() {
+        guard !isBusy, let reference = freeReference else { return }
+        selectionIntent = UUID()
+        if selectedReferenceID == reference.id { selectedReferenceID = nil }
+        uploadedReferences.removeAll { $0.id == reference.id }
+    }
+
+    /// Synchronizes the SDK interpolation setting and fallback state without updating buttons for every frame.
+    func refreshInterpolationState() async {
+        let operation = lifecycleID
+        guard let manager else { return }
+        let enabled = await manager.isFrameInterpolationEnabled
+        if lifecycleID == operation { interpolationEnabled = enabled }
+    }
+
+    func toggleInterpolation() async {
+        guard sessionActive, !isBusy, let manager else { return }
+        let operation = lifecycleID
+        isBusy = true
+        interpolationSwitching = true
+        errorMessage = nil
+        do { try await manager.setFrameInterpolationEnabled(!interpolationEnabled) }
+        catch { if lifecycleID == operation { errorMessage = error.localizedDescription } }
+        guard lifecycleID == operation else { return }
+        await refreshInterpolationState()
+        isBusy = false
+        interpolationSwitching = false
+    }
+
+    func setRemoteAudioVolume(_ volume: Float) async {
+        guard let manager else { return }
+        let operation = lifecycleID
+        do {
+            try await manager.setRemoteAudioVolume(volume)
+            if lifecycleID == operation { remoteAudioVolume = volume }
+        } catch { if lifecycleID == operation { errorMessage = error.localizedDescription } }
+    }
+
+    func dismissError() { errorMessage = nil }
+
+    /// Returns to the landing page and joins cleanup before allowing another producer to start.
+    func close() async {
+        guard !isBusy else { return }
+        resetSession()
+        errorMessage = nil
+        await cleanup?.value
+    }
+
+    /// Releases capture and output when the workspace disappears.
+    func viewDidDisappear() { resetSession() }
+
+    /// Quit also cancels an in-flight startup and waits for the sink to close.
     func shutdown() async {
-        stop()
-        await shutdownTask?.value
+        resetSession()
+        await cleanup?.value
     }
 
-    /// Starts exactly once after the SDK confirms preview readiness.
-    private func generateIfReady(token: UUID) {
-        guard sessionID == token, generationTask == nil, isLocalReady,
-              let manager, let stream = localStream, let prompt = pendingPrompt else { return }
-        generationTask = Task { [weak self] in
-            guard let self, self.sessionID == token, !Task.isCancelled else { return }
-            self.pendingPrompt = nil
-            self.status = "Starting generation…"
-            do {
-                let remote = try await manager.startGeneration(localStream: stream, context: RealtimeContext(prompt: prompt))
-                guard self.sessionID == token, !Task.isCancelled else { return }
-                self.remoteStream = remote
-                self.phase = .generating
-                self.status = "Generated video is live"
-            } catch {
-                guard self.sessionID == token else { return }
-                self.stop(error: error.localizedDescription)
-            }
+    private func resetSession() {
+        let previousCleanup = cleanup
+        let closingManager = manager
+        let closingClient = client
+        output.frames.reset(producer: nil)
+        application?.cancel()
+        cleanup = Task { [output] in
+            await previousCleanup?.value
+            await output.stop()
+            await closingManager?.setRemoteVideoFrameListener(nil)
+            await closingManager?.setStateListener(nil)
+            await closingManager?.close()
+            withExtendedLifetime(closingClient) {}
         }
+        testPatternActive = false
+        lifecycleID = UUID()
+        selectionIntent = UUID()
+        pendingInitialReference = nil
+        application = nil
+        manager = nil
+        client = nil
+        sessionActive = false
+        isBusy = false
+        interpolationSwitching = false
+        localStream = nil
+        remoteStream = nil
+        state = RealtimeState(connectionState: .idle)
+        sessionStartedAt = nil
+        selectedReferenceID = nil
+        launchTiming = RealtimeLaunchTiming()
+        uplinkStatistics = nil
+        downlinkStatistics = nil
+        networkQuality = nil
     }
 
-    /// The host's visible lifecycle, including cancellable preparation.
-    enum Phase { case idle, preparing, testing, generating, stopping }
-
-    /// A lightweight capture-device choice without retaining AVFoundation objects.
-    struct CaptureDevice: Identifiable {
-        let id: String
-        let name: String
+    /// Preserves the original dimensions and uploads white-background JPEG at 0.9 quality to avoid black transparent areas.
+    nonisolated private static func jpegData(_ data: Data) throws -> Data {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = properties[kCGImagePropertyPixelWidth] as? Int,
+              let height = properties[kCGImagePropertyPixelHeight] as? Int,
+              let image = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                  kCGImageSourceCreateThumbnailFromImageAlways: true,
+                  kCGImageSourceCreateThumbnailWithTransform: true,
+                  kCGImageSourceThumbnailMaxPixelSize: max(width, height)
+              ] as CFDictionary),
+              let context = CGContext(data: nil, width: image.width, height: image.height,
+                                      bitsPerComponent: 8, bytesPerRow: 0,
+                                      space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else {
+            throw NSError(domain: "XmaxCamera", code: 1, userInfo: [NSLocalizedDescriptionKey:
+                "Unable to decode reference image; please choose a supported image file"])
+        }
+        context.setFillColor(CGColor(gray: 1, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        let output = NSMutableData()
+        guard let flattened = context.makeImage(),
+              let destination = CGImageDestinationCreateWithData(output, "public.jpeg" as CFString, 1, nil) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        CGImageDestinationAddImage(destination, flattened, [kCGImageDestinationLossyCompressionQuality: 0.9] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { throw CocoaError(.fileWriteUnknown) }
+        return output as Data
     }
 }
