@@ -157,7 +157,8 @@ final class VideoFrameRenderer {
                                                y: logoHeight / CGFloat(logo.height)))
             .transformed(by: CGAffineTransform(translationX: (width - logoWidth) / 2,
                                                y: (height - logoHeight) / 2))
-        let background = CIImage(color: .white).cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
+        let background = CIImage(color: CIColor(red: 241.0 / 255, green: 243.0 / 255, blue: 244.0 / 255))
+            .cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
         return image.composited(over: background).transformed(by: CGAffineTransform(
             a: -1, b: 0, c: 0, d: 1, tx: width, ty: 0
         ))
