@@ -64,7 +64,7 @@ final class VideoFrameRenderer {
         return try render(fitted.composited(over: CIImage(color: .black).cropped(to: bounds)))
     }
 
-    /// Returns an offline frame that does not expose the last generated image indefinitely.
+    /// Returns a mirrored offline card without exposing the last generated image indefinitely.
     func waiting() throws -> CVPixelBuffer {
         try render(waitingImage)
     }
@@ -135,7 +135,7 @@ final class VideoFrameRenderer {
         CVBufferSetAttachment(buffer, kCVImageBufferYCbCrMatrixKey, kCVImageBufferYCbCrMatrix_ITU_R_709_2, .shouldPropagate)
     }
 
-    /// Builds the offline card once using frameworks available inside camera extensions.
+    /// Builds a horizontally mirrored offline card once for mirrored meeting self-views.
     private static func makeWaitingImage() -> CIImage {
         let width = CameraConfiguration.width
         let height = CameraConfiguration.height
@@ -154,7 +154,9 @@ final class VideoFrameRenderer {
             context.textPosition = CGPoint(x: (Double(width) - lineWidth) / 2, y: y)
             CTLineDraw(line, context)
         }
-        return CIImage(cgImage: context.makeImage()!)
+        return CIImage(cgImage: context.makeImage()!).transformed(by: CGAffineTransform(
+            a: -1, b: 0, c: 0, d: 1, tx: CGFloat(width), ty: 0
+        ))
     }
 
     /// Converts framework status codes into actionable errors.
