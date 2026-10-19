@@ -51,7 +51,7 @@ final class CameraProvider: NSObject, CMIOExtensionProviderSource {
     func setProviderProperties(_ providerProperties: CMIOExtensionProviderProperties) throws {}
 }
 
-/// Routes the host sink into the camera source using a bounded latest-frame mailbox.
+/// Routes the paced host sink into the camera source using a bounded timestamped queue.
 /// All mutable state is confined to the provider queue.
 final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked Sendable {
     /// The device and its two independently controlled streams.
@@ -73,7 +73,8 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     private var producerClient: CMIOExtensionClient?
     private var producerToken = UUID()
     private var consumeIsPending = false
-    private let frames = LatestFrameStore()
+    private let frames = ScheduledFrameStore(usesHostTime: true, playoutDelay: 0)
+    private var outputTick = 0
 
     /// The logger records transport failures without logging frame contents.
     private let logger = Logger(subsystem: CameraConfiguration.extensionBundleID, category: "Camera")
@@ -86,13 +87,15 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
         super.init()
         device = CMIOExtensionDevice(localizedName: CameraConfiguration.deviceName,
                                      deviceID: CameraConfiguration.deviceID, legacyDeviceID: nil, source: self)
-        let format = CMIOExtensionStreamFormat(
-            formatDescription: renderer.formatDescription,
-            maxFrameDuration: CameraConfiguration.frameDuration,
-            minFrameDuration: CameraConfiguration.frameDuration, validFrameDurations: nil
-        )
-        source = CameraStreamSource(device: self, direction: .source, format: format)
-        sink = CameraStreamSource(device: self, direction: .sink, format: format)
+        let formats = CameraConfiguration.sourceFrameRates.map { rate in
+            let duration = CMTime(value: 1, timescale: Int32(rate))
+            return CMIOExtensionStreamFormat(
+                formatDescription: renderer.formatDescription,
+                maxFrameDuration: duration, minFrameDuration: duration, validFrameDurations: nil
+            )
+        }
+        source = CameraStreamSource(device: self, direction: .source, formats: formats)
+        sink = CameraStreamSource(device: self, direction: .sink, formats: [formats[0]])
         try device.addStream(source.stream)
         try device.addStream(sink.stream)
     }
@@ -168,10 +171,12 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
             consume(client: client, token: producerToken)
         }
         guard consumerCount > 0 else { return }
+        outputTick = (outputTick + 1) % CameraConfiguration.frameRate
+        guard outputTick.isMultiple(of: CameraConfiguration.frameRate / source.frameRate) else { return }
         let time = CMClockGetTime(CMClockGetHostTimeClock())
-        let pixelBuffer = frames.latest(now: time.seconds)?.pixelBuffer ?? waitingBuffer
+        let pixelBuffer = frames.frame(now: time.seconds, preferLatest: source.frameRate < CameraConfiguration.frameRate)?.pixelBuffer ?? waitingBuffer
         do {
-            let sample = try renderer.sampleBuffer(pixelBuffer, at: time)
+            let sample = try renderer.sampleBuffer(pixelBuffer, at: time, duration: source.frameDuration)
             source.stream.send(sample, discontinuity: [], hostTimeInNanoseconds: UInt64(time.seconds * 1_000_000_000))
         } catch {
             logger.error("Cannot create camera sample: \(error.localizedDescription, privacy: .public)")
@@ -181,8 +186,8 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     /// Defers completion processing to the provider queue and rejects stale callbacks.
     private func consume(client: CMIOExtensionClient, token: UUID) {
         consumeIsPending = true
-        sink.stream.consumeSampleBuffer(from: client) { [weak self] sample, sequence, _, _, error in
-            let result = ConsumedFrame(sample: sample, sequence: sequence, error: error)
+        sink.stream.consumeSampleBuffer(from: client) { [weak self] sample, sequence, _, hasMore, error in
+            let result = ConsumedFrame(sample: sample, sequence: sequence, hasMore: hasMore, error: error)
             self?.queue.async { [weak self] in
                 guard let self, self.producerIsRunning, self.producerToken == token else { return }
                 self.consumeIsPending = false
@@ -194,10 +199,11 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
                       CVPixelBufferGetHeight(buffer) == CameraConfiguration.height,
                       CVPixelBufferGetPixelFormatType(buffer) == CameraConfiguration.pixelFormat else { return }
                 let time = CMClockGetTime(CMClockGetHostTimeClock())
-                self.frames.submit(buffer, producer: token, now: time.seconds)
+                self.frames.submit(buffer, producer: token, timestamp: CMSampleBufferGetPresentationTimeStamp(sample).seconds, now: time.seconds)
                 self.sink.stream.notifyScheduledOutputChanged(CMIOExtensionScheduledOutput(
                     sequenceNumber: result.sequence, hostTimeInNanoseconds: UInt64(time.seconds * 1_000_000_000)
                 ))
+                if result.hasMore { self.consume(client: client, token: token) }
             }
         }
     }
@@ -207,6 +213,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
 private struct ConsumedFrame: @unchecked Sendable {
     let sample: CMSampleBuffer?
     let sequence: UInt64
+    let hasMore: Bool
     let error: Error?
 }
 

@@ -210,7 +210,7 @@ final class CameraSessionController: ObservableObject {
             output.frames.reset(producer: operation)
             let mailbox = output.frames
             await manager.setRemoteVideoFrameListener { frame in
-                mailbox.submit(frame.pixelBuffer, producer: operation,
+                mailbox.submit(frame.pixelBuffer, producer: operation, timestamp: frame.presentationTimeStamp.seconds,
                                now: CMClockGetTime(CMClockGetHostTimeClock()).seconds)
             }
             guard lifecycleID == operation else { return }

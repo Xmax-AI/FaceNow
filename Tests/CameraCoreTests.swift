@@ -17,47 +17,120 @@ import XCTest
 final class CameraCoreTests: XCTestCase {
     /// A stopped producer cannot repopulate the mailbox with a late SDK callback.
     func testRestartRejectsOldProducer() throws {
-        let store = LatestFrameStore()
+        let store = ScheduledFrameStore(playoutDelay: 0)
         let old = UUID()
         let current = UUID()
         let buffer = try makeBuffer()
         store.reset(producer: old)
-        store.submit(buffer, producer: old, now: 10)
+        store.submit(buffer, producer: old, timestamp: 10, now: 10)
         store.reset(producer: current)
-        store.submit(buffer, producer: old, now: 11)
-        XCTAssertNil(store.latest(now: 11))
-        store.submit(buffer, producer: current, now: 12)
-        XCTAssertNotNil(store.latest(now: 12))
+        store.submit(buffer, producer: old, timestamp: 11, now: 11)
+        XCTAssertNil(store.frame(now: 11))
+        store.submit(buffer, producer: current, timestamp: 12, now: 12)
+        XCTAssertNotNil(store.frame(now: 12))
         store.reset(producer: nil)
-        store.submit(buffer, producer: current, now: 13)
-        XCTAssertNil(store.latest(now: 13))
+        store.submit(buffer, producer: current, timestamp: 13, now: 13)
+        XCTAssertNil(store.frame(now: 13))
     }
 
     /// A slow consumer sees only the newest frame, with a strict expiry.
     func testLatestFrameAndStaleness() throws {
-        let store = LatestFrameStore()
+        let store = ScheduledFrameStore(playoutDelay: 0)
         let producer = UUID()
         store.reset(producer: producer)
         let first = try makeBuffer()
         let latest = try makeBuffer()
-        store.submit(first, producer: producer, now: 10)
-        store.submit(latest, producer: producer, now: 11)
-        XCTAssertTrue(store.latest(now: 11.5)?.pixelBuffer === latest)
-        XCTAssertNil(store.latest(now: 13))
+        store.submit(first, producer: producer, timestamp: 10, now: 10)
+        _ = store.frame(now: 10)
+        store.submit(latest, producer: producer, timestamp: 11, now: 11)
+        _ = store.frame(now: 11)
+        XCTAssertTrue(store.frame(now: 11.5)?.pixelBuffer === latest)
+        XCTAssertNil(store.frame(now: 13))
     }
 
     /// Concurrent SDK delivery and stop operations cannot revive expired sessions.
     func testConcurrentHandoffRemainsStopped() throws {
-        let store = LatestFrameStore()
+        let store = ScheduledFrameStore(playoutDelay: 0)
         let producer = UUID()
-        let frame = VideoFrame(pixelBuffer: try makeBuffer(), receivedAt: 1)
+        let frame = try makeBuffer()
         store.reset(producer: producer)
         DispatchQueue.concurrentPerform(iterations: 1000) { index in
             if index.isMultiple(of: 5) { store.reset(producer: nil) }
-            store.submit(frame.pixelBuffer, producer: producer, now: Double(index))
-            _ = store.latest(now: Double(index))
+            store.submit(frame, producer: producer, timestamp: Double(index), now: Double(index))
+            _ = store.frame(now: Double(index))
         }
-        XCTAssertNil(store.latest(now: 1000))
+        XCTAssertNil(store.frame(now: 1000))
+    }
+
+    /// Intermediate and original frames arriving together retain separate display slots.
+    func testInterpolationBurstPreservesPresentationOrder() throws {
+        let store = ScheduledFrameStore(playoutDelay: 0.04)
+        let producer = UUID()
+        store.reset(producer: producer)
+        let first = try makeBuffer()
+        let intermediate = try makeBuffer()
+        let original = try makeBuffer()
+        store.submit(first, producer: producer, timestamp: 100, now: 10)
+        store.submit(intermediate, producer: producer, timestamp: 100 + 1.0 / 60, now: 10 + 1.0 / 30)
+        store.submit(original, producer: producer, timestamp: 100 + 1.0 / 30, now: 10 + 1.0 / 30)
+        XCTAssertNil(store.frame(now: 10.03))
+        XCTAssertTrue(store.frame(now: 10.04)?.pixelBuffer === first)
+        XCTAssertTrue(store.frame(now: 10.04 + 1.0 / 60)?.pixelBuffer === intermediate)
+        XCTAssertTrue(store.frame(now: 10.04 + 1.0 / 30)?.pixelBuffer === original)
+    }
+
+    /// A 60 fps transport preserves 48 fps interpolation bursts without overwriting intermediate frames.
+    func testSixtyFpsConsumerPreservesFortyEightFpsBursts() throws {
+        let store = ScheduledFrameStore(playoutDelay: 0.05)
+        let producer = UUID()
+        store.reset(producer: producer)
+        let frames = try (0..<97).map { _ in try makeBuffer() }
+        var submitted = 0
+        var presented: [Int] = []
+        for tick in 0..<130 {
+            let now = Double(tick) / 60
+            while submitted < frames.count {
+                let arrival = submitted == 0 ? 0 : Double((submitted + 1) / 2) / 24
+                guard arrival <= now + 0.000001 else { break }
+                store.submit(frames[submitted], producer: producer, timestamp: Double(submitted) / 48, now: arrival)
+                submitted += 1
+            }
+            if let frame = store.frame(now: now), let index = frames.firstIndex(where: { $0 === frame.pixelBuffer }),
+               presented.last != index { presented.append(index) }
+        }
+        XCTAssertEqual(presented, Array(frames.indices))
+    }
+
+    /// Lower-rate clients select the newest due frame instead of accumulating latency.
+    func testThirtyFpsConsumerSkipsDueFramesAndQueueIsBounded() throws {
+        let store = ScheduledFrameStore(usesHostTime: true, playoutDelay: 0)
+        let producer = UUID()
+        store.reset(producer: producer)
+        let frames = try (0..<20).map { _ in try makeBuffer() }
+        for index in frames.indices {
+            store.submit(frames[index], producer: producer, timestamp: 10 + Double(index) / 1000, now: 10)
+        }
+        XCTAssertEqual(store.pendingFrameCount, 8)
+        XCTAssertTrue(store.frame(now: 10.03, preferLatest: true)?.pixelBuffer === frames.last!)
+        XCTAssertEqual(store.pendingFrameCount, 0)
+    }
+
+    /// Stalls and timestamp restarts cannot leave an old queue ahead of the current session.
+    func testTimelineRestartRebasesAndExpiredFramesAreReleased() throws {
+        let store = ScheduledFrameStore(playoutDelay: 0.04)
+        let producer = UUID()
+        store.reset(producer: producer)
+        let first = try makeBuffer()
+        let restarted = try makeBuffer()
+        store.submit(first, producer: producer, timestamp: 100, now: 1)
+        store.submit(restarted, producer: producer, timestamp: 1, now: 2)
+        XCTAssertNil(store.frame(now: 2))
+        XCTAssertTrue(store.frame(now: 2.04)?.pixelBuffer === restarted)
+        XCTAssertNil(store.frame(now: 4.1))
+        let resumed = try makeBuffer()
+        store.submit(resumed, producer: producer, timestamp: 1.02, now: 5)
+        XCTAssertNil(store.frame(now: 5))
+        XCTAssertTrue(store.frame(now: 5.04)?.pixelBuffer === resumed)
     }
 
     /// Wide and portrait model outputs are centered with their aspect ratio intact.

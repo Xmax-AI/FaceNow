@@ -14,15 +14,17 @@ import Foundation
 import os
 
 /// Produces fixed-rate camera frames without queuing work on the SDK callback thread.
-/// Transport state is confined to the worker queue; the mailbox alone crosses queues.
+/// Transport state is confined to the worker queue; the frame scheduler alone crosses queues.
 final class VirtualCameraOutput: @unchecked Sendable {
-    /// The fast single-slot entry point for generated frames.
-    let frames = LatestFrameStore()
+    /// The timestamped, bounded entry point for generated frames.
+    let frames = ScheduledFrameStore()
 
     /// The serial transport queue and bounded renderer.
     private let worker = DispatchQueue(label: "ai.xmax.camera.output", qos: .userInitiated)
     private var renderer: VideoFrameRenderer?
     private var waitingBuffer: CVPixelBuffer?
+    private var renderedInput: CVPixelBuffer?
+    private var renderedOutput: CVPixelBuffer?
 
     /// The active CMIO sink and system-owned consumption queue.
     private var deviceID: CMIODeviceID = 0
@@ -103,9 +105,16 @@ final class VirtualCameraOutput: @unchecked Sendable {
             let buffer: CVPixelBuffer
             if isTestPattern {
                 buffer = try renderer.testPattern(at: time.seconds)
-            } else if let frame = frames.latest(now: time.seconds) {
-                buffer = try renderer.normalize(frame.pixelBuffer)
+            } else if let frame = frames.frame(now: time.seconds) {
+                if renderedInput !== frame.pixelBuffer {
+                    renderedOutput = try renderer.normalize(frame.pixelBuffer)
+                    renderedInput = frame.pixelBuffer
+                }
+                guard let renderedOutput else { return }
+                buffer = renderedOutput
             } else if let waitingBuffer {
+                renderedInput = nil
+                renderedOutput = nil
                 buffer = waitingBuffer
             } else {
                 return
@@ -137,6 +146,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
         bufferQueue = nil
         deviceID = 0
         streamID = 0
+        renderedInput = nil
+        renderedOutput = nil
         renderer = nil
         waitingBuffer = nil
         frames.reset(producer: nil)

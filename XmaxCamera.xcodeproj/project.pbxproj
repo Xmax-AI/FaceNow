@@ -11,16 +11,16 @@
 		0EFD2926CF9B6217858923B2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F45DDBCF2262F852E3ACAB /* main.swift */; };
 		24EBD686F04593528B662379 /* RealtimeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C61510EA63A1D41DB290439 /* RealtimeComponents.swift */; };
 		2B79F366B5DF74C2D79A7D8E /* xmax-wordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */; };
+		2C39C162ED9051E8FD5C7FEC /* ScheduledFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */; };
 		2FE1C04483A5A36F7913C541 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2389FE4BD8222A64AF3DB /* CameraView.swift */; };
-		317F4A8FE6843817B7B6F166 /* LatestFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027AB95A198B5D6DD9A6FE84 /* LatestFrameStore.swift */; };
 		37EE2F298FE0D89986C6952F /* XmaxSDK in Frameworks */ = {isa = PBXBuildFile; productRef = DD026C4A2E5517ABACE1429F /* XmaxSDK */; };
-		4083C842CA6FEA4E1DA65965 /* LatestFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027AB95A198B5D6DD9A6FE84 /* LatestFrameStore.swift */; };
 		49090ACD15B211A4D7598D37 /* CameraStreamSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB07A62B54184A9EDD5EFA76 /* CameraStreamSource.swift */; };
 		53274E996AA64BA9F7D07367 /* DMSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1A22CD6B34B787588C6F7637 /* DMSans.ttf */; };
 		67B2B5A362C554E6CDDCD5D6 /* DMSans-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = FAFDD084ECE3F2F08F776C50 /* DMSans-OFL.txt */; };
 		85CD855B5A0DDFE40B110C1F /* xmax-wordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */; };
 		8E6E6D32D82A1CA81BB6A398 /* CameraSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6378AECA331EA9BB021F20 /* CameraSessionController.swift */; };
 		9CE41792B9C0D5D89D1844C5 /* RealtimePresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA439C9A2B3AE41EBF7580EB /* RealtimePresets.swift */; };
+		A0090B863FDE4F32DA5CA00B /* ScheduledFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */; };
 		B3F6DD344D90AD7D418FCC24 /* CameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* CameraConfiguration.swift */; };
 		B5B8572335FDDCE46D15445E /* CameraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3762F515C2691E64BD4396C /* CameraProvider.swift */; };
 		BA1C06CE2A59536B28348F7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35AE350B17E3ECBF2E1C46F5 /* Cocoa.framework */; };
@@ -61,7 +61,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		027AB95A198B5D6DD9A6FE84 /* LatestFrameStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LatestFrameStore.swift; sourceTree = "<group>"; };
 		0312EDF570FA115B8ABFA5F5 /* VirtualCameraOutput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VirtualCameraOutput.swift; sourceTree = "<group>"; };
 		1A22CD6B34B787588C6F7637 /* DMSans.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = DMSans.ttf; path = Fonts/DMSans.ttf; sourceTree = "<group>"; };
 		218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VideoFrameRenderer.swift; sourceTree = "<group>"; };
@@ -83,6 +82,7 @@
 		C6A71B702AAD312D95A42ACB /* XmaxCamera.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = XmaxCamera.entitlements; sourceTree = "<group>"; };
 		CA439C9A2B3AE41EBF7580EB /* RealtimePresets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RealtimePresets.swift; sourceTree = "<group>"; };
 		CC88E9DB0406DDCBF3772891 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduledFrameStore.swift; sourceTree = "<group>"; };
 		DFA2389FE4BD8222A64AF3DB /* CameraView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		EB07A62B54184A9EDD5EFA76 /* CameraStreamSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraStreamSource.swift; sourceTree = "<group>"; };
 		EB6378AECA331EA9BB021F20 /* CameraSessionController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraSessionController.swift; sourceTree = "<group>"; };
@@ -134,10 +134,10 @@
 			isa = PBXGroup;
 			children = (
 				FE595473F6330AEFFC852098 /* CameraConfiguration.swift */,
-				027AB95A198B5D6DD9A6FE84 /* LatestFrameStore.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
 				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
 				7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */,
+				DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -334,8 +334,8 @@
 				49090ACD15B211A4D7598D37 /* CameraStreamSource.swift in Sources */,
 				0EFD2926CF9B6217858923B2 /* main.swift in Sources */,
 				B3F6DD344D90AD7D418FCC24 /* CameraConfiguration.swift in Sources */,
-				4083C842CA6FEA4E1DA65965 /* LatestFrameStore.swift in Sources */,
 				DCD50B63659C368C25C9C6E1 /* VideoFrameRenderer.swift in Sources */,
+				A0090B863FDE4F32DA5CA00B /* ScheduledFrameStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,11 +349,11 @@
 				DBD9711216C85CEAE3C9140F /* VirtualCameraOutput.swift in Sources */,
 				072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */,
 				FBB1B12A3D6744AC6004BA41 /* CameraConfiguration.swift in Sources */,
-				317F4A8FE6843817B7B6F166 /* LatestFrameStore.swift in Sources */,
 				CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */,
 				FF1AB2EF90EB2BD91121E442 /* CameraHomeControls.swift in Sources */,
 				24EBD686F04593528B662379 /* RealtimeComponents.swift in Sources */,
 				9CE41792B9C0D5D89D1844C5 /* RealtimePresets.swift in Sources */,
+				2C39C162ED9051E8FD5C7FEC /* ScheduledFrameStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

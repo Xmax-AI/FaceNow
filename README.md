@@ -43,9 +43,9 @@ The API key is cached in this application's UserDefaults under `xmax.camera.apiK
 ```text
 Physical camera → XmaxSDK → generated frame callback
                                   ↓
-                         latest-frame mailbox
+                         timestamped bounded queue
                                   ↓
-                  aspect fit → 1280 × 720 NV12 @ 30 fps
+                  aspect fit → 1280 × 720 NV12 @ 60 fps (30 fps fallback)
                                   ↓
                  CMIO sink → Camera Extension → CMIO source
                                                     ↓
@@ -55,7 +55,7 @@ Physical camera → XmaxSDK → generated frame callback
 - `App/CameraSessionController.swift` owns the SDK lifecycle. The local preview remains mounted while waiting for SDK readiness. Session tokens reject late callbacks after stop or restart.
 - `App/VirtualCameraOutput.swift` normalizes frames on a dedicated queue and enqueues retained sample buffers into the CMIO sink. It drops work when the two-buffer queue is full.
 - `CameraExtension/` owns the stable virtual device and source/sink streams. Producer and consumer lifecycles are independent. The sink accepts a single producer with the host signing identifier; meeting clients read the source.
-- `Shared/` defines the transport contract, bounded mailbox and renderer. The extension uses only system frameworks and has no XmaxSDK dependency.
+- `Shared/` defines the transport contract, bounded timestamped queue and renderer. The extension uses only system frameworks and has no XmaxSDK dependency.
 
 No additional mirroring is applied to generated frames. Generation dimensions are fitted with black bars, preserving aspect ratio. Source samples use the macOS host clock. Frames older than two seconds are replaced with the waiting card. No App Group file polling or private IPC is used for video transport.
 

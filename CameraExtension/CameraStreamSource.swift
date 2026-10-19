@@ -10,8 +10,9 @@
 
 import CoreMediaIO
 import Foundation
+import os
 
-/// Exposes one fixed-format source or sink and delegates lifecycle to the device.
+/// Exposes negotiated source frame rates and a fixed 60 fps producer sink.
 final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     /// The system-facing stream.
     private(set) var stream: CMIOExtensionStream!
@@ -19,18 +20,21 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     /// The device owns this source for its entire lifetime.
     private unowned let device: CameraDeviceSource
 
-    /// The stream direction and single supported media format.
+    /// The stream direction and supported media formats.
+    private let logger = Logger(subsystem: CameraConfiguration.extensionBundleID, category: "Stream")
     private let direction: CMIOExtensionStream.Direction
     let formats: [CMIOExtensionStreamFormat]
 
-    /// This camera intentionally exposes a single fixed format.
-    var activeFormatIndex = 0
+    /// The negotiated format determines source delivery cadence and sample duration.
+    private(set) var activeFormatIndex = 0
+    var frameDuration: CMTime { formats[activeFormatIndex].minFrameDuration }
+    var frameRate: Int { Int((1 / frameDuration.seconds).rounded()) }
 
     /// Builds either a camera consumer stream or a producer sink.
-    init(device: CameraDeviceSource, direction: CMIOExtensionStream.Direction, format: CMIOExtensionStreamFormat) {
+    init(device: CameraDeviceSource, direction: CMIOExtensionStream.Direction, formats: [CMIOExtensionStreamFormat]) {
         self.device = device
         self.direction = direction
-        formats = [format]
+        self.formats = formats
         super.init()
         stream = CMIOExtensionStream(
             localizedName: direction == .source ? CameraConfiguration.deviceName : "Xmax Camera Input",
@@ -51,8 +55,8 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     /// Returns the fixed format and producer queue requirements.
     func streamProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionStreamProperties {
         let values = CMIOExtensionStreamProperties(dictionary: [:])
-        if properties.contains(.streamActiveFormatIndex) { values.activeFormatIndex = 0 }
-        if properties.contains(.streamFrameDuration) { values.frameDuration = CameraConfiguration.frameDuration }
+        if properties.contains(.streamActiveFormatIndex) { values.activeFormatIndex = activeFormatIndex }
+        if properties.contains(.streamFrameDuration) { values.frameDuration = frameDuration }
         if properties.contains(.streamSinkBufferQueueSize) { values.sinkBufferQueueSize = 2 }
         if properties.contains(.streamSinkBuffersRequiredForStartup) { values.sinkBuffersRequiredForStartup = 1 }
         return values
@@ -60,11 +64,20 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
 
     /// Rejects unsupported formats and frame rates instead of silently accepting them.
     func setStreamProperties(_ streamProperties: CMIOExtensionStreamProperties) throws {
-        if let index = streamProperties.activeFormatIndex, index != 0 {
+        var index = streamProperties.activeFormatIndex ?? activeFormatIndex
+        guard formats.indices.contains(index) else {
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(kCMIOHardwareUnsupportedOperationError))
         }
-        if let duration = streamProperties.frameDuration, duration != CameraConfiguration.frameDuration {
-            throw NSError(domain: NSOSStatusErrorDomain, code: Int(kCMIOHardwareUnsupportedOperationError))
+        if let duration = streamProperties.frameDuration {
+            guard let matchingIndex = formats.firstIndex(where: { $0.minFrameDuration == duration }),
+                  streamProperties.activeFormatIndex == nil || matchingIndex == index else {
+                throw NSError(domain: NSOSStatusErrorDomain, code: Int(kCMIOHardwareUnsupportedOperationError))
+            }
+            index = matchingIndex
+        }
+        if activeFormatIndex != index {
+            activeFormatIndex = index
+            logger.notice("Negotiated virtual camera frame rate: \(self.frameRate) fps")
         }
     }
 

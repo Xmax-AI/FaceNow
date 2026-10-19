@@ -31,9 +31,12 @@ enum CameraConfiguration {
     /// The fixed camera output format, independent of generation dimensions.
     static let width = 1280
     static let height = 720
-    static let frameRate = 30
+    static let frameRate = 60
     static let pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-    static let frameDuration = CMTime(value: 1, timescale: 30)
+    static let frameDuration = CMTime(value: 1, timescale: 60)
+
+    /// Source formats retain 30 fps compatibility while preferring 60 fps.
+    static let sourceFrameRates = [60, 30]
 
     /// The maximum frame age before replacing interrupted video with a waiting image.
     static let staleInterval: TimeInterval = 2

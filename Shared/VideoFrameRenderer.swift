@@ -87,15 +87,15 @@ final class VideoFrameRenderer {
         return try render(marker.composited(over: image))
     }
 
-    /// Wraps a frame using the host clock rather than the remote RTC timebase.
-    func sampleBuffer(_ pixelBuffer: CVPixelBuffer, at time: CMTime) throws -> CMSampleBuffer {
+    /// Wraps a host-clock frame with the negotiated source or sink duration.
+    func sampleBuffer(_ pixelBuffer: CVPixelBuffer, at time: CMTime, duration: CMTime = CameraConfiguration.frameDuration) throws -> CMSampleBuffer {
         var description: CMVideoFormatDescription?
         try Self.check(CMVideoFormatDescriptionCreateForImageBuffer(
             allocator: nil, imageBuffer: pixelBuffer, formatDescriptionOut: &description
         ))
         guard let description else { throw RendererError.allocation }
         var timing = CMSampleTimingInfo(
-            duration: CameraConfiguration.frameDuration, presentationTimeStamp: time, decodeTimeStamp: .invalid
+            duration: duration, presentationTimeStamp: time, decodeTimeStamp: .invalid
         )
         var sample: CMSampleBuffer?
         try Self.check(CMSampleBufferCreateForImageBuffer(
