@@ -15,10 +15,10 @@ import Foundation
 /// The shared contract between the producer app and camera extension.
 enum CameraConfiguration {
     /// The signing identifier of the only supported producer.
-    static let appBundleID = "ai.xmax.camera"
+    static let appBundleID = "com.xmax.meeting.camera"
 
     /// The bundled camera extension identifier.
-    static let extensionBundleID = "ai.xmax.camera.extension"
+    static let extensionBundleID = "com.xmax.meeting.camera.extension"
 
     /// The camera name displayed in video conference applications.
     static let deviceName = "Xmax Virtual Camera"

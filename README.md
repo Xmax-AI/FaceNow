@@ -17,16 +17,12 @@ In **Signing & Capabilities**, select the **same Team on both targets**:
 
 | Target | Bundle identifier | Purpose |
 | --- | --- | --- |
-| XmaxCamera | `ai.xmax.camera` | Capture, generation, previews and extension setup |
-| XmaxCameraExtension | `ai.xmax.camera.extension` | Virtual camera source and producer sink |
+| XmaxCamera | `com.xmax.meeting.camera` | Capture, generation, previews and extension setup |
+| XmaxCameraExtension | `com.xmax.meeting.camera.extension` | Virtual camera source and producer sink |
 
 Keep automatic signing enabled. Both targets already declare the sandbox and matching App Group; the host also declares camera access, network access and System Extension installation. If your team requires different identifiers, update the target identifiers, `Shared/CameraConfiguration.swift` and both entitlements together.
 
-Team selection is intentionally left blank in the checked-in project. Machine-specific overrides can optionally live in the ignored `Configuration/Local.xcconfig` file:
-
-```xcconfig
-DEVELOPMENT_TEAM = YOUR_TEAM_ID
-```
+Both targets use Team `A84PZNYY82`. Xcode must have access to this team and a valid signing identity. To use a different team, change **Signing & Capabilities** on both targets.
 
 ## Run
 

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,7 +18,7 @@
 		B3F6DD344D90AD7D418FCC24 /* CameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* CameraConfiguration.swift */; };
 		B5B8572335FDDCE46D15445E /* CameraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3762F515C2691E64BD4396C /* CameraProvider.swift */; };
 		BA1C06CE2A59536B28348F7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35AE350B17E3ECBF2E1C46F5 /* Cocoa.framework */; };
-		CABF1B783A4A98E73102C97A /* ai.xmax.camera.extension.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 548FDE7BE76EF22CD115D7F2 /* ai.xmax.camera.extension.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CABF1B783A4A98E73102C97A /* com.xmax.meeting.camera.extension.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */; };
 		D692586339744C64F2FD2CBF /* CameraExtensionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F16D70073886CF2F1FC669 /* CameraExtensionController.swift */; };
 		DBD9711216C85CEAE3C9140F /* VirtualCameraOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0312EDF570FA115B8ABFA5F5 /* VirtualCameraOutput.swift */; };
@@ -44,7 +44,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Library/SystemExtensions";
 			dstSubfolderSpec = 16;
 			files = (
-				CABF1B783A4A98E73102C97A /* ai.xmax.camera.extension.systemextension in Embed System Extensions */,
+				CABF1B783A4A98E73102C97A /* com.xmax.meeting.camera.extension.systemextension in Embed System Extensions */,
 			);
 			name = "Embed System Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -58,7 +58,7 @@
 		35AE350B17E3ECBF2E1C46F5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		40F45DDBCF2262F852E3ACAB /* main.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4AF8EF9A2620ED87E310518F /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		548FDE7BE76EF22CD115D7F2 /* ai.xmax.camera.extension.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = ai.xmax.camera.extension.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
+		548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.xmax.meeting.camera.extension.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B7FAB859E61424E0DC94E54 /* CameraExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = CameraExtension.entitlements; sourceTree = "<group>"; };
 		606E92A00D1608AECF5468D8 /* Xmax Camera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Xmax Camera.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XmaxCameraApp.swift; sourceTree = "<group>"; };
@@ -67,12 +67,12 @@
 		B3762F515C2691E64BD4396C /* CameraProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraProvider.swift; sourceTree = "<group>"; };
 		BAB55B2527899D907EBC5A3D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C6A71B702AAD312D95A42ACB /* XmaxCamera.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = XmaxCamera.entitlements; sourceTree = "<group>"; };
-		CC88E9DB0406DDCBF3772891 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
+		CC88E9DB0406DDCBF3772891 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DFA2389FE4BD8222A64AF3DB /* CameraView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		EB07A62B54184A9EDD5EFA76 /* CameraStreamSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraStreamSource.swift; sourceTree = "<group>"; };
 		EB6378AECA331EA9BB021F20 /* CameraSessionController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraSessionController.swift; sourceTree = "<group>"; };
 		FE595473F6330AEFFC852098 /* CameraConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraConfiguration.swift; sourceTree = "<group>"; };
-		FF277C4EBC8CA8D1C432EDF5 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE; sourceTree = "<group>"; };
+		FF277C4EBC8CA8D1C432EDF5 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,7 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				606E92A00D1608AECF5468D8 /* Xmax Camera.app */,
-				548FDE7BE76EF22CD115D7F2 /* ai.xmax.camera.extension.systemextension */,
+				548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -120,7 +120,6 @@
 				027AB95A198B5D6DD9A6FE84 /* LatestFrameStore.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
 			);
-			name = Shared;
 			path = Shared;
 			sourceTree = "<group>";
 		};
@@ -149,7 +148,6 @@
 				C6A71B702AAD312D95A42ACB /* XmaxCamera.entitlements */,
 				65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */,
 			);
-			name = App;
 			path = App;
 			sourceTree = "<group>";
 		};
@@ -166,7 +164,6 @@
 			children = (
 				6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */,
 			);
-			name = Configuration;
 			path = Configuration;
 			sourceTree = "<group>";
 		};
@@ -179,7 +176,6 @@
 				BAB55B2527899D907EBC5A3D /* Info.plist */,
 				40F45DDBCF2262F852E3ACAB /* main.swift */,
 			);
-			name = CameraExtension;
 			path = CameraExtension;
 			sourceTree = "<group>";
 		};
@@ -222,7 +218,7 @@
 			);
 			name = XmaxCameraExtension;
 			productName = XmaxCameraExtension;
-			productReference = 548FDE7BE76EF22CD115D7F2 /* ai.xmax.camera.extension.systemextension */;
+			productReference = 548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */;
 			productType = "com.apple.product-type.system-extension";
 		};
 /* End PBXNativeTarget section */
@@ -231,7 +227,6 @@
 		EFC3001F4B9B1E4A6BE63472 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
@@ -269,11 +264,9 @@
 				Base,
 			);
 			mainGroup = 4AEAD3DDD7956F4051F08197;
-			minimizedProjectReferenceProxies = 0;
 			packageReferences = (
 				C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */,
 			);
-			preferredProjectObjectVersion = 100;
 			productRefGroup = 3591BDEBAE5C7EAD0E628879 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -350,13 +343,17 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = CameraExtension/CameraExtension.entitlements;
+				DEVELOPMENT_TEAM = A84PZNYY82;
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CameraExtension/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.camera.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.extension;
 				PRODUCT_NAME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -429,13 +426,17 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = CameraExtension/CameraExtension.entitlements;
+				DEVELOPMENT_TEAM = A84PZNYY82;
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CameraExtension/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.camera.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.extension;
 				PRODUCT_NAME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -516,11 +517,15 @@
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = A84PZNYY82;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.camera;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera;
 				PRODUCT_NAME = "Xmax Camera";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -536,11 +541,15 @@
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = A84PZNYY82;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.camera;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera;
 				PRODUCT_NAME = "Xmax Camera";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
