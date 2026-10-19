@@ -32,6 +32,11 @@ final class VirtualCameraOutput: @unchecked Sendable {
     private var bufferQueue: CMSimpleQueue?
     private var timer: DispatchSourceTimer?
 
+    /// Periodic counters distinguish transport ticks from newly rendered video frames.
+    private var statisticsStart: TimeInterval?
+    private var sentFrames = 0
+    private var sentNewFrames = 0
+
     /// Test mode uses the same transport as generation.
     private var isTestPattern = false
     private let logger = Logger(subsystem: CameraConfiguration.appBundleID, category: "Output")
@@ -103,12 +108,15 @@ final class VirtualCameraOutput: @unchecked Sendable {
         let time = CMClockGetTime(CMClockGetHostTimeClock())
         do {
             let buffer: CVPixelBuffer
+            var isNewFrame = false
             if isTestPattern {
                 buffer = try renderer.testPattern(at: time.seconds)
+                isNewFrame = true
             } else if let frame = frames.frame(now: time.seconds) {
                 if renderedInput !== frame.pixelBuffer {
                     renderedOutput = try renderer.normalize(frame.pixelBuffer)
                     renderedInput = frame.pixelBuffer
+                    isNewFrame = true
                 }
                 guard let renderedOutput else { return }
                 buffer = renderedOutput
@@ -122,10 +130,31 @@ final class VirtualCameraOutput: @unchecked Sendable {
             let sample = try renderer.sampleBuffer(buffer, at: time)
             let retained = Unmanaged.passRetained(sample)
             let status = CMSimpleQueueEnqueue(bufferQueue, element: retained.toOpaque())
-            if status != noErr { retained.release() }
+            if status != noErr {
+                retained.release()
+                renderedInput = nil
+            } else {
+                recordOutput(at: time.seconds, isNewFrame: isNewFrame)
+            }
         } catch {
             logger.error("Output frame dropped: \(error.localizedDescription, privacy: .public)")
         }
+    }
+
+    /// Logs measured delivery cadence without reading or retaining video contents.
+    private func recordOutput(at time: TimeInterval, isNewFrame: Bool) {
+        guard let statisticsStart else {
+            self.statisticsStart = time
+            return
+        }
+        sentFrames += 1
+        if isNewFrame { sentNewFrames += 1 }
+        let elapsed = time - statisticsStart
+        guard elapsed >= 5 else { return }
+        logger.notice("Virtual camera input: sent=\(Double(self.sentFrames) / elapsed) fps, new video frames=\(Double(self.sentNewFrames) / elapsed) fps")
+        self.statisticsStart = time
+        sentFrames = 0
+        sentNewFrames = 0
     }
 
     /// Runs exclusively on the output queue, never concurrently with an enqueue.
@@ -150,6 +179,9 @@ final class VirtualCameraOutput: @unchecked Sendable {
         renderedOutput = nil
         renderer = nil
         waitingBuffer = nil
+        statisticsStart = nil
+        sentFrames = 0
+        sentNewFrames = 0
         frames.reset(producer: nil)
     }
 

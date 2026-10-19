@@ -34,6 +34,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
     private var sourceOrigin: TimeInterval?
     private var hostOrigin: TimeInterval?
     private var lastTimestamp: TimeInterval?
+    private var nextPresentationTime: TimeInterval?
 
     /// SDK timestamps are rebased once; CMIO input already uses the host clock.
     init(usesHostTime: Bool = false, playoutDelay: TimeInterval = 1.0 / 30) {
@@ -50,7 +51,8 @@ final class ScheduledFrameStore: @unchecked Sendable {
     }
 
     /// Retains frames in timestamp order, rebasing interrupted or discontinuous timelines.
-    func submit(_ pixelBuffer: CVPixelBuffer, producer: UUID, timestamp: TimeInterval, now: TimeInterval) {
+    func submit(_ pixelBuffer: CVPixelBuffer, producer: UUID, timestamp: TimeInterval,
+                duration: TimeInterval? = nil, now: TimeInterval) {
         lock.lock()
         defer { lock.unlock() }
         guard self.producer == producer, now.isFinite else { return }
@@ -61,11 +63,18 @@ final class ScheduledFrameStore: @unchecked Sendable {
         }
         if sourceOrigin == nil { sourceOrigin = timestamp; hostOrigin = now + playoutDelay }
         var due = usesHostTime ? timestamp + playoutDelay : hostOrigin! + timestamp - sourceOrigin!
+        if !usesHostTime, let duration, duration.isFinite, duration > 0, duration < 1 {
+            // Match the SDK preview: late bursts start a new display interval instead of catching up in a burst.
+            due = max(nextPresentationTime ?? now + playoutDelay, now + playoutDelay)
+        }
         if !usesHostTime, abs(due - now) > maximumLatency {
             clear()
             sourceOrigin = timestamp
             hostOrigin = now + playoutDelay
             due = hostOrigin!
+        }
+        if !usesHostTime, let duration, duration.isFinite, duration > 0, duration < 1 {
+            nextPresentationTime = due + duration
         }
         lastTimestamp = timestamp
         pending.append(ScheduledVideoFrame(pixelBuffer: pixelBuffer, receivedAt: now, presentationTime: due))
@@ -103,5 +112,6 @@ final class ScheduledFrameStore: @unchecked Sendable {
         sourceOrigin = nil
         hostOrigin = nil
         lastTimestamp = nil
+        nextPresentationTime = nil
     }
 }

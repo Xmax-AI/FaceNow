@@ -127,6 +127,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     func start(direction: CMIOExtensionStream.Direction) throws {
         if direction == .source {
             consumerCount += 1
+            logger.notice("Camera consumer started: negotiated output=\(self.source.frameRate) fps, extension build=\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown", privacy: .public)")
         } else {
             guard producerClient != nil else { throw CameraExtensionError.noProducer }
             producerIsRunning = true
@@ -174,7 +175,8 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
         outputTick = (outputTick + 1) % CameraConfiguration.frameRate
         guard outputTick.isMultiple(of: CameraConfiguration.frameRate / source.frameRate) else { return }
         let time = CMClockGetTime(CMClockGetHostTimeClock())
-        let pixelBuffer = frames.frame(now: time.seconds, preferLatest: source.frameRate < CameraConfiguration.frameRate)?.pixelBuffer ?? waitingBuffer
+        // The host has already paced interpolation frames; discard transport backlog after a late timer tick.
+        let pixelBuffer = frames.frame(now: time.seconds, preferLatest: true)?.pixelBuffer ?? waitingBuffer
         do {
             let sample = try renderer.sampleBuffer(pixelBuffer, at: time, duration: source.frameDuration)
             source.stream.send(sample, discontinuity: [], hostTimeInNanoseconds: UInt64(time.seconds * 1_000_000_000))
