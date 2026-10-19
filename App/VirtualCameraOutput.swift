@@ -36,6 +36,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
     private var statisticsStart: TimeInterval?
     private var sentFrames = 0
     private var sentNewFrames = 0
+    private var passthroughFrames = 0
+    private var convertedFrames = 0
 
     /// Test mode uses the same transport as generation.
     private var isTestPattern = false
@@ -149,12 +151,21 @@ final class VirtualCameraOutput: @unchecked Sendable {
         }
         sentFrames += 1
         if isNewFrame { sentNewFrames += 1 }
+        if isNewFrame, !isTestPattern {
+            if renderedInput === renderedOutput {
+                passthroughFrames += 1
+            } else {
+                convertedFrames += 1
+            }
+        }
         let elapsed = time - statisticsStart
         guard elapsed >= 5 else { return }
-        logger.notice("Virtual camera input: sent=\(Double(self.sentFrames) / elapsed) fps, new video frames=\(Double(self.sentNewFrames) / elapsed) fps")
+        logger.notice("Virtual camera input: sent=\(Double(self.sentFrames) / elapsed) fps, new video frames=\(Double(self.sentNewFrames) / elapsed) fps, passthrough=\(self.passthroughFrames), converted=\(self.convertedFrames)")
         self.statisticsStart = time
         sentFrames = 0
         sentNewFrames = 0
+        passthroughFrames = 0
+        convertedFrames = 0
     }
 
     /// Runs exclusively on the output queue, never concurrently with an enqueue.
@@ -182,6 +193,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
         statisticsStart = nil
         sentFrames = 0
         sentNewFrames = 0
+        passthroughFrames = 0
+        convertedFrames = 0
         frames.reset(producer: nil)
     }
 

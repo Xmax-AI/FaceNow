@@ -53,11 +53,11 @@ Physical camera → XmaxSDK → generated frame callback
 ```
 
 - `App/CameraSessionController.swift` owns the SDK lifecycle. The local preview remains mounted while waiting for SDK readiness. Session tokens reject late callbacks after stop or restart.
-- `App/VirtualCameraOutput.swift` normalizes frames on a dedicated queue and enqueues retained sample buffers into the CMIO sink. It drops work when the two-buffer queue is full.
+- `App/VirtualCameraOutput.swift` reuses compatible SDK pixel buffers or converts incompatible frames on a dedicated queue and enqueues retained sample buffers into the CMIO sink. It drops work when the two-buffer queue is full.
 - `CameraExtension/` owns the stable virtual device and source/sink streams. Producer and consumer lifecycles are independent. The sink accepts a single producer with the host signing identifier; meeting clients read the source.
 - `Shared/` defines the transport contract, bounded timestamped queue and renderer. The extension uses only system frameworks and has no XmaxSDK dependency.
 
-No additional mirroring is applied to generated frames. The complete generated frame is resized to the fixed 1920 × 1024 model canvas without cropping or adding black bars. Smaller landscape SDK frames retain the same aspect ratio; meeting applications control how this camera format fits their own display area. Source samples use the macOS host clock. Frames older than two seconds are replaced with the waiting card. No App Group file polling or private IPC is used for video transport.
+No additional mirroring is applied to generated frames. SDK frames matching the 1920 × 1024 NV12 video-range format, IOSurface backing and advertised color metadata are passed through without redrawing. Other frames are converted to that canvas without cropping or adding black bars. Smaller landscape SDK frames retain the same aspect ratio; meeting applications control how this camera format fits their own display area. Source samples use the macOS host clock. Frames older than two seconds are replaced with the waiting card. No App Group file polling or private IPC is used for video transport.
 
 This project is separate from XmaxSDK and XLab. Changes to virtual camera integration belong here.
 
@@ -77,7 +77,7 @@ Run hardware-independent tests for the shared media pipeline:
 swift test --scratch-path .build/CoreTests
 ```
 
-The root Swift package exposes the shared core for tests; the application is built with the Xcode project. Tests cover producer cancellation, concurrent frame handoff, freshness, full-frame resizing, NV12/BGRA conversion, orientation, edge coverage, sample timing and allocation limits.
+The root Swift package exposes the shared core for tests; the application is built with the Xcode project. Tests cover producer cancellation, concurrent frame handoff, freshness, compatible-buffer passthrough, color-metadata fallback, full-frame resizing, NV12/BGRA conversion, orientation, edge coverage, sample timing and allocation limits.
 
 Unsigned builds cannot validate camera extension activation or conference compatibility. After signing and enabling the extension, validate the test pattern, real generation, stop, app exit and restart in the installed Feishu and Tencent Meeting versions. Compatibility with those clients is not yet verified.
 

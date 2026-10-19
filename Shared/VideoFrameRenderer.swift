@@ -54,9 +54,17 @@ final class VideoFrameRenderer {
         waitingImage = try Self.makeWaitingImage()
     }
 
-    /// Maps the complete input onto the model-sized camera canvas without cropping or padding.
-    /// Smaller landscape generation frames retain their aspect ratio when resized to this canvas.
+    /// Reuses compatible SDK buffers; otherwise converts the complete frame without cropping or padding.
+    /// Format matching includes color, aperture and aspect-ratio metadata without modifying the input.
     func normalize(_ pixelBuffer: CVPixelBuffer) throws -> CVPixelBuffer {
+        if CVPixelBufferGetWidth(pixelBuffer) == CameraConfiguration.width,
+           CVPixelBufferGetHeight(pixelBuffer) == CameraConfiguration.height,
+           CVPixelBufferGetPixelFormatType(pixelBuffer) == CameraConfiguration.pixelFormat,
+           CVPixelBufferGetPlaneCount(pixelBuffer) == 2,
+           CVPixelBufferGetIOSurface(pixelBuffer) != nil,
+           CMVideoFormatDescriptionMatchesImageBuffer(formatDescription, imageBuffer: pixelBuffer) {
+            return pixelBuffer
+        }
         let image = CIImage(cvPixelBuffer: pixelBuffer)
         let resized = image.transformed(by: CGAffineTransform(
             scaleX: bounds.width / image.extent.width, y: bounds.height / image.extent.height

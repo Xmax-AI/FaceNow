@@ -146,6 +146,28 @@ final class CameraCoreTests: XCTestCase {
         }
     }
 
+    /// Compatible buffers bypass allocation even when the conversion pool is exhausted.
+    func testCompatibleBufferPassesThroughWithoutAllocation() throws {
+        let renderer = try VideoFrameRenderer()
+        let held = try (0..<8).map { _ in try renderer.waiting() }
+        XCTAssertThrowsError(try renderer.waiting())
+        let output = try renderer.normalize(held[0])
+        XCTAssertTrue(output === held[0])
+        let sample = try renderer.sampleBuffer(output, at: .zero)
+        XCTAssertTrue(CMSampleBufferGetImageBuffer(sample) === held[0])
+    }
+
+    /// Missing color metadata requires conversion without retagging the SDK-owned input.
+    func testMissingColorMetadataUsesConversion() throws {
+        let renderer = try VideoFrameRenderer()
+        let input = try renderer.waiting()
+        CVBufferRemoveAttachment(input, kCVImageBufferColorPrimariesKey)
+        let output = try renderer.normalize(input)
+        XCTAssertFalse(output === input)
+        XCTAssertTrue(CMVideoFormatDescriptionMatchesImageBuffer(renderer.formatDescription, imageBuffer: output))
+        XCTAssertFalse(CMVideoFormatDescriptionMatchesImageBuffer(renderer.formatDescription, imageBuffer: input))
+    }
+
     /// Source samples carry host timestamps and fixed camera durations.
     func testSampleTimingAndFormat() throws {
         let renderer = try VideoFrameRenderer()
