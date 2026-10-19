@@ -54,14 +54,14 @@ final class VideoFrameRenderer {
         waitingImage = try Self.makeWaitingImage()
     }
 
-    /// Fills the camera output without distortion, cropping excess content equally on opposing edges.
+    /// Maps the complete input onto the model-sized camera canvas without cropping or padding.
+    /// Smaller landscape generation frames retain their aspect ratio when resized to this canvas.
     func normalize(_ pixelBuffer: CVPixelBuffer) throws -> CVPixelBuffer {
         let image = CIImage(cvPixelBuffer: pixelBuffer)
-        let rect = Self.filledRect(width: image.extent.width, height: image.extent.height)
-        let filled = image.transformed(by: CGAffineTransform(
-            scaleX: rect.width / image.extent.width, y: rect.height / image.extent.height
-        )).transformed(by: CGAffineTransform(translationX: rect.minX, y: rect.minY))
-        return try render(filled.cropped(to: bounds))
+        let resized = image.transformed(by: CGAffineTransform(
+            scaleX: bounds.width / image.extent.width, y: bounds.height / image.extent.height
+        ))
+        return try render(resized)
     }
 
     /// Returns a mirrored offline card without exposing the last generated image indefinitely.
@@ -105,16 +105,6 @@ final class VideoFrameRenderer {
         ))
         guard let sample else { throw RendererError.allocation }
         return sample
-    }
-
-    /// Calculates a centered rectangle that covers the output while preserving aspect ratio.
-    static func filledRect(width: CGFloat, height: CGFloat) -> CGRect {
-        guard width > 0, height > 0 else { return .zero }
-        let scale = max(CGFloat(CameraConfiguration.width) / width, CGFloat(CameraConfiguration.height) / height)
-        let size = CGSize(width: width * scale, height: height * scale)
-        return CGRect(x: (CGFloat(CameraConfiguration.width) - size.width) / 2,
-                      y: (CGFloat(CameraConfiguration.height) - size.height) / 2,
-                      width: size.width, height: size.height)
     }
 
     /// Renders into a buffer without allowing unbounded allocation during backpressure.

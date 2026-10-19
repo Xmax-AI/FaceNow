@@ -133,30 +133,13 @@ final class CameraCoreTests: XCTestCase {
         XCTAssertTrue(store.frame(now: 5.04)?.pixelBuffer === resumed)
     }
 
-    /// Wide and portrait model outputs cover the camera frame with a centered crop.
-    func testAspectFillCropsAroundCenter() {
-        let wide = VideoFrameRenderer.filledRect(width: 1920, height: 1024)
-        XCTAssertEqual(wide.width, 1350, accuracy: 0.01)
-        XCTAssertEqual(wide.height, 720, accuracy: 0.01)
-        XCTAssertEqual(wide.midX, 640, accuracy: 0.01)
-        XCTAssertEqual(wide.midY, 360, accuracy: 0.01)
-        let portrait = VideoFrameRenderer.filledRect(width: 1024, height: 1920)
-        XCTAssertEqual(portrait.height, 2400, accuracy: 0.01)
-        XCTAssertEqual(portrait.width, 1280, accuracy: 0.01)
-        XCTAssertEqual(portrait.midX, 640, accuracy: 0.01)
-        XCTAssertEqual(portrait.midY, 360, accuracy: 0.01)
-        XCTAssertEqual(VideoFrameRenderer.filledRect(width: 1920, height: 1080),
-                       CGRect(x: 0, y: 0, width: 1280, height: 720))
-        XCTAssertEqual(VideoFrameRenderer.filledRect(width: 0, height: 0), .zero)
-    }
-
     /// Both generated input formats produce the same NV12 camera contract.
     func testBGRAAndNV12Normalization() throws {
         let renderer = try VideoFrameRenderer()
         for format in [kCVPixelFormatType_32BGRA, kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange] {
             let output = try renderer.normalize(makeBuffer(format: format))
-            XCTAssertEqual(CVPixelBufferGetWidth(output), 1280)
-            XCTAssertEqual(CVPixelBufferGetHeight(output), 720)
+            XCTAssertEqual(CVPixelBufferGetWidth(output), 1920)
+            XCTAssertEqual(CVPixelBufferGetHeight(output), 1024)
             XCTAssertEqual(CVPixelBufferGetPixelFormatType(output), CameraConfiguration.pixelFormat)
             XCTAssertEqual(CVPixelBufferGetPlaneCount(output), 2)
             XCTAssertNotNil(CVPixelBufferGetIOSurface(output))
@@ -172,7 +155,7 @@ final class CameraCoreTests: XCTestCase {
         XCTAssertEqual(CMSampleBufferGetDuration(sample), CameraConfiguration.frameDuration)
         let description = try XCTUnwrap(CMSampleBufferGetFormatDescription(sample))
         XCTAssertEqual(CMFormatDescriptionGetMediaSubType(description), CameraConfiguration.pixelFormat)
-        XCTAssertEqual(CMVideoFormatDescriptionGetDimensions(description).width, 1280)
+        XCTAssertEqual(CMVideoFormatDescriptionGetDimensions(description).width, 1920)
         let image = try XCTUnwrap(CMSampleBufferGetImageBuffer(sample))
         XCTAssertTrue(CMVideoFormatDescriptionMatchesImageBuffer(renderer.formatDescription, imageBuffer: image))
     }
@@ -198,12 +181,12 @@ final class CameraCoreTests: XCTestCase {
         defer { CVPixelBufferUnlockBaseAddress(output, .readOnly) }
         let luma = CVPixelBufferGetBaseAddressOfPlane(output, 0)!.assumingMemoryBound(to: UInt8.self)
         let stride = CVPixelBufferGetBytesPerRowOfPlane(output, 0)
-        let row = 360 * stride
-        XCTAssertGreaterThan(Int(luma[row + 300]), Int(luma[row + 900]) + 15)
+        let row = 512 * stride
+        XCTAssertGreaterThan(Int(luma[row + 300]), Int(luma[row + 1440]) + 15)
         XCTAssertEqual(Int(luma[row]), Int(luma[row + 300]), accuracy: 2)
-        XCTAssertEqual(Int(luma[row + 1279]), Int(luma[row + 900]), accuracy: 2)
+        XCTAssertEqual(Int(luma[row + 1919]), Int(luma[row + 1440]), accuracy: 2)
         XCTAssertEqual(Int(luma[300]), Int(luma[row + 300]), accuracy: 2)
-        XCTAssertEqual(Int(luma[719 * stride + 900]), Int(luma[row + 900]), accuracy: 2)
+        XCTAssertEqual(Int(luma[1023 * stride + 1440]), Int(luma[row + 1440]), accuracy: 2)
     }
 
     /// Holding frames applies backpressure rather than allowing pool growth without bound.

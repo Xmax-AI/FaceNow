@@ -28,9 +28,9 @@ enum CameraConfiguration {
     static let sourceID = UUID(uuidString: "C1EF1269-DBA1-473B-BD21-7F3695635A02")!
     static let sinkID = UUID(uuidString: "C1EF1269-DBA1-473B-BD21-7F3695635A03")!
 
-    /// The fixed camera output format, independent of generation dimensions.
-    static let width = 1280
-    static let height = 720
+    /// The fixed camera canvas matches the landscape generation model's dimensions.
+    static let width = 1920
+    static let height = 1024
     static let frameRate = 60
     static let pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
     static let frameDuration = CMTime(value: 1, timescale: 60)
