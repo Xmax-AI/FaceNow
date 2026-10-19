@@ -10,6 +10,7 @@
 		072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */; };
 		0EFD2926CF9B6217858923B2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F45DDBCF2262F852E3ACAB /* main.swift */; };
 		24EBD686F04593528B662379 /* RealtimeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C61510EA63A1D41DB290439 /* RealtimeComponents.swift */; };
+		2B79F366B5DF74C2D79A7D8E /* xmax-wordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */; };
 		2FE1C04483A5A36F7913C541 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2389FE4BD8222A64AF3DB /* CameraView.swift */; };
 		317F4A8FE6843817B7B6F166 /* LatestFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027AB95A198B5D6DD9A6FE84 /* LatestFrameStore.swift */; };
 		37EE2F298FE0D89986C6952F /* XmaxSDK in Frameworks */ = {isa = PBXBuildFile; productRef = DD026C4A2E5517ABACE1429F /* XmaxSDK */; };
@@ -17,6 +18,7 @@
 		49090ACD15B211A4D7598D37 /* CameraStreamSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB07A62B54184A9EDD5EFA76 /* CameraStreamSource.swift */; };
 		53274E996AA64BA9F7D07367 /* DMSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1A22CD6B34B787588C6F7637 /* DMSans.ttf */; };
 		67B2B5A362C554E6CDDCD5D6 /* DMSans-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = FAFDD084ECE3F2F08F776C50 /* DMSans-OFL.txt */; };
+		85CD855B5A0DDFE40B110C1F /* xmax-wordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */; };
 		8E6E6D32D82A1CA81BB6A398 /* CameraSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6378AECA331EA9BB021F20 /* CameraSessionController.swift */; };
 		9CE41792B9C0D5D89D1844C5 /* RealtimePresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA439C9A2B3AE41EBF7580EB /* RealtimePresets.swift */; };
 		B3F6DD344D90AD7D418FCC24 /* CameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* CameraConfiguration.swift */; };
@@ -73,6 +75,7 @@
 		65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XmaxCameraApp.swift; sourceTree = "<group>"; };
 		6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		6FE7033AAE7D77FE565A1988 /* CameraHomeControls.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraHomeControls.swift; sourceTree = "<group>"; };
+		7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "xmax-wordmark.png"; path = "Assets.xcassets/XmaxWordmark.imageset/xmax-wordmark.png"; sourceTree = "<group>"; };
 		92F16D70073886CF2F1FC669 /* CameraExtensionController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraExtensionController.swift; sourceTree = "<group>"; };
 		A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B3762F515C2691E64BD4396C /* CameraProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraProvider.swift; sourceTree = "<group>"; };
@@ -133,6 +136,8 @@
 				FE595473F6330AEFFC852098 /* CameraConfiguration.swift */,
 				027AB95A198B5D6DD9A6FE84 /* LatestFrameStore.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
+				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
+				7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -164,7 +169,6 @@
 				6FE7033AAE7D77FE565A1988 /* CameraHomeControls.swift */,
 				2C61510EA63A1D41DB290439 /* RealtimeComponents.swift */,
 				CA439C9A2B3AE41EBF7580EB /* RealtimePresets.swift */,
-				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
 				1A22CD6B34B787588C6F7637 /* DMSans.ttf */,
 				FAFDD084ECE3F2F08F776C50 /* DMSans-OFL.txt */,
 			);
@@ -307,6 +311,7 @@
 				DF0A05F53FF000F057E788D2 /* Assets.xcassets in Resources */,
 				53274E996AA64BA9F7D07367 /* DMSans.ttf in Resources */,
 				67B2B5A362C554E6CDDCD5D6 /* DMSans-OFL.txt in Resources */,
+				2B79F366B5DF74C2D79A7D8E /* xmax-wordmark.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,6 +319,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85CD855B5A0DDFE40B110C1F /* xmax-wordmark.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

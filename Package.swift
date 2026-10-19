@@ -7,7 +7,7 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [.library(name: "CameraCore", targets: ["CameraCore"])],
     targets: [
-        .target(name: "CameraCore", path: "Shared"),
+        .target(name: "CameraCore", path: "Shared", resources: [.copy("Assets.xcassets")]),
         .testTarget(name: "CameraCoreTests", dependencies: ["CameraCore"], path: "Tests")
     ]
 )

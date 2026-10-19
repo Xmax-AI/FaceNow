@@ -10,7 +10,7 @@
 
 import CoreImage
 import CoreMedia
-import CoreText
+import ImageIO
 import Foundation
 
 /// Allocates bounded IOSurface buffers and normalizes video without changing its orientation.
@@ -51,7 +51,7 @@ final class VideoFrameRenderer {
         ))
         guard let description else { throw RendererError.allocation }
         formatDescription = description
-        waitingImage = Self.makeWaitingImage()
+        waitingImage = try Self.makeWaitingImage()
     }
 
     /// Scales the input to fit, adding opaque black bars where needed.
@@ -135,27 +135,31 @@ final class VideoFrameRenderer {
         CVBufferSetAttachment(buffer, kCVImageBufferYCbCrMatrixKey, kCVImageBufferYCbCrMatrix_ITU_R_709_2, .shouldPropagate)
     }
 
-    /// Builds a horizontally mirrored offline card once for mirrored meeting self-views.
-    private static func makeWaitingImage() -> CIImage {
-        let width = CameraConfiguration.width
-        let height = CameraConfiguration.height
-        let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8,
-                                bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
-                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        context.setFillColor(CGColor(red: 0.04, green: 0.05, blue: 0.09, alpha: 1))
-        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-        for (text, size, y) in [("Xmax Camera", 44.0, 370.0), ("Waiting for generation", 24.0, 320.0)] {
-            let attributes: [NSAttributedString.Key: Any] = [
-                NSAttributedString.Key(kCTFontAttributeName as String): CTFontCreateWithName("HelveticaNeue" as CFString, size, nil),
-                NSAttributedString.Key(kCTForegroundColorAttributeName as String): CGColor(gray: 0.9, alpha: 1)
-            ]
-            let line = CTLineCreateWithAttributedString(NSAttributedString(string: text, attributes: attributes))
-            let lineWidth = CTLineGetTypographicBounds(line, nil, nil, nil)
-            context.textPosition = CGPoint(x: (Double(width) - lineWidth) / 2, y: y)
-            CTLineDraw(line, context)
+    /// Builds the mirrored waiting card from the same wordmark used by the home screen.
+    private static func makeWaitingImage() throws -> CIImage {
+#if SWIFT_PACKAGE
+        let url = Bundle.module.url(forResource: "xmax-wordmark", withExtension: "png",
+                                    subdirectory: "Assets.xcassets/XmaxWordmark.imageset")
+#else
+        let url = Bundle.main.url(forResource: "xmax-wordmark", withExtension: "png")
+#endif
+        guard let url,
+              let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let logo = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+            throw RendererError.logoUnavailable
         }
-        return CIImage(cgImage: context.makeImage()!).transformed(by: CGAffineTransform(
-            a: -1, b: 0, c: 0, d: 1, tx: CGFloat(width), ty: 0
+        let width = CGFloat(CameraConfiguration.width)
+        let height = CGFloat(CameraConfiguration.height)
+        let logoWidth: CGFloat = 320
+        let logoHeight = logoWidth * CGFloat(logo.height) / CGFloat(logo.width)
+        let image = CIImage(cgImage: logo)
+            .transformed(by: CGAffineTransform(scaleX: logoWidth / CGFloat(logo.width),
+                                               y: logoHeight / CGFloat(logo.height)))
+            .transformed(by: CGAffineTransform(translationX: (width - logoWidth) / 2,
+                                               y: (height - logoHeight) / 2))
+        let background = CIImage(color: .white).cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
+        return image.composited(over: background).transformed(by: CGAffineTransform(
+            a: -1, b: 0, c: 0, d: 1, tx: width, ty: 0
         ))
     }
 
@@ -168,4 +172,5 @@ final class VideoFrameRenderer {
 /// A framework failed to provide an expected media object.
 enum RendererError: Error {
     case allocation
+    case logoUnavailable
 }
