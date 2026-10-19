@@ -56,7 +56,8 @@ final class ScheduledFrameStore: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         self.producer = producer
-        clear()
+        clearTimeline()
+        displayed = nil
         statistics = FrameQueueStatistics()
     }
 
@@ -71,7 +72,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
             if timestamp == lastTimestamp { return }
             if timestamp < lastTimestamp || timestamp - lastTimestamp > CameraConfiguration.staleInterval {
                 statistics.discontinuity += pending.count
-                clear()
+                clearTimeline()
             }
         }
         if sourceOrigin == nil { sourceOrigin = timestamp; hostOrigin = now + playoutDelay }
@@ -82,7 +83,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
         }
         if !usesHostTime, abs(due - now) > maximumLatency {
             statistics.discontinuity += pending.count
-            clear()
+            clearTimeline()
             sourceOrigin = timestamp
             hostOrigin = now + playoutDelay
             due = hostOrigin!
@@ -137,10 +138,10 @@ final class ScheduledFrameStore: @unchecked Sendable {
         return result
     }
 
-    /// Clears timeline state while the caller holds the lock.
-    private func clear() {
+    /// Rebases pending work while retaining the last displayed frame until its normal expiry.
+    /// Only an explicit producer reset clears the displayed frame immediately.
+    private func clearTimeline() {
         pending.removeAll(keepingCapacity: true)
-        displayed = nil
         sourceOrigin = nil
         hostOrigin = nil
         lastTimestamp = nil

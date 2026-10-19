@@ -23,6 +23,7 @@ final class CameraCoreTests: XCTestCase {
         let buffer = try makeBuffer()
         store.reset(producer: old)
         store.submit(buffer, producer: old, timestamp: 10, now: 10)
+        XCTAssertTrue(store.frame(now: 10)?.pixelBuffer === buffer)
         store.reset(producer: current)
         store.submit(buffer, producer: old, timestamp: 11, now: 11)
         XCTAssertNil(store.frame(now: 11))
@@ -131,6 +132,27 @@ final class CameraCoreTests: XCTestCase {
         store.submit(resumed, producer: producer, timestamp: 1.02, now: 5)
         XCTAssertNil(store.frame(now: 5))
         XCTAssertTrue(store.frame(now: 5.04)?.pixelBuffer === resumed)
+    }
+
+    /// Effect timeline changes retain the displayed frame while the replacement waits for its display slot.
+    func testTimelineChangesDoNotFlashWaitingFrame() throws {
+        for timestamp in [1.0, 103.0, 100.04] {
+            let store = ScheduledFrameStore(playoutDelay: 0.04)
+            let producer = UUID()
+            store.reset(producer: producer)
+            let displayed = try makeBuffer()
+            let discarded = try makeBuffer()
+            let replacement = try makeBuffer()
+            store.submit(displayed, producer: producer, timestamp: 100, now: 1)
+            XCTAssertTrue(store.frame(now: 1.04)?.pixelBuffer === displayed)
+            store.submit(discarded, producer: producer, timestamp: 100.02, now: 1.04)
+            store.submit(replacement, producer: producer, timestamp: timestamp, now: 1.4)
+            XCTAssertEqual(store.pendingFrameCount, 1)
+            XCTAssertTrue(store.frame(now: 1.4)?.pixelBuffer === displayed)
+            XCTAssertTrue(store.frame(now: 1.42)?.pixelBuffer === displayed)
+            XCTAssertTrue(store.frame(now: 1.44)?.pixelBuffer === replacement)
+            XCTAssertNil(store.frame(now: 3.5))
+        }
     }
 
     /// Both generated input formats produce the same NV12 camera contract.
