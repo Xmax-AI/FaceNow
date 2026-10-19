@@ -11,7 +11,7 @@ A standalone macOS application that sends Xmax-generated video to **Xmax Virtual
 
 ## Open and configure
 
-Open `XmaxCamera.xcodeproj` and select the **XmaxCamera** scheme. SwiftPM resolves the published [XmaxSDK 1.0.0](https://github.com/XingMai/XmaxSDK-MacOS/releases/tag/1.0.0) package; no sibling SDK checkout is required.
+Open `XmaxCamera.xcodeproj` and select the **XmaxCamera** scheme. SwiftPM pins [XmaxSDK commit 945e2b5](https://github.com/XingMai/XmaxSDK-MacOS/commit/945e2b53bc517df4a051094c7132cb4db20ffd1c) from the SDK feature branch so capture and virtual output remain unmirrored. Self-view mirroring is applied only by the preview views. No sibling SDK checkout is required.
 
 In **Signing & Capabilities**, select the **same Team on both targets**:
 

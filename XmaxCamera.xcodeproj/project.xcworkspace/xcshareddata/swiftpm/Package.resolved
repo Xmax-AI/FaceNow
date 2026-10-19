@@ -33,8 +33,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/XingMai/XmaxSDK-MacOS.git",
       "state" : {
-        "revision" : "c58fcf324b96596765d3ec1cde75d651d4a7a60e",
-        "version" : "1.0.0"
+        "revision" : "945e2b53bc517df4a051094c7132cb4db20ffd1c"
       }
     }
   ],
