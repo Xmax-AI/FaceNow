@@ -68,7 +68,7 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
         }
     }
 
-    /// Meeting apps may read the source; only the signed host may write to the sink.
+    /// Meeting apps may read the source; the sink permits one active local producer.
     func authorizedToStartStream(for client: CMIOExtensionClient) -> Bool {
         direction == .source || device.authorizeProducer(client)
     }

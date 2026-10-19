@@ -111,10 +111,11 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     /// The camera has no mutable device properties.
     func setDeviceProperties(_ deviceProperties: CMIOExtensionDeviceProperties) throws {}
 
-    /// Restricts the producer stream to the host's signing identifier and a single client.
+    /// Allows one active local producer; DAL does not reliably expose its signing identity.
     func authorizeProducer(_ client: CMIOExtensionClient) -> Bool {
-        guard client.signingID == CameraConfiguration.appBundleID,
-              producerClient == nil || producerClient?.clientID == client.clientID else { return false }
+        let allowed = !producerIsRunning || producerClient?.clientID == client.clientID
+        logger.notice("Sink authorization: signingID=\(client.signingID ?? "<nil>", privacy: .public), pid=\(client.pid), running=\(self.producerIsRunning), allowed=\(allowed)")
+        guard allowed else { return false }
         producerClient = client
         return true
     }

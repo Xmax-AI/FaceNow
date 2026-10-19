@@ -80,6 +80,7 @@ struct CameraView: View {
                     HStack {
                         Group {
                             if cameraExtension.isEnabled {
+                                Button("Update") { cameraExtension.install() }
                                 Button("Remove") { cameraExtension.uninstall() }
                             } else {
                                 Button(cameraExtension.isAwaitingApproval ? "Awaiting Approval" : "Install & Enable") {
