@@ -9,46 +9,81 @@
 //
 
 import AppKit
-import SwiftUI
 
-/// The independent host application for the Xmax virtual camera.
+/// Native AppKit application lifecycle, window ownership, and standard editing menus.
 @main
-struct XmaxCameraApp: App {
-    /// The delegate retains resources until asynchronous shutdown finishes.
-    @NSApplicationDelegateAdaptor(CameraAppDelegate.self) private var delegate
-
-    /// One workspace prevents concurrent producers from the same application.
-    var body: some Scene {
-        Window("Xmax Camera", id: "camera") {
-            CameraView(controller: delegate.session, cameraExtension: delegate.cameraExtension)
-                .frame(minWidth: 1180, minHeight: 760)
-        }
-        .defaultSize(width: 1360, height: 850)
-        .commands { CommandGroup(replacing: .newItem) {} }
-    }
-}
-
-/// Releases camera, network and sink resources before process termination.
 @MainActor
-final class CameraAppDelegate: NSObject, NSApplicationDelegate {
-    /// Application-lifetime controllers shared with the workspace.
-    let session = CameraSessionController()
-    let cameraExtension = CameraExtensionController()
+final class XmaxCameraApp: NSObject, NSApplicationDelegate {
+    private let realtime = CameraViewController()
+    private var window: NSWindow?
+    private var terminating = false
 
-    /// Reconciles approval changes when the user returns from System Settings.
-    func applicationDidBecomeActive(_ notification: Notification) {
-        cameraExtension.refresh()
+    static func main() {
+        let application = NSApplication.shared
+        let delegate = XmaxCameraApp()
+        application.delegate = delegate
+        application.setActivationPolicy(.regular)
+        withExtendedLifetime(delegate) { application.run() }
     }
 
-    /// Quit and window closing both complete asynchronous shutdown.
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        configureMenus()
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1360, height: 850),
+                              styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window.title = "Xmax Camera"
+        window.contentViewController = realtime
+        window.contentMinSize = NSSize(width: 1180, height: 760)
+        window.appearance = NSAppearance(named: .aqua)
+        window.isReleasedWhenClosed = false
+        window.setFrameAutosaveName("XmaxCamera.MainWindow")
+        window.center()
+        self.window = window
+        window.makeKeyAndOrderFront(nil)
+        NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+
+    func applicationDidBecomeActive(_ notification: Notification) {
+        realtime.cameraExtension.refresh()
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard !terminating else { return .terminateLater }
+        terminating = true
         Task {
-            await session.shutdown()
+            await realtime.shutdown()
             sender.reply(toApplicationShouldTerminate: true)
         }
         return .terminateLater
     }
 
-    /// Closing the only workspace also stops virtual output.
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+    private func configureMenus() {
+        let menu = NSMenu()
+        let app = NSMenu(title: "Xmax Camera")
+        app.addItem(withTitle: "About Xmax Camera", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        app.addItem(.separator())
+        app.addItem(withTitle: "Hide Xmax Camera", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        app.addItem(withTitle: "Show All", action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
+        app.addItem(.separator())
+        app.addItem(withTitle: "Quit Xmax Camera", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let appItem = NSMenuItem(); appItem.submenu = app; menu.addItem(appItem)
+
+        let edit = NSMenu(title: "Edit")
+        edit.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        edit.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        edit.addItem(.separator())
+        edit.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let editItem = NSMenuItem(); editItem.submenu = edit; menu.addItem(editItem)
+
+        let windows = NSMenu(title: "Window")
+        windows.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windows.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        let windowItem = NSMenuItem(); windowItem.submenu = windows; menu.addItem(windowItem)
+        NSApplication.shared.windowsMenu = windows
+        NSApplication.shared.mainMenu = menu
+    }
 }

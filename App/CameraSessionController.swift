@@ -25,7 +25,8 @@ final class CameraSessionController: ObservableObject {
         didSet { UserDefaults.standard.set(apiKey, forKey: "xmax.camera.apiKey") }
     }
     @Published var prompt = ""
-    @Published var model = RealtimeModel.x2_1_1_preview_cn
+    /// The camera application always uses the China preview model.
+    let model = RealtimeModel.x2_1_1_preview_cn
     @Published var statisticsVisible = true
     @Published var activeMode = RealtimeExampleMode.charx {
         didSet {
@@ -46,6 +47,7 @@ final class CameraSessionController: ObservableObject {
     @Published private(set) var state = RealtimeState(connectionState: .idle)
     @Published private(set) var errorMessage: String?
     @Published private(set) var isBusy = false
+    @Published private(set) var isClosing = false
     @Published private(set) var sessionStartedAt: Date?
     @Published private(set) var selectedReferenceID: String?
     @Published private(set) var uploadedReferences: [RealtimeReference] = []
@@ -145,7 +147,7 @@ final class CameraSessionController: ObservableObject {
             errorMessage = "Connect a physical camera and refresh the camera list."
             return
         }
-        if testPatternActive { resetSession() }
+        if testPatternActive { await close() }
         isBusy = true
         errorMessage = nil
         let operation = UUID()
@@ -160,7 +162,7 @@ final class CameraSessionController: ObservableObject {
         networkQuality = nil
         let client = XmaxClient(configuration: XmaxConfiguration(
             apiKey: apiKey,
-            environment: model == .x2_1_1_preview_us ? .global : .china,
+            environment: .china,
             loggerOptions: .all
         ))
         let manager = makeManager(client, RealtimeConfiguration(
@@ -377,7 +379,7 @@ final class CameraSessionController: ObservableObject {
         let operation = lifecycleID
         guard let manager else { return }
         let enabled = await manager.isFrameInterpolationEnabled
-        if lifecycleID == operation { interpolationEnabled = enabled }
+        if lifecycleID == operation, interpolationEnabled != enabled { interpolationEnabled = enabled }
     }
 
     func toggleInterpolation() async {
@@ -405,20 +407,17 @@ final class CameraSessionController: ObservableObject {
 
     func dismissError() { errorMessage = nil }
 
-    /// Returns to the landing page and joins cleanup before allowing another producer to start.
+    /// Returns to the landing page immediately and prevents a restart until media teardown finishes.
     func close() async {
-        guard !isBusy else { return }
+        guard !isClosing, sessionActive || testPatternActive else { return }
         resetSession()
         errorMessage = nil
         await cleanup?.value
     }
 
-    /// Releases capture and output when the workspace disappears.
-    func viewDidDisappear() { resetSession() }
-
     /// Quit also cancels an in-flight startup and waits for the sink to close.
     func shutdown() async {
-        resetSession()
+        if !isClosing { resetSession() }
         await cleanup?.value
     }
 
@@ -428,6 +427,20 @@ final class CameraSessionController: ObservableObject {
         let closingClient = client
         output.frames.reset(producer: nil)
         application?.cancel()
+        testPatternActive = false
+        lifecycleID = UUID()
+        let operation = lifecycleID
+        selectionIntent = UUID()
+        pendingInitialReference = nil
+        application = nil
+        manager = nil
+        client = nil
+        sessionActive = false
+        isBusy = true
+        isClosing = true
+        interpolationSwitching = false
+        sessionStartedAt = nil
+        // Keep hidden video bindings alive while the landing page animates and resources are released.
         cleanup = Task { [output] in
             await previousCleanup?.value
             await output.stop()
@@ -435,26 +448,18 @@ final class CameraSessionController: ObservableObject {
             await closingManager?.setStateListener(nil)
             await closingManager?.close()
             withExtendedLifetime(closingClient) {}
+            guard self.lifecycleID == operation else { return }
+            self.localStream = nil
+            self.remoteStream = nil
+            self.state = RealtimeState(connectionState: .idle)
+            self.selectedReferenceID = nil
+            self.launchTiming = RealtimeLaunchTiming()
+            self.uplinkStatistics = nil
+            self.downlinkStatistics = nil
+            self.networkQuality = nil
+            self.isBusy = false
+            self.isClosing = false
         }
-        testPatternActive = false
-        lifecycleID = UUID()
-        selectionIntent = UUID()
-        pendingInitialReference = nil
-        application = nil
-        manager = nil
-        client = nil
-        sessionActive = false
-        isBusy = false
-        interpolationSwitching = false
-        localStream = nil
-        remoteStream = nil
-        state = RealtimeState(connectionState: .idle)
-        sessionStartedAt = nil
-        selectedReferenceID = nil
-        launchTiming = RealtimeLaunchTiming()
-        uplinkStatistics = nil
-        downlinkStatistics = nil
-        networkQuality = nil
     }
 
     /// Preserves the original dimensions and uploads white-background JPEG at 0.9 quality to avoid black transparent areas.

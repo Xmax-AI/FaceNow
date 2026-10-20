@@ -12,7 +12,7 @@
 		24EBD686F04593528B662379 /* RealtimeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C61510EA63A1D41DB290439 /* RealtimeComponents.swift */; };
 		2B79F366B5DF74C2D79A7D8E /* xmax-wordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */; };
 		2C39C162ED9051E8FD5C7FEC /* ScheduledFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */; };
-		2FE1C04483A5A36F7913C541 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2389FE4BD8222A64AF3DB /* CameraView.swift */; };
+		2FE1C04483A5A36F7913C541 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2389FE4BD8222A64AF3DB /* CameraViewController.swift */; };
 		37EE2F298FE0D89986C6952F /* XmaxSDK in Frameworks */ = {isa = PBXBuildFile; productRef = DD026C4A2E5517ABACE1429F /* XmaxSDK */; };
 		49090ACD15B211A4D7598D37 /* CameraStreamSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB07A62B54184A9EDD5EFA76 /* CameraStreamSource.swift */; };
 		53274E996AA64BA9F7D07367 /* DMSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1A22CD6B34B787588C6F7637 /* DMSans.ttf */; };
@@ -34,6 +34,7 @@
 		EC71253B3326BFCE967834DC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35AE350B17E3ECBF2E1C46F5 /* Cocoa.framework */; };
 		FBB1B12A3D6744AC6004BA41 /* CameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* CameraConfiguration.swift */; };
 		FF1AB2EF90EB2BD91121E442 /* CameraHomeControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FE7033AAE7D77FE565A1988 /* CameraHomeControls.swift */; };
+		0001EE208B004580AD9B5D51 /* RealtimeReferenceViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2278E7D9BF54405A1BF78A0 /* RealtimeReferenceViews.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,12 +84,13 @@
 		CA439C9A2B3AE41EBF7580EB /* RealtimePresets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RealtimePresets.swift; sourceTree = "<group>"; };
 		CC88E9DB0406DDCBF3772891 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduledFrameStore.swift; sourceTree = "<group>"; };
-		DFA2389FE4BD8222A64AF3DB /* CameraView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		DFA2389FE4BD8222A64AF3DB /* CameraViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		EB07A62B54184A9EDD5EFA76 /* CameraStreamSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraStreamSource.swift; sourceTree = "<group>"; };
 		EB6378AECA331EA9BB021F20 /* CameraSessionController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraSessionController.swift; sourceTree = "<group>"; };
 		FAFDD084ECE3F2F08F776C50 /* DMSans-OFL.txt */ = {isa = PBXFileReference; includeInIndex = 1; name = "DMSans-OFL.txt"; path = "Fonts/DMSans-OFL.txt"; sourceTree = "<group>"; };
 		FE595473F6330AEFFC852098 /* CameraConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraConfiguration.swift; sourceTree = "<group>"; };
 		FF277C4EBC8CA8D1C432EDF5 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		D2278E7D9BF54405A1BF78A0 /* RealtimeReferenceViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeReferenceViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,12 +163,13 @@
 			children = (
 				92F16D70073886CF2F1FC669 /* CameraExtensionController.swift */,
 				EB6378AECA331EA9BB021F20 /* CameraSessionController.swift */,
-				DFA2389FE4BD8222A64AF3DB /* CameraView.swift */,
+				DFA2389FE4BD8222A64AF3DB /* CameraViewController.swift */,
 				4AF8EF9A2620ED87E310518F /* Info.plist */,
 				0312EDF570FA115B8ABFA5F5 /* VirtualCameraOutput.swift */,
 				C6A71B702AAD312D95A42ACB /* XmaxCamera.entitlements */,
 				65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */,
 				6FE7033AAE7D77FE565A1988 /* CameraHomeControls.swift */,
+				D2278E7D9BF54405A1BF78A0 /* RealtimeReferenceViews.swift */,
 				2C61510EA63A1D41DB290439 /* RealtimeComponents.swift */,
 				CA439C9A2B3AE41EBF7580EB /* RealtimePresets.swift */,
 				1A22CD6B34B787588C6F7637 /* DMSans.ttf */,
@@ -345,12 +348,13 @@
 			files = (
 				D692586339744C64F2FD2CBF /* CameraExtensionController.swift in Sources */,
 				8E6E6D32D82A1CA81BB6A398 /* CameraSessionController.swift in Sources */,
-				2FE1C04483A5A36F7913C541 /* CameraView.swift in Sources */,
+				2FE1C04483A5A36F7913C541 /* CameraViewController.swift in Sources */,
 				DBD9711216C85CEAE3C9140F /* VirtualCameraOutput.swift in Sources */,
 				072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */,
 				FBB1B12A3D6744AC6004BA41 /* CameraConfiguration.swift in Sources */,
 				CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */,
 				FF1AB2EF90EB2BD91121E442 /* CameraHomeControls.swift in Sources */,
+				0001EE208B004580AD9B5D51 /* RealtimeReferenceViews.swift in Sources */,
 				24EBD686F04593528B662379 /* RealtimeComponents.swift in Sources */,
 				9CE41792B9C0D5D89D1844C5 /* RealtimePresets.swift in Sources */,
 				2C39C162ED9051E8FD5C7FEC /* ScheduledFrameStore.swift in Sources */,
