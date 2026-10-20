@@ -308,10 +308,11 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
             previousCameraWidth != cameraControls.preferredWidth || displayedError != controller.errorMessage
         currentModel.title = controller.model.displayName
         keyButton.title = keyTitle
-        startButton.title = controller.isClosing ? "Stopping…" : controller.isBusy ? "Starting…" : "Start Camera"
-        startButton.loading = controller.isBusy
-        startButton.isEnabled = !controller.isBusy
-        microphoneSwitch.isEnabled = !controller.isBusy
+        let starting = controller.isBusy && !controller.isClosing
+        startButton.title = starting ? "Starting…" : "Start Camera"
+        startButton.loading = starting
+        startButton.isEnabled = !starting
+        microphoneSwitch.isEnabled = !starting
         statisticsButton.selected = controller.statisticsVisible
         statisticsButton.toolTip = controller.statisticsVisible ? "Hide statistics (collection and logging continue)" : "Show statistics"
         statisticsButton.setAccessibilityValue(controller.statisticsVisible ? "On" : "Off")
@@ -526,8 +527,8 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         startButton.leadingPadding = min(40, max(25, width * 0.0075 + 18))
         startButton.trailingPadding = startButton.leadingPadding
         let buttonHeight = max(20, ceil(RealtimeHeaderTypography.size(startButton.title, font: startButton.font!).height)) + min(16, max(12, width * 0.0028 + 9)) * 2
-        // Reserve the longest state label so cleanup and startup never shrink the button.
-        let labelWidth = ["Start Camera", "Starting…", "Stopping…"].map {
+        // Reserve the longest state label so startup never shrinks the button.
+        let labelWidth = ["Start Camera", "Starting…"].map {
             RealtimeHeaderTypography.size($0, font: startButton.font!).width
         }.max() ?? 0
         let buttonWidth = ceil(labelWidth + startButton.iconSize + startButton.iconSpacing +

@@ -138,6 +138,10 @@ final class CameraSessionController: ObservableObject {
 
     /// Keeps the landing page during startup and mounts the local preview in the background to satisfy SDK readiness.
     func start(useMicrophone: Bool = false) async {
+        guard !isClosing else {
+            errorMessage = "The previous session is still stopping. Please try again in a moment."
+            return
+        }
         guard !isBusy, localStream == nil else { return }
         guard hasAPIKey else {
             errorMessage = "API Key is required — click the key button in the top-right corner to enter it"
