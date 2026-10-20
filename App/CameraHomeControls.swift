@@ -166,6 +166,7 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         refresh.symbolName = "arrow.clockwise"
         refresh.iconSize = 14
         refresh.setAccessibilityLabel("Refresh Virtual Camera")
+        refresh.toolTip = "Refresh camera extension status"
         refresh.onClick = { [weak self] in self?.cameraExtension.refresh() }
         install.onClick = { [weak self] in self?.cameraExtension.install() }
         remove.onClick = { [weak self] in self?.cameraExtension.uninstall() }
@@ -185,25 +186,35 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         let waiting = cameraExtension.isBusy && !cameraExtension.isAwaitingApproval
         spinner.isHidden = !waiting
         spinner.setSpinning(waiting, color: RealtimePalette.secondary)
+        let buttons = actionButtons
+        let width = max(376, buttons.reduce(CGFloat(36)) { $0 + $1.preferredWidth } +
+                        CGFloat(buttons.count - 1) * 10)
+        if frame.width != width { setFrameSize(NSSize(width: width, height: frame.height)) }
         needsLayout = true
         layoutSubtreeIfNeeded()
     }
 
+    private var actionButtons: [RealtimeButton] {
+        remove.isHidden ? [install, openSettings] : [install, remove, openSettings]
+    }
+
     override func layout() {
         super.layout()
-        heading.frame = NSRect(x: 18, y: 23, width: 280, height: 24)
+        heading.frame = NSRect(x: 18, y: 23, width: bounds.width - 84, height: 24)
         refresh.frame = NSRect(x: bounds.width - 48, y: 18, width: 30, height: 30)
         var y: CGFloat = 64
         place(status, at: &y)
-        install.frame = NSRect(x: 18, y: y, width: install.preferredWidth, height: 36)
-        remove.frame = NSRect(x: install.frame.maxX + 10, y: y, width: remove.preferredWidth, height: 36)
-        y += 52
+        var x: CGFloat = 18
+        for button in actionButtons {
+            button.frame = NSRect(x: x, y: y, width: button.preferredWidth, height: 36)
+            x = button.frame.maxX + 10
+        }
+        y += 36
         if !spinner.isHidden {
-            spinner.frame = NSRect(x: 18, y: y, width: 16, height: 16)
+            spinner.frame = NSRect(x: 18, y: y + 16, width: 16, height: 16)
             y += 32
         }
-        openSettings.frame = NSRect(x: 18, y: y, width: openSettings.preferredWidth, height: 36)
-        let height = y + 54
+        let height = y + 18
         if frame.height != height { setFrameSize(NSSize(width: frame.width, height: height)) }
     }
 
