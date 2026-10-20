@@ -37,7 +37,7 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
         self.formats = formats
         super.init()
         stream = CMIOExtensionStream(
-            localizedName: direction == .source ? CameraConfiguration.deviceName : "Xmax Camera Input",
+            localizedName: direction == .source ? CameraConfiguration.deviceName : "Alter Input",
             streamID: direction == .source ? CameraConfiguration.sourceID : CameraConfiguration.sinkID,
             direction: direction, clockType: .hostTime, source: self
         )

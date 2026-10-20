@@ -258,9 +258,9 @@ enum OutputError: LocalizedError {
     /// Setup guidance for missing devices or producer streams.
     var errorDescription: String? {
         switch self {
-        case .cameraAccessDenied: "Allow Xmax Camera in System Settings → Privacy & Security → Camera, then try again."
-        case .cameraUnavailable: "Xmax Virtual Camera is not visible to this app yet. Check extension status, then reopen Xmax Camera if it was just enabled."
-        case .sinkUnavailable: "The virtual camera input queue is unavailable. Reopen Xmax Camera and try again."
+        case .cameraAccessDenied: "Allow Alter in System Settings → Privacy & Security → Camera, then try again."
+        case .cameraUnavailable: "Xmax - Alter Camera is not visible to this app yet. Check extension status, then reopen Alter if it was just enabled."
+        case .sinkUnavailable: "The virtual camera input queue is unavailable. Reopen Alter and try again."
         }
     }
 }

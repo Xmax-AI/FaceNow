@@ -22,6 +22,11 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
         let application = NSApplication.shared
         let delegate = XmaxCameraApp()
         application.delegate = delegate
+        // Set the Dock icon directly when launching from Xcode, where Launch Services may cache an older icon.
+        if let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
+           let icon = NSImage(contentsOf: url) {
+            application.applicationIconImage = icon
+        }
         application.setActivationPolicy(.regular)
         withExtendedLifetime(delegate) { application.run() }
     }
@@ -30,7 +35,7 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
         configureMenus()
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1360, height: 850),
                               styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-        window.title = "Xmax Camera"
+        window.title = "Alter"
         window.contentViewController = realtime
         window.contentMinSize = NSSize(width: 1180, height: 760)
         window.appearance = NSAppearance(named: .aqua)
@@ -60,13 +65,13 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
 
     private func configureMenus() {
         let menu = NSMenu()
-        let app = NSMenu(title: "Xmax Camera")
-        app.addItem(withTitle: "About Xmax Camera", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        let app = NSMenu(title: "Alter")
+        app.addItem(withTitle: "About Alter", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         app.addItem(.separator())
-        app.addItem(withTitle: "Hide Xmax Camera", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        app.addItem(withTitle: "Hide Alter", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         app.addItem(withTitle: "Show All", action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
         app.addItem(.separator())
-        app.addItem(withTitle: "Quit Xmax Camera", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        app.addItem(withTitle: "Quit Alter", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let appItem = NSMenuItem(); appItem.submenu = app; menu.addItem(appItem)
 
         let edit = NSMenu(title: "Edit")

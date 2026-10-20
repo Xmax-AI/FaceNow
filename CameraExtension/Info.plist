@@ -11,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>Xmax - Alter Camera</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
@@ -19,11 +19,11 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Xmax Virtual Camera</string>
+	<string>Xmax - Alter Camera</string>
 	<key>CFBundlePackageType</key>
 	<string>SYSX</string>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>Provides Xmax Virtual Camera to video applications.</string>
+	<string>Provides Xmax - Alter Camera to video applications.</string>
 	<key>CMIOExtension</key>
 	<dict>
 		<key>CMIOExtensionMachServiceName</key>

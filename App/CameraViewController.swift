@@ -16,7 +16,7 @@ import XmaxSDK
 
 /// Owns persistent AppKit pages and applies coalesced session state updates to individual controls.
 @MainActor
-final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextViewDelegate {
+final class CameraViewController: NSViewController, NSTextFieldDelegate {
     let controller = CameraSessionController()
     let cameraExtension = CameraExtensionController()
     private lazy var cameraControls = CameraHomeControls(controller: controller, cameraExtension: cameraExtension)
@@ -69,8 +69,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
     private var lists: [RealtimeExampleMode: RealtimeReferenceList] = [:]
     private let promptContainer = RealtimeCanvas(color: RealtimePalette.surface, radius: 18)
     private let promptScroll = NSScrollView()
-    private let promptEditor = NSTextView()
-    private let promptPlaceholder = realtimeLabel("Describe how you want the video to change", size: 15, color: RealtimePalette.secondary)
+    private let promptEditor = RealtimePromptTextView()
     private let freeReference = RealtimeReferenceButton()
     private let removeReference = RealtimeButton("×", style: .plain)
     private let submitButton = RealtimeButton(icon: .arrow, style: .primary)
@@ -235,18 +234,24 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         }
         promptContainer.layer?.borderWidth = 1
         promptContainer.layer?.borderColor = RealtimePalette.border.cgColor
-        promptEditor.delegate = self
+        promptEditor.placeholder = "Describe how you want the video to change"
+        promptEditor.placeholderColor = RealtimePalette.secondary
+        promptEditor.onCommittedTextChange = { [weak self] text in
+            guard let self, self.controller.prompt != text else { return }
+            self.controller.prompt = text
+        }
         promptEditor.font = RealtimeHeaderTypography.font(size: 15)
         promptEditor.textColor = RealtimePalette.text
         promptEditor.isRichText = false; promptEditor.drawsBackground = false
         promptEditor.isVerticallyResizable = true; promptEditor.isHorizontallyResizable = false
         promptEditor.autoresizingMask = [.width]
-        promptEditor.textContainerInset = NSSize(width: 5, height: 6)
+        promptEditor.textContainerInset = .zero
+        promptEditor.textContainer?.lineFragmentPadding = 0
         promptEditor.textContainer?.widthTracksTextView = true
         promptEditor.setAccessibilityLabel("Describe how you want the video to change")
         promptScroll.drawsBackground = false; promptScroll.hasVerticalScroller = true
         promptScroll.documentView = promptEditor
-        [promptScroll, promptPlaceholder, freeReference, removeReference, submitButton].forEach(promptContainer.addSubview)
+        [promptScroll, freeReference, removeReference, submitButton].forEach(promptContainer.addSubview)
         freeReference.compact = true
         freeReference.onClick = { [weak self] in
             guard let self else { return }
@@ -352,8 +357,9 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         }
         promptContainer.isHidden = controller.activeMode != .free
         promptEditor.isEditable = !controller.isClosing
-        if promptEditor.string != controller.prompt { promptEditor.string = controller.prompt }
-        promptPlaceholder.isHidden = !controller.prompt.isEmpty
+        if !promptEditor.hasMarkedText(), promptEditor.string != controller.prompt {
+            promptEditor.string = controller.prompt
+        }
         if active && controller.activeMode == .free {
             freeReference.configure(controller.freeReference, selected: false, enabled: controller.canGenerate)
         } else { freeReference.thumbnail.cancel() }
@@ -475,9 +481,12 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         for list in lists.values { list.frame = NSRect(x: 0, y: listY, width: contentWidth, height: 190) }
         let promptWidth = min(contentWidth, 880)
         promptContainer.frame = NSRect(x: (contentWidth - promptWidth) / 2, y: listY + 4, width: promptWidth, height: 160)
-        promptScroll.frame = NSRect(x: 20, y: 12, width: promptWidth - 40, height: 84)
-        promptEditor.setFrameSize(NSSize(width: promptScroll.contentSize.width, height: max(84, promptEditor.frame.height)))
-        promptPlaceholder.frame = NSRect(x: 29, y: 18, width: promptWidth - 58, height: 22)
+        let promptPadding: CGFloat = 18
+        let promptHeight: CGFloat = 96 - promptPadding
+        promptScroll.frame = NSRect(x: promptPadding, y: promptPadding,
+                                    width: promptWidth - 2 * promptPadding, height: promptHeight)
+        promptEditor.setFrameSize(NSSize(width: promptScroll.contentSize.width,
+                                         height: max(promptHeight, promptEditor.frame.height)))
         freeReference.frame = NSRect(x: promptWidth - 110, y: 104, width: 44, height: 44)
         removeReference.frame = NSRect(x: promptWidth - 79, y: 96, width: 22, height: 22)
         submitButton.frame = NSRect(x: promptWidth - 56, y: 104, width: 44, height: 44)
@@ -663,8 +672,5 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
             popover?.close(); return true
         }
         return false
-    }
-    func textDidChange(_ notification: Notification) {
-        if notification.object as? NSTextView === promptEditor { controller.prompt = promptEditor.string }
     }
 }

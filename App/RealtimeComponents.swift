@@ -88,6 +88,66 @@ private final class RealtimeLabel: NSTextField {
     }
 }
 
+/// Draws the placeholder at the text origin and preserves input-method composition.
+final class RealtimePromptTextView: NSTextView {
+    var placeholder = "" { didSet { needsDisplay = true } }
+    var placeholderColor: NSColor = .placeholderTextColor
+    var onCommittedTextChange: ((String) -> Void)?
+    private var inputOperationDepth = 0
+
+    var showsPlaceholder: Bool { string.isEmpty && !hasMarkedText() }
+
+    override var string: String {
+        didSet { needsDisplay = true }
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        guard showsPlaceholder else { return }
+        let origin = textContainerOrigin
+        let padding = textContainer?.lineFragmentPadding ?? 0
+        (placeholder as NSString).draw(
+            at: NSPoint(x: origin.x + padding, y: origin.y),
+            withAttributes: [.font: font ?? NSFont.systemFont(ofSize: 15),
+                             .foregroundColor: placeholderColor]
+        )
+    }
+
+    override func didChangeText() {
+        super.didChangeText()
+        updateInputState()
+    }
+
+    override func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) {
+        inputOperationDepth += 1
+        defer { finishInputOperation() }
+        super.setMarkedText(string, selectedRange: selectedRange, replacementRange: replacementRange)
+    }
+
+    override func insertText(_ string: Any, replacementRange: NSRange) {
+        inputOperationDepth += 1
+        defer { finishInputOperation() }
+        super.insertText(string, replacementRange: replacementRange)
+    }
+
+    override func unmarkText() {
+        inputOperationDepth += 1
+        defer { finishInputOperation() }
+        super.unmarkText()
+    }
+
+    private func finishInputOperation() {
+        inputOperationDepth -= 1
+        updateInputState()
+    }
+
+    private func updateInputState() {
+        needsDisplay = true
+        guard inputOperationDepth == 0, !hasMarkedText() else { return }
+        onCommittedTextChange?(string)
+    }
+}
+
 /// Keeps the Web loading ring independent of control state updates.
 final class RealtimeSpinner: RealtimeCanvas {
     private let ring = CAShapeLayer()
@@ -402,7 +462,7 @@ final class RealtimeVideoPanel: RealtimeCanvas {
     private let placeholder = realtimeLabel(size: 14, color: .white.withAlphaComponent(0.55))
     private let caption: NSTextField
     private let captionBackground = RealtimeCanvas(color: .black.withAlphaComponent(0.35), radius: 8)
-    private let watermark = realtimeLabel("✦ Xmax", size: 13, color: .white.withAlphaComponent(0.8), weight: .semibold)
+    private let watermark = realtimeLabel("✦ Alter", size: 13, color: .white.withAlphaComponent(0.8), weight: .semibold)
     private var panels: [RealtimeStatisticsPanel] = []
     var mirrored = false { didSet { if oldValue != mirrored { needsLayout = true } } }
 

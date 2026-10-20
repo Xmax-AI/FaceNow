@@ -136,10 +136,10 @@ final class VideoFrameRenderer {
     /// Builds the mirrored waiting card from the same wordmark used by the home screen.
     private static func makeWaitingImage() throws -> CIImage {
 #if SWIFT_PACKAGE
-        let url = Bundle.module.url(forResource: "xmax-wordmark", withExtension: "png",
-                                    subdirectory: "Assets.xcassets/XmaxWordmark.imageset")
+        let url = Bundle.module.url(forResource: "alter-wordmark", withExtension: "png",
+                                    subdirectory: "Assets.xcassets/AlterWordmark.imageset")
 #else
-        let url = Bundle.main.url(forResource: "xmax-wordmark", withExtension: "png")
+        let url = Bundle.main.url(forResource: "alter-wordmark", withExtension: "png")
 #endif
         guard let url,
               let source = CGImageSourceCreateWithURL(url as CFURL, nil),
