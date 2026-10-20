@@ -35,10 +35,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     private let titleLabel = realtimeLabel("Be Different Everyday with Alter", size: 32, weight: .medium)
     private let checkerboard = RealtimeCheckerboard()
     private let startButton = RealtimeButton("Start Camera", icon: .camera, style: .primary)
-    private let microphonePill = RealtimeCanvas(color: .black.withAlphaComponent(0.2), radius: 16)
-    private let microphoneLabel = realtimeLabel("Microphone", size: 13, color: NSColor(white: 0.65, alpha: 1))
-    private let microphoneIcon = RealtimeButton(icon: .microphone, style: .plain)
-    private let microphoneSwitch = NSSwitch()
+    private let microphoneToggle = RealtimeMicrophoneToggle()
     private let terms = NSTextView()
     private let copyright = realtimeLabel("Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.", size: 13, color: RealtimePalette.secondary)
     private let wechat = RealtimeButton(icon: .wechat, style: .plain)
@@ -191,21 +188,10 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     private func configureLanding() {
         [titleLabel, checkerboard, copyright].forEach(landing.addSubview)
         titleLabel.alignment = .center; copyright.alignment = .center
-        [startButton, microphonePill, terms].forEach(checkerboard.addSubview)
-        [microphoneIcon, microphoneLabel, microphoneSwitch].forEach(microphonePill.addSubview)
-        microphonePill.layer?.borderWidth = 1
-        microphonePill.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
-        microphoneIcon.passive = true
-        microphoneIcon.iconSize = 14
-        microphoneIcon.foregroundColor = .white.withAlphaComponent(0.55)
-        microphonePill.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.28).cgColor
-        microphonePill.layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
-        microphoneSwitch.controlSize = .small
-        microphoneSwitch.target = self; microphoneSwitch.action = #selector(microphoneChanged)
-        microphoneSwitch.setAccessibilityLabel("Microphone")
+        [startButton, microphoneToggle, terms].forEach(checkerboard.addSubview)
         startButton.onClick = { [weak self] in
             guard let self else { return }
-            let enabled = self.microphoneSwitch.state == .on
+            let enabled = self.microphoneToggle.state == .on
             Task { [weak self] in await self?.controller.start(useMicrophone: enabled) }
         }
         terms.isEditable = false; terms.isSelectable = true; terms.drawsBackground = false
@@ -313,7 +299,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         startButton.title = starting ? "Starting…" : "Start Camera"
         startButton.loading = starting
         startButton.isEnabled = !starting
-        microphoneSwitch.isEnabled = !starting
+        microphoneToggle.isEnabled = !starting
         statisticsButton.selected = controller.statisticsVisible
         statisticsButton.toolTip = controller.statisticsVisible ? "Hide statistics (collection and logging continue)" : "Show statistics"
         statisticsButton.setAccessibilityValue(controller.statisticsVisible ? "On" : "Off")
@@ -538,15 +524,14 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         }.max() ?? 0
         let buttonWidth = ceil(labelWidth + startButton.iconSize + startButton.iconSpacing +
                                startButton.leadingPadding + startButton.trailingPadding)
-        let groupHeight = buttonHeight + 12 + 30
+        microphoneToggle.font = RealtimeHeaderTypography.font(size: smallSize)
+        let microphoneSize = microphoneToggle.intrinsicContentSize
+        let actionGap: CGFloat = 20
+        let groupHeight = buttonHeight + actionGap + microphoneSize.height
         startButton.frame = NSRect(x: (checkerboard.bounds.width - buttonWidth) / 2, y: (checkerboard.bounds.height - groupHeight) / 2, width: buttonWidth, height: buttonHeight)
-        microphoneLabel.font = RealtimeHeaderTypography.font(size: smallSize)
-        let microphoneText = RealtimeHeaderTypography.size("Microphone", font: microphoneLabel.font!)
-        let microphoneWidth = 14 + 14 + 8 + ceil(microphoneText.width) + 8 + 30 + 7
-        microphonePill.frame = NSRect(x: (checkerboard.bounds.width - microphoneWidth) / 2, y: startButton.frame.maxY + 12, width: microphoneWidth, height: 30)
-        microphoneIcon.frame = NSRect(x: 14, y: 8, width: 14, height: 14)
-        microphoneLabel.frame = NSRect(x: 34, y: (30 - microphoneText.height) / 2, width: ceil(microphoneText.width) + 4, height: microphoneText.height)
-        microphoneSwitch.frame = NSRect(x: microphoneWidth - 37, y: 6, width: 30, height: 18)
+        microphoneToggle.frame = NSRect(x: (checkerboard.bounds.width - microphoneSize.width) / 2,
+                                        y: startButton.frame.maxY + actionGap,
+                                        width: microphoneSize.width, height: microphoneSize.height)
         let text = "By clicking Start, you agree to our Terms of Use and Privacy Policy."
         let paragraph = NSMutableParagraphStyle(); paragraph.alignment = .center
         let attributed = NSMutableAttributedString(string: text, attributes: [
@@ -612,15 +597,6 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         volumeSlider.frame = NSRect(x: 14, y: 46, width: 216, height: 24)
         [label, volumeValue, volumeSlider].forEach(content.addSubview)
         presentPopover(content: content, from: volumeButton)
-    }
-
-    @objc private func microphoneChanged() {
-        let enabled = microphoneSwitch.state == .on
-        let color = NSColor.white.withAlphaComponent(enabled ? 1 : 0.55)
-        microphoneLabel.textColor = color
-        microphoneIcon.foregroundColor = color
-        microphoneIcon.needsDisplay = true
-        microphonePill.layer?.borderColor = NSColor.white.withAlphaComponent(enabled ? 0.3 : 0.16).cgColor
     }
 
     @objc private func volumeChanged() {
