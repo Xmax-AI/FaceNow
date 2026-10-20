@@ -49,7 +49,6 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
 
     /// Header settings and session actions
     private let keyButton = RealtimeButton(icon: .key)
-    private let currentModel = RealtimeButton()
     private let statisticsButton = RealtimeButton(icon: .statistics, style: .statistics)
     private let volumeButton = RealtimeButton(icon: .muted, style: .volume)
     private let interpolationButton = RealtimeButton("2x", icon: .lightning, style: .interpolation)
@@ -156,10 +155,9 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         logo.setAccessibilityLabel("Xmax")
         [logo, homeControls, sessionControls].forEach(header.addSubview)
         [cameraControls, keyButton].forEach(homeControls.addSubview)
-        [currentModel, statisticsButton, volumeButton, interpolationButton, elapsed, stopButton].forEach(sessionControls.addSubview)
+        [statisticsButton, volumeButton, interpolationButton, elapsed, stopButton].forEach(sessionControls.addSubview)
         keyButton.font = RealtimeHeaderTypography.font(size: 12)
         keyButton.iconSize = 14
-        currentModel.font = RealtimeHeaderTypography.font(size: 13, weight: .medium)
         elapsed.font = RealtimeHeaderTypography.font(size: 13, weight: .medium, monospacedDigits: true)
         for button in [statisticsButton, volumeButton, interpolationButton, stopButton] {
             button.font = RealtimeHeaderTypography.font(size: 13, weight: .semibold)
@@ -170,7 +168,6 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         stopButton.leadingPadding = 16; stopButton.trailingPadding = 16
         keyButton.toolTip = "API Key"; keyButton.setAccessibilityLabel("API Key")
         keyButton.onClick = { [weak self] in self?.showKeyEditor() }
-        currentModel.passive = true; currentModel.isEnabled = false
         elapsed.passive = true; elapsed.isEnabled = false
         statisticsButton.setAccessibilityLabel("Show statistics")
         statisticsButton.onClick = { [weak self] in self?.controller.statisticsVisible.toggle() }
@@ -306,7 +303,6 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         cameraControls.update()
         let needsPageLayout = pageChanged || keyButton.title != keyTitle ||
             previousCameraWidth != cameraControls.preferredWidth || displayedError != controller.errorMessage
-        currentModel.title = controller.model.displayName
         keyButton.title = keyTitle
         let starting = controller.isBusy && !controller.isClosing
         startButton.title = starting ? "Starting…" : "Start Camera"
@@ -507,7 +503,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         keyButton.frame = NSRect(x: cameraWidth + 12, y: 0, width: keyWidth, height: controlHeight)
         let stopWidth = ceil(RealtimeHeaderTypography.size("Stop Session", font: stopButton.font!).width) + 12 + 7 + 32
         let controls: [(RealtimeButton, CGFloat)] = [
-            (currentModel, currentModel.preferredWidth), (statisticsButton, 36), (volumeButton, 36),
+            (statisticsButton, 36), (volumeButton, 36),
             (interpolationButton, interpolationButton.preferredWidth), (elapsed, elapsed.preferredWidth), (stopButton, stopWidth)
         ]
         let sessionWidth = controls.reduce(CGFloat(0)) { $0 + $1.1 } + CGFloat(controls.count - 1) * 12
