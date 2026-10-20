@@ -140,7 +140,7 @@ final class CameraHomeControls: RealtimeCanvas {
     }
 }
 
-/// Persistent extension actions and diagnostics, updated independently of the session page.
+/// Persistent extension installation controls, updated independently of the session page.
 @MainActor
 private final class CameraExtensionSettings: RealtimeCanvas {
     private let controller: CameraSessionController
@@ -151,25 +151,18 @@ private final class CameraExtensionSettings: RealtimeCanvas {
     private let install = RealtimeButton("Install & Enable")
     private let remove = RealtimeButton("Remove", style: .destructive)
     private let openSettings = RealtimeButton("Open System Settings")
-    private let testPattern = RealtimeButton("Send Test Pattern")
     private let spinner = RealtimeSpinner()
-    private let separator = NSBox()
-    private let instructions = realtimeLabel("Select “Xmax Virtual Camera” in your meeting app. Keep Xmax Camera running while you present.", size: 12, color: RealtimePalette.secondary)
-    private let audio = realtimeLabel("Use your regular microphone for audio.", size: 12, color: RealtimePalette.secondary)
 
     init(controller: CameraSessionController, cameraExtension: CameraExtensionController) {
         self.controller = controller
         self.cameraExtension = cameraExtension
         super.init()
-        frame.size = NSSize(width: 376, height: 350)
-        for label in [status, instructions, audio] {
-            label.maximumNumberOfLines = 0
-            label.lineBreakMode = .byWordWrapping
-            label.cell?.wraps = true
-            label.cell?.usesSingleLineMode = false
-            label.cell?.isScrollable = false
-        }
-        separator.boxType = .separator
+        frame.size = NSSize(width: 376, height: 220)
+        status.maximumNumberOfLines = 0
+        status.lineBreakMode = .byWordWrapping
+        status.cell?.wraps = true
+        status.cell?.usesSingleLineMode = false
+        status.cell?.isScrollable = false
         refresh.symbolName = "arrow.clockwise"
         refresh.iconSize = 14
         refresh.setAccessibilityLabel("Refresh Virtual Camera")
@@ -177,8 +170,7 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         install.onClick = { [weak self] in self?.cameraExtension.install() }
         remove.onClick = { [weak self] in self?.cameraExtension.uninstall() }
         openSettings.onClick = { [weak self] in self?.cameraExtension.openSettings() }
-        testPattern.onClick = { [weak self] in Task { [weak self] in await self?.controller.toggleTestPattern() } }
-        [heading, status, refresh, install, remove, openSettings, testPattern, spinner, separator, instructions, audio].forEach(addSubview)
+        [heading, status, refresh, install, remove, openSettings, spinner].forEach(addSubview)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -193,9 +185,6 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         let waiting = cameraExtension.isBusy && !cameraExtension.isAwaitingApproval
         spinner.isHidden = !waiting
         spinner.setSpinning(waiting, color: RealtimePalette.secondary)
-        testPattern.title = controller.testPatternActive ? "Stop Test Pattern" : "Send Test Pattern"
-        testPattern.style = controller.testPatternActive ? .destructive : .pill
-        testPattern.isEnabled = !controller.isBusy && !controller.sessionActive && cameraExtension.isEnabled && !cameraExtension.isBusy
         needsLayout = true
         layoutSubtreeIfNeeded()
     }
@@ -214,12 +203,6 @@ private final class CameraExtensionSettings: RealtimeCanvas {
             y += 32
         }
         openSettings.frame = NSRect(x: 18, y: y, width: openSettings.preferredWidth, height: 36)
-        y += 52
-        separator.frame = NSRect(x: 18, y: y, width: bounds.width - 36, height: 1)
-        y += 17
-        place(instructions, at: &y)
-        place(audio, at: &y)
-        testPattern.frame = NSRect(x: 18, y: y, width: testPattern.preferredWidth, height: 36)
         let height = y + 54
         if frame.height != height { setFrameSize(NSSize(width: frame.width, height: height)) }
     }
