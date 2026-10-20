@@ -523,7 +523,12 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         startButton.leadingPadding = min(40, max(25, width * 0.0075 + 18))
         startButton.trailingPadding = startButton.leadingPadding
         let buttonHeight = max(20, ceil(RealtimeHeaderTypography.size(startButton.title, font: startButton.font!).height)) + min(16, max(12, width * 0.0028 + 9)) * 2
-        let buttonWidth = startButton.preferredWidth
+        // Reserve the longest state label so cleanup and startup never shrink the button.
+        let labelWidth = ["Start Camera", "Starting…", "Stopping…"].map {
+            RealtimeHeaderTypography.size($0, font: startButton.font!).width
+        }.max() ?? 0
+        let buttonWidth = ceil(labelWidth + startButton.iconSize + startButton.iconSpacing +
+                               startButton.leadingPadding + startButton.trailingPadding)
         let groupHeight = buttonHeight + 12 + 30
         startButton.frame = NSRect(x: (checkerboard.bounds.width - buttonWidth) / 2, y: (checkerboard.bounds.height - groupHeight) / 2, width: buttonWidth, height: buttonHeight)
         microphoneLabel.font = RealtimeHeaderTypography.font(size: smallSize)
