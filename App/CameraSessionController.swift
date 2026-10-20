@@ -55,7 +55,7 @@ final class CameraSessionController: ObservableObject {
     @Published private(set) var uplinkStatistics: UplinkVideoStatistics?
     @Published private(set) var downlinkStatistics: DownlinkVideoStatistics?
     @Published private(set) var networkQuality: RealtimeNetworkQuality?
-    @Published private(set) var interpolationEnabled = false
+    @Published private(set) var interpolationEnabled = true
     @Published private(set) var interpolationSwitching = false
     @Published private(set) var remoteAudioVolume: Float = 0
 
