@@ -268,6 +268,9 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
     private func configureFooter() {
         [wechat, social, website, contact, platform].forEach(footer.addSubview)
         wechat.iconSize = 20; social.iconSize = 18; website.iconSize = 20
+        for button in [wechat, social, website] {
+            button.foregroundColor = RealtimePalette.secondary.withAlphaComponent(0.75)
+        }
         wechat.setAccessibilityLabel("WeChat"); social.setAccessibilityLabel("X"); website.setAccessibilityLabel("Website")
         wechat.onClick = { [weak self] in self?.showWeChat() }
         social.onClick = { NSWorkspace.shared.open(URL(string: "https://x.com/XmaxAIOfficial")!) }
@@ -483,8 +486,8 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         submitButton.frame = NSRect(x: promptWidth - 56, y: 104, width: 44, height: 44)
         footer.frame = NSRect(x: 28, y: documentHeight - 48 - footerHeight, width: contentWidth, height: footerHeight)
         wechat.frame = NSRect(x: 0, y: 56, width: 24, height: 24)
-        social.frame = NSRect(x: 42, y: 56, width: 24, height: 24)
-        website.frame = NSRect(x: 84, y: 56, width: 24, height: 24)
+        social.frame = NSRect(x: 52, y: 56, width: 24, height: 24)
+        website.frame = NSRect(x: 104, y: 56, width: 24, height: 24)
         contact.frame = NSRect(x: contentWidth - 210, y: 56, width: 98, height: 26)
         platform.frame = NSRect(x: contentWidth - 100, y: 56, width: 100, height: 26)
         layoutToast()
