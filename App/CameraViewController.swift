@@ -68,7 +68,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     private let promptScroll = NSScrollView()
     private let promptEditor = RealtimePromptTextView()
     private let freeReference = RealtimeReferenceButton()
-    private let removeReference = RealtimeButton("×", style: .plain)
+    private let removeReference = RealtimeButton(icon: .close, style: .dismiss)
     private let submitButton = RealtimeButton(icon: .arrow, style: .primary)
 
     /// Error presentation and observation ownership
@@ -247,8 +247,16 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         }
         removeReference.toolTip = "Remove reference"
         removeReference.setAccessibilityLabel("Remove reference")
+        removeReference.iconSize = 11
+        removeReference.foregroundColor = .white
+        removeReference.backgroundInset = 6
+        removeReference.leadingPadding = 0
+        removeReference.trailingPadding = 0
+        // Keep a 32pt hit area around the smaller 20pt circular background.
+        removeReference.isBordered = true
         removeReference.onClick = { [weak self] in self?.controller.removeFreeReference() }
         submitButton.iconSize = 20
+        submitButton.showsShadow = false
         submitButton.setAccessibilityLabel("Submit prompt")
         submitButton.onClick = { [weak self] in Task { [weak self] in await self?.controller.submitPrompt() } }
     }
@@ -474,7 +482,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         promptEditor.setFrameSize(NSSize(width: promptScroll.contentSize.width,
                                          height: max(promptHeight, promptEditor.frame.height)))
         freeReference.frame = NSRect(x: promptWidth - 110, y: 104, width: 44, height: 44)
-        removeReference.frame = NSRect(x: promptWidth - 79, y: 96, width: 22, height: 22)
+        removeReference.frame = NSRect(x: promptWidth - 88, y: 92, width: 32, height: 32)
         submitButton.frame = NSRect(x: promptWidth - 56, y: 104, width: 44, height: 44)
         footer.frame = NSRect(x: 28, y: documentHeight - 48 - footerHeight, width: contentWidth, height: footerHeight)
         wechat.frame = NSRect(x: 0, y: 56, width: 24, height: 24)
