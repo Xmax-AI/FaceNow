@@ -32,7 +32,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
     private let logo = NSImageView()
     private let homeControls = RealtimeCanvas()
     private let sessionControls = RealtimeCanvas()
-    private let titleLabel = realtimeLabel("Reimagining Live Video with Xmax", size: 32, weight: .medium)
+    private let titleLabel = realtimeLabel("Be Different Everyday with Alter", size: 32, weight: .medium)
     private let checkerboard = RealtimeCheckerboard()
     private let startButton = RealtimeButton("Start Camera", icon: .camera, style: .primary)
     private let microphonePill = RealtimeCanvas(color: .black.withAlphaComponent(0.2), radius: 16)
@@ -451,7 +451,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         header.frame = NSRect(x: 28, y: 16 + (active ? surplus / 2 : 0), width: contentWidth, height: headerHeight)
         layoutHeader(viewportWidth: width)
         landing.frame = NSRect(x: 28, y: header.frame.maxY + 30 + surplus / 2, width: contentWidth, height: landingHeight)
-        titleLabel.attributedStringValue = NSAttributedString(string: "Reimagining Live Video with Xmax", attributes: [
+        titleLabel.attributedStringValue = NSAttributedString(string: "Be Different Everyday with Alter", attributes: [
             .font: RealtimeHeaderTypography.font(size: titleSize, weight: .medium),
             .foregroundColor: RealtimePalette.text, .kern: -titleSize * 0.03,
             .paragraphStyle: { let style = NSMutableParagraphStyle(); style.alignment = .center; return style }()
