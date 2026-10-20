@@ -274,7 +274,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate, NSTextV
         wechat.setAccessibilityLabel("WeChat"); social.setAccessibilityLabel("X"); website.setAccessibilityLabel("Website")
         wechat.onClick = { [weak self] in self?.showWeChat() }
         social.onClick = { NSWorkspace.shared.open(URL(string: "https://x.com/XmaxAIOfficial")!) }
-        website.onClick = { NSWorkspace.shared.open(URL(string: "https://www.xmaxai.com")!) }
+        website.onClick = { NSWorkspace.shared.open(URL(string: "https://xmaxsi.com")!) }
         contact.onClick = { NSWorkspace.shared.open(URL(string: "mailto:contact@xmax.ai")!) }
         platform.onClick = { NSWorkspace.shared.open(URL(string: "https://platform.xmaxai.com")!) }
     }
