@@ -31,7 +31,7 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>Enable Xmax - Alter Camera to use generated video in meeting apps.</string>
+	<string>Enable FaceNow - Xmax Virtual Camera to use generated video in meeting apps.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Alter uses your microphone when you enable microphone capture.</string>
 </dict>

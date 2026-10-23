@@ -11,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Xmax - Alter Camera</string>
+	<string>FaceNow - Xmax Virtual Camera</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
@@ -19,11 +19,11 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Xmax - Alter Camera</string>
+	<string>FaceNow - Xmax Virtual Camera</string>
 	<key>CFBundlePackageType</key>
 	<string>SYSX</string>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>Provides Xmax - Alter Camera to video applications.</string>
+	<string>Provides FaceNow - Xmax Virtual Camera to video applications.</string>
 	<key>CMIOExtension</key>
 	<dict>
 		<key>CMIOExtensionMachServiceName</key>

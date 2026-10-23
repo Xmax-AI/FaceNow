@@ -96,7 +96,7 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         Task { @MainActor in
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
             self.isAwaitingApproval = true
-            self.status = "Enable Xmax - Alter Camera in System Settings → General → Login Items & Extensions → Camera Extensions."
+            self.status = "Enable FaceNow - Xmax Virtual Camera in System Settings → General → Login Items & Extensions → Camera Extensions."
         }
     }
 

@@ -21,7 +21,7 @@ enum CameraConfiguration {
     static let extensionBundleID = "com.xmax.meeting.camera.extension"
 
     /// The camera name displayed in video conference applications.
-    static let deviceName = "Xmax - Alter Camera"
+    static let deviceName = "FaceNow - Xmax Virtual Camera"
 
     /// Stable identifiers keep camera selection intact across launches.
     static let deviceID = UUID(uuidString: "C1EF1269-DBA1-473B-BD21-7F3695635A01")!
