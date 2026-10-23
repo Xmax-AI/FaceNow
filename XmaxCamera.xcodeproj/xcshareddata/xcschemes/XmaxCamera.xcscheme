@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
-               BuildableName = "Alter.app"
+               BuildableName = "FaceNow.app"
                BlueprintName = "XmaxCamera"
                ReferencedContainer = "container:XmaxCamera.xcodeproj">
             </BuildableReference>
@@ -31,7 +31,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
-            BuildableName = "Alter.app"
+            BuildableName = "FaceNow.app"
             BlueprintName = "XmaxCamera"
             ReferencedContainer = "container:XmaxCamera.xcodeproj">
          </BuildableReference>
@@ -54,7 +54,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
-            BuildableName = "Alter.app"
+            BuildableName = "FaceNow.app"
             BlueprintName = "XmaxCamera"
             ReferencedContainer = "container:XmaxCamera.xcodeproj">
          </BuildableReference>
@@ -71,7 +71,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
-            BuildableName = "Alter.app"
+            BuildableName = "FaceNow.app"
             BlueprintName = "XmaxCamera"
             ReferencedContainer = "container:XmaxCamera.xcodeproj">
          </BuildableReference>

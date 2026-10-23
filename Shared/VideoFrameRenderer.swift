@@ -10,7 +10,6 @@
 
 import CoreImage
 import CoreMedia
-import ImageIO
 import Foundation
 
 /// Allocates bounded IOSurface buffers and normalizes video without changing its orientation.
@@ -51,7 +50,7 @@ final class VideoFrameRenderer {
         ))
         guard let description else { throw RendererError.allocation }
         formatDescription = description
-        waitingImage = try Self.makeWaitingImage()
+        waitingImage = Self.makeWaitingImage()
     }
 
     /// Reuses compatible SDK buffers; otherwise converts the complete frame without cropping or padding.
@@ -72,7 +71,7 @@ final class VideoFrameRenderer {
         return try render(resized)
     }
 
-    /// Returns a mirrored offline card without exposing the last generated image indefinitely.
+    /// Returns a blank light-gray offline frame when generated video is unavailable.
     func waiting() throws -> CVPixelBuffer {
         try render(waitingImage)
     }
@@ -133,33 +132,10 @@ final class VideoFrameRenderer {
         CVBufferSetAttachment(buffer, kCVImageBufferYCbCrMatrixKey, kCVImageBufferYCbCrMatrix_ITU_R_709_2, .shouldPropagate)
     }
 
-    /// Builds the mirrored waiting card from the same wordmark used by the home screen.
-    private static func makeWaitingImage() throws -> CIImage {
-#if SWIFT_PACKAGE
-        let url = Bundle.module.url(forResource: "xmax-wordmark", withExtension: "png",
-                                    subdirectory: "Assets.xcassets/XmaxWordmark.imageset")
-#else
-        let url = Bundle.main.url(forResource: "xmax-wordmark", withExtension: "png")
-#endif
-        guard let url,
-              let source = CGImageSourceCreateWithURL(url as CFURL, nil),
-              let logo = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
-            throw RendererError.logoUnavailable
-        }
-        let width = CGFloat(CameraConfiguration.width)
-        let height = CGFloat(CameraConfiguration.height)
-        let logoWidth: CGFloat = 320
-        let logoHeight = logoWidth * CGFloat(logo.height) / CGFloat(logo.width)
-        let image = CIImage(cgImage: logo)
-            .transformed(by: CGAffineTransform(scaleX: logoWidth / CGFloat(logo.width),
-                                               y: logoHeight / CGFloat(logo.height)))
-            .transformed(by: CGAffineTransform(translationX: (width - logoWidth) / 2,
-                                               y: (height - logoHeight) / 2))
-        let background = CIImage(color: CIColor(red: 241.0 / 255, green: 243.0 / 255, blue: 244.0 / 255))
-            .cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
-        return image.composited(over: background).transformed(by: CGAffineTransform(
-            a: -1, b: 0, c: 0, d: 1, tx: width, ty: 0
-        ))
+    /// Builds a neutral waiting canvas without overlay artwork.
+    private static func makeWaitingImage() -> CIImage {
+        CIImage(color: CIColor(red: 241.0 / 255, green: 243.0 / 255, blue: 244.0 / 255))
+            .cropped(to: CGRect(x: 0, y: 0, width: CameraConfiguration.width, height: CameraConfiguration.height))
     }
 
     /// Converts framework status codes into actionable errors.
@@ -171,5 +147,4 @@ final class VideoFrameRenderer {
 /// A framework failed to provide an expected media object.
 enum RendererError: Error {
     case allocation
-    case logoUnavailable
 }

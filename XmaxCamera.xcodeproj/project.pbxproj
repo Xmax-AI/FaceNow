@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		ED10A2000000000000000001 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = ED10A2000000000000000002 /* AppIcon.icon */; };
+		ED10A1000000000000000001 /* VirtualCameraDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */; };
 		072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */; };
 		0EFD2926CF9B6217858923B2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F45DDBCF2262F852E3ACAB /* main.swift */; };
 		24EBD686F04593528B662379 /* RealtimeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C61510EA63A1D41DB290439 /* RealtimeComponents.swift */; };
@@ -64,6 +65,7 @@
 
 /* Begin PBXFileReference section */
 		ED10A2000000000000000002 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCameraDiscovery.swift; sourceTree = "<group>"; };
 		0312EDF570FA115B8ABFA5F5 /* VirtualCameraOutput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VirtualCameraOutput.swift; sourceTree = "<group>"; };
 		1A22CD6B34B787588C6F7637 /* DMSans.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = DMSans.ttf; path = Fonts/DMSans.ttf; sourceTree = "<group>"; };
 		218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VideoFrameRenderer.swift; sourceTree = "<group>"; };
@@ -73,7 +75,7 @@
 		4AF8EF9A2620ED87E310518F /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.xmax.meeting.camera.extension.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B7FAB859E61424E0DC94E54 /* CameraExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = CameraExtension.entitlements; sourceTree = "<group>"; };
-		606E92A00D1608AECF5468D8 /* Alter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		606E92A00D1608AECF5468D8 /* FaceNow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FaceNow.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XmaxCameraApp.swift; sourceTree = "<group>"; };
 		6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		6FE7033AAE7D77FE565A1988 /* CameraHomeControls.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraHomeControls.swift; sourceTree = "<group>"; };
@@ -128,7 +130,7 @@
 		3591BDEBAE5C7EAD0E628879 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				606E92A00D1608AECF5468D8 /* Alter.app */,
+				606E92A00D1608AECF5468D8 /* FaceNow.app */,
 				548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */,
 			);
 			name = Products;
@@ -139,6 +141,7 @@
 			children = (
 				FE595473F6330AEFFC852098 /* CameraConfiguration.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
+				ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */,
 				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
 				ED10A2000000000000000002 /* AppIcon.icon */,
 				7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */,
@@ -231,8 +234,8 @@
 				DD026C4A2E5517ABACE1429F /* XmaxSDK */,
 				9D88F8DA4B4DBEDDCDB47C95 /* Kingfisher */,
 			);
-			productName = Alter;
-			productReference = 606E92A00D1608AECF5468D8 /* Alter.app */;
+			productName = FaceNow;
+			productReference = 606E92A00D1608AECF5468D8 /* FaceNow.app */;
 			productType = "com.apple.product-type.application";
 		};
 		BD76D3D724D4D028F97D966F /* XmaxCameraExtension */ = {
@@ -296,7 +299,7 @@
 			);
 			mainGroup = 4AEAD3DDD7956F4051F08197;
 			packageReferences = (
-				C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */,
+				C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */,
 				6A46DE71A0B66FA2AA3E2C9C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 3591BDEBAE5C7EAD0E628879 /* Products */;
@@ -354,6 +357,7 @@
 				8E6E6D32D82A1CA81BB6A398 /* CameraSessionController.swift in Sources */,
 				2FE1C04483A5A36F7913C541 /* CameraViewController.swift in Sources */,
 				DBD9711216C85CEAE3C9140F /* VirtualCameraOutput.swift in Sources */,
+				ED10A1000000000000000001 /* VirtualCameraDiscovery.swift in Sources */,
 				072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */,
 				FBB1B12A3D6744AC6004BA41 /* CameraConfiguration.swift in Sources */,
 				CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */,
@@ -568,7 +572,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera;
-				PRODUCT_NAME = "Alter";
+				PRODUCT_NAME = "FaceNow";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -592,7 +596,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera;
-				PRODUCT_NAME = "Alter";
+				PRODUCT_NAME = "FaceNow";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -630,6 +634,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../XmaxSDK;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		6A46DE71A0B66FA2AA3E2C9C /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -637,14 +648,6 @@
 			requirement = {
 				kind = exactVersion;
 				version = 8.10.0;
-			};
-		};
-		C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/XingMai/XmaxSDK-MacOS.git";
-			requirement = {
-				kind = revision;
-				revision = fc6489bf1720f351a81094a8da945b7122edafed;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -657,7 +660,7 @@
 		};
 		DD026C4A2E5517ABACE1429F /* XmaxSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */;
+			package = C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */;
 			productName = XmaxSDK;
 		};
 /* End XCSwiftPackageProductDependency section */

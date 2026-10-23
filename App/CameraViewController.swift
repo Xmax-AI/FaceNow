@@ -32,7 +32,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     private let logo = NSImageView()
     private let homeControls = RealtimeCanvas()
     private let sessionControls = RealtimeCanvas()
-    private let titleLabel = realtimeLabel("Be Different Everyday with Alter", size: 32, weight: .medium)
+    private let titleLabel = realtimeLabel("Be Different Everyday with FaceNow", size: 32, weight: .medium)
     private let checkerboard = RealtimeCheckerboard()
     private let startButton = RealtimeButton("Start Camera", icon: .camera, style: .primary)
     private let microphoneToggle = RealtimeMicrophoneToggle()
@@ -308,7 +308,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         let starting = controller.isBusy && !controller.isClosing
         startButton.title = starting ? "Starting…" : "Start Camera"
         startButton.loading = starting
-        startButton.isEnabled = !starting
+        startButton.isEnabled = !starting && !cameraExtension.requiresRestart && !cameraExtension.isBusy
         microphoneToggle.isEnabled = !starting
         statisticsButton.selected = controller.statisticsVisible
         statisticsButton.toolTip = controller.statisticsVisible ? "Hide statistics (collection and logging continue)" : "Show statistics"
@@ -453,7 +453,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         header.frame = NSRect(x: 28, y: 16 + (active ? surplus / 2 : 0), width: contentWidth, height: headerHeight)
         layoutHeader(viewportWidth: width)
         landing.frame = NSRect(x: 28, y: header.frame.maxY + 30 + surplus / 2, width: contentWidth, height: landingHeight)
-        titleLabel.attributedStringValue = NSAttributedString(string: "Be Different Everyday with Alter", attributes: [
+        titleLabel.attributedStringValue = NSAttributedString(string: "Be Different Everyday with FaceNow", attributes: [
             .font: RealtimeHeaderTypography.font(size: titleSize, weight: .medium),
             .foregroundColor: RealtimePalette.text, .kern: -titleSize * 0.03,
             .paragraphStyle: { let style = NSMutableParagraphStyle(); style.alignment = .center; return style }()
@@ -592,10 +592,25 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     }
 
     private func showKeyEditor() {
-        let content = RealtimeCanvas(); content.frame.size = NSSize(width: 280, height: 56)
+        let text = "Get an API key from the Xmax Open Platform."
+        let attributed = NSMutableAttributedString(string: text, attributes: [
+            .font: RealtimeHeaderTypography.font(size: 12), .foregroundColor: RealtimePalette.secondary
+        ])
+        attributed.addAttribute(.link, value: "https://platform.xmaxsi.com/api-keys",
+                                range: (text as NSString).range(of: "Xmax Open Platform"))
+        let width = max(292, ceil(attributed.size().width) + 40)
+        let content = RealtimeCanvas(); content.frame.size = NSSize(width: width, height: 94)
         keyField.stringValue = controller.apiKey
-        keyField.frame = NSRect(x: 10, y: 10, width: 260, height: 36)
+        keyField.frame = NSRect(x: 16, y: 16, width: width - 32, height: 36)
         content.addSubview(keyField)
+        let help = NSTextView(frame: NSRect(x: 18, y: 64, width: width - 36, height: 18))
+        help.isEditable = false; help.isSelectable = true; help.drawsBackground = false
+        help.textContainerInset = .zero
+        help.textContainer?.lineFragmentPadding = 0
+        help.linkTextAttributes = [.foregroundColor: RealtimePalette.accent,
+                                   .underlineStyle: NSUnderlineStyle.single.rawValue]
+        help.textStorage?.setAttributedString(attributed)
+        content.addSubview(help)
         presentPopover(content: content, from: keyButton)
         keyField.window?.makeFirstResponder(keyField)
     }

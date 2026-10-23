@@ -68,6 +68,8 @@ final class CameraSessionController: ObservableObject {
     private var selectionIntent = UUID()
     private var pendingInitialReference: RealtimeReference?
     private var application: Task<Void, Never>?
+    private let deviceMonitor = CameraDeviceMonitor.shared
+    private var deviceObservation: AnyCancellable?
     private let makeManager: (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging
     private let uploadImage: (XmaxClient, Data, String, XmaxStorageProgressHandler?) async throws -> URL
 
@@ -83,6 +85,7 @@ final class CameraSessionController: ObservableObject {
     ) {
         self.makeManager = makeManager
         self.uploadImage = uploadImage
+        deviceObservation = deviceMonitor.changes.sink { [weak self] in self?.refreshCameras() }
         refreshCameras()
     }
 
@@ -99,10 +102,7 @@ final class CameraSessionController: ObservableObject {
     /// Discovers physical inputs without opening a capture session.
     func refreshCameras() {
         guard !settingsLocked else { return }
-        let discovery = AVCaptureDevice.DiscoverySession(
-            deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified
-        )
-        cameras = discovery.devices.filter {
+        cameras = deviceMonitor.devices.filter {
             $0.uniqueID.caseInsensitiveCompare(CameraConfiguration.deviceID.uuidString) != .orderedSame &&
             $0.localizedName != CameraConfiguration.deviceName
         }.map { CaptureDevice(id: $0.uniqueID, name: $0.localizedName) }

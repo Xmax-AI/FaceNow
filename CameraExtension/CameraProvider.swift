@@ -115,7 +115,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     func deviceProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionDeviceProperties {
         let values = CMIOExtensionDeviceProperties(dictionary: [:])
         if properties.contains(.deviceTransportType) { values.transportType = kIOAudioDeviceTransportTypeVirtual }
-        if properties.contains(.deviceModel) { values.model = "Alter" }
+        if properties.contains(.deviceModel) { values.model = "FaceNow" }
         return values
     }
 

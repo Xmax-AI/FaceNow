@@ -569,7 +569,7 @@ final class RealtimeVideoPanel: RealtimeCanvas {
     private let placeholder = realtimeLabel(size: 14, color: .white.withAlphaComponent(0.55))
     private let caption: NSTextField
     private let captionBackground = RealtimeCanvas(color: .black.withAlphaComponent(0.35), radius: 8)
-    private let watermark = realtimeLabel("✦ Alter", size: 13, color: .white.withAlphaComponent(0.8), weight: .semibold)
+    private let watermark = realtimeLabel("✦ FaceNow", size: 13, color: .white.withAlphaComponent(0.8), weight: .semibold)
     private var panels: [RealtimeStatisticsPanel] = []
     var mirrored = false { didSet { if oldValue != mirrored { needsLayout = true } } }
 
@@ -598,16 +598,8 @@ final class RealtimeVideoPanel: RealtimeCanvas {
     override func layout() {
         super.layout()
         videoContainer.frame = bounds; video.frame = videoContainer.bounds
-        CATransaction.begin(); CATransaction.setDisableActions(true)
-        // Flip only the rendered video. Labels, statistics, and frame callbacks stay unchanged.
-        var transform = CATransform3DIdentity
-        if mirrored {
-            let anchorX = videoContainer.layer?.anchorPoint.x ?? 0.5
-            transform = CATransform3DTranslate(transform, bounds.width * (1 - 2 * anchorX), 0, 0)
-            transform = CATransform3DScale(transform, -1, 1, 1)
-        }
-        videoContainer.layer?.sublayerTransform = transform
-        CATransaction.commit()
+        // Mirror the SDK video layer so pointer coordinates and trajectory visuals stay aligned.
+        video.isMirrored = mirrored
         placeholder.frame = NSRect(x: 20, y: bounds.midY - 10, width: bounds.width - 40, height: 20)
         let captionSize = RealtimeHeaderTypography.size(caption.stringValue, font: caption.font!)
         captionBackground.frame = NSRect(x: 14, y: bounds.height - 12 - captionSize.height - 6, width: ceil(captionSize.width) + 16, height: captionSize.height + 6)

@@ -88,6 +88,7 @@ final class CameraHomeControls: RealtimeCanvas {
     private func showCameras() {
         guard !controller.settingsLocked else { return }
         closePopover()
+        controller.refreshCameras()
         let content = RealtimeCanvas()
         pickerContent = content
         pickerSignature = ""
@@ -121,14 +122,7 @@ final class CameraHomeControls: RealtimeCanvas {
             content.addSubview(label)
             y += 36
         }
-        let separator = NSBox(); separator.boxType = .separator
-        separator.frame = NSRect(x: 8, y: y + 4, width: 260, height: 1)
-        content.addSubview(separator)
-        let refresh = RealtimeButton("Refresh Cameras", style: .tab)
-        refresh.frame = NSRect(x: 8, y: y + 10, width: 260, height: 34)
-        refresh.onClick = { [weak self] in self?.controller.refreshCameras() }
-        content.addSubview(refresh)
-        content.frame.size = NSSize(width: 276, height: y + 52)
+        content.frame.size = NSSize(width: 276, height: y + 6)
         popover?.contentSize = content.frame.size
     }
 
@@ -167,7 +161,7 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         refresh.iconSize = 14
         refresh.setAccessibilityLabel("Refresh Virtual Camera")
         refresh.toolTip = "Refresh camera extension status"
-        refresh.onClick = { [weak self] in self?.cameraExtension.refresh() }
+        refresh.onClick = { [weak self] in self?.cameraExtension.refresh(retryDeviceDiscovery: true) }
         install.onClick = { [weak self] in self?.cameraExtension.install() }
         remove.onClick = { [weak self] in self?.cameraExtension.uninstall() }
         openSettings.onClick = { [weak self] in self?.cameraExtension.openSettings() }
@@ -183,7 +177,9 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         install.isEnabled = !controller.settingsLocked && !cameraExtension.isBusy && !cameraExtension.isRefreshing
         remove.isEnabled = install.isEnabled
         remove.isHidden = !cameraExtension.isEnabled
-        let waiting = cameraExtension.isBusy && !cameraExtension.isAwaitingApproval
+        let waiting = cameraExtension.isRefreshing ||
+            (cameraExtension.isBusy && !cameraExtension.isAwaitingApproval) || cameraExtension.isWaitingForDevice
+        refresh.isHidden = waiting
         spinner.isHidden = !waiting
         spinner.setSpinning(waiting, color: RealtimePalette.secondary)
         let buttons = actionButtons
@@ -202,6 +198,7 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         super.layout()
         heading.frame = NSRect(x: 18, y: 23, width: bounds.width - 84, height: 24)
         refresh.frame = NSRect(x: bounds.width - 48, y: 18, width: 30, height: 30)
+        spinner.frame = NSRect(x: refresh.frame.midX - 8, y: refresh.frame.midY - 8, width: 16, height: 16)
         var y: CGFloat = 64
         place(status, at: &y)
         var x: CGFloat = 18
@@ -210,10 +207,6 @@ private final class CameraExtensionSettings: RealtimeCanvas {
             x = button.frame.maxX + 10
         }
         y += 36
-        if !spinner.isHidden {
-            spinner.frame = NSRect(x: 18, y: y + 16, width: 16, height: 16)
-            y += 32
-        }
         let height = y + 18
         if frame.height != height { setFrameSize(NSSize(width: frame.width, height: height)) }
     }
