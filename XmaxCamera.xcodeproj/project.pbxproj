@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED10A2000000000000000001 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = ED10A2000000000000000002 /* AppIcon.icon */; };
 		072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */; };
 		0EFD2926CF9B6217858923B2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F45DDBCF2262F852E3ACAB /* main.swift */; };
 		24EBD686F04593528B662379 /* RealtimeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C61510EA63A1D41DB290439 /* RealtimeComponents.swift */; };
@@ -62,6 +63,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ED10A2000000000000000002 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		0312EDF570FA115B8ABFA5F5 /* VirtualCameraOutput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VirtualCameraOutput.swift; sourceTree = "<group>"; };
 		1A22CD6B34B787588C6F7637 /* DMSans.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = DMSans.ttf; path = Fonts/DMSans.ttf; sourceTree = "<group>"; };
 		218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VideoFrameRenderer.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				FE595473F6330AEFFC852098 /* CameraConfiguration.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
 				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
+				ED10A2000000000000000002 /* AppIcon.icon */,
 				7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */,
 				DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */,
 			);
@@ -312,6 +315,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF0A05F53FF000F057E788D2 /* Assets.xcassets in Resources */,
+				ED10A2000000000000000001 /* AppIcon.icon in Resources */,
 				53274E996AA64BA9F7D07367 /* DMSans.ttf in Resources */,
 				67B2B5A362C554E6CDDCD5D6 /* DMSans-OFL.txt in Resources */,
 				2B79F366B5DF74C2D79A7D8E /* xmax-wordmark.png in Resources */,
