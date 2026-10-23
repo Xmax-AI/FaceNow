@@ -42,6 +42,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     private let social = RealtimeButton(icon: .socialX, style: .plain)
     private let website = RealtimeButton(icon: .globe, style: .plain)
     private let contact = RealtimeButton("Contact Us", style: .plain)
+    private let github = RealtimeButton("GitHub", style: .plain)
     private let platform = RealtimeButton("API Platform", style: .plain)
 
     /// Header settings and session actions
@@ -262,7 +263,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     }
 
     private func configureFooter() {
-        [wechat, social, website, contact, platform].forEach(footer.addSubview)
+        [wechat, social, website, contact, github, platform].forEach(footer.addSubview)
         wechat.iconSize = 20; social.iconSize = 18; website.iconSize = 20
         for button in [wechat, social, website] {
             button.foregroundColor = RealtimePalette.secondary.withAlphaComponent(0.75)
@@ -272,6 +273,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         social.onClick = { NSWorkspace.shared.open(URL(string: "https://x.com/XmaxAIOfficial")!) }
         website.onClick = { NSWorkspace.shared.open(URL(string: "https://xmaxsi.com")!) }
         contact.onClick = { NSWorkspace.shared.open(URL(string: "mailto:contact@xmax.ai")!) }
+        github.onClick = { NSWorkspace.shared.open(URL(string: "https://github.com/orgs/Xmax-AI")!) }
         platform.onClick = { NSWorkspace.shared.open(URL(string: "https://platform.xmaxai.com")!) }
     }
 
@@ -488,7 +490,8 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         wechat.frame = NSRect(x: 0, y: 56, width: 24, height: 24)
         social.frame = NSRect(x: 52, y: 56, width: 24, height: 24)
         website.frame = NSRect(x: 104, y: 56, width: 24, height: 24)
-        contact.frame = NSRect(x: contentWidth - 210, y: 56, width: 98, height: 26)
+        contact.frame = NSRect(x: contentWidth - 292, y: 56, width: 98, height: 26)
+        github.frame = NSRect(x: contentWidth - 182, y: 56, width: 70, height: 26)
         platform.frame = NSRect(x: contentWidth - 100, y: 56, width: 100, height: 26)
         layoutToast()
     }
