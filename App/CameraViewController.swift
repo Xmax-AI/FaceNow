@@ -546,8 +546,8 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
             .font: RealtimeHeaderTypography.font(size: smallSize), .paragraphStyle: paragraph,
             .foregroundColor: NSColor(srgbRed: 0.612, green: 0.639, blue: 0.686, alpha: 1)
         ])
-        attributed.addAttribute(.link, value: "https://platform.xmaxai.com/docs/resources/terms", range: (text as NSString).range(of: "Terms of Use"))
-        attributed.addAttribute(.link, value: "https://platform.xmaxai.com/docs/resources/privacy", range: (text as NSString).range(of: "Privacy Policy"))
+        attributed.addAttribute(.link, value: "https://platform.xmaxsi.com/docs/resources/terms", range: (text as NSString).range(of: "Terms of Use"))
+        attributed.addAttribute(.link, value: "https://platform.xmaxsi.com/docs/resources/privacy", range: (text as NSString).range(of: "Privacy Policy"))
         let termsWidth = checkerboard.bounds.width - 40
         let termsHeight = ceil(attributed.boundingRect(with: NSSize(width: termsWidth, height: 100), options: [.usesLineFragmentOrigin, .usesFontLeading]).height)
         terms.frame = NSRect(x: 20, y: checkerboard.bounds.height - 30 - termsHeight, width: termsWidth, height: termsHeight)
