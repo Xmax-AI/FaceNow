@@ -267,7 +267,7 @@ enum OutputError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .cameraAccessDenied: "Allow FaceNow in System Settings → Privacy & Security → Camera, then try again."
-        case .cameraUnavailable: "The virtual camera is not ready yet. Check Virtual Camera settings and try again."
+        case .cameraUnavailable: VirtualCameraDiscovery.DiscoveryError.timedOut.errorDescription
         case .sinkUnavailable: "The virtual camera input queue is not ready. Wait a moment and try again."
         }
     }

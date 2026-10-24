@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED10A4000000000000000001 /* CameraDiscoveryDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A4000000000000000002 /* CameraDiscoveryDiagnostics.swift */; };
+		ED10A3000000000000000001 /* AppShutdownCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A3000000000000000002 /* AppShutdownCoordinator.swift */; };
 		ED10A2000000000000000001 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = ED10A2000000000000000002 /* AppIcon.icon */; };
 		ED10A1000000000000000001 /* VirtualCameraDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */; };
 		072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */; };
@@ -64,6 +66,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ED10A4000000000000000002 /* CameraDiscoveryDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraDiscoveryDiagnostics.swift; sourceTree = "<group>"; };
+		ED10A3000000000000000002 /* AppShutdownCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShutdownCoordinator.swift; sourceTree = "<group>"; };
 		ED10A2000000000000000002 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCameraDiscovery.swift; sourceTree = "<group>"; };
 		0312EDF570FA115B8ABFA5F5 /* VirtualCameraOutput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VirtualCameraOutput.swift; sourceTree = "<group>"; };
@@ -142,6 +146,8 @@
 				FE595473F6330AEFFC852098 /* CameraConfiguration.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
 				ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */,
+				ED10A4000000000000000002 /* CameraDiscoveryDiagnostics.swift */,
+				ED10A3000000000000000002 /* AppShutdownCoordinator.swift */,
 				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
 				ED10A2000000000000000002 /* AppIcon.icon */,
 				7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */,
@@ -358,6 +364,8 @@
 				2FE1C04483A5A36F7913C541 /* CameraViewController.swift in Sources */,
 				DBD9711216C85CEAE3C9140F /* VirtualCameraOutput.swift in Sources */,
 				ED10A1000000000000000001 /* VirtualCameraDiscovery.swift in Sources */,
+				ED10A4000000000000000001 /* CameraDiscoveryDiagnostics.swift in Sources */,
+				ED10A3000000000000000001 /* AppShutdownCoordinator.swift in Sources */,
 				072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */,
 				FBB1B12A3D6744AC6004BA41 /* CameraConfiguration.swift in Sources */,
 				CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */,

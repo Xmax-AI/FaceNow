@@ -87,6 +87,10 @@ final class CameraHomeControls: RealtimeCanvas {
 
     private func showCameras() {
         guard !controller.settingsLocked else { return }
+        guard cameraExtension.isEnabled, !cameraExtension.isBusy else {
+            showExtensionSettings()
+            return
+        }
         closePopover()
         controller.refreshCameras()
         let content = RealtimeCanvas()
@@ -145,6 +149,7 @@ private final class CameraExtensionSettings: RealtimeCanvas {
     private let install = RealtimeButton("Install & Enable")
     private let remove = RealtimeButton("Remove", style: .destructive)
     private let openSettings = RealtimeButton("Open System Settings")
+    private let testVideo = RealtimeButton("Test Video")
     private let spinner = RealtimeSpinner()
 
     init(controller: CameraSessionController, cameraExtension: CameraExtensionController) {
@@ -165,7 +170,10 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         install.onClick = { [weak self] in self?.cameraExtension.install() }
         remove.onClick = { [weak self] in self?.cameraExtension.uninstall() }
         openSettings.onClick = { [weak self] in self?.cameraExtension.openSettings() }
-        [heading, status, refresh, install, remove, openSettings, spinner].forEach(addSubview)
+        testVideo.onClick = { [weak self] in
+            Task { [weak self] in await self?.controller.toggleTestPattern() }
+        }
+        [heading, status, refresh, install, remove, openSettings, testVideo, spinner].forEach(addSubview)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -177,6 +185,9 @@ private final class CameraExtensionSettings: RealtimeCanvas {
         install.isEnabled = !controller.settingsLocked && !cameraExtension.isBusy && !cameraExtension.isRefreshing
         remove.isEnabled = install.isEnabled
         remove.isHidden = !cameraExtension.isEnabled
+        testVideo.isHidden = !CameraDiscoveryDiagnostics.activationRequested
+        testVideo.title = controller.testPatternActive ? "Stop Test Video" : "Test Video"
+        testVideo.isEnabled = cameraExtension.isDeviceReady && !controller.isBusy && !controller.sessionActive
         let waiting = cameraExtension.isRefreshing ||
             (cameraExtension.isBusy && !cameraExtension.isAwaitingApproval) || cameraExtension.isWaitingForDevice
         refresh.isHidden = waiting
@@ -191,7 +202,8 @@ private final class CameraExtensionSettings: RealtimeCanvas {
     }
 
     private var actionButtons: [RealtimeButton] {
-        remove.isHidden ? [install, openSettings] : [install, remove, openSettings]
+        let setup = remove.isHidden ? [install, openSettings] : [install, remove, openSettings]
+        return testVideo.isHidden ? setup : setup + [testVideo]
     }
 
     override func layout() {

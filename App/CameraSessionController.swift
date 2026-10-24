@@ -147,8 +147,12 @@ final class CameraSessionController: ObservableObject {
             errorMessage = "API Key is required — click the key button in the top-right corner to enter it"
             return
         }
+        guard deviceMonitor.isStarted else {
+            errorMessage = "Enable Virtual Camera before starting the camera."
+            return
+        }
         guard !cameraID.isEmpty else {
-            errorMessage = "Connect a physical camera and refresh the camera list."
+            errorMessage = "Connect a physical camera and select it from the camera list."
             return
         }
         if testPatternActive { await close() }
@@ -413,7 +417,7 @@ final class CameraSessionController: ObservableObject {
 
     /// Returns to the landing page immediately and prevents a restart until media teardown finishes.
     func close() async {
-        guard !isClosing, sessionActive || testPatternActive else { return }
+        guard !isClosing, isBusy || sessionActive || testPatternActive || localStream != nil else { return }
         resetSession()
         errorMessage = nil
         await cleanup?.value
@@ -447,10 +451,12 @@ final class CameraSessionController: ObservableObject {
         // Keep hidden video bindings alive while the landing page animates and resources are released.
         cleanup = Task { [output] in
             await previousCleanup?.value
-            await output.stop()
+            // A blocked virtual-camera transport must not delay stopping physical capture.
+            async let outputStop: Void = output.stop()
             await closingManager?.setRemoteVideoFrameListener(nil)
             await closingManager?.setStateListener(nil)
             await closingManager?.close()
+            await outputStop
             withExtendedLifetime(closingClient) {}
             guard self.lifecycleID == operation else { return }
             self.localStream = nil

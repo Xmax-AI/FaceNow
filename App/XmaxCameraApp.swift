@@ -9,6 +9,8 @@
 //
 
 import AppKit
+import Darwin
+import os
 
 /// Native AppKit application lifecycle, window ownership, and standard editing menus.
 @main
@@ -16,9 +18,11 @@ import AppKit
 final class XmaxCameraApp: NSObject, NSApplicationDelegate {
     private let realtime = CameraViewController()
     private var window: NSWindow?
-    private var terminating = false
+    private let shutdownCoordinator = AppShutdownCoordinator()
+    private var exitWatchdog: AppExitWatchdog?
 
     static func main() {
+        if CameraDiscoveryDiagnostics.handleCommandLine() { return }
         let application = NSApplication.shared
         let delegate = XmaxCameraApp()
         application.delegate = delegate
@@ -54,12 +58,21 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        guard !terminating else { return .terminateLater }
-        terminating = true
-        Task {
-            await realtime.shutdown()
-            sender.reply(toApplicationShouldTerminate: true)
+        if exitWatchdog == nil {
+            // Keep this deadline alive after cleanup: SDK termination observers can also deadlock.
+            exitWatchdog = AppExitWatchdog { Darwin._exit(EXIT_SUCCESS) }
         }
+        shutdownCoordinator.start(cleanup: { [realtime] in
+            await realtime.shutdown()
+        }, completion: { timedOut in
+            if timedOut {
+                Logger(subsystem: CameraConfiguration.appBundleID, category: "Shutdown")
+                    .error("Shutdown exceeded 8 seconds; exiting without SDK termination observers")
+                // exit() and AppKit termination both invoke handlers that can re-enter a stuck SDK.
+                Darwin._exit(EXIT_SUCCESS)
+            }
+            sender.reply(toApplicationShouldTerminate: true)
+        })
         return .terminateLater
     }
 

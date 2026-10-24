@@ -4,25 +4,31 @@ import Combine
 import Foundation
 import os
 
-/// Keeps AVFoundation discovery and CMIO notifications alive before extension registration.
+/// Owns hardware discovery, started explicitly after the extension is enabled.
 @MainActor
 final class CameraDeviceMonitor {
     static let shared = CameraDeviceMonitor()
     nonisolated static let didChange = Notification.Name("FaceNow.CameraDevicesChanged")
     let changes = PassthroughSubject<Void, Never>()
-    private let discovery: AVCaptureDevice.DiscoverySession
+    private var discovery: AVCaptureDevice.DiscoverySession?
+    private(set) var isStarted = false
     private var observation: NSKeyValueObservation?
     private var notifications: [NSObjectProtocol] = []
     private var cmioListener: CMIOObjectPropertyListenerBlock?
     private let logger = Logger(subsystem: CameraConfiguration.appBundleID, category: "Discovery")
 
-    var devices: [AVCaptureDevice] { discovery.devices }
+    var devices: [AVCaptureDevice] { discovery?.devices ?? [] }
 
-    private init() {
+    private init() {}
+
+    /// Constructing controllers or reading an empty picker must not initialize the hardware list.
+    func start() {
+        guard !isStarted else { return }
+        isStarted = true
         discovery = AVCaptureDevice.DiscoverySession(
             deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified
         )
-        observation = discovery.observe(\.devices, options: [.initial, .new]) { [weak self] _, _ in
+        observation = discovery?.observe(\.devices, options: [.initial, .new]) { [weak self] _, _ in
             Task { @MainActor [weak self] in self?.changed(reason: "AVFoundation device list") }
         }
         for name in [AVCaptureDevice.wasConnectedNotification, AVCaptureDevice.wasDisconnectedNotification] {
@@ -64,15 +70,36 @@ final class CameraDeviceMonitor {
 
 /// Discovers the producer sink independently of the system extension's activation state.
 enum VirtualCameraDiscovery {
-    struct Sink: Equatable, Sendable {
+    struct Sink: Codable, Equatable, Sendable {
         let device: CMIODeviceID
         let stream: CMIOStreamID
     }
 
+    struct QueryFailure: Codable, LocalizedError, Sendable {
+        let operation: String
+        let object: CMIOObjectID
+        let status: Int32
+
+        var errorDescription: String? { "\(operation) failed for object \(object): OSStatus \(status)" }
+    }
+
+    /// Records only counts and this app's virtual device, never camera names or video contents.
+    struct Snapshot: Codable, Sendable {
+        var processID: Int32 = ProcessInfo.processInfo.processIdentifier
+        var uptime: TimeInterval = ProcessInfo.processInfo.systemUptime
+        var deviceCount = 0
+        var virtualDevice: CMIODeviceID?
+        var outputStreams: [CMIOStreamID] = []
+        var sink: Sink?
+        var failures: [QueryFailure] = []
+    }
+
+    private static let logger = Logger(subsystem: CameraConfiguration.appBundleID, category: "Discovery")
+
     enum DiscoveryError: LocalizedError {
         case timedOut
         var errorDescription: String? {
-            "The virtual camera is not ready yet. Check Virtual Camera settings and try again."
+            "The virtual camera is not ready. Please restart FaceNow."
         }
     }
 
@@ -113,12 +140,24 @@ enum VirtualCameraDiscovery {
             continuation.finish()
         }
         let deadline = ContinuousClock.now.advanced(by: timeout)
+        var previousError: String?
         for await _ in events {
             try Task.checkCancellation()
             // Device IDs can disappear between enumeration and reading stream properties during replacement.
-            if let sink = try? probe() {
-                try Task.checkCancellation()
-                return sink
+            do {
+                if let sink = try probe() {
+                    try Task.checkCancellation()
+                    return sink
+                }
+                previousError = nil
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                let message = error.localizedDescription
+                if previousError != message {
+                    logger.error("Camera discovery query failed: \(message, privacy: .public)")
+                    previousError = message
+                }
             }
             if ContinuousClock.now >= deadline { throw DiscoveryError.timedOut }
         }
@@ -126,28 +165,64 @@ enum VirtualCameraDiscovery {
     }
 
     static func findSink() throws -> Sink? {
-        for device in try objectIDs(CMIOObjectID(kCMIOObjectSystemObject), selector: UInt32(kCMIOHardwarePropertyDevices)) {
+        let result = snapshot()
+        if let sink = result.sink { return sink }
+        if let failure = result.failures.first { throw failure }
+        return nil
+    }
+
+    static func snapshot() -> Snapshot {
+        var result = Snapshot()
+        let devices: [CMIOObjectID]
+        do {
+            devices = try objectIDs(CMIOObjectID(kCMIOObjectSystemObject), selector: UInt32(kCMIOHardwarePropertyDevices))
+            result.deviceCount = devices.count
+        } catch {
+            result.failures.append(QueryFailure(operation: "device list", object: CMIOObjectID(kCMIOObjectSystemObject),
+                                                status: Int32((error as NSError).code)))
+            return result
+        }
+        for device in devices {
             var address = CMIOObjectPropertyAddress(
                 mSelector: UInt32(kCMIODevicePropertyDeviceUID),
                 mScope: UInt32(kCMIOObjectPropertyScopeGlobal), mElement: UInt32(kCMIOObjectPropertyElementMain)
             )
             var uid: Unmanaged<CFString>?
             var size = UInt32(MemoryLayout<CFString>.size)
-            guard CMIOObjectGetPropertyData(device, &address, 0, nil, size, &size, &uid) == noErr,
-                  let value = uid?.takeRetainedValue(),
+            let status = CMIOObjectGetPropertyData(device, &address, 0, nil, size, &size, &uid)
+            guard status == noErr else {
+                result.failures.append(QueryFailure(operation: "device UID", object: device, status: status))
+                continue
+            }
+            guard let value = uid?.takeRetainedValue(),
                   (value as String).caseInsensitiveCompare(CameraConfiguration.deviceID.uuidString) == .orderedSame else { continue }
-            for stream in try objectIDs(device, selector: UInt32(kCMIODevicePropertyStreams), scope: UInt32(kCMIODevicePropertyScopeOutput)) {
+            result.virtualDevice = device
+            do {
+                result.outputStreams = try objectIDs(device, selector: UInt32(kCMIODevicePropertyStreams),
+                                                     scope: UInt32(kCMIODevicePropertyScopeOutput))
+            } catch {
+                result.failures.append(QueryFailure(operation: "output streams", object: device,
+                                                    status: Int32((error as NSError).code)))
+                return result
+            }
+            for stream in result.outputStreams {
                 var directionAddress = CMIOObjectPropertyAddress(
                     mSelector: UInt32(kCMIOStreamPropertyDirection),
                     mScope: UInt32(kCMIOObjectPropertyScopeGlobal), mElement: UInt32(kCMIOObjectPropertyElementMain)
                 )
                 var direction: UInt32 = 1
                 var directionSize: UInt32 = 4
-                if CMIOObjectGetPropertyData(stream, &directionAddress, 0, nil, directionSize, &directionSize, &direction) == noErr,
-                   direction == 0 { return Sink(device: device, stream: stream) }
+                let status = CMIOObjectGetPropertyData(stream, &directionAddress, 0, nil, directionSize, &directionSize, &direction)
+                if status != noErr {
+                    result.failures.append(QueryFailure(operation: "stream direction", object: stream, status: status))
+                } else if direction == 0 {
+                    result.sink = Sink(device: device, stream: stream)
+                    return result
+                }
             }
+            return result
         }
-        return nil
+        return result
     }
 
     private static func objectIDs(

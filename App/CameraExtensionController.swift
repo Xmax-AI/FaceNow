@@ -11,6 +11,7 @@
 import AppKit
 import Combine
 import SystemExtensions
+import os
 
 /// Manages explicit, user-initiated installation and removal of the bundled camera.
 @MainActor
@@ -39,6 +40,11 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
     private var readinessPolicy = CameraReadinessPolicy()
     private var forceDeviceCheck = false
     private var deviceObservation: AnyCancellable?
+    private var diagnosticTask: Task<Void, Never>?
+    private var diagnosticID = UUID()
+    private var diagnoseAfterReadiness = false
+    private var deferDiscoveryUntilActivation = CameraDiscoveryDiagnostics.activationRequested
+    private let logger = Logger(subsystem: CameraConfiguration.appBundleID, category: "DiscoveryComparison")
 
     override init() {
         super.init()
@@ -100,6 +106,7 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
     /// Starts a request on the main queue and keeps controls stable until it finishes.
     private func submit(_ request: OSSystemExtensionRequest, kind: RequestKind) {
         guard !isBusy, !isRefreshing else { return }
+        cancelDiscoveryComparison()
         cancelDeviceWait()
         readinessPolicy.reset()
         requiresRestart = false
@@ -133,6 +140,11 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
+            let activated = self.pendingKind == .activation && result == .completed
+            if activated {
+                self.deferDiscoveryUntilActivation = false
+                self.logger.notice("Camera activation completed before starting deferred discovery")
+            }
             self.pendingRequest = nil
             self.pendingKind = nil
             self.isBusy = false
@@ -144,6 +156,7 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
                 self.cancelDeviceWait()
                 self.status = "Restart your Mac to finish camera extension setup."
             } else {
+                self.diagnoseAfterReadiness = activated && CameraDiscoveryDiagnostics.activationRequested
                 self.status = "Request completed"
                 self.refresh()
             }
@@ -186,11 +199,16 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
             // An already-enabled old version must not complete approval for its replacement.
             guard !self.isBusy, !self.requiresRestart else { return }
             if enabled {
+                if self.deferDiscoveryUntilActivation {
+                    self.status = "Camera extension enabled. Click Update to test activation."
+                    return
+                }
                 if self.readinessPolicy.shouldCheck(version: version, force: self.forceDeviceCheck) {
                     self.cancelDeviceWait()
                     self.waitForDevice()
                 }
             } else {
+                self.cancelDiscoveryComparison()
                 self.cancelDeviceWait()
                 self.readinessPolicy.reset()
                 self.status = "Camera extension not enabled"
@@ -209,17 +227,26 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         status = "Camera extension enabled. Waiting for the camera to become available…"
         readinessTask = Task { [weak self] in
             do {
+                if !CameraDeviceMonitor.shared.isStarted, let executable = Bundle.main.executableURL {
+                    try await CameraDiscoveryDiagnostics.waitForPublication(executable: executable)
+                    guard let self, self.readinessID == id, !Task.isCancelled else { return }
+                    self.logger.notice("Fresh process confirmed camera publication before host discovery startup")
+                    CameraDeviceMonitor.shared.start()
+                }
                 _ = try await VirtualCameraDiscovery.waitForSink()
                 guard let self, self.readinessID == id, !Task.isCancelled else { return }
+                self.logger.notice("Virtual camera sink discovered after enabled-state verification")
                 self.isDeviceReady = true
                 self.status = "Virtual camera ready"
                 self.isWaitingForDevice = false
                 self.readinessTask = nil
+                self.compareDiscoveryIfRequested()
             } catch {
                 guard let self, self.readinessID == id, !Task.isCancelled else { return }
-                self.status = "The extension is enabled, but its camera device is unavailable. Click Refresh to retry or Update to reactivate it."
+                self.status = "Camera extension enabled. Please restart FaceNow."
                 self.isWaitingForDevice = false
                 self.readinessTask = nil
+                self.compareDiscoveryIfRequested()
             }
         }
     }
@@ -232,7 +259,35 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         isDeviceReady = false
     }
 
-    isolated deinit { readinessTask?.cancel() }
+    private func cancelDiscoveryComparison() {
+        diagnosticID = UUID()
+        diagnoseAfterReadiness = false
+        diagnosticTask?.cancel()
+        diagnosticTask = nil
+    }
+
+    /// Opt-in diagnostics leave normal startup and the user's camera stream unchanged.
+    private func compareDiscoveryIfRequested() {
+        guard diagnoseAfterReadiness, diagnosticTask == nil, let executable = Bundle.main.executableURL else { return }
+        diagnoseAfterReadiness = false
+        let id = UUID()
+        diagnosticID = id
+        diagnosticTask = Task { [weak self] in
+            do {
+                let comparison = try await CameraDiscoveryDiagnostics.compare(executable: executable)
+                guard let self, self.diagnosticID == id, !Task.isCancelled else { return }
+                let report = String(decoding: try comparison.reportData(), as: UTF8.self)
+                self.logger.notice("Camera discovery comparison: \(report, privacy: .public)")
+                self.diagnosticTask = nil
+            } catch {
+                guard let self, self.diagnosticID == id, !Task.isCancelled else { return }
+                self.logger.error("Camera discovery comparison failed: \(error.localizedDescription, privacy: .public)")
+                self.diagnosticTask = nil
+            }
+        }
+    }
+
+    isolated deinit { readinessTask?.cancel(); diagnosticTask?.cancel() }
 
     /// Distinguishes a status query from an operation that needs a subsequent refresh.
     private enum RequestKind { case activation, deactivation }
