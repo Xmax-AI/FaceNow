@@ -15,6 +15,7 @@ import CoreGraphics
 import Foundation
 import ImageIO
 import XmaxSDK
+import os
 
 /// Coordinates the example workflow, reference uploads, and generated-frame virtual output.
 @MainActor
@@ -52,6 +53,7 @@ final class CameraSessionController: ObservableObject {
     @Published private(set) var selectedReferenceID: String?
     @Published private(set) var uploadedReferences: [RealtimeReference] = []
     @Published private(set) var launchTiming = RealtimeLaunchTiming()
+    @Published private(set) var appLaunchTiming = AppLaunchTiming()
     @Published private(set) var uplinkStatistics: UplinkVideoStatistics?
     @Published private(set) var downlinkStatistics: DownlinkVideoStatistics?
     @Published private(set) var networkQuality: RealtimeNetworkQuality?
@@ -66,9 +68,9 @@ final class CameraSessionController: ObservableObject {
     private var manager: (any XmaxRealtimeManaging)?
     private var lifecycleID = UUID()
     private var selectionIntent = UUID()
-    private var pendingInitialReference: RealtimeReference?
     private var application: Task<Void, Never>?
     private let deviceMonitor = CameraDeviceMonitor.shared
+    private let startupLogger = Logger(subsystem: CameraConfiguration.appBundleID, category: "Startup")
     private var deviceObservation: AnyCancellable?
     private let makeManager: (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging
     private let uploadImage: (XmaxClient, Data, String, XmaxStorageProgressHandler?) async throws -> URL
@@ -136,8 +138,8 @@ final class CameraSessionController: ObservableObject {
         let name: String
     }
 
-    /// Keeps the landing page during startup and mounts the local preview in the background to satisfy SDK readiness.
-    func start(useMicrophone: Bool = false) async {
+    /// Initializes RTC, then prepares camera and the cloud connection concurrently in one SDK operation.
+    func start(useMicrophone: Bool = false, requestedAt: UInt64 = DispatchTime.now().uptimeNanoseconds) async {
         guard !isClosing else {
             errorMessage = "The previous session is still stopping. Please try again in a moment."
             return
@@ -160,8 +162,11 @@ final class CameraSessionController: ObservableObject {
         errorMessage = nil
         let operation = UUID()
         lifecycleID = operation
+        appLaunchTiming.begin(operation: operation, at: requestedAt)
+        startupLogger.notice("App startup accepted; measuring from Start click")
         await cleanup?.value
         guard lifecycleID == operation else { return }
+        advanceStartup(to: .appSetup, operation: operation)
         activeMode = .charx
         selectedReferenceID = nil
         launchTiming = RealtimeLaunchTiming()
@@ -208,13 +213,15 @@ final class CameraSessionController: ObservableObject {
                     self.resetSession()
                 }
             }
-            if state.connectionState == .ready {
-                Task { [weak self] in await self?.startPendingGeneration() }
-            }
         }
         guard lifecycleID == operation else { return }
-        pendingInitialReference = RealtimeExampleMode.charx.presets.first
+        guard let reference = RealtimeExampleMode.charx.presets.first else {
+            resetSession()
+            return
+        }
+        selectedReferenceID = reference.id
         do {
+            advanceStartup(to: .virtualCamera, operation: operation)
             try await output.start(testPattern: false)
             guard lifecycleID == operation else { return }
             output.frames.reset(producer: operation)
@@ -225,37 +232,31 @@ final class CameraSessionController: ObservableObject {
                                now: CMClockGetTime(CMClockGetHostTimeClock()).seconds)
             }
             guard lifecycleID == operation else { return }
-            let stream = try await manager.createLocalCameraStream(deviceID: cameraID, useMicrophone: useMicrophone)
+            advanceStartup(to: .generation, operation: operation)
+            let remote = try await manager.startCameraGeneration(
+                videoFormat: model.defaultCameraVideoFormat,
+                deviceID: cameraID,
+                useMicrophone: useMicrophone,
+                context: RealtimeContext(prompt: reference.prompt ?? reference.mode.prompt,
+                                         referencePath: reference.referencePath.isEmpty ? nil : reference.referencePath),
+                faceRestoration: reference.mode.faceRestoration,
+                localStreamListener: { [weak self] stream in
+                    guard let self, self.lifecycleID == operation else { return }
+                    self.localStream = stream
+                }
+            )
             guard lifecycleID == operation else { await manager.close(); return }
-            localStream = stream
             try await manager.setRemoteAudioVolume(remoteAudioVolume)
-            await startPendingGeneration()
+            guard lifecycleID == operation else { return }
+            advanceStartup(to: .resultView, operation: operation)
+            remoteStream = remote
+            isBusy = false
         } catch {
             guard lifecycleID == operation else { return }
             errorMessage = error.localizedDescription
             resetSession()
             await cleanup?.value
         }
-    }
-
-    /// Consumes the initial preset once, opens the session page after connection succeeds, and releases the camera on failure.
-    private func startPendingGeneration() async {
-        guard state.connectionState == .ready, localStream != nil,
-              let reference = pendingInitialReference else { return }
-        pendingInitialReference = nil
-        let operation = lifecycleID
-        do {
-            selectedReferenceID = reference.id
-            try await generate(reference: reference)
-        } catch {
-            guard lifecycleID == operation else { return }
-            errorMessage = error.localizedDescription
-            if !sessionActive {
-                resetSession()
-                await cleanup?.value
-            }
-        }
-        if lifecycleID == operation { isBusy = false }
     }
 
     /// Condition updates keep the page interactive; selections are applied serially with only the latest pending selection retained.
@@ -365,6 +366,7 @@ final class CameraSessionController: ObservableObject {
     private func generate(reference: RealtimeReference) async throws {
         guard let manager, let localStream else { return }
         let operation = lifecycleID
+        advanceStartup(to: .generation, operation: operation)
         let remote = try await manager.startGeneration(
             localStream: localStream,
             context: RealtimeContext(prompt: reference.prompt ?? reference.mode.prompt,
@@ -372,7 +374,29 @@ final class CameraSessionController: ObservableObject {
             faceRestoration: reference.mode.faceRestoration
         )
         guard lifecycleID == operation else { return }
+        advanceStartup(to: .resultView, operation: operation)
         remoteStream = remote
+    }
+
+    /// Called after the SDK's cached first result frame is bound to the visible result view.
+    /// This is app readiness, not a GPU presentation or third-party virtual-camera receipt timestamp.
+    func resultViewDidBecomeReady() {
+        guard sessionActive, state.connectionState == .generating, remoteStream != nil,
+              appLaunchTiming.totalMs == nil, appLaunchTiming.phase == .resultView else { return }
+        guard appLaunchTiming.finish(operation: lifecycleID, at: DispatchTime.now().uptimeNanoseconds) else { return }
+        let total = appLaunchTiming.totalMs ?? 0
+        startupLogger.notice("App startup ready: total=\(total) ms; \(self.appLaunchTiming.summary, privacy: .public)")
+    }
+
+    private func advanceStartup(to phase: AppLaunchTiming.Phase, operation: UUID) {
+        // Avoid publishing timing changes for subsequent condition updates or stale completions.
+        var timing = appLaunchTiming
+        let previous = timing.phase
+        guard timing.advance(to: phase, operation: operation, at: DispatchTime.now().uptimeNanoseconds) else { return }
+        appLaunchTiming = timing
+        if let previous, let duration = timing.milliseconds(for: previous) {
+            startupLogger.notice("App startup phase: \(previous.name, privacy: .public)=\(duration) ms")
+        }
     }
 
     func removeFreeReference() {
@@ -437,9 +461,9 @@ final class CameraSessionController: ObservableObject {
         application?.cancel()
         testPatternActive = false
         lifecycleID = UUID()
+        appLaunchTiming = AppLaunchTiming()
         let operation = lifecycleID
         selectionIntent = UUID()
-        pendingInitialReference = nil
         application = nil
         manager = nil
         client = nil

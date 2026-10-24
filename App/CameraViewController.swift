@@ -193,7 +193,8 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         startButton.onClick = { [weak self] in
             guard let self else { return }
             let enabled = self.microphoneToggle.state == .on
-            Task { [weak self] in await self?.controller.start(useMicrophone: enabled) }
+            let requestedAt = DispatchTime.now().uptimeNanoseconds
+            Task { [weak self] in await self?.controller.start(useMicrophone: enabled, requestedAt: requestedAt) }
         }
         terms.isEditable = false; terms.isSelectable = true; terms.drawsBackground = false
         terms.textContainerInset = .zero
@@ -384,6 +385,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
             animateEntry(active ? workspace : landing)
             if !active { animateEntry(footer) }
         }
+        if active, view.window != nil { controller.resultViewDidBecomeReady() }
     }
 
     private func updateElapsed() {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED10A5000000000000000001 /* AppLaunchTiming.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A5000000000000000002 /* AppLaunchTiming.swift */; };
 		ED10A4000000000000000001 /* CameraDiscoveryDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A4000000000000000002 /* CameraDiscoveryDiagnostics.swift */; };
 		ED10A3000000000000000001 /* AppShutdownCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A3000000000000000002 /* AppShutdownCoordinator.swift */; };
 		ED10A2000000000000000001 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = ED10A2000000000000000002 /* AppIcon.icon */; };
@@ -66,6 +67,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ED10A5000000000000000002 /* AppLaunchTiming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLaunchTiming.swift; sourceTree = "<group>"; };
 		ED10A4000000000000000002 /* CameraDiscoveryDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraDiscoveryDiagnostics.swift; sourceTree = "<group>"; };
 		ED10A3000000000000000002 /* AppShutdownCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShutdownCoordinator.swift; sourceTree = "<group>"; };
 		ED10A2000000000000000002 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 				ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */,
 				ED10A4000000000000000002 /* CameraDiscoveryDiagnostics.swift */,
 				ED10A3000000000000000002 /* AppShutdownCoordinator.swift */,
+				ED10A5000000000000000002 /* AppLaunchTiming.swift */,
 				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
 				ED10A2000000000000000002 /* AppIcon.icon */,
 				7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */,
@@ -366,6 +369,7 @@
 				ED10A1000000000000000001 /* VirtualCameraDiscovery.swift in Sources */,
 				ED10A4000000000000000001 /* CameraDiscoveryDiagnostics.swift in Sources */,
 				ED10A3000000000000000001 /* AppShutdownCoordinator.swift in Sources */,
+				ED10A5000000000000000001 /* AppLaunchTiming.swift in Sources */,
 				072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */,
 				FBB1B12A3D6744AC6004BA41 /* CameraConfiguration.swift in Sources */,
 				CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */,
