@@ -55,7 +55,7 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
                 self.cancelDeviceWait()
                 self.waitForDevice()
             } else {
-                self.refresh(retryDeviceDiscovery: true)
+                self.refresh(retryDeviceDiscovery: true, preservingFailure: true)
             }
         }
     }
@@ -64,10 +64,13 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
     private var pendingRequest: OSSystemExtensionRequest?
     private var pendingKind: RequestKind?
     private var propertiesRequest: OSSystemExtensionRequest?
+    /// Background device/property refreshes must not erase the result of an explicit user request.
+    private var requestFailureMessage: String?
 
     /// Refreshes system state without installing or activating anything.
-    func refresh(retryDeviceDiscovery: Bool = false) {
+    func refresh(retryDeviceDiscovery: Bool = false, preservingFailure: Bool = false) {
         guard (!isBusy || isAwaitingApproval), propertiesRequest == nil else { return }
+        if !preservingFailure { requestFailureMessage = nil }
         forceDeviceCheck = retryDeviceDiscovery
         let request = OSSystemExtensionRequest.propertiesRequest(
             forExtensionWithIdentifier: CameraConfiguration.extensionBundleID, queue: .main
@@ -109,11 +112,13 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         cancelDiscoveryComparison()
         cancelDeviceWait()
         readinessPolicy.reset()
+        requestFailureMessage = nil
         requiresRestart = false
         isBusy = true
         isAwaitingApproval = false
         pendingRequest = request
         pendingKind = kind
+        status = kind == .deactivation ? "Removing virtual camera…" : "Installing camera extension…"
         request.delegate = self
         OSSystemExtensionManager.shared.submitRequest(request)
     }
@@ -171,17 +176,28 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
             if self.propertiesRequest.map(ObjectIdentifier.init) == identifier {
                 self.propertiesRequest = nil
                 self.isRefreshing = false
-                if !self.isBusy, !self.requiresRestart { self.status = message }
+                if !self.isBusy, !self.requiresRestart { self.status = self.requestFailureMessage ?? message }
                 return
             }
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
+            let removal = self.pendingKind == .deactivation
+            let failure: String
+            let systemError = error as NSError
+            if removal, systemError.domain == OSSystemExtensionErrorDomain,
+               systemError.code == OSSystemExtensionError.Code.extensionNotFound.rawValue {
+                failure = "Removal failed: macOS could not match the installed camera to this app. Click Update, then Remove, or remove it in System Settings."
+            } else {
+                failure = "\(removal ? "Removal" : "Installation") failed: \(message)"
+            }
             self.pendingRequest = nil
             self.pendingKind = nil
             self.isBusy = false
             self.isAwaitingApproval = false
             self.propertiesRequest = nil
             self.isRefreshing = false
-            self.status = message
+            self.requestFailureMessage = failure
+            self.status = failure
+            self.refresh(preservingFailure: true)
         }
     }
 
@@ -200,7 +216,7 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
             guard !self.isBusy, !self.requiresRestart else { return }
             if enabled {
                 if self.deferDiscoveryUntilActivation {
-                    self.status = "Camera extension enabled. Click Update to test activation."
+                    self.status = self.requestFailureMessage ?? "Camera extension enabled. Click Update to test activation."
                     return
                 }
                 if self.readinessPolicy.shouldCheck(version: version, force: self.forceDeviceCheck) {
@@ -211,7 +227,7 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
                 self.cancelDiscoveryComparison()
                 self.cancelDeviceWait()
                 self.readinessPolicy.reset()
-                self.status = "Camera extension not enabled"
+                self.status = self.requestFailureMessage ?? "Camera extension not enabled"
             }
             self.forceDeviceCheck = false
         }
@@ -224,7 +240,7 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         readinessID = id
         isDeviceReady = false
         isWaitingForDevice = true
-        status = "Camera extension enabled. Waiting for the camera to become available…"
+        status = requestFailureMessage ?? "Camera extension enabled. Waiting for the camera to become available…"
         readinessTask = Task { [weak self] in
             do {
                 if !CameraDeviceMonitor.shared.isStarted, let executable = Bundle.main.executableURL {
@@ -237,13 +253,13 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
                 guard let self, self.readinessID == id, !Task.isCancelled else { return }
                 self.logger.notice("Virtual camera sink discovered after enabled-state verification")
                 self.isDeviceReady = true
-                self.status = "Virtual camera ready"
+                self.status = self.requestFailureMessage ?? "Virtual camera ready"
                 self.isWaitingForDevice = false
                 self.readinessTask = nil
                 self.compareDiscoveryIfRequested()
             } catch {
                 guard let self, self.readinessID == id, !Task.isCancelled else { return }
-                self.status = "Camera extension enabled. Please restart FaceNow."
+                self.status = self.requestFailureMessage ?? "Camera extension enabled. Please restart FaceNow."
                 self.isWaitingForDevice = false
                 self.readinessTask = nil
                 self.compareDiscoveryIfRequested()
