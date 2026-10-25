@@ -336,7 +336,6 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         let placeholder = controller.state.connectionState == .generating && controller.remoteStream != nil ? "" :
             [.connected, .generating].contains(controller.state.connectionState) ? "Generating…" : "Waiting for connection…"
         resultPanel.update(track: controller.remoteStream?.videoTrack, message: placeholder, statistics: controller.remoteStatisticsPanels, visible: controller.statisticsVisible)
-        resultPanel.mirrored = controller.localStream?.videoTrack?.position == .front
         for (mode, button) in tabButtons {
             button.selected = controller.activeMode == mode
             button.isEnabled = !controller.isBusy

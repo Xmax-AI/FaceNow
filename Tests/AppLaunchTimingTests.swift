@@ -10,13 +10,13 @@ final class AppLaunchTimingTests: XCTestCase {
         XCTAssertNil(timing.totalMs)
 
         for (phase, time) in [
-            (AppLaunchTiming.Phase.appSetup, 100), (.virtualCamera, 200),
+            (AppLaunchTiming.Phase.appSetup, 100),
             (.generation, 600)
         ] {
             XCTAssertTrue(timing.advance(to: phase, operation: operation, at: ns(time)))
         }
         XCTAssertEqual(timing.preparationMs, 600)
-        XCTAssertEqual(timing.milliseconds(for: .virtualCamera), 400)
+        XCTAssertEqual(timing.milliseconds(for: .appSetup), 500)
         XCTAssertNil(timing.totalMs)
 
         XCTAssertTrue(timing.advance(to: .resultView, operation: operation, at: ns(7_800)))

@@ -4,14 +4,13 @@ import Foundation
 /// Uses monotonic nanoseconds and lifecycle IDs so delayed work cannot finish a newer startup.
 struct AppLaunchTiming: Equatable, Sendable {
     enum Phase: Int, CaseIterable, Sendable {
-        case previousCleanup, appSetup, virtualCamera, generation, resultView
+        case previousCleanup, appSetup, generation, resultView
 
         var name: String {
             switch self {
             case .previousCleanup: "Queue and previous cleanup"
             case .appSetup: "App setup"
-            case .virtualCamera: "Virtual camera"
-            case .generation: "SDK camera and cloud startup"
+            case .generation: "SDK camera preparation and generation"
             case .resultView: "Result view binding"
             }
         }

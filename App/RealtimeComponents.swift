@@ -569,14 +569,13 @@ final class RealtimeStatisticsPanel: RealtimeCanvas {
 
 /// The SDK view remains attached throughout startup and page transitions.
 final class RealtimeVideoPanel: RealtimeCanvas {
-    let video = XmaxVideoView()
+    let video = XmaxRealtimeVideoView()
     private let videoContainer = RealtimeCanvas(color: .black)
     private let placeholder = realtimeLabel(size: 14, color: .white.withAlphaComponent(0.55))
     private let caption: NSTextField
     private let captionBackground = RealtimeCanvas(color: .black.withAlphaComponent(0.35), radius: 8)
     private let watermark = realtimeLabel("✦ FaceNow", size: 13, color: .white.withAlphaComponent(0.8), weight: .semibold)
     private var panels: [RealtimeStatisticsPanel] = []
-    var mirrored = false { didSet { if oldValue != mirrored { needsLayout = true } } }
 
     init(title: String, statistics: [RealtimeStatisticsGroup], showsWatermark: Bool = false) {
         caption = realtimeLabel(title, size: 12, color: .white.withAlphaComponent(0.65))
@@ -603,8 +602,6 @@ final class RealtimeVideoPanel: RealtimeCanvas {
     override func layout() {
         super.layout()
         videoContainer.frame = bounds; video.frame = videoContainer.bounds
-        // Mirror the SDK video layer so pointer coordinates and trajectory visuals stay aligned.
-        video.isMirrored = mirrored
         placeholder.frame = NSRect(x: 20, y: bounds.midY - 10, width: bounds.width - 40, height: 20)
         let captionSize = RealtimeHeaderTypography.size(caption.stringValue, font: caption.font!)
         captionBackground.frame = NSRect(x: 14, y: bounds.height - 12 - captionSize.height - 6, width: ceil(captionSize.width) + 16, height: captionSize.height + 6)
@@ -628,7 +625,7 @@ extension CameraSessionController {
                 .init(id: "First frame latency", value: milliseconds(launchTiming.firstFrameMs),
                       help: "From generation signal submission to the first display-ready result frame"),
                 .init(id: "Total startup", value: milliseconds(launchTiming.totalMs),
-                      help: "From SDK startup to the first display-ready result. Includes camera preparation in combined startup; overlapping stages are measured directly, not added together.", total: true)
+                      help: "From starting generation after camera readiness to the first display-ready result. Camera preparation is excluded; the total is measured directly, not added from stage durations.", total: true)
             ]),
             .init(id: "Uplink video statistics", rows: [
                 .init(id: "Uplink resolution", value: resolution(uplinkStatistics?.width, uplinkStatistics?.height)),

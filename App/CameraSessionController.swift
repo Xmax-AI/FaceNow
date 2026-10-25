@@ -69,6 +69,8 @@ final class CameraSessionController: ObservableObject {
     private var lifecycleID = UUID()
     private var selectionIntent = UUID()
     private var application: Task<Void, Never>?
+    private var pendingInitialReference: RealtimeReference?
+    private var outputStartup: Task<Void, Never>?
     private let deviceMonitor = CameraDeviceMonitor.shared
     private let startupLogger = Logger(subsystem: CameraConfiguration.appBundleID, category: "Startup")
     private var deviceObservation: AnyCancellable?
@@ -138,7 +140,7 @@ final class CameraSessionController: ObservableObject {
         let name: String
     }
 
-    /// Initializes RTC, then prepares camera and the cloud connection concurrently in one SDK operation.
+    /// Creates and binds camera preview before starting generation when the SDK reports ready.
     func start(useMicrophone: Bool = false, requestedAt: UInt64 = DispatchTime.now().uptimeNanoseconds) async {
         guard !isClosing else {
             errorMessage = "The previous session is still stopping. Please try again in a moment."
@@ -213,6 +215,9 @@ final class CameraSessionController: ObservableObject {
                     self.resetSession()
                 }
             }
+            if state.connectionState == .ready {
+                Task { [weak self] in await self?.startPendingGeneration(operation: operation) }
+            }
         }
         guard lifecycleID == operation else { return }
         guard let reference = RealtimeExampleMode.charx.presets.first else {
@@ -221,9 +226,6 @@ final class CameraSessionController: ObservableObject {
         }
         selectedReferenceID = reference.id
         do {
-            advanceStartup(to: .virtualCamera, operation: operation)
-            try await output.start(testPattern: false)
-            guard lifecycleID == operation else { return }
             output.frames.reset(producer: operation)
             let mailbox = output.frames
             await manager.setRemoteVideoFrameListener { frame in
@@ -233,29 +235,60 @@ final class CameraSessionController: ObservableObject {
             }
             guard lifecycleID == operation else { return }
             advanceStartup(to: .generation, operation: operation)
-            let remote = try await manager.startCameraGeneration(
-                videoFormat: model.defaultCameraVideoFormat,
+            let stream = try await manager.createLocalCameraStream(
                 deviceID: cameraID,
-                useMicrophone: useMicrophone,
-                context: RealtimeContext(prompt: reference.prompt ?? reference.mode.prompt,
-                                         referencePath: reference.referencePath.isEmpty ? nil : reference.referencePath),
-                faceRestoration: reference.mode.faceRestoration,
-                localStreamListener: { [weak self] stream in
-                    guard let self, self.lifecycleID == operation else { return }
-                    self.localStream = stream
-                }
+                mirror: true,
+                useMicrophone: useMicrophone
             )
             guard lifecycleID == operation else { await manager.close(); return }
+            // Keep the preview bound on the landing page so native capture can enter ready.
+            localStream = stream
             try await manager.setRemoteAudioVolume(remoteAudioVolume)
             guard lifecycleID == operation else { return }
-            advanceStartup(to: .resultView, operation: operation)
-            remoteStream = remote
-            isBusy = false
+            pendingInitialReference = reference
+            await startPendingGeneration(operation: operation)
         } catch {
             guard lifecycleID == operation else { return }
             errorMessage = error.localizedDescription
             resetSession()
             await cleanup?.value
+        }
+    }
+
+    /// Consumes the initial preset once, regardless of whether ready arrives before or after stream creation returns.
+    private func startPendingGeneration(operation: UUID) async {
+        guard lifecycleID == operation, state.connectionState == .ready, localStream != nil,
+              let reference = pendingInitialReference else { return }
+        pendingInitialReference = nil
+        do {
+            try await generate(reference: reference)
+            guard lifecycleID == operation else { return }
+            isBusy = false
+            startVirtualOutput(operation: operation)
+        } catch {
+            guard lifecycleID == operation else { return }
+            errorMessage = error.localizedDescription
+            resetSession()
+            await cleanup?.value
+        }
+    }
+
+    /// Virtual-camera discovery and connection start after the result is available, outside SDK startup.
+    private func startVirtualOutput(operation: UUID) {
+        outputStartup = Task { [weak self, output] in
+            let startedAt = ContinuousClock.now
+            do {
+                try Task.checkCancellation()
+                try await output.start(testPattern: false)
+                try Task.checkCancellation()
+                guard let self, self.lifecycleID == operation else { return }
+                output.frames.reset(producer: operation)
+                self.startupLogger.notice("Virtual camera output ready after result: \(startedAt.duration(to: .now).description, privacy: .public)")
+            } catch {
+                guard !Task.isCancelled, let self, self.lifecycleID == operation else { return }
+                self.errorMessage = "Virtual camera output failed: \(error.localizedDescription)"
+                self.startupLogger.error("Virtual camera output failed: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
@@ -457,6 +490,9 @@ final class CameraSessionController: ObservableObject {
         let previousCleanup = cleanup
         let closingManager = manager
         let closingClient = client
+        let closingOutputStartup = outputStartup
+        closingOutputStartup?.cancel()
+        outputStartup = nil
         output.frames.reset(producer: nil)
         application?.cancel()
         testPatternActive = false
@@ -464,6 +500,7 @@ final class CameraSessionController: ObservableObject {
         appLaunchTiming = AppLaunchTiming()
         let operation = lifecycleID
         selectionIntent = UUID()
+        pendingInitialReference = nil
         application = nil
         manager = nil
         client = nil
@@ -476,7 +513,7 @@ final class CameraSessionController: ObservableObject {
         cleanup = Task { [output] in
             await previousCleanup?.value
             // A blocked virtual-camera transport must not delay stopping physical capture.
-            async let outputStop: Void = output.stop()
+            async let outputStop: Void = Self.stopOutput(output, startup: closingOutputStartup)
             await closingManager?.setRemoteVideoFrameListener(nil)
             await closingManager?.setStateListener(nil)
             await closingManager?.close()
@@ -494,6 +531,11 @@ final class CameraSessionController: ObservableObject {
             self.isBusy = false
             self.isClosing = false
         }
+    }
+
+    nonisolated private static func stopOutput(_ output: VirtualCameraOutput, startup: Task<Void, Never>?) async {
+        await startup?.value
+        await output.stop()
     }
 
     /// Preserves the original dimensions and uploads white-background JPEG at 0.9 quality to avoid black transparent areas.
