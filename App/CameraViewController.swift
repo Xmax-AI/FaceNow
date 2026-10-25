@@ -35,7 +35,6 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     private let titleLabel = realtimeLabel("Be Different Everyday with FaceNow", size: 32, weight: .medium)
     private let checkerboard = RealtimeCheckerboard()
     private let startButton = RealtimeButton("Start Camera", icon: .camera, style: .primary)
-    private let microphoneToggle = RealtimeMicrophoneToggle()
     private let terms = NSTextView()
     private let copyright = realtimeLabel("Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.", size: 13, color: RealtimePalette.secondary)
     private let wechat = RealtimeButton(icon: .wechat, style: .plain)
@@ -189,12 +188,11 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
     private func configureLanding() {
         [titleLabel, checkerboard, copyright].forEach(landing.addSubview)
         titleLabel.alignment = .center; copyright.alignment = .center
-        [startButton, microphoneToggle, terms].forEach(checkerboard.addSubview)
+        [startButton, terms].forEach(checkerboard.addSubview)
         startButton.onClick = { [weak self] in
             guard let self else { return }
-            let enabled = self.microphoneToggle.state == .on
             let requestedAt = DispatchTime.now().uptimeNanoseconds
-            Task { [weak self] in await self?.controller.start(useMicrophone: enabled, requestedAt: requestedAt) }
+            Task { [weak self] in await self?.controller.start(useMicrophone: false, requestedAt: requestedAt) }
         }
         terms.isEditable = false; terms.isSelectable = true; terms.drawsBackground = false
         terms.textContainerInset = .zero
@@ -310,7 +308,6 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         startButton.title = starting ? "Starting…" : "Start Camera"
         startButton.loading = starting
         startButton.isEnabled = !starting && !cameraExtension.requiresRestart && !cameraExtension.isBusy
-        microphoneToggle.isEnabled = !starting
         statisticsButton.selected = controller.statisticsVisible
         statisticsButton.toolTip = controller.statisticsVisible ? "Hide statistics (collection and logging continue)" : "Show statistics"
         statisticsButton.setAccessibilityValue(controller.statisticsVisible ? "On" : "Off")
@@ -536,14 +533,7 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         }.max() ?? 0
         let buttonWidth = ceil(labelWidth + startButton.iconSize + startButton.iconSpacing +
                                startButton.leadingPadding + startButton.trailingPadding)
-        microphoneToggle.font = RealtimeHeaderTypography.font(size: smallSize)
-        let microphoneSize = microphoneToggle.intrinsicContentSize
-        let actionGap: CGFloat = 20
-        let groupHeight = buttonHeight + actionGap + microphoneSize.height
-        startButton.frame = NSRect(x: (checkerboard.bounds.width - buttonWidth) / 2, y: (checkerboard.bounds.height - groupHeight) / 2, width: buttonWidth, height: buttonHeight)
-        microphoneToggle.frame = NSRect(x: (checkerboard.bounds.width - microphoneSize.width) / 2,
-                                        y: startButton.frame.maxY + actionGap,
-                                        width: microphoneSize.width, height: microphoneSize.height)
+        startButton.frame = NSRect(x: (checkerboard.bounds.width - buttonWidth) / 2, y: (checkerboard.bounds.height - buttonHeight) / 2, width: buttonWidth, height: buttonHeight)
         let text = "By clicking Start, you agree to our Terms of Use and Privacy Policy."
         let paragraph = NSMutableParagraphStyle(); paragraph.alignment = .center
         let attributed = NSMutableAttributedString(string: text, attributes: [

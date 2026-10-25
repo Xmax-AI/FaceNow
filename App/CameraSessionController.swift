@@ -237,7 +237,7 @@ final class CameraSessionController: ObservableObject {
             advanceStartup(to: .generation, operation: operation)
             let stream = try await manager.createLocalCameraStream(
                 deviceID: cameraID,
-                mirror: true,
+                mirror: false,
                 useMicrophone: useMicrophone
             )
             guard lifecycleID == operation else { await manager.close(); return }

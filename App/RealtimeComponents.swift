@@ -581,6 +581,8 @@ final class RealtimeVideoPanel: RealtimeCanvas {
         caption = realtimeLabel(title, size: 12, color: .white.withAlphaComponent(0.65))
         super.init(color: .black, radius: 24)
         layer?.masksToBounds = true
+        // Mirror presentation only; capture, uplink and virtual-camera frames keep their original direction.
+        video.isMirrored = true
         addSubview(videoContainer); videoContainer.addSubview(video)
         addSubview(placeholder); placeholder.alignment = .center
         for group in statistics {
