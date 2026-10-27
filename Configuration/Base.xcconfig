@@ -1,9 +1,9 @@
-// Shared build settings. Select your signing team on BOTH targets in Xcode.
+// Shared build settings. Use the same signing team for the app, extension and probe.
 MACOSX_DEPLOYMENT_TARGET = 13.0
 SWIFT_VERSION = 6.0
 SWIFT_STRICT_CONCURRENCY = complete
 MARKETING_VERSION = 1.0.0
-CURRENT_PROJECT_VERSION = 18
+CURRENT_PROJECT_VERSION = 51
 CODE_SIGN_STYLE = Automatic
 ENABLE_HARDENED_RUNTIME = YES
 ENABLE_APP_SANDBOX = YES

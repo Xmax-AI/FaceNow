@@ -1,9 +1,11 @@
 import Foundation
 import os
 
-/// Compares one process before and after a fresh copy of the same executable probes CMIO.
+/// Probes CMIO in an embedded helper that inherits the host's sandbox.
 enum CameraDiscoveryDiagnostics {
+    static let helperName = "FaceNowCameraProbe"
     static let probeArgument = "--camera-discovery-probe"
+    static let verificationArgument = "--verify-camera-probe"
     static let comparisonArgument = "--compare-camera-discovery"
     static let activationArgument = "--diagnose-camera-activation"
 
@@ -11,6 +13,15 @@ enum CameraDiscoveryDiagnostics {
     static var activationRequested: Bool {
         CommandLine.arguments.contains(activationArgument) ||
         Bundle.main.object(forInfoDictionaryKey: "FaceNowDiagnoseCameraActivation") as? Bool == true
+    }
+
+    /// The host executable must never be relaunched as an inheriting sandbox helper.
+    static func helperExecutable(in bundleURL: URL = Bundle.main.bundleURL) throws -> URL {
+        let helper = bundleURL.appendingPathComponent("Contents/Helpers/\(helperName)")
+        guard FileManager.default.isExecutableFile(atPath: helper.path) else {
+            throw ProbeError.missingExecutable
+        }
+        return helper
     }
 
     /// Wait for actual device publication without initializing the caller's CMIO hardware list.
@@ -93,20 +104,31 @@ enum CameraDiscoveryDiagnostics {
 
     /// Runs before NSApplication and the app delegate initialize any capture-related state.
     @MainActor
-    static func handleCommandLine() -> Bool {
+    static func handleCommandLine(sdkVersion: String? = nil) -> Bool {
         let arguments = CommandLine.arguments
-        let isProbe = arguments.contains(probeArgument)
+        let isProbe = arguments.contains(verificationArgument)
         guard isProbe || arguments.contains(comparisonArgument) else { return false }
         Task {
             do {
                 let data: Data
+                let executable = try helperExecutable()
                 if isProbe {
-                    // Give a newly initialized process a bounded window to discover the device.
-                    do { _ = try await VirtualCameraDiscovery.waitForSink(timeout: .seconds(2)) } catch {}
-                    data = try JSONEncoder().encode(VirtualCameraDiscovery.snapshot())
+                    // Exercises the real signed host -> helper launch, even without an enabled camera.
+                    let sample = try await FreshProcessProbe().run(executable: executable)
+                    guard sample.processID != ProcessInfo.processInfo.processIdentifier else {
+                        throw ProbeError.invalidProcess
+                    }
+                    struct Verification: Encodable {
+                        let hostProcessID: Int32
+                        let sdkVersion: String?
+                        let helper: VirtualCameraDiscovery.Snapshot
+                    }
+                    data = try JSONEncoder().encode(Verification(
+                        hostProcessID: ProcessInfo.processInfo.processIdentifier,
+                        sdkVersion: sdkVersion, helper: sample
+                    ))
                 } else {
                     CameraDeviceMonitor.shared.start()
-                    guard let executable = Bundle.main.executableURL else { throw ProbeError.missingExecutable }
                     data = try await compare(executable: executable).reportData()
                 }
                 FileHandle.standardOutput.write(data)
@@ -121,12 +143,14 @@ enum CameraDiscoveryDiagnostics {
     }
 
     private enum ProbeError: LocalizedError {
-        case missingExecutable, timedOut, exited(Int32)
+        case missingExecutable, invalidProcess, timedOut, exited(Int32), signaled(Int32)
         var errorDescription: String? {
             switch self {
-            case .missingExecutable: "Cannot locate the current app executable."
+            case .missingExecutable: "The camera discovery helper is missing. Reinstall FaceNow."
+            case .invalidProcess: "Camera discovery must run in the dedicated helper."
             case .timedOut: "The fresh camera probe exceeded its five-second deadline."
             case .exited(let status): "The fresh camera probe exited with status \(status)."
+            case .signaled(let signal): "The camera discovery helper was terminated by signal \(signal)."
             }
         }
     }
@@ -141,7 +165,10 @@ enum CameraDiscoveryDiagnostics {
         private let state = OSAllocatedUnfairLock(initialState: State())
 
         func run(executable: URL) async throws -> VirtualCameraDiscovery.Snapshot {
-            try await withTaskCancellationHandler {
+            guard executable.lastPathComponent == CameraDiscoveryDiagnostics.helperName else {
+                throw ProbeError.invalidProcess
+            }
+            return try await withTaskCancellationHandler {
                 try Task.checkCancellation()
                 return try await withCheckedThrowingContinuation { continuation in
                     let process = Process()
@@ -153,7 +180,10 @@ enum CameraDiscoveryDiagnostics {
                     process.terminationHandler = { [weak self] child in
                         let data = output.fileHandleForReading.readDataToEndOfFile()
                         guard child.terminationStatus == 0 else {
-                            self?.finish(.failure(ProbeError.exited(child.terminationStatus)))
+                            let error = child.terminationReason == .uncaughtSignal
+                                ? ProbeError.signaled(child.terminationStatus)
+                                : ProbeError.exited(child.terminationStatus)
+                            self?.finish(.failure(error))
                             return
                         }
                         self?.finish(Result { try JSONDecoder().decode(VirtualCameraDiscovery.Snapshot.self, from: data) })

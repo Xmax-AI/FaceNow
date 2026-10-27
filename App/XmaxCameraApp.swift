@@ -11,6 +11,7 @@
 import AppKit
 import Darwin
 import os
+import XmaxSDK
 
 /// Native AppKit application lifecycle, window ownership, and standard editing menus.
 @main
@@ -22,7 +23,7 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
     private var exitWatchdog: AppExitWatchdog?
 
     static func main() {
-        if CameraDiscoveryDiagnostics.handleCommandLine() { return }
+        if CameraDiscoveryDiagnostics.handleCommandLine(sdkVersion: XmaxSDKInfo.version) { return }
         let application = NSApplication.shared
         let delegate = XmaxCameraApp()
         application.delegate = delegate

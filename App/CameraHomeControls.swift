@@ -87,7 +87,7 @@ final class CameraHomeControls: RealtimeCanvas {
 
     private func showCameras() {
         guard !controller.settingsLocked else { return }
-        guard cameraExtension.isEnabled, !cameraExtension.isBusy else {
+        guard cameraExtension.canStartSession else {
             showExtensionSettings()
             return
         }

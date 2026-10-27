@@ -30,6 +30,21 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
 
     /// Whether an enabled matching extension was found by the system.
     @Published private(set) var isEnabled = false
+    @Published private(set) var isVersionCurrent = false
+
+    /// The system must expose the bundled extension before capture can start.
+    var canStartSession: Bool {
+        isEnabled && isVersionCurrent && isDeviceReady && !isBusy && !isRefreshing && !requiresRestart
+    }
+
+    var startUnavailableMessage: String {
+        if requiresRestart { return "Restart your Mac to finish camera extension setup." }
+        if isAwaitingApproval { return "Approve the FaceNow camera extension in System Settings." }
+        if isBusy || isRefreshing { return "Camera extension setup is still in progress." }
+        if !isEnabled { return "Install and enable Virtual Camera before starting the camera." }
+        if !isVersionCurrent { return "Update Virtual Camera to match this version of FaceNow." }
+        return status
+    }
 
     /// Activation and device publication complete at different times.
     @Published private(set) var isWaitingForDevice = false
@@ -66,6 +81,13 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
     private var propertiesRequest: OSSystemExtensionRequest?
     /// Background device/property refreshes must not erase the result of an explicit user request.
     private var requestFailureMessage: String?
+
+    private var bundledExtensionVersion: String? {
+        let url = Bundle.main.bundleURL.appendingPathComponent(
+            "Contents/Library/SystemExtensions/\(CameraConfiguration.extensionBundleID).systemextension"
+        )
+        return Bundle(url: url)?.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    }
 
     /// Refreshes system state without installing or activating anything.
     func refresh(retryDeviceDiscovery: Bool = false, preservingFailure: Bool = false) {
@@ -171,6 +193,9 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
     /// Reports setup failures without treating a missing extension as installed.
     nonisolated func request(_ request: OSSystemExtensionRequest, didFailWithError error: Error) {
         let message = error.localizedDescription
+        let systemError = error as NSError
+        let errorDomain = systemError.domain
+        let errorCode = systemError.code
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
             if self.propertiesRequest.map(ObjectIdentifier.init) == identifier {
@@ -182,9 +207,9 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
             let removal = self.pendingKind == .deactivation
             let failure: String
-            let systemError = error as NSError
-            if removal, systemError.domain == OSSystemExtensionErrorDomain,
-               systemError.code == OSSystemExtensionError.Code.extensionNotFound.rawValue {
+            self.logger.error("Camera extension request failed: \(errorDomain, privacy: .public) (\(errorCode)): \(message, privacy: .public)")
+            if removal, errorDomain == OSSystemExtensionErrorDomain,
+               errorCode == OSSystemExtensionError.Code.extensionNotFound.rawValue {
                 failure = "Removal failed: macOS could not match the installed camera to this app. Click Update, then Remove, or remove it in System Settings."
             } else {
                 failure = "\(removal ? "Removal" : "Installation") failed: \(message)"
@@ -203,17 +228,36 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
 
     /// Refreshes enabled state from macOS rather than persisting a guessed install flag.
     nonisolated func request(_ request: OSSystemExtensionRequest, foundProperties properties: [OSSystemExtensionProperties]) {
-        let enabledProperties = properties.filter { $0.isEnabled && !$0.isUninstalling }
-        let enabled = !enabledProperties.isEmpty
-        let version = enabledProperties.map { $0.bundleVersion }.sorted().joined(separator: ",")
+        let records = properties.map {
+            CameraExtensionInstallationState.Record(version: $0.bundleVersion,
+                                                   isEnabled: $0.isEnabled, isUninstalling: $0.isUninstalling)
+        }
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
             guard self.propertiesRequest.map(ObjectIdentifier.init) == identifier else { return }
             self.propertiesRequest = nil
             self.isRefreshing = false
+            let installation = CameraExtensionInstallationState(records: records, bundledVersion: self.bundledExtensionVersion)
+            let enabled = installation.isEnabled
+            let current = installation.isVersionCurrent
+            let version = installation.enabledVersions.sorted().joined(separator: ",")
             self.isEnabled = enabled
+            self.isVersionCurrent = current
+            // A verified current enabled version supersedes an older restart requirement.
+            if current { self.requiresRestart = false }
             // An already-enabled old version must not complete approval for its replacement.
             guard !self.isBusy, !self.requiresRestart else { return }
+            if installation.requiresRestartForRemoval {
+                self.cancelDeviceWait()
+                self.requiresRestart = true
+                self.status = "Restart your Mac to finish removing the previous camera extension."
+                return
+            }
+            if enabled, !current {
+                self.cancelDeviceWait()
+                self.status = self.requestFailureMessage ?? "Update Virtual Camera to match this version of FaceNow."
+                return
+            }
             if enabled {
                 if self.deferDiscoveryUntilActivation {
                     self.status = self.requestFailureMessage ?? "Camera extension enabled. Click Update to test activation."
@@ -243,7 +287,8 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
         status = requestFailureMessage ?? "Camera extension enabled. Waiting for the camera to become available…"
         readinessTask = Task { [weak self] in
             do {
-                if !CameraDeviceMonitor.shared.isStarted, let executable = Bundle.main.executableURL {
+                if !CameraDeviceMonitor.shared.isStarted {
+                    let executable = try CameraDiscoveryDiagnostics.helperExecutable()
                     try await CameraDiscoveryDiagnostics.waitForPublication(executable: executable)
                     guard let self, self.readinessID == id, !Task.isCancelled else { return }
                     self.logger.notice("Fresh process confirmed camera publication before host discovery startup")
@@ -259,7 +304,16 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
                 self.compareDiscoveryIfRequested()
             } catch {
                 guard let self, self.readinessID == id, !Task.isCancelled else { return }
-                self.status = self.requestFailureMessage ?? "Camera extension enabled. Please restart FaceNow."
+                var message = "Camera not ready: \(error.localizedDescription) Click Refresh to retry."
+                if CameraDeviceMonitor.shared.isStarted,
+                   let executable = try? CameraDiscoveryDiagnostics.helperExecutable(),
+                   let comparison = try? await CameraDiscoveryDiagnostics.compare(executable: executable),
+                   comparison.assessment == .possibleStaleHost {
+                    message = "macOS has refreshed the camera, but FaceNow still has the previous device list. Quit and reopen FaceNow to continue."
+                }
+                guard self.readinessID == id, !Task.isCancelled else { return }
+                self.status = self.requestFailureMessage ?? message
+                self.logger.error("Camera readiness failed: \(message, privacy: .public)")
                 self.isWaitingForDevice = false
                 self.readinessTask = nil
                 self.compareDiscoveryIfRequested()
@@ -284,12 +338,13 @@ final class CameraExtensionController: NSObject, ObservableObject, OSSystemExten
 
     /// Opt-in diagnostics leave normal startup and the user's camera stream unchanged.
     private func compareDiscoveryIfRequested() {
-        guard diagnoseAfterReadiness, diagnosticTask == nil, let executable = Bundle.main.executableURL else { return }
+        guard diagnoseAfterReadiness, diagnosticTask == nil else { return }
         diagnoseAfterReadiness = false
         let id = UUID()
         diagnosticID = id
         diagnosticTask = Task { [weak self] in
             do {
+                let executable = try CameraDiscoveryDiagnostics.helperExecutable()
                 let comparison = try await CameraDiscoveryDiagnostics.compare(executable: executable)
                 guard let self, self.diagnosticID == id, !Task.isCancelled else { return }
                 let report = String(decoding: try comparison.reportData(), as: UTF8.self)

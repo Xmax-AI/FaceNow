@@ -56,7 +56,7 @@ final class CameraDiscoveryDiagnosticsTests: XCTestCase, @unchecked Sendable {
     func testPublicationWaitReportsChildLaunchFailure() async throws {
         do {
             try await CameraDiscoveryDiagnostics.waitForPublication(
-                executable: URL(fileURLWithPath: "/nonexistent/FaceNow")
+                executable: URL(fileURLWithPath: "/nonexistent/FaceNowCameraProbe")
             )
             XCTFail("A child launch failure must not release host discovery")
         } catch is CancellationError { XCTFail("Unexpected cancellation") }
@@ -113,7 +113,7 @@ final class CameraDiscoveryDiagnosticsTests: XCTestCase, @unchecked Sendable {
 
     func testFreshProcessFailureIsReportedWithoutFalseCacheConclusion() async throws {
         let result = try await CameraDiscoveryDiagnostics.compare(
-            executable: URL(fileURLWithPath: "/nonexistent/FaceNow"),
+            executable: URL(fileURLWithPath: "/nonexistent/FaceNowCameraProbe"),
             hostProbe: { VirtualCameraDiscovery.Snapshot() },
             freshProbe: { _ in throw CocoaError(.executableNotLoadable) }
         )
@@ -123,7 +123,7 @@ final class CameraDiscoveryDiagnosticsTests: XCTestCase, @unchecked Sendable {
 
     func testFailedExecutableLaunchCompletesWithoutHanging() async throws {
         let result = try await CameraDiscoveryDiagnostics.compare(
-            executable: URL(fileURLWithPath: "/nonexistent/FaceNow"),
+            executable: URL(fileURLWithPath: "/nonexistent/FaceNowCameraProbe"),
             hostProbe: { VirtualCameraDiscovery.Snapshot() }
         )
         XCTAssertEqual(result.assessment, .inconclusive)
@@ -159,6 +159,35 @@ final class CameraDiscoveryDiagnosticsTests: XCTestCase, @unchecked Sendable {
     private func comparison(before: Bool, after: Bool, fresh: Bool) -> CameraDiscoveryDiagnostics.Comparison {
         .init(hostBefore: snapshot(pid: 1, time: 10, ready: before), hostAfter: snapshot(pid: 1, time: 12, ready: after),
               fresh: snapshot(pid: 2, time: 11, ready: fresh), probeFailure: nil)
+    }
+
+    func testMainApplicationCannotBeUsedAsTheProbe() async throws {
+        do {
+            try await CameraDiscoveryDiagnostics.waitForPublication(
+                executable: Bundle.main.executableURL!, timeout: .zero
+            )
+            XCTFail("The host executable must never be relaunched as the helper")
+        } catch {
+            XCTAssertTrue(error.localizedDescription.contains("dedicated helper"))
+        }
+    }
+
+    func testMissingEmbeddedHelperFailsBeforeStartingAProcess() throws {
+        XCTAssertThrowsError(try CameraDiscoveryDiagnostics.helperExecutable(in: URL(fileURLWithPath: "/nonexistent/FaceNow.app"))) {
+            XCTAssertTrue($0.localizedDescription.contains("Reinstall FaceNow"))
+        }
+    }
+
+    func testOnlyExecutableEmbeddedHelperIsResolved() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let helper = root.appendingPathComponent("Contents/Helpers/FaceNowCameraProbe")
+        try FileManager.default.createDirectory(at: helper.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data().write(to: helper)
+        try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: helper.path)
+        XCTAssertThrowsError(try CameraDiscoveryDiagnostics.helperExecutable(in: root))
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: helper.path)
+        XCTAssertEqual(try CameraDiscoveryDiagnostics.helperExecutable(in: root), helper)
     }
 
     private func snapshot(pid: Int32, time: TimeInterval, ready: Bool) -> VirtualCameraDiscovery.Snapshot {

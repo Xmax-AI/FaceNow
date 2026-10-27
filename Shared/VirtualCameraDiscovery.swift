@@ -99,7 +99,7 @@ enum VirtualCameraDiscovery {
     enum DiscoveryError: LocalizedError {
         case timedOut
         var errorDescription: String? {
-            "The virtual camera is not ready. Please restart FaceNow."
+            "macOS has not published the camera. Turn FaceNow off and on in System Settings, then click Refresh. If it is still unavailable, restart your Mac."
         }
     }
 
@@ -254,4 +254,26 @@ struct CameraReadinessPolicy {
     }
 
     mutating func reset() { checkedVersion = nil }
+}
+
+/// Interprets system records without letting obsolete removal records block an installed camera.
+struct CameraExtensionInstallationState: Sendable {
+    struct Record: Sendable {
+        let version: String
+        let isEnabled: Bool
+        let isUninstalling: Bool
+    }
+
+    let records: [Record]
+    let bundledVersion: String?
+
+    var enabledVersions: [String] {
+        records.filter { $0.isEnabled && !$0.isUninstalling }.map(\.version)
+    }
+
+    var isEnabled: Bool { !enabledVersions.isEmpty }
+    var isVersionCurrent: Bool { bundledVersion.map(enabledVersions.contains) ?? false }
+    var requiresRestartForRemoval: Bool {
+        !records.isEmpty && records.allSatisfy(\.isUninstalling)
+    }
 }

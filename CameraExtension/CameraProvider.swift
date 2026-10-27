@@ -184,7 +184,12 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
         if producerIsRunning, !consumeIsPending, let client = producerClient {
             consume(client: client, token: producerToken)
         }
-        guard consumerCount > 0 else { return }
+        // Release superseded sink buffers even before a client opens the camera.
+        // Otherwise this queue can retain the producer's entire bounded render pool.
+        guard consumerCount > 0 else {
+            _ = frames.frame(now: time.seconds, preferLatest: true)
+            return
+        }
         outputTick = (outputTick + 1) % CameraConfiguration.frameRate
         guard outputTick.isMultiple(of: CameraConfiguration.frameRate / source.frameRate) else { return }
         // The host has already paced interpolation frames; discard transport backlog after a late timer tick.

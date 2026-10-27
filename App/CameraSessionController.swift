@@ -100,6 +100,8 @@ final class CameraSessionController: ObservableObject {
         uploadedReferences.contains { $0.mode == activeMode && $0.uploadState == .uploading }
     }
 
+    func showSetupError(_ message: String) { errorMessage = message }
+
     /// Setup changes are disabled while capture or virtual output is in use.
     var settingsLocked: Bool { isBusy || sessionActive || testPatternActive }
 
@@ -228,7 +230,8 @@ final class CameraSessionController: ObservableObject {
         do {
             output.frames.reset(producer: operation)
             let mailbox = output.frames
-            await manager.setRemoteVideoFrameListener { frame in
+            try await manager.setRemoteMediaFrameListener { event in
+                guard case .video(let frame) = event.content else { return }
                 mailbox.submit(frame.pixelBuffer, producer: operation, timestamp: frame.presentationTimeStamp.seconds,
                                duration: frame.duration.seconds,
                                now: CMClockGetTime(CMClockGetHostTimeClock()).seconds)
@@ -286,8 +289,14 @@ final class CameraSessionController: ObservableObject {
                 self.startupLogger.notice("Virtual camera output ready after result: \(startedAt.duration(to: .now).description, privacy: .public)")
             } catch {
                 guard !Task.isCancelled, let self, self.lifecycleID == operation else { return }
-                self.errorMessage = "Virtual camera output failed: \(error.localizedDescription)"
+                let message = "Virtual camera output failed: \(error.localizedDescription)"
                 self.startupLogger.error("Virtual camera output failed: \(error.localizedDescription, privacy: .public)")
+                // Do not leave a paid generation session running without its required output.
+                // Clear this task before cleanup so output shutdown cannot await its own caller.
+                self.outputStartup = nil
+                self.resetSession()
+                self.errorMessage = message
+                await self.cleanup?.value
             }
         }
     }
@@ -514,7 +523,7 @@ final class CameraSessionController: ObservableObject {
             await previousCleanup?.value
             // A blocked virtual-camera transport must not delay stopping physical capture.
             async let outputStop: Void = Self.stopOutput(output, startup: closingOutputStartup)
-            await closingManager?.setRemoteVideoFrameListener(nil)
+            try? await closingManager?.setRemoteMediaFrameListener(nil)
             await closingManager?.setStateListener(nil)
             await closingManager?.close()
             await outputStop

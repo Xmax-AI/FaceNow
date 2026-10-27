@@ -40,6 +40,10 @@
 		FBB1B12A3D6744AC6004BA41 /* CameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* CameraConfiguration.swift */; };
 		FF1AB2EF90EB2BD91121E442 /* CameraHomeControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FE7033AAE7D77FE565A1988 /* CameraHomeControls.swift */; };
 		0001EE208B004580AD9B5D51 /* RealtimeReferenceViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2278E7D9BF54405A1BF78A0 /* RealtimeReferenceViews.swift */; };
+		ED10A6000000000000000001 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A6000000000000000002 /* main.swift */; };
+		ED10A6000000000000000003 /* VirtualCameraDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */; };
+		ED10A6000000000000000004 /* CameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* CameraConfiguration.swift */; };
+		ED10A6000000000000000005 /* FaceNowCameraProbe in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = ED10A6000000000000000006 /* FaceNowCameraProbe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +53,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = BD76D3D724D4D028F97D966F;
 			remoteInfo = XmaxCameraExtension;
+		};
+		ED10A6000000000000000008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EFC3001F4B9B1E4A6BE63472 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ED10A6000000000000000009;
+			remoteInfo = FaceNowCameraProbe;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -62,6 +73,15 @@
 				CABF1B783A4A98E73102C97A /* com.xmax.meeting.camera.extension.systemextension in Embed System Extensions */,
 			);
 			name = "Embed System Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ED10A600000000000000000A /* Embed Camera Probe */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Helpers";
+			dstSubfolderSpec = 16;
+			files = (ED10A6000000000000000005 /* FaceNowCameraProbe in Embed Camera Probe */, );
+			name = "Embed Camera Probe";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -101,6 +121,9 @@
 		FE595473F6330AEFFC852098 /* CameraConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraConfiguration.swift; sourceTree = "<group>"; };
 		FF277C4EBC8CA8D1C432EDF5 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		D2278E7D9BF54405A1BF78A0 /* RealtimeReferenceViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeReferenceViews.swift; sourceTree = "<group>"; };
+		ED10A6000000000000000002 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		ED10A6000000000000000006 /* FaceNowCameraProbe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FaceNowCameraProbe; sourceTree = BUILT_PRODUCTS_DIR; };
+		ED10A6000000000000000007 /* FaceNowCameraProbe.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FaceNowCameraProbe.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +160,7 @@
 			isa = PBXGroup;
 			children = (
 				606E92A00D1608AECF5468D8 /* FaceNow.app */,
+				ED10A6000000000000000006 /* FaceNowCameraProbe */,
 				548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */,
 			);
 			name = Products;
@@ -169,6 +193,7 @@
 				FF277C4EBC8CA8D1C432EDF5 /* LICENSE */,
 				52D03361DC46ECE44860F7D5 /* App */,
 				FDD7AAD0EFE92E34BD8CCE07 /* CameraExtension */,
+				ED10A600000000000000000B /* CameraProbe */,
 				4959D9FC9BBE2C684A18ABD8 /* Shared */,
 			);
 			sourceTree = "<group>";
@@ -221,6 +246,12 @@
 			path = CameraExtension;
 			sourceTree = "<group>";
 		};
+		ED10A600000000000000000B /* CameraProbe */ = {
+			isa = PBXGroup;
+			children = (ED10A6000000000000000002 /* main.swift */, ED10A6000000000000000007 /* FaceNowCameraProbe.entitlements */, );
+			path = CameraProbe;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -232,11 +263,13 @@
 				B7C1C126ADEA50838EE2DEF6 /* Frameworks */,
 				33A6FC372F520C06DE028D41 /* Resources */,
 				019CEB76A617A3B3A3234E61 /* Embed System Extensions */,
+				ED10A600000000000000000A /* Embed Camera Probe */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				E37B833DC7CA2B736B60B5BA /* PBXTargetDependency */,
+				ED10A600000000000000000E /* PBXTargetDependency */,
 			);
 			name = XmaxCamera;
 			packageProductDependencies = (
@@ -263,6 +296,17 @@
 			productName = XmaxCameraExtension;
 			productReference = 548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */;
 			productType = "com.apple.product-type.system-extension";
+		};
+		ED10A6000000000000000009 /* FaceNowCameraProbe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ED10A600000000000000000C /* Build configuration list for PBXNativeTarget "FaceNowCameraProbe" */;
+			buildPhases = (ED10A600000000000000000D /* Sources */, );
+			buildRules = ();
+			dependencies = ();
+			name = FaceNowCameraProbe;
+			productName = FaceNowCameraProbe;
+			productReference = ED10A6000000000000000006 /* FaceNowCameraProbe */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -308,7 +352,7 @@
 			);
 			mainGroup = 4AEAD3DDD7956F4051F08197;
 			packageReferences = (
-				C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */,
+				C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK" */,
 				6A46DE71A0B66FA2AA3E2C9C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 3591BDEBAE5C7EAD0E628879 /* Products */;
@@ -317,6 +361,7 @@
 			targets = (
 				7EF4C081D4D1FA0411233A3C /* XmaxCamera */,
 				BD76D3D724D4D028F97D966F /* XmaxCameraExtension */,
+				ED10A6000000000000000009 /* FaceNowCameraProbe */,
 			);
 		};
 /* End PBXProject section */
@@ -381,6 +426,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ED10A600000000000000000D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (ED10A6000000000000000001 /* main.swift in Sources */, ED10A6000000000000000003 /* VirtualCameraDiscovery.swift in Sources */, ED10A6000000000000000004 /* CameraConfiguration.swift in Sources */, );
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -389,6 +440,11 @@
 			name = XmaxCameraExtension;
 			target = BD76D3D724D4D028F97D966F /* XmaxCameraExtension */;
 			targetProxy = E3BAF2B21F7B4FFD00A2C9BF /* PBXContainerItemProxy */;
+		};
+		ED10A600000000000000000E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ED10A6000000000000000009 /* FaceNowCameraProbe */;
+			targetProxy = ED10A6000000000000000008 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -614,6 +670,38 @@
 			};
 			name = Release;
 		};
+		ED10A600000000000000000F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = CameraProbe/FaceNowCameraProbe.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				DEVELOPMENT_TEAM = A84PZNYY82;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.probe;
+				PRODUCT_NAME = FaceNowCameraProbe;
+				REGISTER_APP_GROUPS = NO;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		ED10A6000000000000000010 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = CameraProbe/FaceNowCameraProbe.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				DEVELOPMENT_TEAM = A84PZNYY82;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.probe;
+				PRODUCT_NAME = FaceNowCameraProbe;
+				REGISTER_APP_GROUPS = NO;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -644,14 +732,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-/* End XCConfigurationList section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../XmaxSDK;
+		ED10A600000000000000000C /* Build configuration list for PBXNativeTarget "FaceNowCameraProbe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (ED10A600000000000000000F /* Debug */, ED10A6000000000000000010 /* Release */, );
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
 		6A46DE71A0B66FA2AA3E2C9C /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
@@ -661,6 +748,11 @@
 				kind = exactVersion;
 				version = 8.10.0;
 			};
+		};
+		C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Xmax-AI/XmaxSDK-MacOS.git";
+			requirement = {kind = exactVersion; version = 1.0.2; };
 		};
 /* End XCRemoteSwiftPackageReference section */
 
@@ -672,7 +764,7 @@
 		};
 		DD026C4A2E5517ABACE1429F /* XmaxSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */;
+			package = C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK" */;
 			productName = XmaxSDK;
 		};
 /* End XCSwiftPackageProductDependency section */

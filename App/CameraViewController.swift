@@ -191,6 +191,10 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         [startButton, terms].forEach(checkerboard.addSubview)
         startButton.onClick = { [weak self] in
             guard let self else { return }
+            guard self.cameraExtension.canStartSession else {
+                self.controller.showSetupError(self.cameraExtension.startUnavailableMessage)
+                return
+            }
             let requestedAt = DispatchTime.now().uptimeNanoseconds
             Task { [weak self] in await self?.controller.start(useMicrophone: false, requestedAt: requestedAt) }
         }
@@ -307,7 +311,8 @@ final class CameraViewController: NSViewController, NSTextFieldDelegate {
         let starting = controller.isBusy && !controller.isClosing
         startButton.title = starting ? "Starting…" : "Start Camera"
         startButton.loading = starting
-        startButton.isEnabled = !starting && !cameraExtension.requiresRestart && !cameraExtension.isBusy
+        startButton.isEnabled = !starting && cameraExtension.canStartSession
+        startButton.toolTip = cameraExtension.canStartSession ? "Start Camera" : cameraExtension.startUnavailableMessage
         statisticsButton.selected = controller.statisticsVisible
         statisticsButton.toolTip = controller.statisticsVisible ? "Hide statistics (collection and logging continue)" : "Show statistics"
         statisticsButton.setAccessibilityValue(controller.statisticsVisible ? "On" : "Off")

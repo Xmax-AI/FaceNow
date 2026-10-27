@@ -1,5 +1,5 @@
 {
-  "originHash" : "b25ecd39eb5ccdd24993422e8532aa80683bac35d269dd48612d709b67f09751",
+  "originHash" : "717c54bcf33419c27d0aa290392f4a15784ba8ccc6238e6989130a7d71328b66",
   "pins" : [
     {
       "identity" : "agorainfra_macos",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "ac632bd26a1c00f139ff62fd01806f21cf67325e",
         "version" : "8.10.0"
+      }
+    },
+    {
+      "identity" : "xmaxsdk-macos",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Xmax-AI/XmaxSDK-MacOS.git",
+      "state" : {
+        "revision" : "d71c9b22c53f9f40dcafa7158d39844b8d9ad356",
+        "version" : "1.0.2"
       }
     }
   ],
