@@ -6,8 +6,61 @@ let package = Package(
     name: "CameraCore",
     platforms: [.macOS(.v13)],
     products: [.library(name: "CameraCore", targets: ["CameraCore"])],
+    dependencies: [
+        .package(url: "https://github.com/hmlongco/Factory.git", exact: "2.5.3"),
+        .package(url: "https://github.com/Moya/Moya.git", exact: "15.0.3"),
+        .package(
+            url: "https://github.com/Miles-Matheson/HandyJSON.git",
+            revision: "de8a7126d2270da55cea3cb45dadffcfd002dbbe"
+        ),
+    ],
     targets: [
-        .target(name: "CameraCore", path: "Shared", resources: [.copy("Assets.xcassets")]),
-        .testTarget(name: "CameraCoreTests", dependencies: ["CameraCore"], path: "Tests")
+        .target(
+            name: "FNNetwork",
+            dependencies: ["Moya", "HandyJSON", "Factory"],
+            path: "Modules/FNNetwork"
+        ),
+        .target(
+            name: "Storage",
+            dependencies: ["Factory"],
+            path: "Services/Storage"
+        ),
+        .target(
+            name: "CameraCore",
+            path: "Services",
+            exclude: ["Storage", "UI"]
+        ),
+        .target(
+            name: "FNUser",
+            dependencies: ["FNNetwork", "Storage", "Factory"],
+            path: "Modules/FNUser",
+            exclude: ["MVVM/View", "Resources"]
+        ),
+        .target(
+            name: "FNGenerationModels",
+            path: "Modules/FNGeneration/MVVM/Model"
+        ),
+        .target(
+            name: "FNVirtualCameraCore",
+            dependencies: ["CameraCore"],
+            path: "Modules/FNVirtualCamera/Camera",
+            exclude: ["Output"]
+        ),
+        .testTarget(
+            name: "CameraCoreTests",
+            dependencies: ["CameraCore", "FNVirtualCameraCore"],
+            path: "Tests",
+            exclude: ["Modules", "Network"]
+        ),
+        .testTarget(
+            name: "NetworkTests",
+            dependencies: ["FNNetwork", "Moya"],
+            path: "Tests/Network"
+        ),
+        .testTarget(
+            name: "ModuleTests",
+            dependencies: ["FNUser", "FNGenerationModels", "FNNetwork", "Storage", "Moya", "Factory"],
+            path: "Tests/Modules"
+        ),
     ]
 )
