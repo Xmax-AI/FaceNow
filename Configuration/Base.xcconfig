@@ -8,5 +8,8 @@ CODE_SIGN_STYLE = Automatic
 ENABLE_HARDENED_RUNTIME = YES
 ENABLE_APP_SANDBOX = YES
 REGISTER_APP_GROUPS = YES
+// Updates stay stopped until a real HTTPS appcast and public signing key are provided.
+FACENOW_UPDATE_FEED_URL =
+FACENOW_UPDATE_PUBLIC_KEY =
 // Optional machine-specific overrides, excluded from source control.
 #include? "Local.xcconfig"

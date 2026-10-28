@@ -21,14 +21,11 @@ final class OnboardingGuideView: Canvas {
     /// Leaves preparation unfinished and returns to the home page.
     var onDismiss: (() -> Void)?
 
+    /// Controls only backdrop clicks; explicit dismissal and Escape keep their existing behavior.
+    var dismissesOnBackdropClick = true
+
     /// Returns to the preceding device stage.
     var onPrevious: (() -> Void)?
-
-    /// Rechecks system permission and device availability.
-    var onRefresh: (() -> Void)?
-
-    /// Opens the settings pane appropriate to the current device stage.
-    var onSettings: (() -> Void)?
 
     /// Selects the shared physical input without starting capture.
     var onSelectCamera: ((String) -> Void)?
@@ -45,10 +42,19 @@ final class OnboardingGuideView: Canvas {
     /// Blocks child interaction while the modal is leaving the home page.
     private var isDismissing = false
 
+    /// Prevents changing body content from influencing the modal's viewport-derived width.
+    private var cardWidth: CGFloat = 980
+
     /// The independent dimming layer whose opacity does not affect the modal card.
     private lazy var backdrop: Canvas = {
-        let view = Canvas(color: NSColor.black.withAlphaComponent(0.22))
+        let view = Canvas(color: NSColor.black.withAlphaComponent(0.35))
         view.setAccessibilityElement(false)
+        view.addGestureRecognizer(
+            NSClickGestureRecognizer(
+                target: self,
+                action: #selector(dismissFromBackdrop)
+            )
+        )
         return view
     }()
 
@@ -61,13 +67,13 @@ final class OnboardingGuideView: Canvas {
         view.layer?.shadowOffset = CGSize(width: 0, height: -8)
         view.setAccessibilityRole(.group)
         view.setAccessibilityModal(true)
-        view.setAccessibilityLabel("Get ready to use FaceNow")
+        view.setAccessibilityLabel(OnboardingStrings.guideGetReadyToUseFaceNow)
         return view
     }()
 
     /// The fixed dialog title above the progress indicators.
     private lazy var heading: NSTextField = {
-        let view = makeLabel("Get Ready", size: 26, weight: .semibold)
+        let view = makeLabel(OnboardingStrings.guideGetReadyForUse, size: 26, weight: .semibold)
         return view
     }()
 
@@ -75,12 +81,13 @@ final class OnboardingGuideView: Canvas {
     private lazy var closeButton: Button = {
         let view = Button(style: .plain)
         view.symbolName = "xmark"
+        view.centersSymbolVisually = true
         view.iconSize = 16
         view.foregroundColor = Palette.secondary
         view.hoverBackgroundColor = Palette.surface
         view.cornerRadius = 8
         view.showsShadow = false
-        view.setAccessibilityLabel("Close setup guide")
+        view.setAccessibilityLabel(OnboardingStrings.guideCloseSetupGuide)
         view.keyEquivalent = "\u{1b}"
         view.keyEquivalentModifierMask = []
         view.onClick = { [weak self] in self?.onDismiss?() }
@@ -129,15 +136,9 @@ final class OnboardingGuideView: Canvas {
         return view
     }()
 
-    /// The numbered instructions for the current system or video-call flow.
-    private lazy var instructions: NSTextField = {
-        let view = wrappingLabel(size: 14, weight: .medium)
-        return view
-    }()
-
-    /// The real permission or device status, independent of the decorative illustration.
-    private lazy var status: NSTextField = {
-        let view = wrappingLabel(size: 12, color: Palette.secondary)
+    /// The ordered setup instructions with numbered milestones, headings, and supporting copy.
+    private lazy var timeline: OnboardingTimelineView = {
+        let view = OnboardingTimelineView()
         return view
     }()
 
@@ -154,7 +155,7 @@ final class OnboardingGuideView: Canvas {
         }
         view.target = self
         view.action = #selector(selectApp)
-        view.setAccessibilityLabel("Video calling app")
+        view.setAccessibilityLabel(OnboardingStrings.guideVideoCallingApp)
         return view
     }()
 
@@ -164,25 +165,7 @@ final class OnboardingGuideView: Canvas {
         view.font = Typography.font(size: 13)
         view.target = self
         view.action = #selector(selectCamera)
-        view.setAccessibilityLabel("Input camera")
-        return view
-    }()
-
-    /// Rechecks permission after an explicit retry without reopening the system prompt.
-    private lazy var refresh: Button = {
-        let view = Button("Check Again", style: .plain)
-        view.symbolName = "arrow.clockwise"
-        view.iconSize = 13
-        view.font = Typography.font(size: 12)
-        view.onClick = { [weak self] in self?.onRefresh?() }
-        return view
-    }()
-
-    /// Opens privacy or extension settings for the current preparation requirement.
-    private lazy var settings: Button = {
-        let view = Button("Open System Settings", style: .plain)
-        view.font = Typography.font(size: 12)
-        view.onClick = { [weak self] in self?.onSettings?() }
+        view.setAccessibilityLabel(OnboardingStrings.guideInputCamera)
         return view
     }()
 
@@ -200,17 +183,29 @@ final class OnboardingGuideView: Canvas {
 
     /// Revisits a completed device requirement.
     private lazy var previous: Button = {
-        let view = Button("Back", style: .plain)
+        let view = Button(OnboardingStrings.back, style: .plain)
         view.font = Typography.font(size: 13)
+        view.alignment = .left
         view.onClick = { [weak self] in self?.onPrevious?() }
         return view
     }()
 
     /// Defers preparation while retaining the persistent home reminder.
     private lazy var later: Button = {
-        let view = Button("Set Up Later", style: .plain)
+        let view = Button(OnboardingStrings.guideSetUpLater, style: .plain)
         view.font = Typography.font(size: 13)
+        view.alignment = .left
         view.onClick = { [weak self] in self?.onDismiss?() }
+        return view
+    }()
+
+    /// Left-aligns footer actions and removes the space occupied by hidden navigation buttons.
+    private lazy var footerNavigation: NSStackView = {
+        let view = NSStackView(views: [previous, later])
+        view.orientation = .horizontal
+        view.alignment = .centerY
+        view.spacing = 24
+        view.detachesHiddenViews = true
         return view
     }()
 
@@ -219,6 +214,9 @@ final class OnboardingGuideView: Canvas {
         let view = Button(style: .primary)
         view.font = Typography.font(size: 14, weight: .semibold)
         view.cornerRadius = 12
+        view.shadowScale = 0.6
+        view.leadingPadding = 24
+        view.trailingPadding = 24
         view.onClick = { [weak self] in self?.onPrimary?() }
         return view
     }()
@@ -228,13 +226,14 @@ final class OnboardingGuideView: Canvas {
         super.init()
         addSubview(backdrop)
         addSubview(card)
-        [heading, closeButton, progress, scroll, divider, previous, later, primary].forEach(card.addSubview)
+        [heading, closeButton, progress, scroll, divider, footerNavigation, primary].forEach(card.addSubview)
         scroll.documentView = body
         [copy, illustration].forEach(body.addSubview)
-        [title, subtitle, appPicker, instructions, cameraPicker, status, refresh, settings].forEach {
+        [title, subtitle, appPicker, timeline, cameraPicker].forEach {
             copy.addArrangedSubview($0)
             $0.snp.makeConstraints { make in make.width.equalTo(copy) }
         }
+        copy.setCustomSpacing(24, after: subtitle)
         configureLayout()
         backdrop.layer?.opacity = 0
         card.layer?.opacity = 0
@@ -255,6 +254,22 @@ final class OnboardingGuideView: Canvas {
 
     /// Focuses the first modal action after the guide is attached to a window.
     func focus() { window?.makeFirstResponder(closeButton) }
+
+    /// Sizes the modal from its host viewport instead of permission-dependent intrinsic content.
+    override func layout() {
+        let width = min(980, max(0, bounds.width - 64))
+        if bounds.width > 0, cardWidth != width {
+            cardWidth = width
+            card.snp.updateConstraints { make in make.width.equalTo(width) }
+        }
+        super.layout()
+    }
+
+    /// Routes backdrop dismissal through the same animated exit as the explicit close action.
+    @objc private func dismissFromBackdrop() {
+        guard dismissesOnBackdropClick, !isDismissing else { return }
+        onDismiss?()
+    }
 
     /// Keeps closing gestures from reaching either the modal controls or the covered home page.
     override func hitTest(
@@ -314,42 +329,37 @@ final class OnboardingGuideView: Canvas {
         appPicker.isHidden = repo.step != .videoCalls
         cameraPicker.isHidden = repo.step != .camera || model.generationRepo.cameras.isEmpty
         cameraPicker.isEnabled = !model.generationRepo.settingsLocked
-        refresh.isHidden = repo.step == .videoCalls
-        refresh.isEnabled = !model.isRequestingAccess && !model.virtualCameraRepo.isRefreshing
-        settings.isHidden = repo.step == .videoCalls || (repo.step == .camera && !model.needsCameraSettings)
         previous.isHidden = repo.step == .camera
         later.isHidden = repo.step == .videoCalls
         primary.title = model.primaryTitle
         primary.isEnabled = model.primaryEnabled
-        primary.loading =
-            model.isRequestingAccess
-            || (repo.step == .virtualCamera
-                && (model.virtualCameraRepo.isBusy && !model.virtualCameraRepo.isAwaitingApproval
-                    || model.virtualCameraRepo.isWaitingForDevice))
+        primary.loading = model.primaryLoading
+        primary.snp.updateConstraints { make in make.width.equalTo(primary.preferredWidth) }
         switch repo.step {
         case .camera:
-            title.stringValue = "Allow Camera Access"
-            subtitle.stringValue = "Turn your movements into the look you choose, in real time."
-            instructions.stringValue =
-                "1   Click Allow Camera Access below.\n\n2   Choose Allow in the macOS permission dialog."
-            status.stringValue = model.cameraStatus
+            title.stringValue = model.cameraStepTitle
+            subtitle.stringValue = model.cameraStepDescription
+            timeline.update(items: model.preparationInstructions.map { .init(title: $0.title, detail: $0.detail) })
         case .virtualCamera:
-            title.stringValue = "Enable Virtual Camera"
-            subtitle.stringValue = "Bring your FaceNow effects into your video calling apps."
-            instructions.stringValue =
-                "1   Click Install & Enable.\n\n2   Open System Settings when macOS asks.\n\n3   Enable the FaceNow camera extension and return here."
-            status.stringValue = model.virtualCameraRepo.status
+            title.stringValue = OnboardingStrings.guideEnableVirtualCamera
+            subtitle.stringValue = OnboardingStrings.guideFaceNowUsesAVirtualCameraToBringYourChosen
+            timeline.update(items: model.preparationInstructions.map { .init(title: $0.title, detail: $0.detail) })
         case .videoCalls:
-            title.stringValue = "Use FaceNow in Video Calls"
-            subtitle.stringValue = "Choose your app to see how to connect your new look."
+            title.stringValue = OnboardingStrings.guideUseFaceNowInVideoCalls
+            subtitle.stringValue = OnboardingStrings.guideChooseFaceNowAsYourCameraInYourVideoCalling
             updateCallInstructions()
-            status.stringValue =
-                "Can't find the camera? Reopen your video calling app. If it is still missing, check setup again or restart your Mac."
         }
         updateCameras(model: model)
-        illustration.update(step: repo.step, app: selectedApp)
+        let instruction = model.preparationInstructions.first
+        illustration.update(
+            step: repo.step,
+            app: selectedApp,
+            preparationTitle: instruction?.title ?? model.primaryTitle,
+            primaryTitle: model.primaryTitle,
+            preparationDetail: instruction?.detail ?? ""
+        )
         let controls: [NSControl] =
-            ([closeButton, appPicker, cameraPicker, refresh, settings]
+            ([closeButton, appPicker, cameraPicker]
             + illustration.navigationControls + [previous, later, primary])
             .filter { !$0.isHidden && $0.isEnabled }
         for (index, control) in controls.enumerated() {
@@ -363,8 +373,8 @@ final class OnboardingGuideView: Canvas {
         card.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview().offset(24)
-            make.width.equalToSuperview().offset(-64).priority(490)
-            make.width.lessThanOrEqualTo(980)
+            // A constant updated from the viewport cannot impose a minimum width on the host window.
+            make.width.equalTo(cardWidth)
             make.height.equalToSuperview().offset(-64).priority(490)
             make.height.lessThanOrEqualTo(640)
         }
@@ -381,7 +391,7 @@ final class OnboardingGuideView: Canvas {
             make.trailing.lessThanOrEqualToSuperview().inset(28)
             make.width.equalToSuperview().offset(-96).priority(490)
             make.width.lessThanOrEqualTo(820)
-            make.top.equalTo(heading.snp.bottom).offset(22)
+            make.top.equalTo(heading.snp.bottom).offset(32)
             make.height.equalTo(30)
         }
         divider.snp.makeConstraints { make in
@@ -391,7 +401,7 @@ final class OnboardingGuideView: Canvas {
         }
         scroll.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(28)
-            make.top.equalTo(progress.snp.bottom).offset(24)
+            make.top.equalTo(progress.snp.bottom).offset(32)
             make.bottom.equalTo(divider.snp.top).offset(-20)
         }
         body.snp.makeConstraints { make in
@@ -402,7 +412,7 @@ final class OnboardingGuideView: Canvas {
         }
         copy.snp.makeConstraints { make in
             make.leading.top.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.43)
+            make.width.equalTo(illustration)
             make.bottom.lessThanOrEqualToSuperview()
         }
         illustration.snp.makeConstraints { make in
@@ -412,23 +422,21 @@ final class OnboardingGuideView: Canvas {
         [cameraPicker, appPicker].forEach { view in
             view.snp.makeConstraints { make in make.height.equalTo(32) }
         }
-        [refresh, settings].forEach { view in
-            view.snp.makeConstraints { make in make.height.equalTo(24) }
-        }
-        previous.snp.makeConstraints { make in
+        footerNavigation.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(28)
             make.centerY.equalTo(primary)
+            make.trailing.lessThanOrEqualTo(primary.snp.leading).offset(-24)
+        }
+        previous.snp.makeConstraints { make in
             make.size.equalTo(CGSize(width: 48, height: 32))
         }
         later.snp.makeConstraints { make in
-            make.leading.equalTo(previous.snp.trailing).offset(24)
-            make.centerY.equalTo(primary)
             make.size.equalTo(CGSize(width: 100, height: 32))
         }
         primary.snp.makeConstraints { make in
             make.trailing.bottom.equalToSuperview().inset(24)
             make.height.equalTo(42)
-            make.width.equalTo(250)
+            make.width.equalTo(primary.preferredWidth)
         }
     }
 
@@ -452,6 +460,13 @@ final class OnboardingGuideView: Canvas {
         }
     }
 
+    /// Presents the input picker inside the guide rather than beneath its modal backdrop.
+    func showCameraPicker() {
+        guard !cameraPicker.isHidden, cameraPicker.isEnabled, cameraPicker.numberOfItems > 0 else { return }
+        window?.makeFirstResponder(cameraPicker)
+        cameraPicker.performClick(nil)
+    }
+
     /// Commits a native camera selection through the shared session owner.
     @objc private func selectCamera() {
         if let id = cameraPicker.selectedItem?.representedObject as? String { onSelectCamera?(id) }
@@ -461,17 +476,108 @@ final class OnboardingGuideView: Canvas {
     @objc private func selectApp() {
         selectedApp = appPicker.titleOfSelectedItem ?? "WeChat"
         updateCallInstructions()
-        illustration.update(step: displayedStep, app: selectedApp)
+        illustration.updateVideoCallApp(selectedApp)
     }
 
     /// Highlights the camera-menu entry and uses the real published device name.
     private func updateCallInstructions() {
         let first =
             selectedApp == "Google Meet"
-            ? "Open Settings → Video in your meeting."
-            : "Open the camera menu or video settings in \(selectedApp)."
-        instructions.stringValue =
-            "1   \(first)\n\n2   Select \(VirtualCameraConfiguration.deviceName).\n\n3   Start Camera in FaceNow and choose your effect."
+            ? OnboardingStrings.guideOpenSettingsVideoInGoogleMeet
+            : OnboardingStrings.openVideoSettings(app: selectedApp)
+        timeline.update(items: [
+            .init(title: OnboardingStrings.guideOpenVideoSettings, detail: first),
+            .init(
+                title: OnboardingStrings.guideSelectFaceNowCamera,
+                detail: OnboardingStrings.chooseCameraNamed(name: VirtualCameraConfiguration.deviceName)
+            ),
+            .init(
+                title: OnboardingStrings.guideStartYourCamera,
+                detail: OnboardingStrings.guideReturnToFaceNowClickStartCameraAndChooseYour
+            ),
+        ])
+    }
+}
+
+/// Presents numbered setup milestones with connecting rules, action headings, and descriptions.
+@MainActor
+private final class OnboardingTimelineView: Canvas {
+
+    /// The heading and supporting instruction for one ordered action.
+    struct Item: Equatable {
+
+        /// The concise action heading.
+        let title: String
+
+        /// The explanatory copy below the heading.
+        let detail: String
+    }
+
+    /// The last rendered instructions, used to preserve rows during ordinary state refreshes.
+    private var items: [Item] = []
+
+    /// Rebuilds decorative rows only when the selected guide or meeting-app instructions change.
+    func update(
+        items: [Item]
+    ) {
+        guard self.items != items else { return }
+        self.items = items
+        subviews.forEach { $0.removeFromSuperview() }
+        var previous: Canvas?
+        var badges: [Canvas] = []
+        for (index, item) in items.enumerated() {
+            let row = Canvas()
+            let badge = Canvas(color: Palette.surface, radius: 16)
+            badge.layer?.borderWidth = 1
+            badge.layer?.borderColor = Palette.border.cgColor
+            let number = makeLabel(String(index + 1), size: 14, weight: .medium)
+            number.alignment = .center
+            badge.addSubview(number)
+            let title = wrappingLabel(size: 17, weight: .semibold)
+            title.stringValue = item.title
+            let detail = wrappingLabel(size: 14, color: Palette.secondary)
+            detail.stringValue = item.detail
+            [badge, title, detail].forEach(row.addSubview)
+            addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.greaterThanOrEqualTo(32)
+                if let previous {
+                    make.top.equalTo(previous.snp.bottom).offset(36)
+                } else {
+                    make.top.equalToSuperview()
+                }
+            }
+            badge.snp.makeConstraints { make in
+                make.leading.top.equalToSuperview()
+                make.size.equalTo(32)
+            }
+            number.snp.makeConstraints { make in make.center.equalToSuperview() }
+            title.snp.makeConstraints { make in
+                make.leading.equalTo(badge.snp.trailing).offset(18)
+                make.trailing.equalToSuperview()
+                make.centerY.equalTo(badge)
+            }
+            detail.snp.makeConstraints { make in
+                make.leading.trailing.equalTo(title)
+                make.top.equalTo(title.snp.bottom).offset(6)
+                make.bottom.equalToSuperview()
+            }
+            badges.append(badge)
+            previous = row
+        }
+        previous?.snp.makeConstraints { make in make.bottom.equalToSuperview() }
+        for index in 0..<max(0, badges.count - 1) {
+            let connector = Canvas(color: Palette.border, radius: 1)
+            connector.setAccessibilityElement(false)
+            addSubview(connector, positioned: .below, relativeTo: subviews.first)
+            connector.snp.makeConstraints { make in
+                make.centerX.equalTo(badges[index])
+                make.top.equalTo(badges[index].snp.bottom).offset(6)
+                make.bottom.equalTo(badges[index + 1].snp.top).offset(-6)
+                make.width.equalTo(2)
+            }
+        }
     }
 }
 
@@ -518,7 +624,7 @@ private final class OnboardingProgressView: Canvas {
                 }
                 previousConnector = connector
             }
-            let badge = Canvas(color: Palette.border, radius: 15)
+            let badge = Canvas(color: Palette.border, radius: 14)
             let number = makeLabel(size: 15, color: Palette.secondary, weight: .semibold)
             number.alignment = .center
             number.stringValue = String(index + 1)
@@ -528,7 +634,7 @@ private final class OnboardingProgressView: Canvas {
             checkmark.image = NSImage(
                 systemSymbolName: "checkmark",
                 accessibilityDescription: nil
-            )?.withSymbolConfiguration(.init(pointSize: 16, weight: .semibold))
+            )?.withSymbolConfiguration(.init(pointSize: 14, weight: .semibold))
             checkmark.contentTintColor = .white
             checkmark.imageScaling = .scaleProportionallyUpOrDown
             checkmark.wantsLayer = true
@@ -536,13 +642,18 @@ private final class OnboardingProgressView: Canvas {
             checkmark.setAccessibilityElement(false)
             badge.addSubview(number)
             badge.addSubview(checkmark)
-            badge.snp.makeConstraints { make in make.size.equalTo(30) }
+            badge.snp.makeConstraints { make in make.size.equalTo(28) }
             number.snp.makeConstraints { make in make.center.equalToSuperview() }
             checkmark.snp.makeConstraints { make in
                 make.center.equalToSuperview()
-                make.size.equalTo(16)
+                make.size.equalTo(14)
             }
-            let title = makeLabel(step.title, size: 13, color: Palette.secondary, weight: .medium)
+            let title = makeLabel(
+                step.title,
+                size: 16,
+                color: Palette.secondary,
+                weight: .medium
+            )
             title.setContentCompressionResistancePriority(.required, for: .horizontal)
             let group = NSStackView(views: [badge, title])
             group.orientation = .horizontal
@@ -588,7 +699,12 @@ private final class OnboardingProgressView: Canvas {
                 }
             }
             badges[index].setAccessibilityLabel(
-                "\(step.title), \(completed ? "completed" : active ? "current step" : "upcoming")"
+                OnboardingStrings.stepAccessibility(
+                    title: step.title,
+                    state: completed
+                        ? OnboardingStrings.completed
+                        : active ? OnboardingStrings.currentStep : OnboardingStrings.upcoming
+                )
             )
         }
     }
@@ -601,7 +717,17 @@ private final class OnboardingIllustrationView: Canvas {
     /// Includes screenshot page selection in the modal's keyboard navigation cycle.
     var navigationControls: [NSControl] { screenshots.isHidden ? [] : screenshots.navigationControls }
 
-    /// The two supplied macOS screenshots replacing the virtual-camera diagram on supported systems.
+    /// The user-supplied temporary camera-step image, independently replaceable from extension screenshots.
+    private lazy var cameraScreenshot: OnboardingScreenshotView = {
+        let view = OnboardingScreenshotView(
+            resourceName: "OnboardingCameraPermission",
+            crop: NSRect(x: 0, y: 0, width: 1, height: 1)
+        )
+        view.setAccessibilityLabel(OnboardingStrings.guideFaceNowSetupIllustration)
+        return view
+    }()
+
+    /// The installation illustration and supplied macOS screenshots for the extension walkthrough.
     private lazy var screenshots: OnboardingVirtualCameraScreenshotsView = {
         let view = OnboardingVirtualCameraScreenshotsView()
         return view
@@ -663,8 +789,9 @@ private final class OnboardingIllustrationView: Canvas {
     /// Composes explanatory diagrams and a dedicated virtual-camera screenshot walkthrough.
     init() {
         super.init(color: Palette.surface, radius: 18)
-        [surface, caption, screenshots].forEach(addSubview)
+        [surface, caption, screenshots, cameraScreenshot].forEach(addSubview)
         screenshots.snp.makeConstraints { make in make.edges.equalToSuperview().inset(16) }
+        cameraScreenshot.snp.makeConstraints { make in make.edges.equalToSuperview().inset(24) }
         [title, symbol, detail, highlight].forEach(surface.addSubview)
         highlight.addSubview(action)
         surface.snp.makeConstraints { make in
@@ -703,11 +830,28 @@ private final class OnboardingIllustrationView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
+    /// Updates only meeting-app copy when its native selector changes.
+    func updateVideoCallApp(
+        _ app: String
+    ) {
+        title.stringValue = OnboardingStrings.videoSettingsTitle(app: app)
+    }
+
     /// Highlights the correct action while keeping all actual system actions in the dialog footer.
     func update(
         step: OnboardingRepository.Step,
-        app: String
+        app: String,
+        preparationTitle: String,
+        primaryTitle: String,
+        preparationDetail: String
     ) {
+        if step == .virtualCamera {
+            screenshots.update(
+                heading: preparationTitle,
+                actionTitle: primaryTitle,
+                detail: preparationDetail
+            )
+        }
         let showsScreenshots: Bool
         if #available(macOS 15, *) {
             showsScreenshots = step == .virtualCamera
@@ -715,38 +859,41 @@ private final class OnboardingIllustrationView: Canvas {
             showsScreenshots = false
         }
         screenshots.isHidden = !showsScreenshots
-        surface.isHidden = showsScreenshots
-        caption.isHidden = showsScreenshots
+        cameraScreenshot.isHidden = step != .camera
+        surface.isHidden = showsScreenshots || step == .camera
+        caption.isHidden = showsScreenshots || step == .camera
         let symbolName: String
         switch step {
         case .camera:
-            title.stringValue = "FaceNow Would Like to Access the Camera"
+            title.stringValue = OnboardingStrings.guideFaceNowWouldLikeToAccessTheCamera
             symbolName = "camera.fill"
-            detail.stringValue = "FaceNow uses your camera for real-time effects."
-            action.stringValue = "①  Choose Allow"
-            caption.stringValue = "Camera permission · macOS dialog illustration"
+            detail.stringValue = OnboardingStrings.guideFaceNowUsesYourCameraForRealTimeEffects
+            action.stringValue = OnboardingStrings.guideChooseAllow
+            caption.stringValue = OnboardingStrings.guideCameraPermissionMacOSDialogIllustration
         case .virtualCamera:
-            title.stringValue = "System Settings"
+            title.stringValue = OnboardingStrings.guideSystemSettings
             symbolName = "gearshape.fill"
             if #available(macOS 15, *) {
-                detail.stringValue = "General → Login Items & Extensions\nCamera Extensions"
+                detail.stringValue = OnboardingStrings.guideGeneralLoginItemsExtensionsNCameraExtensions
             } else {
-                detail.stringValue = "Privacy & Security\nAllow the FaceNow system extension"
+                detail.stringValue = OnboardingStrings.guidePrivacySecurityNAllowTheFaceNowSystemExtension
             }
-            action.stringValue = "②  Enable FaceNow  →  Done"
-            caption.stringValue = "Return to FaceNow. Readiness is checked automatically."
+            action.stringValue = OnboardingStrings.guideEnableFaceNowDone
+            caption.stringValue = OnboardingStrings.guideReturnToFaceNowReadinessIsCheckedAutomatically
         case .videoCalls:
-            title.stringValue = "\(app) · Video Settings"
+            updateVideoCallApp(app)
             symbolName = "video.fill"
-            detail.stringValue = "①  Camera  ⌄\nChoose your video input"
-            action.stringValue = "②  ✓  \(VirtualCameraConfiguration.deviceName)"
-            caption.stringValue = "Camera-menu illustration · the layout varies by app"
+            detail.stringValue = OnboardingStrings.guideCameraNChooseYourVideoInput
+            action.stringValue = OnboardingStrings.selectedCameraIllustration(
+                name: VirtualCameraConfiguration.deviceName
+            )
+            caption.stringValue = OnboardingStrings.guideCameraMenuIllustrationTheLayoutVariesByApp
         }
         symbol.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
     }
 }
 
-/// Shows the supplied extension prompt and settings screenshots at a readable size, one step at a time.
+/// Mirrors the three extension setup instructions with one corresponding walkthrough page each.
 @MainActor
 private final class OnboardingVirtualCameraScreenshotsView: Canvas {
 
@@ -756,10 +903,21 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
     /// Uses the same shared pill group, typography, and selection appearance as generation modes.
     private lazy var tabs: TabSwitcher = {
         let view = TabSwitcher(
-            titles: ["1  Open Settings", "2  Enable FaceNow"],
+            titles: [
+                OnboardingStrings.virtualCamera, OnboardingStrings.noticeOpenSystemSettings,
+                OnboardingStrings.guideEnableFaceNow,
+            ],
             distribution: .content
         )
+        view.font = Typography.font(size: 12, weight: .medium)
+        view.horizontalPadding = 8
         view.onSelectionChanged = { [weak self] index in self?.selectPage(index) }
+        return view
+    }()
+
+    /// Illustrates the initial footer action before the system permission dialog appears.
+    private lazy var installation: OnboardingInstallIllustrationView = {
+        let view = OnboardingInstallIllustrationView()
         return view
     }()
 
@@ -769,7 +927,7 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
             resourceName: "OnboardingVirtualCameraPermission",
             crop: NSRect(x: 0, y: 0, width: 1, height: 1)
         )
-        view.setAccessibilityLabel("Camera extension permission prompt. Choose Open System Settings.")
+        view.setAccessibilityLabel(OnboardingStrings.guideCameraExtensionPermissionPromptChooseOpenSystemSettings)
         return view
     }()
 
@@ -779,7 +937,7 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
             resourceName: "OnboardingVirtualCameraSettings",
             crop: NSRect(x: 210.0 / 1181, y: 289.0 / 1333, width: 758.0 / 1181, height: 754.0 / 1333)
         )
-        view.setAccessibilityLabel("Camera Extensions. Enable FaceNow, then click Done.")
+        view.setAccessibilityLabel(OnboardingStrings.guideCameraExtensionsEnableFaceNowThenClickDone)
         return view
     }()
 
@@ -790,10 +948,10 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         return view
     }()
 
-    /// Composes the two walkthrough pages without altering system permission or installation state.
+    /// Composes the three walkthrough pages without altering system permission or installation state.
     init() {
         super.init()
-        [tabs, promptImage, settingsImage, caption].forEach(addSubview)
+        [tabs, installation, promptImage, settingsImage, caption].forEach(addSubview)
         tabs.snp.makeConstraints { make in
             make.centerX.top.equalToSuperview()
             make.width.lessThanOrEqualToSuperview()
@@ -803,7 +961,7 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         caption.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
         }
-        [promptImage, settingsImage].forEach { image in
+        [installation, promptImage, settingsImage].forEach { image in
             image.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
                 make.top.equalTo(tabs.snp.bottom).offset(14)
@@ -818,18 +976,120 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
+    /// Retains the current action's instruction while the user browses the system screenshots.
+    private var preparationDetail = OnboardingStrings.clickPrimaryButton(OnboardingStrings.install)
+
+    /// Reflects the same derived instruction and primary button as the guide footer.
+    func update(
+        heading: String,
+        actionTitle: String,
+        detail: String
+    ) {
+        installation.update(heading: heading, actionTitle: actionTitle)
+        preparationDetail = detail
+        if tabs.selectedIndex == 0 { caption.stringValue = detail }
+    }
+
     /// Switches the displayed screenshot and its matching action caption.
     private func selectPage(
         _ page: Int
     ) {
+        guard (0...2).contains(page) else { return }
         if tabs.selectedIndex != page { tabs.selectedIndex = page }
-        promptImage.isHidden = page != 0
-        settingsImage.isHidden = page != 1
-        caption.stringValue =
-            page == 0
-            ? "Click Open System Settings in the macOS prompt."
-            : "Turn on FaceNow in Camera Extensions, then click Done."
+        installation.isHidden = page != 0
+        promptImage.isHidden = page != 1
+        settingsImage.isHidden = page != 2
+        switch page {
+        case 0: caption.stringValue = preparationDetail
+        case 1: caption.stringValue = OnboardingStrings.guideClickOpenSystemSettingsInTheMacOSDialog
+        default: caption.stringValue = OnboardingStrings.guideTurnOnTheSwitchNextToFaceNowThenClick
+        }
     }
+}
+
+/// Illustrates the first setup action while the other two pages show actual macOS screenshots.
+@MainActor
+private final class OnboardingInstallIllustrationView: Canvas {
+
+    /// The centered white setup illustration inside the screenshot panel.
+    private lazy var surface: Canvas = {
+        let view = Canvas(color: .white, radius: 16)
+        view.layer?.borderWidth = 1
+        view.layer?.borderColor = Palette.border.cgColor
+        return view
+    }()
+
+    /// The native virtual-camera symbol above the installation action.
+    private lazy var symbol: NSImageView = {
+        let view = NSImageView()
+        view.image = NSImage(systemSymbolName: "video.fill", accessibilityDescription: nil)
+        view.contentTintColor = Palette.accent
+        view.imageScaling = .scaleProportionallyUpOrDown
+        view.setAccessibilityElement(false)
+        return view
+    }()
+
+    /// The heading matching the first timeline instruction.
+    private lazy var title: NSTextField = {
+        let view = wrappingLabel(size: 15, weight: .semibold)
+        view.stringValue = OnboardingStrings.guideInstallVirtualCamera
+        view.alignment = .center
+        return view
+    }()
+
+    /// The decorative primary action; actual installation remains in the dialog footer.
+    private lazy var action: Canvas = {
+        let view = Canvas(color: Palette.accent, radius: 12)
+        return view
+    }()
+
+    /// The exact button name used by the real installation action.
+    private lazy var actionTitle: NSTextField = {
+        let view = makeLabel(OnboardingStrings.install, size: 14, color: .white, weight: .semibold)
+        return view
+    }()
+
+    /// Composes a noninteractive preview without duplicating an installation control.
+    init() {
+        super.init()
+        addSubview(surface)
+        [symbol, title, action].forEach(surface.addSubview)
+        action.addSubview(actionTitle)
+        surface.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.equalToSuperview().offset(-32).priority(490)
+            make.width.lessThanOrEqualTo(360)
+            make.height.equalTo(220)
+        }
+        symbol.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(28)
+            make.size.equalTo(52)
+        }
+        title.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalTo(symbol.snp.bottom).offset(16)
+        }
+        action.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview().inset(24)
+            make.height.equalTo(42)
+        }
+        actionTitle.snp.makeConstraints { make in make.center.equalToSuperview() }
+    }
+
+    /// Renders the current instruction without keeping an independent installation decision.
+    func update(
+        heading: String,
+        actionTitle: String
+    ) {
+        title.stringValue = heading
+        self.actionTitle.stringValue = actionTitle
+    }
+
+    /// Storyboard decoding is unsupported for this programmatic illustration.
+    required init?(
+        coder: NSCoder
+    ) { fatalError("init(coder:) has not been implemented") }
 }
 
 /// Draws a proportionally scaled region of an original bundled screenshot without stretching it.

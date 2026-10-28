@@ -124,16 +124,17 @@ final class GenerationReferenceButton: NSButton {
             }
         }
         isEnabled = canSelect
+        synchronizeHover()
         thumbnail.isHidden = reference == nil
         spinner.setSpinning(
             reference?.uploadState == .uploading,
             color: .white
         )
         toolTip =
-            reference?.uploadError.map { $0 + " — Click to retry" } ?? reference?.name
-            ?? "Upload your own reference image"
-        setAccessibilityLabel(reference?.name ?? "Upload reference image")
-        setAccessibilityValue(selected ? "Selected" : "")
+            reference?.uploadError.map { GenerationStrings.retryUpload(message: $0) } ?? reference?.name
+            ?? GenerationStrings.controlsUploadYourOwnReferenceImage
+        setAccessibilityLabel(reference?.name ?? GenerationStrings.controlsUploadReferenceImage)
+        setAccessibilityValue(selected ? GenerationStrings.selected : "")
         needsDisplay = true
         needsLayout = true
     }
@@ -144,19 +145,19 @@ final class GenerationReferenceButton: NSButton {
         if let hoverArea { removeTrackingArea(hoverArea) }
         let area = NSTrackingArea(
             rect: .zero,
-            options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect],
+            options: [.mouseEnteredAndExited, .activeInActiveApp, .inVisibleRect],
             owner: self
         )
         addTrackingArea(area)
         hoverArea = area
+        synchronizeHover()
     }
 
     /// Marks the control as hovered and requests an appearance update.
     override func mouseEntered(
         with event: NSEvent
     ) {
-        hovered = true
-        needsDisplay = true
+        synchronizeHover()
     }
 
     /// Clears hover presentation when the pointer leaves the control.
@@ -165,6 +166,43 @@ final class GenerationReferenceButton: NSButton {
     ) {
         hovered = false
         needsDisplay = true
+    }
+
+    /// Reconciles the outline after pointer tracking, availability, or window ownership changes.
+    private func synchronizeHover() {
+        let inside: Bool
+        if let window, window.isVisible, NSApp.isActive, isEnabled, !isHiddenOrHasHiddenAncestor {
+            inside = visibleRect.contains(
+                convert(
+                    window.mouseLocationOutsideOfEventStream,
+                    from: nil
+                )
+            )
+        } else {
+            inside = false
+        }
+        guard hovered != inside else { return }
+        hovered = inside
+        needsDisplay = true
+    }
+
+    /// Prevents retained reference rows from carrying hover into a different window.
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        synchronizeHover()
+    }
+
+    /// Clears pointer feedback while the reference's page is hidden.
+    override func viewDidHide() {
+        super.viewDidHide()
+        hovered = false
+        needsDisplay = true
+    }
+
+    /// Restores the outline for the pointer position when the page reappears.
+    override func viewDidUnhide() {
+        super.viewDidUnhide()
+        synchronizeHover()
     }
 
     /// Places the current reference content within the host-provided bounds.
@@ -214,8 +252,8 @@ final class GenerationReferenceButton: NSButton {
 
             paragraph.lineBreakMode = .byTruncatingTail
             let attributes: [NSAttributedString.Key: Any] = [
-                .font: Typography.font(
-                    size: 11,
+                .font: NSFont.systemFont(
+                    ofSize: 11,
                     weight: selected ? .semibold : .regular
                 ),
                 .foregroundColor: Palette.secondary.blended(
@@ -224,7 +262,7 @@ final class GenerationReferenceButton: NSButton {
                 ) ?? Palette.secondary,
                 .paragraphStyle: paragraph,
             ]
-            ((reference?.name ?? "Upload") as NSString).draw(
+            ((reference?.name ?? GenerationStrings.controlsUpload) as NSString).draw(
                 in: NSRect(
                     x: 0,
                     y: 70,
@@ -279,7 +317,9 @@ final class GenerationReferenceButton: NSButton {
             on: overlay.layer,
             in: self
         )
-        progressLabel.stringValue = error ? "Retry" : "\(Int((reference?.uploadProgress ?? 0) * 100))%"
+        progressLabel.stringValue =
+            error
+            ? GenerationStrings.retry : GenerationStrings.percentage(value: Int((reference?.uploadProgress ?? 0) * 100))
         progressLabel.snp.updateConstraints { make in
             make.centerY.equalToSuperview().offset(error ? 0 : 13)
         }
@@ -297,6 +337,7 @@ final class GenerationReferenceButton: NSButton {
             size: 10,
             color: .white
         )
+        label.font = .systemFont(ofSize: 10)
         label.alignment = .center
         return label
     }()

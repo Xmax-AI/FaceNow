@@ -74,7 +74,7 @@ final class GenerationPromptTextView: NSTextView {
                 y: origin.y
             ),
             withAttributes: [
-                .font: font ?? Typography.font(size: 15),
+                .font: font ?? NSFont.systemFont(ofSize: 15),
                 .foregroundColor: placeholderColor,
             ]
         )

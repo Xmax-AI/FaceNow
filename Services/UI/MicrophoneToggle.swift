@@ -48,7 +48,7 @@ final class MicrophoneToggle: NSButton {
     /// Creates a native full-bounds toggle with the shared microphone appearance.
     init() {
         super.init(frame: .zero)
-        title = "Microphone"
+        title = Localization.string("control.microphone", table: "Common", defaultValue: "Microphone")
         font = Typography.font(size: 13)
         wantsLayer = true
         // Checkbox cells only track their native indicator/title, not the custom track on the right.

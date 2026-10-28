@@ -12,7 +12,7 @@ import AppKit
 import SnapKit
 
 /// Native buttons retain their identity, loading animation, keyboard focus, and target action.
-final class Button: NSButton {
+class Button: NSButton {
 
     /// The visual roles supported by the shared native button.
     enum Appearance {
@@ -25,6 +25,9 @@ final class Button: NSButton {
 
         /// A stop or removal action using a red foreground and outline.
         case destructive
+
+        /// A confirmed available state using the same subtle surface as destructive controls.
+        case success
 
         /// A compact diagnostic-visibility control with a selected state.
         case statistics
@@ -57,6 +60,9 @@ final class Button: NSButton {
     /// The optional system symbol displayed instead of a custom glyph.
     var symbolName: String? { didSet { needsDisplay = true } }
 
+    /// Centers standalone system symbols by their visible bounds rather than asymmetric transparent margins.
+    var centersSymbolVisually = false { didSet { needsDisplay = true } }
+
     /// Whether a disclosure chevron is drawn at the trailing edge.
     var chevron = false
 
@@ -87,13 +93,16 @@ final class Button: NSButton {
     /// Scales the shadow's opacity, blur radius, and offset for a more restrained appearance.
     var shadowScale: CGFloat = 1 { didSet { needsDisplay = true } }
 
+    /// Gives toolbar controls one compact shadow recipe regardless of their semantic fill color.
+    private var usesToolbarAppearance = false
+
     /// An explicit foreground override for a specialized control.
     var foregroundColor: NSColor? { didSet { needsDisplay = true } }
 
-    /// An optional hover fill for plain actions, using the shared appearance transition.
+    /// An optional hover fill for plain actions and tabs, using the shared appearance transition.
     var hoverBackgroundColor: NSColor? { didSet { needsDisplay = true } }
 
-    /// An optional resting fill for plain actions, using the shared appearance transition.
+    /// An optional resting fill for plain actions and tabs, using the shared appearance transition.
     var restingBackgroundColor: NSColor? { didSet { needsDisplay = true } }
 
     /// Whether an activity ring replaces the control's glyph.
@@ -114,8 +123,20 @@ final class Button: NSButton {
     /// Reports pointer entry and exit without exposing the button's drawing state.
     var onHoverChanged: ((Bool) -> Void)?
 
+    /// Triggers hover actions only after actual pointer movement over an unobscured control.
+    var onPointerHoverChanged: ((Bool) -> Void)?
+
     /// Whether the pointer is currently inside the control.
     private var hovered = false
+
+    /// Keeps toolbar hover exclusive across separately owned home, generation, and account groups.
+    private static weak var hoveredToolbarButton: Button?
+
+    /// Keeps layout-driven hover synchronization separate from intentional pointer interaction.
+    private var pointerHovered = false
+
+    /// Caches normalized visible centers so symbol alignment never scans pixels during repeated draws.
+    private static var symbolCenters: [String: NSPoint] = [:]
 
     /// The current visible-bounds tracking area.
     private var hoverArea: NSTrackingArea?
@@ -126,18 +147,13 @@ final class Button: NSButton {
     /// The latest destination; repeated state refreshes do not restart its animation.
     private var transitionTarget: ButtonVisualState?
 
-    /// Native animation updates the custom drawing without replacing the button or its content.
-    @objc dynamic private var appearanceProgress: CGFloat = 1 {
+    /// The interpolation progress of the current drawing transition.
+    private var appearanceProgress: CGFloat = 1 {
         didSet { needsDisplay = true }
     }
 
-    /// Supplies native interpolation for the custom-drawn control appearance.
-    override class func defaultAnimation(
-        forKey key: NSAnimatablePropertyKey
-    ) -> Any? {
-        if key == "appearanceProgress" { return CABasicAnimation() }
-        return super.defaultAnimation(forKey: key)
-    }
+    /// Cancels the old progress driver before a reversal can write into the new transition.
+    private var appearanceTask: Task<Void, Never>?
 
     /// The lazily created loading ring retained across state updates.
     private lazy var spinner: Spinner = {
@@ -151,6 +167,7 @@ final class Button: NSButton {
     /// The native enabled state whose appearance also accounts for loading and passive presentation.
     override var isEnabled: Bool {
         didSet {
+            synchronizeHover()
             updateOpacity()
             needsDisplay = true
         }
@@ -193,6 +210,28 @@ final class Button: NSButton {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
+    /// Supplies the shared native rendering configuration used by ToolbarButton.
+    func configureForToolbar(
+        weight: NSFont.Weight,
+        monospacedDigits: Bool
+    ) {
+        usesToolbarAppearance = true
+        font = Typography.font(
+            size: ToolbarControlMetrics.fontSize,
+            weight: weight,
+            monospacedDigits: monospacedDigits
+        )
+        iconSize = ToolbarControlMetrics.iconSize
+        iconSpacing = ToolbarControlMetrics.contentSpacing
+        leadingPadding = ToolbarControlMetrics.horizontalPadding
+        trailingPadding = chevron ? ToolbarControlMetrics.disclosurePadding : ToolbarControlMetrics.horizontalPadding
+        backgroundInset = 0
+        cornerRadius = nil
+        shadowScale = 1
+        showsShadow = style != .plain
+        needsDisplay = true
+    }
+
     /// Invokes the enabled control action without replacing its native identity.
     @objc private func invoke() { if !passive { onClick?() } }
 
@@ -200,31 +239,134 @@ final class Button: NSButton {
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let hoverArea { removeTrackingArea(hoverArea) }
+        hoverArea = nil
         let area = NSTrackingArea(
             rect: .zero,
-            options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect],
+            options: [.mouseEnteredAndExited, .mouseMoved, .activeInActiveApp, .inVisibleRect],
             owner: self
         )
         addTrackingArea(area)
         hoverArea = area
+        synchronizeHover()
     }
 
     /// Marks the control as hovered and requests an appearance update.
     override func mouseEntered(
         with event: NSEvent
     ) {
-        hovered = true
-        needsDisplay = true
-        onHoverChanged?(true)
+        synchronizeHover()
+    }
+
+    /// Opens hover content only for real movement over this button, excluding covering login views.
+    override func mouseMoved(
+        with event: NSEvent
+    ) {
+        guard usesToolbarAppearance || onPointerHoverChanged != nil else { return }
+        synchronizeHover()
+        guard hovered, let window, event.window === window, let content = window.contentView else {
+            setPointerHovered(false)
+            return
+        }
+        let point =
+            content.superview?.convert(
+                event.locationInWindow,
+                from: nil
+            ) ?? event.locationInWindow
+        let target = content.hitTest(point)
+        setPointerHovered(target === self || target?.isDescendant(of: self) == true)
     }
 
     /// Clears hover presentation when the pointer leaves the control.
     override func mouseExited(
         with event: NSEvent
     ) {
-        hovered = false
+        setHovered(false)
+    }
+
+    /// Publishes only actual hover changes, keeping popover callbacks stable across layout refreshes.
+    private func setHovered(
+        _ value: Bool
+    ) {
+        if usesToolbarAppearance {
+            if value {
+                if let previous = Self.hoveredToolbarButton, previous !== self {
+                    previous.setHovered(false)
+                }
+                Self.hoveredToolbarButton = self
+            } else if Self.hoveredToolbarButton === self {
+                Self.hoveredToolbarButton = nil
+            }
+        }
+        if !value { setPointerHovered(false) }
+        guard hovered != value else { return }
+        hovered = value
         needsDisplay = true
-        onHoverChanged?(false)
+        onHoverChanged?(value)
+    }
+
+    /// Emits intentional hover changes independently of passive appearance refreshes.
+    private func setPointerHovered(
+        _ value: Bool
+    ) {
+        guard pointerHovered != value else { return }
+        pointerHovered = value
+        onPointerHoverChanged?(value)
+    }
+
+    /// Reconciles tracking after layout, availability changes, and switches to a popover window.
+    private func synchronizeHover() {
+        guard let window, window.isVisible, NSApp.isActive, isEnabled, !passive,
+            !isHiddenOrHasHiddenAncestor
+        else {
+            setHovered(false)
+            return
+        }
+        let point = convert(
+            window.mouseLocationOutsideOfEventStream,
+            from: nil
+        )
+        guard visibleRect.contains(point), let content = window.contentView else {
+            setHovered(false)
+            return
+        }
+        let hitPoint =
+            content.superview?.convert(
+                window.mouseLocationOutsideOfEventStream,
+                from: nil
+            ) ?? window.mouseLocationOutsideOfEventStream
+        let target = content.hitTest(hitPoint)
+        setHovered(target === self || target?.isDescendant(of: self) == true)
+    }
+
+    /// Starts a reused control from its current state instead of a previous window's animation.
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        synchronizeHover()
+        resetAppearanceTransition()
+    }
+
+    /// Clears hover and animation state when a page or popover hides the button.
+    override func viewDidHide() {
+        super.viewDidHide()
+        setHovered(false)
+        resetAppearanceTransition()
+    }
+
+    /// Restores pointer feedback when a retained page becomes visible again.
+    override func viewDidUnhide() {
+        super.viewDidUnhide()
+        synchronizeHover()
+        resetAppearanceTransition()
+    }
+
+    /// Makes the next draw an immediate initial presentation while retaining the control itself.
+    private func resetAppearanceTransition() {
+        appearanceTask?.cancel()
+        appearanceTask = nil
+        transitionStart = nil
+        transitionTarget = nil
+        appearanceProgress = 1
+        needsDisplay = true
     }
 
     /// The effective foreground color for the current role, selection, and pointer state.
@@ -232,6 +374,7 @@ final class Button: NSButton {
         if let foregroundColor { return foregroundColor }
         if style == .primary { return .white }
         if style == .destructive { return Palette.destructive }
+        if style == .success { return Palette.success }
         if selected && style == .statistics { return Palette.accent }
         if selected && style == .interpolation {
             return NSColor(
@@ -240,6 +383,10 @@ final class Button: NSButton {
                 blue: 8 / 255,
                 alpha: 1
             )
+        }
+        if usesToolbarAppearance {
+            return (hovered && isEnabled && !passive) || (style == .volume && selected)
+                ? Palette.text : Palette.secondary
         }
         if style == .statistics || style == .interpolation || style == .volume {
             return selected || (hovered && isEnabled)
@@ -286,12 +433,19 @@ final class Button: NSButton {
                     progress: appearanceProgress
                 ) ?? target
             let animated = transitionTarget != nil && ControlMotion.isAnimated(in: self)
+            appearanceTask?.cancel()
+            appearanceTask = nil
             transitionStart = visible
             transitionTarget = target
             appearanceProgress = animated ? 0 : 1
             if animated {
-                ControlMotion.animate(in: self) {
-                    animator().appearanceProgress = 1
+                let startedAt = ContinuousClock.now
+                appearanceTask = Task { @MainActor [weak self] in
+                    while !Task.isCancelled {
+                        do { try await Task.sleep(for: .milliseconds(16)) } catch { return }
+                        guard !Task.isCancelled else { return }
+                        guard self?.advanceAppearance(since: startedAt) == true else { return }
+                    }
                 }
             }
         }
@@ -301,8 +455,27 @@ final class Button: NSButton {
         ) ?? target
     }
 
+    /// Drives an ease-in-out transition by elapsed time and explicitly commits its final frame.
+    private func advanceAppearance(
+        since startedAt: ContinuousClock.Instant
+    ) -> Bool {
+        let elapsed = startedAt.duration(to: ContinuousClock.now).components
+        let seconds = Double(elapsed.seconds) + Double(elapsed.attoseconds) / 1e18
+        let progress = min(1, max(0, seconds / ControlMotion.duration))
+        appearanceProgress = CGFloat(progress * progress * (3 - 2 * progress))
+        if progress == 1 { appearanceTask = nil }
+        return progress < 1
+    }
+
     /// Measures the label and icon with the Web component's explicit padding.
     var preferredWidth: CGFloat {
+        preferredWidth(for: title)
+    }
+
+    /// Measures alternate action labels using the same content metrics as the current title.
+    func preferredWidth(
+        for title: String
+    ) -> CGFloat {
         ceil(
             Typography.size(
                 title,
@@ -352,6 +525,42 @@ final class Button: NSButton {
         )
     }
 
+    /// Preserves symbol size while aligning its visible silhouette with the center of the icon slot.
+    private static func visuallyCenteredSymbolRect(
+        _ image: NSImage,
+        named name: String,
+        in rect: NSRect
+    ) -> NSRect {
+        let center: NSPoint
+        if let cached = symbolCenters[name] {
+            center = cached
+        } else {
+            guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return rect }
+            let bitmap = NSBitmapImageRep(cgImage: cgImage)
+            var minX = bitmap.pixelsWide, minY = bitmap.pixelsHigh
+            var maxX = -1, maxY = -1
+            for y in 0..<bitmap.pixelsHigh {
+                for x in 0..<bitmap.pixelsWide {
+                    guard (bitmap.colorAt(x: x, y: y)?.alphaComponent ?? 0) > 0 else { continue }
+                    minX = min(minX, x)
+                    minY = min(minY, y)
+                    maxX = max(maxX, x)
+                    maxY = max(maxY, y)
+                }
+            }
+            guard maxX >= minX, maxY >= minY else { return rect }
+            center = NSPoint(
+                x: CGFloat(minX + maxX + 1) / (2 * CGFloat(bitmap.pixelsWide)),
+                y: CGFloat(minY + maxY + 1) / (2 * CGFloat(bitmap.pixelsHigh))
+            )
+            symbolCenters[name] = center
+        }
+        return rect.offsetBy(
+            dx: (0.5 - center.x) * rect.width,
+            dy: (0.5 - center.y) * rect.height
+        )
+    }
+
     /// Places the retained activity ring at the measured icon position.
     override func layout() {
         let iconRect = contentFrames().0
@@ -398,6 +607,9 @@ final class Button: NSButton {
                 blue: 234 / 255,
                 alpha: 1
             )
+        if usesToolbarAppearance {
+            border = hot ? ToolbarControlMetrics.hoverBorder : ToolbarControlMetrics.border
+        }
         switch style {
         case .primary:
             top = hot ? Palette.accentHover : Palette.accent
@@ -413,13 +625,22 @@ final class Button: NSButton {
             )
             bottom = top
             border = .clear
-        case .destructive:
-            bottom = NSColor(
-                srgbRed: 253 / 255,
-                green: hot ? 232 / 255 : 242 / 255,
-                blue: hot ? 232 / 255 : 242 / 255,
-                alpha: 1
-            )
+        case .destructive, .success:
+            if style == .success {
+                bottom = NSColor(
+                    srgbRed: hot ? 220 / 255 : 240 / 255,
+                    green: hot ? 252 / 255 : 253 / 255,
+                    blue: hot ? 231 / 255 : 244 / 255,
+                    alpha: 1
+                )
+            } else {
+                bottom = NSColor(
+                    srgbRed: 253 / 255,
+                    green: hot ? 232 / 255 : 242 / 255,
+                    blue: hot ? 232 / 255 : 242 / 255,
+                    alpha: 1
+                )
+            }
             border = foreground.withAlphaComponent(hot ? 0.5 : 0.28)
         case .statistics where selected:
             top = NSColor(
@@ -456,29 +677,38 @@ final class Button: NSButton {
                 alpha: 1
             )
         case .tab:
-            top = selected ? .white : .white.withAlphaComponent(hot ? 0.65 : 0)
+            let resting = restingBackgroundColor ?? .white.withAlphaComponent(0)
+            let hover = hoverBackgroundColor ?? .white.withAlphaComponent(0.65)
+            top = selected ? .white : hot ? hover : resting
             bottom = top
             border = .clear
         case .plain:
-            let fill = restingBackgroundColor ?? .clear
+            let fill = restingBackgroundColor ?? hoverBackgroundColor?.withAlphaComponent(0) ?? .clear
             top = hot ? hoverBackgroundColor ?? fill : fill
             bottom = top
             border = .clear
         default: break
         }
-        if isHighlighted {
-            bottom =
-                bottom.blended(
-                    withFraction: 0.06,
-                    of: .black
-                ) ?? bottom
+        if isHighlighted && isEnabled && !passive {
+            top = ControlMotion.blend(
+                top,
+                toward: .black.withAlphaComponent(top.alphaComponent),
+                progress: 0.06
+            )
+            bottom = ControlMotion.blend(
+                bottom,
+                toward: .black.withAlphaComponent(bottom.alphaComponent),
+                progress: 0.06
+            )
         }
         let outlined =
-            style == .pill || style == .volume || style == .destructive
+            style == .pill || style == .volume || style == .destructive || style == .success
             || (!selected && (style == .statistics || style == .interpolation))
-        let flat =
-            style == .plain || (style == .tab && !selected)
-            || (selected && (style == .statistics || style == .interpolation))
+        let flat = style == .plain
+            || (!usesToolbarAppearance
+                && ((style == .tab && !selected)
+                    || (selected && (style == .statistics || style == .interpolation))))
+        let primaryShadow = style == .primary && !usesToolbarAppearance
         let visual = visualState(
             for: ButtonVisualState(
                 top: top,
@@ -486,11 +716,11 @@ final class Button: NSButton {
                 border: border,
                 foreground: foreground,
                 highlightOpacity: outlined ? 0.6 : 0,
-                shadowColor: style == .primary ? Palette.accent : .black,
+                shadowColor: primaryShadow ? Palette.accent : .black,
                 shadowOpacity: shadowScale
-                    * (!showsShadow || flat ? 0 : style == .primary ? 0.35 : style == .tab ? 0.1 : hot ? 0.08 : 0.05),
-                shadowRadius: shadowScale * (style == .primary ? 15 : style == .tab ? 4 : hot ? 8 : 6),
-                shadowOffset: shadowScale * (style == .primary ? 10 : style == .tab ? 2 : hot ? 6 : 4)
+                    * (!showsShadow || flat ? 0 : primaryShadow ? 0.35 : style == .tab ? 0.1 : hot ? 0.08 : 0.05),
+                shadowRadius: shadowScale * (primaryShadow ? 15 : style == .tab ? 4 : hot ? 8 : 6),
+                shadowOffset: shadowScale * (primaryShadow ? 10 : style == .tab ? 2 : hot ? 6 : 4)
             )
         )
         NSGradient(
@@ -540,14 +770,34 @@ final class Button: NSButton {
                 color: visual.foreground
             )
         }
-        if let symbolName, !loading {
-            NSImage(
+        if let symbolName, !loading,
+            let symbol = NSImage(
                 systemSymbolName: symbolName,
                 accessibilityDescription: nil
             )?
-            .withSymbolConfiguration(.init(paletteColors: [visual.foreground]))?
-            .draw(
-                in: iconRect,
+            .withSymbolConfiguration(.init(paletteColors: [visual.foreground]))
+        {
+            let scale = min(
+                iconRect.width / max(1, symbol.size.width),
+                iconRect.height / max(1, symbol.size.height)
+            )
+            let width = symbol.size.width * scale
+            let height = symbol.size.height * scale
+            let fittedRect = NSRect(
+                x: iconRect.midX - width / 2,
+                y: iconRect.midY - height / 2,
+                width: width,
+                height: height
+            )
+            let rect =
+                centersSymbolVisually && title.isEmpty
+                ? Self.visuallyCenteredSymbolRect(
+                    symbol,
+                    named: symbolName,
+                    in: fittedRect
+                ) : fittedRect
+            symbol.draw(
+                in: rect,
                 from: .zero,
                 operation: .sourceOver,
                 fraction: 1,
@@ -573,7 +823,11 @@ final class Button: NSButton {
         )
         if chevron {
             let arrow = NSBezierPath()
-            let x = bounds.width - 20, y = bounds.midY
+            let x =
+                usesToolbarAppearance
+                ? bounds.width - ToolbarControlMetrics.horizontalPadding - ToolbarControlMetrics.disclosureWidth / 2
+                : bounds.width - 20
+            let y = bounds.midY
             arrow.move(
                 to: NSPoint(
                     x: x - 3,
@@ -594,7 +848,7 @@ final class Button: NSButton {
                     y: y - 1.5
                 )
             )
-            Palette.secondary.setStroke()
+            (usesToolbarAppearance ? visual.foreground : Palette.secondary).setStroke()
             arrow.lineWidth = 1
             arrow.stroke()
         }
@@ -631,19 +885,39 @@ private struct ButtonVisualState: Equatable {
     /// The shadow's vertical offset, in points.
     var shadowOffset: CGFloat
 
-    /// Interpolates the complete appearance at the native animation's current progress.
+    /// Interpolates the complete appearance at the current transition progress.
     func blended(
         toward target: ButtonVisualState,
         progress: CGFloat
     ) -> ButtonVisualState {
         let amount = min(1, max(0, progress))
         return ButtonVisualState(
-            top: top.blended(withFraction: amount, of: target.top) ?? target.top,
-            bottom: bottom.blended(withFraction: amount, of: target.bottom) ?? target.bottom,
-            border: border.blended(withFraction: amount, of: target.border) ?? target.border,
-            foreground: foreground.blended(withFraction: amount, of: target.foreground) ?? target.foreground,
+            top: ControlMotion.blend(
+                top,
+                toward: target.top,
+                progress: amount
+            ),
+            bottom: ControlMotion.blend(
+                bottom,
+                toward: target.bottom,
+                progress: amount
+            ),
+            border: ControlMotion.blend(
+                border,
+                toward: target.border,
+                progress: amount
+            ),
+            foreground: ControlMotion.blend(
+                foreground,
+                toward: target.foreground,
+                progress: amount
+            ),
             highlightOpacity: highlightOpacity + (target.highlightOpacity - highlightOpacity) * amount,
-            shadowColor: shadowColor.blended(withFraction: amount, of: target.shadowColor) ?? target.shadowColor,
+            shadowColor: ControlMotion.blend(
+                shadowColor,
+                toward: target.shadowColor,
+                progress: amount
+            ),
             shadowOpacity: shadowOpacity + (target.shadowOpacity - shadowOpacity) * amount,
             shadowRadius: shadowRadius + (target.shadowRadius - shadowRadius) * amount,
             shadowOffset: shadowOffset + (target.shadowOffset - shadowOffset) * amount

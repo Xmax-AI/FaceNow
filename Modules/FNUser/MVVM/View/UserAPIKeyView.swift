@@ -37,37 +37,46 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     /// Prevents credential changes while generation or cleanup owns the SDK key.
     var settingsLocked = false
 
+    /// Uses native fonts for the shared generation header while preserving home typography.
+    var usesSystemFont = false {
+        didSet {
+            guard usesSystemFont != oldValue else { return }
+            button.font =
+                usesSystemFont
+                ? .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
+                : Typography.font(size: ToolbarControlMetrics.fontSize, weight: .semibold)
+            creditsButton.font =
+                usesSystemFont
+                ? .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .medium)
+                : Typography.font(size: ToolbarControlMetrics.fontSize)
+        }
+    }
+
     /// Opens the existing account menu from a circular text avatar.
-    private lazy var button: Button = {
-        let button = Button(style: .primary)
-        button.font = Typography.font(
-            size: 13,
+    private lazy var button: ToolbarButton = {
+        let button = ToolbarButton(
+            style: .primary,
+            shape: .circle,
             weight: .semibold
         )
-        button.leadingPadding = 0
-        button.trailingPadding = 0
-        button.iconSize = 18
         button.foregroundColor = .white
-        button.showsShadow = false
         button.onClick = { [weak self] in self?.showAccount() }
-        button.onHoverChanged = { [weak self] hovering in
+        button.onPointerHoverChanged = { [weak self] hovering in
             self?.accountHoverChanged(hovering)
         }
         return button
     }()
 
     /// Displays server-confirmed credits and opens the platform credit page.
-    private lazy var creditsButton: Button = {
-        let button = Button(style: .pill)
-        button.font = Typography.font(size: 12)
-        button.symbolName = "sparkles"
-        button.iconSize = 16
+    private lazy var creditsButton: ToolbarButton = {
+        let button = ToolbarButton()
+        button.symbolName = "bolt.fill"
         button.onClick = { [weak self] in
             guard let self else { return }
             self.closePopover()
             NSWorkspace.shared.open(self.userRepo.creditsURL)
         }
-        button.onHoverChanged = { [weak self] hovering in
+        button.onPointerHoverChanged = { [weak self] hovering in
             self?.creditsHoverChanged(hovering)
         }
         return button
@@ -77,10 +86,10 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     private lazy var keyField: NSTextField = {
         let field = NSTextField()
         field.delegate = self
-        field.placeholderString = "API Key"
+        field.placeholderString = UserStrings.apiKey
         field.font = Typography.font(size: 13)
         field.bezelStyle = .roundedBezel
-        field.setAccessibilityLabel("API Key")
+        field.setAccessibilityLabel(UserStrings.apiKey)
         return field
     }()
 
@@ -125,7 +134,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     /// Owns account-card entry and dismissal delays independently of the credit warning.
     private var accountHoverTask: Task<Void, Never>?
 
-    /// Offers recharge without replacing the account card or exposing credentials.
+    /// Offers recharge through the credit pill's mutually exclusive hover card.
     private lazy var creditsCard: UserCreditsPopoverView = {
         let view = UserCreditsPopoverView()
         view.onRecharge = { [weak self] in
@@ -191,14 +200,11 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         super.init()
         [creditsButton, button].forEach(addSubview)
         button.snp.makeConstraints { make in
-            make.trailing.centerY.equalToSuperview()
-            make.width.equalTo(button.snp.height)
-            make.height.equalToSuperview().priority(750)
-            make.height.lessThanOrEqualTo(40)
+            make.trailing.top.bottom.equalToSuperview()
         }
         creditsButton.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
-            make.trailing.equalTo(button.snp.leading).offset(-16)
+            make.trailing.equalTo(button.snp.leading).offset(-ToolbarControlMetrics.spacing)
         }
         update()
     }
@@ -212,7 +218,8 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     func preferredWidth(
         controlHeight: CGFloat
     ) -> CGFloat {
-        max(36, controlHeight) + 16 + creditsButton.preferredWidth
+        button.preferredWidth(controlHeight: controlHeight) + ToolbarControlMetrics.spacing
+            + creditsButton.preferredWidth
     }
 
     /// Updates the pill without replacing an active editor.
@@ -220,11 +227,11 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         button.title = viewModel.avatarText
         button.symbolName = button.title.isEmpty ? "person.fill" : nil
         button.toolTip = nil
-        button.setAccessibilityLabel("Account: \(userRepo.displayName)")
+        button.setAccessibilityLabel(AccountStrings.accountAccessibility(name: userRepo.displayName))
         creditsButton.title = viewModel.creditsText
         creditsButton.style = viewModel.showsLowCreditsWarning ? .destructive : .pill
         creditsButton.toolTip = viewModel.showsLowCreditsWarning ? nil : viewModel.creditsHelp
-        creditsButton.setAccessibilityLabel("Remaining credits: \(viewModel.creditsText)")
+        creditsButton.setAccessibilityLabel(AccountStrings.balanceAccessibility(balance: viewModel.creditsText))
         creditsButton.setAccessibilityHelp(viewModel.creditsHelp)
         if !viewModel.showsLowCreditsWarning {
             creditsHoverTask?.cancel()
@@ -291,6 +298,10 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
             return
         }
         guard viewModel.showsLowCreditsWarning else { return }
+        guard popover?.isShown != true || showingAccount || showingCredits else { return }
+        if showingCredits, popover?.isShown == true { return }
+        // End the previous hover lifecycle before starting the new card's entry delay.
+        closePopover()
         creditsHoverTask = Task { [weak self] in
             do { try await Task.sleep(for: .milliseconds(200)) } catch { return }
             guard let self, self.creditsButtonHovered else { return }
@@ -311,11 +322,13 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         }
     }
 
-    /// Presents the warning only while the red pill is visible and other popovers are closed.
+    /// Presents the warning only while the red pill is visible and key editing is inactive.
     private func showCreditsWarning() {
         guard viewModel.showsLowCreditsWarning, window?.isVisible == true,
-            !isHiddenOrHasHiddenAncestor, popover?.isShown != true
+            !isHiddenOrHasHiddenAncestor,
+            popover?.isShown != true || showingAccount || showingCredits
         else { return }
+        if showingCredits, popover?.isShown == true { return }
         closePopover()
         let controller = NSViewController()
         controller.view = creditsCard
@@ -346,6 +359,9 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
             return
         }
         guard userRepo.isSignedIn else { return }
+        guard popover?.isShown != true || showingAccount || showingCredits else { return }
+        if showingAccount, popover?.isShown == true { return }
+        closePopover()
         accountHoverTask = Task { [weak self] in
             do { try await Task.sleep(for: .milliseconds(200)) } catch { return }
             guard let self, self.accountButtonHovered, self.userRepo.isSignedIn,
@@ -409,7 +425,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
             return
         }
         closePopover()
-        let text = "Get an API key from the Xmax Open Platform."
+        let text = AccountStrings.accountGetAnAPIKeyFromTheXmaxOpenPlatform
         let attributed = NSMutableAttributedString(
             string: text,
             attributes: [
@@ -441,7 +457,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         }
         keyField.isEnabled = !settingsLocked
         let signIn = Button(
-            "Sign in to your account",
+            AccountStrings.accountSignInToYourAccount,
             style: .plain
         )
         signIn.onClick = { [weak self] in

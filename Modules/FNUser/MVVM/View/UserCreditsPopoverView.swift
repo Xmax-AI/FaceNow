@@ -40,7 +40,7 @@ final class UserCreditsPopoverView: Canvas {
 
     /// States the reason for the warning without repeating the balance.
     private lazy var titleLabel: NSTextField = {
-        let view = NSTextField(labelWithString: "Low credits")
+        let view = NSTextField(labelWithString: AccountStrings.accountLowCredits)
         view.font = Typography.font(
             size: 14,
             weight: .semibold
@@ -51,7 +51,7 @@ final class UserCreditsPopoverView: Canvas {
 
     /// Explains the next action in the same language as the application.
     private lazy var messageLabel: NSTextField = {
-        let view = NSTextField(wrappingLabelWithString: "You're running low on credits. Top up to avoid interruptions.")
+        let view = NSTextField(wrappingLabelWithString: AccountStrings.accountYouReRunningLowOnCreditsTopUpTo)
         view.font = Typography.font(size: 12)
         view.textColor = Palette.secondary
         view.preferredMaxLayoutWidth = 248
@@ -61,7 +61,7 @@ final class UserCreditsPopoverView: Canvas {
     /// Provides a direct route to the account's existing recharge page.
     private lazy var rechargeButton: Button = {
         let view = Button(
-            "Buy Credits",
+            AccountStrings.accountBuyCredits,
             style: .primary
         )
         view.font = Typography.font(

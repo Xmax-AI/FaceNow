@@ -51,11 +51,28 @@ final class InputField: Canvas {
         }
     }
 
+    /// Keeps a rejected value visibly invalid until its owner clears validation after an edit.
+    var validationMessage: String? {
+        didSet {
+            guard validationMessage != oldValue else { return }
+            toolTip = validationMessage
+            textField.toolTip = validationMessage
+            textField.setAccessibilityHelp(validationMessage)
+            updateAppearance()
+            if oldValue == nil, validationMessage != nil {
+                ControlMotion.shake(self)
+            }
+        }
+    }
+
     /// Whether the native editor masks its value.
     private let secure: Bool
 
     /// The last focus state rendered by the shared input surface.
     private var focused = false
+
+    /// Keeps keyboard-focus presentation exclusive even before native text editing begins.
+    private static weak var focusedInput: InputField?
 
     /// The editor's leading edge while no fixed prefix is shown.
     private var plainLeading: Constraint?
@@ -162,6 +179,34 @@ final class InputField: Canvas {
     /// Removes editing observations when this input is released.
     deinit { NotificationCenter.default.removeObserver(self) }
 
+    /// Tracks responder changes that do not produce a native end-editing notification.
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSWindow.didUpdateNotification,
+            object: nil
+        )
+        if let window {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(synchronizeFocus),
+                name: NSWindow.didUpdateNotification,
+                object: window
+            )
+        } else {
+            ControlMotion.stopShake(in: self)
+        }
+        synchronizeFocus()
+    }
+
+    /// Clears retained focus decoration when an input mode or its owning page is hidden.
+    override func viewDidHide() {
+        super.viewDidHide()
+        ControlMotion.stopShake(in: self)
+        setFocused(false)
+    }
+
     /// Constrains the native editor and independent prefix region without assigning child frames.
     private func configureLayout() {
         prefixRegion.snp.makeConstraints { make in
@@ -236,15 +281,43 @@ final class InputField: Canvas {
         setFocused(false)
     }
 
+    /// Resolves the actual field-editor owner instead of retaining an earlier focus callback.
+    @objc private func synchronizeFocus() {
+        guard let window, window.isKeyWindow, !isHiddenOrHasHiddenAncestor, isEnabled else {
+            setFocused(false)
+            return
+        }
+        let responder = window.firstResponder
+        let editor = responder as? NSTextView
+        setFocused(responder === textField || editor?.delegate === textField)
+    }
+
     /// Animates focus colors from their current presentation so rapid focus changes stay smooth.
     private func setFocused(
         _ focused: Bool
     ) {
-        guard self.focused != focused, let layer else { return }
+        let focused = focused && window?.isKeyWindow == true && !isHiddenOrHasHiddenAncestor && isEnabled
+        if focused {
+            if let previous = Self.focusedInput, previous !== self {
+                previous.setFocused(false)
+            }
+            Self.focusedInput = self
+        } else if Self.focusedInput === self {
+            Self.focusedInput = nil
+        }
+        guard self.focused != focused else { return }
         self.focused = focused
+        updateAppearance()
+    }
+
+    /// Gives field validation priority over focus without changing native editing or text colors.
+    private func updateAppearance() {
+        guard let layer else { return }
+        let invalid = validationMessage != nil
         let background = (focused ? NSColor.white : Palette.inputSurface).cgColor
-        let border = (focused ? Palette.accent.withAlphaComponent(0.6) : Palette.border).cgColor
-        let width: CGFloat = focused ? 1.5 : 1
+        let border = (invalid ? Palette.destructive : focused ? Palette.accent.withAlphaComponent(0.6) : Palette.border)
+            .cgColor
+        let width: CGFloat = focused || invalid ? 1.5 : 1
         let transitions: [(String, Any)] = [
             ("backgroundColor", background),
             ("borderColor", border),

@@ -38,30 +38,26 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
             configuration: configuration
         )
         view.navigationDelegate = self
+        view.underPageBackgroundColor = .clear
+        // Disable WebKit's default page fill so transparent HTML reveals the native parent window.
+        view.setValue(false, forKey: "drawsBackground")
         return view
     }()
 
     /// Resumes exactly once after success, cancellation, or a load failure.
     private var continuation: CheckedContinuation<CaptchaProof, Error>?
 
-    /// The parent presenting this sheet.
-    private weak var presenter: NSViewController?
+    /// The existing login window; verification never creates an additional native window.
+    private weak var hostWindow: NSWindow?
+
+    /// Restores the original editor after the transparent challenge layer closes.
+    private weak var previousFirstResponder: NSResponder?
+
+    /// Keeps Escape cancellation available even when the third-party iframe has keyboard focus.
+    private var escapeMonitor: Any?
 
     /// Bounds a challenge that never loads or returns a result.
     private var deadline: Task<Void, Never>?
-
-    /// Provides an explicit native cancellation action independent of web content.
-    private lazy var cancelButton: NSButton = {
-        let button = NSButton(
-            title: "Cancel",
-            target: self,
-            action: #selector(cancel)
-        )
-        button.bezelStyle = .rounded
-        button.font = Typography.font(size: 13)
-        button.keyEquivalent = "\u{1b}"
-        return button
-    }()
 
     /// Creates one challenge for one request; tickets are never cached or reused.
     init(
@@ -74,10 +70,6 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
             nibName: nil,
             bundle: nil
         )
-        preferredContentSize = NSSize(
-            width: 420,
-            height: 440
-        )
     }
 
     /// Storyboard decoding is unsupported for this programmatic controller.
@@ -85,23 +77,33 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Presents the challenge and propagates cancellation to the native sheet.
+    /// Mounts the challenge directly over the login page and propagates task cancellation.
     func verify(
         presenting parent: NSViewController
     ) async throws -> CaptchaProof {
         try Task.checkCancellation()
+        guard let parentWindow = parent.view.window else { throw CancellationError() }
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 self.continuation = continuation
-                presenter = parent
-                parent.presentAsSheet(self)
+                hostWindow = parentWindow
+                previousFirstResponder = parentWindow.firstResponder
+                parent.addChild(self)
+                parent.view.addSubview(view)
+                view.snp.makeConstraints { make in make.edges.equalToSuperview() }
+                parentWindow.makeFirstResponder(webView)
+                escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                    guard event.keyCode == 53, let self, event.window === self.hostWindow else { return event }
+                    self.finish(.failure(CancellationError()))
+                    return nil
+                }
                 deadline = Task { [weak self] in
                     do { try await Task.sleep(for: .seconds(90)) } catch { return }
                     self?.finish(
                         .failure(
                             NetworkError.server(
                                 code: 408,
-                                message: "Security verification timed out. Please try again."
+                                message: UserStrings.securityTimedOut
                             )
                         )
                     )
@@ -114,31 +116,13 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
 
     /// Loads only the official Tencent SDK and forwards its result through a narrow bridge.
     override func loadView() {
-        let canvas = Canvas(color: .white)
+        let canvas = Canvas()
         view = canvas
-        let title = makeLabel(
-            "Complete the security check",
-            size: 16,
-            weight: .semibold
-        )
-        [title, webView, cancelButton].forEach(canvas.addSubview)
-        title.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(24)
-            make.top.equalToSuperview().offset(20)
-            make.height.equalTo(26)
-        }
-        webView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalToSuperview().offset(58)
-            make.bottom.equalToSuperview().inset(62)
-        }
-        cancelButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().inset(18)
-            make.width.equalTo(80)
-            make.height.equalTo(30)
-        }
-        let options: [String: String] = ["appID": appID, "bizState": businessState]
+        canvas.addSubview(webView)
+        webView.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        let options: [String: String] = [
+            "appID": appID, "bizState": businessState, "language": Localization.languageCode,
+        ]
         guard
             let data = try? JSONSerialization.data(
                 withJSONObject: options,
@@ -152,10 +136,11 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
         // Encoding the configuration keeps server-controlled text out of executable source.
         let encoded = Data(json.utf8).base64EncodedString()
         let html = """
-            <!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+            <!doctype html><html lang="\(Localization.languageCode)"><head><meta name="viewport" content="width=device-width,initial-scale=1">
             <style>\(Typography.webFontCSS)
-            body{margin:0;background:white;font-size:14px;text-align:center;color:#69717d}p{margin-top:100px}</style></head>
-            <body><p>Loading security verification…</p><script>
+            html,body{margin:0;width:100%;height:100%;background:transparent}
+            body{overflow:hidden}</style></head>
+            <body><script>
             const post = value => window.webkit.messageHandlers.facenowCaptcha.postMessage(value);
             const options = JSON.parse(atob('\(encoded)'));
             const script = document.createElement('script');
@@ -163,7 +148,9 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
             script.onerror = () => post({ret: -1});
             script.onload = () => {
               try {
-                window.challenge = new TencentCaptcha(options.appID, post, {userLanguage:'zh-cn',bizState:options.bizState});
+                window.challenge = new TencentCaptcha(options.appID, post, {
+                  type:'popup',userLanguage:options.language,bizState:options.bizState
+                });
                 window.challenge.show();
               } catch (_) { post({ret: -1}); }
             };
@@ -176,7 +163,7 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
         )
     }
 
-    /// Completes a sheet closed by its host without leaving the caller suspended.
+    /// Cancels a challenge when its host page disappears without leaving the caller suspended.
     override func viewWillDisappear() {
         super.viewWillDisappear()
         finish(.failure(CancellationError()))
@@ -201,7 +188,7 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
                 .failure(
                     NetworkError.server(
                         code: 400,
-                        message: "Security verification failed. Please try again."
+                        message: UserStrings.securityFailed
                     )
                 )
             )
@@ -231,10 +218,7 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
         withError error: Error
     ) { finish(.failure(error)) }
 
-    /// Cancels the challenge without sending a verification-code request.
-    @objc private func cancel() { finish(.failure(CancellationError())) }
-
-    /// Removes the script bridge, closes the sheet, and completes its pending caller once.
+    /// Removes the script bridge and page overlay, then completes its pending caller once.
     private func finish(
         _ result: Result<CaptchaProof, Error>
     ) {
@@ -244,7 +228,15 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
         deadline = nil
         webView.stopLoading()
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "facenowCaptcha")
-        presenter?.dismiss(self)
+        if let escapeMonitor {
+            NSEvent.removeMonitor(escapeMonitor)
+            self.escapeMonitor = nil
+        }
+        view.removeFromSuperview()
+        removeFromParent()
+        hostWindow?.makeFirstResponder(previousFirstResponder)
+        hostWindow = nil
+        previousFirstResponder = nil
         continuation.resume(with: result)
     }
 }

@@ -16,6 +16,10 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "Localization",
+            path: "Services/Localization"
+        ),
+        .target(
             name: "FNNetwork",
             dependencies: ["Moya", "HandyJSON", "Factory"],
             path: "Modules/FNNetwork"
@@ -27,28 +31,30 @@ let package = Package(
         ),
         .target(
             name: "CameraCore",
+            dependencies: ["Localization"],
             path: "Services",
-            exclude: ["Storage", "UI"]
+            exclude: ["Storage", "UI", "Localization"]
         ),
         .target(
             name: "FNUser",
-            dependencies: ["FNNetwork", "Storage", "Factory"],
+            dependencies: ["FNNetwork", "Storage", "Factory", "Localization"],
             path: "Modules/FNUser",
             exclude: ["MVVM/View", "Resources"]
         ),
         .target(
             name: "FNGenerationModels",
+            dependencies: ["Localization"],
             path: "Modules/FNGeneration/MVVM/Model"
         ),
         .target(
             name: "FNOnboarding",
-            dependencies: ["Storage", "Factory"],
+            dependencies: ["Storage", "Factory", "Localization"],
             path: "Modules/FNOnboarding",
-            exclude: ["MVVM", "Resources", "OnboardingViewController.swift"]
+            exclude: ["MVVM/View", "MVVM/ViewModel", "MVVM/Model/CameraNoticePresentation.swift", "Resources", "OnboardingViewController.swift"]
         ),
         .target(
             name: "FNVirtualCameraCore",
-            dependencies: ["CameraCore"],
+            dependencies: ["CameraCore", "Localization"],
             path: "Modules/FNVirtualCamera/Camera",
             exclude: ["Output"]
         ),
@@ -56,7 +62,12 @@ let package = Package(
             name: "CameraCoreTests",
             dependencies: ["CameraCore", "FNVirtualCameraCore"],
             path: "Tests",
-            exclude: ["Modules", "Network"]
+            exclude: ["Modules", "Network", "Localization"]
+        ),
+        .testTarget(
+            name: "LocalizationTests",
+            dependencies: ["Localization"],
+            path: "Tests/Localization"
         ),
         .testTarget(
             name: "NetworkTests",

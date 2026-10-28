@@ -1,0 +1,150 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "home.api_platform": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API Platform"
+          }
+        }
+      }
+    },
+    "home.couldn_t_restart_facenow_quit_and_reopen_the_app": {
+      "comment": "Displayed text in Modules/FNHome/HomeViewController.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t restart FaceNow. Quit and reopen the app to continue."
+          }
+        }
+      }
+    },
+    "home.feedback": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback"
+          }
+        }
+      }
+    },
+    "home.how_to_use_facenow_in_video_calls": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to use FaceNow in video calls"
+          }
+        }
+      }
+    },
+    "home.no_cameras_found": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No cameras found"
+          }
+        }
+      }
+    },
+    "home.open_facenow_setup_guide": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open FaceNow setup guide"
+          }
+        }
+      }
+    },
+    "home.scan_with_wechat_to_follow_us": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan with WeChat to follow us"
+          }
+        }
+      }
+    },
+    "home.select_camera": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select Camera"
+          }
+        }
+      }
+    },
+    "home.signed_in_successfully": {
+      "comment": "Displayed text in Modules/FNHome/HomeViewController.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signed in successfully"
+          }
+        }
+      }
+    },
+    "home.troubleshooting": {
+      "comment": "Footer documentation link after the version; no click action until its URL is supplied.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TroubleShooting"
+          }
+        }
+      }
+    },
+    "home.version": {
+      "comment": "Public app version at the bottom right of home. %@ is CFBundleShortVersionString, for example 1.0.0.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V%@"
+          }
+        }
+      }
+    },
+    "home.website": {
+      "comment": "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

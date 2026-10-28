@@ -17,6 +17,9 @@ import Kingfisher
 @MainActor
 final class HomeFooterView: Canvas {
 
+    /// The shared visible spacing between the version and adjacent footer destinations.
+    private static let itemSpacing: CGFloat = 40
+
     /// The module-owned destinations shared with home navigation.
     @Injected(\.homeRepo) private var homeRepo: HomeRepository
 
@@ -57,7 +60,7 @@ final class HomeFooterView: Canvas {
         )
         view.foregroundColor = Palette.secondary.withAlphaComponent(0.75)
         view.iconSize = 20
-        view.setAccessibilityLabel("Website")
+        view.setAccessibilityLabel(HomeStrings.homeWebsite)
         view.onClick = { [weak self] in
             guard let self else { return }
             NSWorkspace.shared.open(self.homeRepo.websiteURL)
@@ -68,7 +71,7 @@ final class HomeFooterView: Canvas {
     /// Opens the product contact destination after an explicit click.
     private lazy var contact: Button = {
         let view = Button(
-            "Contact Us",
+            HomeStrings.homeFeedback,
             style: .plain
         )
         view.onClick = { [weak self] in
@@ -81,7 +84,7 @@ final class HomeFooterView: Canvas {
     /// Opens the Xmax API platform after an explicit click.
     private lazy var platform: Button = {
         let view = Button(
-            "API Platform",
+            HomeStrings.homeAPIPlatform,
             style: .plain
         )
         view.onClick = { [weak self] in
@@ -91,13 +94,36 @@ final class HomeFooterView: Canvas {
         return view
     }()
 
+    /// Reserves the documentation entry until its destination URL is supplied.
+    private lazy var troubleshooting: Button = {
+        let view = Button(
+            HomeStrings.troubleshooting,
+            style: .plain
+        )
+        return view
+    }()
+
+    /// The public version label before the footer links, using the native system font.
+    private lazy var version: NSTextField = {
+        let view = makeLabel(
+            HomeStrings.version(homeRepo.appVersion),
+            color: Palette.secondary
+        )
+        view.font = .systemFont(
+            ofSize: contact.font?.pointSize ?? 13,
+            weight: .regular
+        )
+        view.alignment = .right
+        return view
+    }()
+
     /// Retains only the footer's transient popover.
     private var popover: NSPopover?
 
     /// Creates the footer links without opening external destinations.
     init() {
         super.init()
-        [wechat, social, website, contact, platform].forEach(addSubview)
+        [wechat, social, website, contact, platform, troubleshooting, version].forEach(addSubview)
         configureLayout()
     }
 
@@ -118,13 +144,22 @@ final class HomeFooterView: Canvas {
         platform.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
             make.top.equalToSuperview().offset(56)
-            make.width.equalTo(100)
+            make.width.equalTo(platform.preferredWidth)
             make.height.equalTo(26)
         }
         contact.snp.makeConstraints { make in
-            make.trailing.equalTo(platform.snp.leading).offset(-12)
+            make.trailing.equalTo(platform.snp.leading).offset(-Self.itemSpacing)
             make.top.height.equalTo(platform)
-            make.width.equalTo(98)
+            make.width.equalTo(contact.preferredWidth)
+        }
+        troubleshooting.snp.makeConstraints { make in
+            make.trailing.equalTo(contact.snp.leading).offset(-Self.itemSpacing)
+            make.top.height.equalTo(contact)
+            make.width.equalTo(troubleshooting.preferredWidth)
+        }
+        version.snp.makeConstraints { make in
+            make.trailing.equalTo(troubleshooting.snp.leading).offset(-Self.itemSpacing)
+            make.centerY.equalTo(contact)
         }
     }
 
@@ -179,7 +214,7 @@ final class HomeFooterView: Canvas {
             ]
         )
         let label = makeLabel(
-            "Scan with WeChat to follow us",
+            HomeStrings.homeScanWithWeChatToFollowUs,
             size: 12
         )
         label.alignment = .center

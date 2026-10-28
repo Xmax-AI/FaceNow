@@ -28,28 +28,28 @@ final class GenerationStatisticsViewModel {
                     .init(
                         id: "Session creation",
                         value: milliseconds(generationRepo.launchTiming.sessionMs),
-                        help: "Time spent creating the server-side generation session"
+                        help: GenerationStrings.statisticsTimeSpentCreatingTheServerSideGenerationSession
                     ),
                     .init(
                         id: "RTC connection",
                         value: milliseconds(generationRepo.launchTiming.rtcJoinMs),
-                        help: "From joining the RTC channel until the connection succeeds"
+                        help: GenerationStrings.statisticsFromJoiningTheRTCChannelUntilTheConnectionSucceeds
                     ),
                     .init(
                         id: "Stream publication",
                         value: milliseconds(generationRepo.launchTiming.publishMs),
-                        help: "Time spent publishing the local media stream to the RTC channel"
+                        help: GenerationStrings.statisticsTimeSpentPublishingTheLocalMediaStreamToThe
                     ),
                     .init(
                         id: "First frame latency",
                         value: milliseconds(generationRepo.launchTiming.firstFrameMs),
-                        help: "From generation signal submission to the first display-ready result frame"
+                        help: GenerationStrings.statisticsFromGenerationSignalSubmissionToTheFirstDisplayReady
                     ),
                     .init(
                         id: "Total startup",
                         value: milliseconds(generationRepo.launchTiming.totalMs),
                         help:
-                            "From starting generation after camera readiness to the first display-ready result. Camera preparation is excluded; the total is measured directly, not added from stage durations.",
+                            GenerationStrings.statisticsFromStartingGenerationAfterCameraReadinessToTheFirst,
                         total: true
                     ),
                 ]
@@ -89,7 +89,7 @@ final class GenerationStatisticsViewModel {
                             generationRepo.uplinkStatistics?.packetLossPercent,
                             "%"
                         ),
-                        help: "Packet loss from this SDK to the RTC cloud, not local preview loss"
+                        help: GenerationStrings.statisticsPacketLossFromThisSDKToTheRTCCloud
                     ),
                     .init(
                         id: "Uplink network quality",
@@ -97,7 +97,7 @@ final class GenerationStatisticsViewModel {
                     ),
                     .init(
                         id: "Uplink RTT",
-                        help: "Not exposed by the macOS SDK"
+                        help: GenerationStrings.statisticsNotExposedByTheMacOSSDK
                     ),
                 ]
             ),
@@ -138,7 +138,7 @@ final class GenerationStatisticsViewModel {
                 rows: [
                     .init(
                         id: "Playback buffer delay",
-                        help: "Not exposed by the macOS SDK"
+                        help: GenerationStrings.statisticsNotExposedByTheMacOSSDK
                     ),
                     .init(
                         id: "Downlink packet loss",
@@ -153,7 +153,7 @@ final class GenerationStatisticsViewModel {
                     ),
                     .init(
                         id: "RTT (cloud)",
-                        help: "Not exposed by the macOS SDK"
+                        help: GenerationStrings.statisticsNotExposedByTheMacOSSDK
                     ),
                     .init(
                         id: "E2E (RTC estimate)",
@@ -171,19 +171,14 @@ final class GenerationStatisticsViewModel {
     private func milliseconds(
         _ value: Double?
     ) -> String {
-        value.map {
-            String(
-                format: "%.1f ms",
-                $0
-            )
-        } ?? "—"
+        value.map { GenerationStrings.milliseconds(value: $0) } ?? "—"
     }
 
     /// Formats an available integer metric with its explicit display unit.
     private func metric(
         _ value: Int?,
         _ unit: String
-    ) -> String { value.map { "\($0) \(unit)" } ?? "—" }
+    ) -> String { value.map { GenerationStrings.metric(value: $0, unit: unit) } ?? "—" }
 
     /// Formats a complete width and height pair without mixing partial values.
     private func resolution(
@@ -191,7 +186,7 @@ final class GenerationStatisticsViewModel {
         _ height: Int?
     ) -> String {
         guard let width, let height else { return "—" }
-        return "\(width) × \(height)"
+        return GenerationStrings.resolution(width: width, height: height)
     }
 
     /// Formats the SDK network-quality level for the diagnostic panels.
@@ -199,6 +194,14 @@ final class GenerationStatisticsViewModel {
         _ level: RealtimeNetworkQualityLevel?
     ) -> String {
         guard let level else { return "—" }
-        return level == .veryBad ? "Very bad" : level.rawValue
+        switch level {
+        case .unknown: return GenerationStrings.qualityUnknown
+        case .excellent: return GenerationStrings.qualityExcellent
+        case .good: return GenerationStrings.qualityGood
+        case .poor: return GenerationStrings.qualityPoor
+        case .bad: return GenerationStrings.qualityBad
+        case .veryBad: return GenerationStrings.statisticsVeryBad
+        case .down: return GenerationStrings.qualityDown
+        }
     }
 }

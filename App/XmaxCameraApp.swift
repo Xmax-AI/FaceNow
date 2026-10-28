@@ -33,6 +33,14 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
     /// Keeps an independent termination deadline armed through final SDK notifications.
     private var exitWatchdog: AppExitWatchdog?
 
+    /// Owns update checks while reading media availability from the composition root.
+    private lazy var updater: ApplicationUpdater = {
+        let updater = ApplicationUpdater { [weak self] in
+            self?.home.canInstallApplicationUpdate ?? false
+        }
+        return updater
+    }()
+
     /// Handles diagnostics before initializing the native application and its business components.
     static func main() {
         if VirtualCameraDiagnostics.handleCommandLine(sdkVersion: XmaxSDKInfo.version) { return }
@@ -97,6 +105,10 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
         self.window = window
         window.makeKeyAndOrderFront(nil)
         NSApplication.shared.activate(ignoringOtherApps: true)
+        home.onUpdateInstallationAvailabilityChanged = { [weak self] in
+            self?.updater.resumeInstallationIfPossible()
+        }
+        updater.start()
     }
 
     /// Refreshes extension status without requesting installation or opening capture.
@@ -115,6 +127,7 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
     func applicationShouldTerminate(
         _ sender: NSApplication
     ) -> NSApplication.TerminateReply {
+        updater.shutdown()
         if exitWatchdog == nil {
             // Keep this deadline alive after cleanup: SDK termination observers can also deadlock.
             exitWatchdog = AppExitWatchdog { Darwin._exit(EXIT_SUCCESS) }
@@ -150,6 +163,12 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
             action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
             keyEquivalent: ""
         )
+        let updates = app.addItem(
+            withTitle: UpdateStrings.checkForUpdates,
+            action: #selector(ApplicationUpdater.checkForUpdates(_:)),
+            keyEquivalent: ""
+        )
+        updates.target = updater
         app.addItem(.separator())
         app.addItem(
             withTitle: "Hide FaceNow",

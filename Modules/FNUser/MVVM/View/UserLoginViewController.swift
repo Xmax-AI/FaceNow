@@ -25,24 +25,6 @@ final class UserLoginViewController: NSViewController {
     /// The bounded viewport scale currently applied to the account column.
     private var layoutScale: CGFloat = 1
 
-    #if DEBUG
-        /// Temporarily opens the home preview without creating an authenticated session.
-        var onSkip: (() -> Void)?
-
-        /// Keeps the development-only preview entry separate from the sign-in form.
-        private lazy var skipButton: Button = {
-            let button = Button(
-                "Skip",
-                style: .plain
-            )
-            button.font = Typography.font(size: 13)
-            button.setAccessibilityLabel("Skip sign-in and preview home")
-            button.toolTip = "Preview home"
-            button.onClick = { [weak self] in self?.onSkip?() }
-            return button
-        }()
-    #endif
-
     /// The page canvas using the application's existing light appearance.
     private lazy var canvas: Canvas = {
         let view = Canvas(color: .white)
@@ -136,7 +118,7 @@ final class UserLoginViewController: NSViewController {
     /// The account form heading.
     private lazy var heading: NSTextField = {
         let view = makeLabel(
-            "Welcome to FaceNow",
+            UserStrings.welcome,
             size: 34,
             weight: .semibold
         )
@@ -147,7 +129,7 @@ final class UserLoginViewController: NSViewController {
     /// Explains the benefit of signing in without exposing implementation details.
     private lazy var subtitle: NSTextField = {
         let view = makeLabel(
-            "A new look for every camera moment",
+            UserStrings.subtitle,
             size: 17,
             color: Palette.secondary
         )
@@ -158,7 +140,7 @@ final class UserLoginViewController: NSViewController {
     /// The single-line product slogan over the demonstration.
     private lazy var caption: NSTextField = {
         let view = makeLabel(
-            "Be Different.  Be You.",
+            UserStrings.slogan,
             size: 38,
             color: .white,
             weight: .semibold
@@ -171,7 +153,7 @@ final class UserLoginViewController: NSViewController {
     /// Credits the model powering the product beneath the slogan.
     private lazy var captionDetail: NSTextField = {
         let view = makeLabel(
-            "Powered by the world-leading real-time video editing model from Xmax.ai",
+            UserStrings.modelCredit,
             size: 12.5,
             color: .white.withAlphaComponent(0.8)
         )
@@ -200,9 +182,6 @@ final class UserLoginViewController: NSViewController {
     override func loadView() {
         view = canvas
         [showcase, formColumn].forEach(canvas.addSubview)
-        #if DEBUG
-            canvas.addSubview(skipButton)
-        #endif
         formColumn.addSubview(formContent)
         [headerContent, inputContent, scenarios].forEach(formContent.addSubview)
         [appIcon, heading, subtitle].forEach(headerContent.addSubview)
@@ -256,13 +235,6 @@ final class UserLoginViewController: NSViewController {
 
     /// Constrains the page's two columns and keeps the form width readable while resizing.
     private func configureLayout() {
-        #if DEBUG
-            skipButton.snp.makeConstraints { make in
-                make.top.trailing.equalToSuperview().inset(24)
-                make.width.equalTo(72)
-                make.height.equalTo(32)
-            }
-        #endif
         showcase.snp.makeConstraints { make in
             make.leading.top.equalToSuperview().offset(20)
             make.bottom.equalToSuperview().inset(20)

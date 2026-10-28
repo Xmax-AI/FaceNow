@@ -1,0 +1,582 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "account.account": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        }
+      }
+    },
+    "account.buy_credits": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buy Credits"
+          }
+        }
+      }
+    },
+    "account.credits_unavailable": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Credits unavailable."
+          }
+        }
+      }
+    },
+    "account.get_an_api_key_from_the_xmax_open_platform": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get an API key from the Xmax Open Platform."
+          }
+        }
+      }
+    },
+    "account.low_credits": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low credits"
+          }
+        }
+      }
+    },
+    "account.low_credits_top_up_to_avoid_interruptions": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low credits. Top up to avoid interruptions."
+          }
+        }
+      }
+    },
+    "account.open_the_credits_page": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the credits page."
+          }
+        }
+      }
+    },
+    "account.refreshing_remaining_credits_open_the_credits_page": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refreshing remaining credits. Open the credits page."
+          }
+        }
+      }
+    },
+    "account.showing_the_last_known_balance": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing the last known balance."
+          }
+        }
+      }
+    },
+    "account.sign_in_to_your_account": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to your account"
+          }
+        }
+      }
+    },
+    "account.sign_out": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out"
+          }
+        }
+      }
+    },
+    "account.view_usage": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Usage"
+          }
+        }
+      }
+    },
+    "account.you_re_running_low_on_credits_top_up_to": {
+      "comment": "Account, credit or header presentation text.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're running low on credits. Top up to avoid interruptions."
+          }
+        }
+      }
+    },
+    "captcha.error.failed": {
+      "comment": "Security challenge failed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security verification failed. Please try again."
+          }
+        }
+      }
+    },
+    "captcha.error.timeout": {
+      "comment": "Security challenge timed out.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security verification timed out. Please try again."
+          }
+        }
+      }
+    },
+    "captcha.error.unavailable": {
+      "comment": "Missing security-verification configuration.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security verification is unavailable. Please try again."
+          }
+        }
+      }
+    },
+    "login.agreement": {
+      "comment": "%1$@ is the Terms of Use link title; %2$@ is the Privacy Policy link title. Preserve both placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By signing in, you are agreeing to the %1$@ and %2$@."
+          }
+        }
+      }
+    },
+    "login.error.expired_code": {
+      "comment": "Toast after the platform explicitly reports an expired verification code.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This code has expired. Request a new one."
+          }
+        }
+      }
+    },
+    "login.error.incorrect_code": {
+      "comment": "Toast after the platform rejects an incorrect verification code; offer retry or resend.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid code. Check it and try again."
+          }
+        }
+      }
+    },
+    "login.error.retry": {
+      "comment": "Fallback when authentication does not complete.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please try signing in again."
+          }
+        }
+      }
+    },
+    "login.error.unavailable": {
+      "comment": "Tooltip when verification-code sign-in is disabled by the platform.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verification-code login is currently unavailable."
+          }
+        }
+      }
+    },
+    "login.field.code": {
+      "comment": "Accessibility label for the verification-code input.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verification code"
+          }
+        }
+      }
+    },
+    "login.field.email": {
+      "comment": "Accessibility label for the email input.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email address"
+          }
+        }
+      }
+    },
+    "login.field.phone": {
+      "comment": "Accessibility label for the phone input.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phone number"
+          }
+        }
+      }
+    },
+    "login.get_code": {
+      "comment": "Action that requests a fresh verification code.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Code"
+          }
+        }
+      }
+    },
+    "login.method.api_key": {
+      "comment": "API-key sign-in method and input accessibility label.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API Key"
+          }
+        }
+      }
+    },
+    "login.method.email": {
+      "comment": "Email verification-code sign-in method.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        }
+      }
+    },
+    "login.method.phone": {
+      "comment": "Phone verification-code sign-in method.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phone"
+          }
+        }
+      }
+    },
+    "login.model_credit": {
+      "comment": "Model credit beneath the video slogan.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powered by the world-leading real-time video editing model from Xmax.ai"
+          }
+        }
+      }
+    },
+    "login.placeholder.api_key": {
+      "comment": "Masked API-key input placeholder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your active Xmax API key"
+          }
+        }
+      }
+    },
+    "login.placeholder.code": {
+      "comment": "Verification-code input placeholder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter verification code"
+          }
+        }
+      }
+    },
+    "login.placeholder.email": {
+      "comment": "Email input placeholder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your email address"
+          }
+        }
+      }
+    },
+    "login.placeholder.phone": {
+      "comment": "Phone input placeholder; country prefix is separate.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your phone number"
+          }
+        }
+      }
+    },
+    "login.resend_code": {
+      "comment": "%lld is the whole number of seconds until resending a verification code is allowed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resend (%llds)"
+          }
+        }
+      }
+    },
+    "login.scenarios": {
+      "comment": "Label above the supported communication app logos.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scenarios"
+          }
+        }
+      }
+    },
+    "login.sign_in": {
+      "comment": "Primary authentication action.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        }
+      }
+    },
+    "login.slogan": {
+      "comment": "Product slogan over the login demonstration video.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Be Anyone.  Be You."
+          }
+        }
+      }
+    },
+    "login.subtitle": {
+      "comment": "Product tagline below the welcome heading.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your new look for every camera moment"
+          }
+        }
+      }
+    },
+    "login.welcome": {
+      "comment": "Welcome heading on the sign-in page.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to FaceNow"
+          }
+        }
+      }
+    },
+    "message.account_userrepo_displayname": {
+      "comment": "Complete message; preserve all format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account: %@"
+          }
+        }
+      }
+    },
+    "message.credits_viewmodel_creditstext": {
+      "comment": "Complete message; preserve all format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Credits: %@"
+          }
+        }
+      }
+    },
+    "message.remaining_credits_viewmodel_creditstext": {
+      "comment": "Complete message; preserve all format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remaining credits: %@"
+          }
+        }
+      }
+    },
+    "message.state_error_open_the_credits_page": {
+      "comment": "Complete message; preserve all format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ %2$@ Open the credits page."
+          }
+        }
+      }
+    },
+    "session.expired": {
+      "comment": "Account authentication notice shown when entering or leaving home.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session has expired. Please sign in again."
+          }
+        }
+      }
+    },
+    "session.inactive_api_key": {
+      "comment": "Account authentication notice shown when entering or leaving home.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This API key is invalid or no longer active."
+          }
+        }
+      }
+    },
+    "session.invalid_api_key": {
+      "comment": "Account authentication notice shown when entering or leaving home.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid API key. Check it and try again."
+          }
+        }
+      }
+    },
+    "session.owner_mismatch": {
+      "comment": "Account authentication notice shown when entering or leaving home.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account profile does not match this API key."
+          }
+        }
+      }
+    },
+    "session.unavailable": {
+      "comment": "Account authentication notice shown when entering or leaving home.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to verify your session. Check your connection and sign in again."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

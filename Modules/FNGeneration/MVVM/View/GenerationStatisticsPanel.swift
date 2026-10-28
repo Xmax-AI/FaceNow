@@ -41,7 +41,7 @@ final class GenerationStatisticsPanel: Canvas {
         )
         layer?.borderWidth = 1
         layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
-        setAccessibilityLabel(group.id)
+        setAccessibilityLabel(group.title)
         for row in group.rows {
             if row.total {
                 let divider = Canvas(color: .white.withAlphaComponent(0.18))
@@ -49,25 +49,20 @@ final class GenerationStatisticsPanel: Canvas {
                 dividers.append(divider)
             }
             let label = makeLabel(
-                row.id,
+                row.title,
                 size: 11,
                 color: .white.withAlphaComponent(0.9),
                 weight: row.total ? .semibold : .regular
             )
+            label.font = .systemFont(ofSize: 11, weight: row.total ? .semibold : .regular)
             let value = makeLabel(
                 row.value,
                 size: 11,
                 color: .white.withAlphaComponent(0.9)
             )
-            value.font = Typography.font(
-                size: 11,
+            value.font = .systemFont(
+                ofSize: 11,
                 weight: row.total ? .semibold : .regular
-            )
-            value.attributedStringValue = Typography.numericText(
-                row.value,
-                size: 11,
-                weight: row.total ? .semibold : .regular,
-                color: .white.withAlphaComponent(0.9)
             )
             value.alignment = .right
             label.toolTip = row.help
@@ -96,14 +91,9 @@ final class GenerationStatisticsPanel: Canvas {
             labels
         ) {
             if pair.1.stringValue != row.value {
-                pair.1.attributedStringValue = Typography.numericText(
-                    row.value,
-                    size: 11,
-                    weight: row.total ? .semibold : .regular,
-                    color: .white.withAlphaComponent(0.9)
-                )
+                pair.1.stringValue = row.value
                 pair.1.snp.updateConstraints { make in
-                    make.width.equalTo(max(64, ceil(pair.1.attributedStringValue.size().width)) + 4)
+                    make.width.equalTo(max(64, ceil(Typography.size(pair.1.stringValue, font: pair.1.font!).width)) + 4)
                 }
             }
             if pair.0.toolTip != row.help {
@@ -111,12 +101,12 @@ final class GenerationStatisticsPanel: Canvas {
                 pair.1.toolTip = row.help
             }
             let titleWidth = Typography.size(
-                row.id,
+                row.title,
                 font: pair.0.font!
             ).width
             let valueWidth = max(
                 64,
-                pair.1.attributedStringValue.size().width
+                Typography.size(pair.1.stringValue, font: pair.1.font!).width
             )
             width = max(width, titleWidth + 16 + valueWidth + 20)
         }
@@ -144,9 +134,10 @@ final class GenerationStatisticsPanel: Canvas {
             }
             pair.1.snp.makeConstraints { make in
                 make.trailing.equalToSuperview().inset(8)
-                make.firstBaseline.equalTo(pair.0)
+                // SnapKit maps lastBaseline on AppKit; firstBaseline is only mapped on UIKit.
+                make.lastBaseline.equalTo(pair.0.snp.lastBaseline)
                 make.height.equalTo(16.5)
-                make.width.equalTo(max(64, ceil(pair.1.attributedStringValue.size().width)) + 4)
+                make.width.equalTo(max(64, ceil(Typography.size(pair.1.stringValue, font: pair.1.font!).width)) + 4)
             }
             if row.total {
                 dividers[dividerIndex].snp.makeConstraints { make in

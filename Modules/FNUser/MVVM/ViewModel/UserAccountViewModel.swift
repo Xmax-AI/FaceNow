@@ -10,6 +10,9 @@
 
 import Factory
 import Foundation
+#if canImport(Localization)
+    import Localization
+#endif
 
 /// Derives the account avatar and credit readout from the shared user state.
 @MainActor
@@ -17,11 +20,6 @@ final class UserAccountViewModel {
 
     /// The authenticated profile and server-owned balance.
     @Injected(\.userRepo) private var userRepo: UserRepository
-
-    #if DEBUG
-        /// Temporarily previews the low-credit pill regardless of the server-confirmed balance.
-        private static let forceLowCreditsAppearance = true
-    #endif
 
     /// Resolves the shared repository while permitting an isolated test account.
     init(
@@ -37,14 +35,14 @@ final class UserAccountViewModel {
         return ""
     }
 
-    /// Uses twelve display characters while revealing only the final four identifier characters.
+    /// Shows full email or phone identities while keeping API-key credentials masked.
     var accountTitle: String {
         if let suffix = userRepo.sessionAPIKeySuffix {
             return String(repeating: "•", count: 12 - suffix.count) + suffix
         }
-        if let email = nonempty(userRepo.profile?.email) { return "Email · \(masked(email))" }
-        if let phone = nonempty(userRepo.profile?.phone) { return "Phone · \(masked(phone))" }
-        return "Account"
+        if let email = nonempty(userRepo.profile?.email) { return email }
+        if let phone = nonempty(userRepo.profile?.phone) { return phone }
+        return AccountStrings.accountAccount
     }
 
     /// Whether a validated account can open the existing credit purchase page.
@@ -56,14 +54,11 @@ final class UserAccountViewModel {
     /// Keeps unknown credit values distinct from a confirmed zero, without abbreviating large balances.
     var creditsText: String {
         guard let remaining = userRepo.remainingCredits else { return "—" }
-        return remaining.formatted(.number.precision(.fractionLength(0...6)))
+        return remaining.formatted(.number.precision(.fractionLength(0...6)).locale(Localization.locale))
     }
 
-    /// Warns below 300 credits while allowing a temporary Debug-only visual preview.
+    /// Warns only when the server-confirmed balance is below 300 credits.
     var showsLowCreditsWarning: Bool {
-        #if DEBUG
-            if Self.forceLowCreditsAppearance { return true }
-        #endif
         guard let remaining = userRepo.remainingCredits else { return false }
         return remaining < 300
     }
@@ -71,12 +66,14 @@ final class UserAccountViewModel {
     /// Explains the balance state while describing the credit-page destination.
     var creditsHelp: String {
         if let error = userRepo.creditsErrorMessage {
-            let state = userRepo.remainingCredits == nil ? "Credits unavailable." : "Showing the last known balance."
-            return "\(state) \(error) Open the credits page."
+            let state =
+                userRepo.remainingCredits == nil
+                ? AccountStrings.accountCreditsUnavailable : AccountStrings.accountShowingTheLastKnownBalance
+            return AccountStrings.balanceFailure(state: state, message: error)
         }
-        if userRepo.isLoadingCredits { return "Refreshing remaining credits. Open the credits page." }
-        if showsLowCreditsWarning { return "Low credits. Top up to avoid interruptions." }
-        return "Open the credits page."
+        if userRepo.isLoadingCredits { return AccountStrings.accountRefreshingRemainingCreditsOpenTheCreditsPage }
+        if showsLowCreditsWarning { return AccountStrings.accountLowCreditsTopUpToAvoidInterruptions }
+        return AccountStrings.accountOpenTheCreditsPage
     }
 
     /// Treats empty profile fields as absent when deriving avatar characters.
@@ -87,11 +84,4 @@ final class UserAccountViewModel {
         return value
     }
 
-    /// Masks the entire prefix and keeps short identifiers fully concealed.
-    private func masked(
-        _ value: String
-    ) -> String {
-        let suffix = value.count > 4 ? String(value.suffix(4)) : ""
-        return String(repeating: "•", count: 12 - suffix.count) + suffix
-    }
 }

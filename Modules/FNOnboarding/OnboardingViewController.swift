@@ -18,41 +18,38 @@ final class OnboardingViewController: NSViewController {
     /// The home-owned presentation model sharing the application's existing repositories.
     private let viewModel: OnboardingFlowViewModel
 
+    /// Allows a user-opened guide to close from its backdrop while automatic guides retain focus.
+    var dismissesOnBackdropClick: Bool {
+        didSet {
+            if isViewLoaded { guide.dismissesOnBackdropClick = dismissesOnBackdropClick }
+        }
+    }
+
     /// Releases the modal after deferral or successful completion.
     var onDismiss: (() -> Void)?
+
+    /// Routes system navigation through the home coordinator while this modal owns cancellation.
+    var onCameraNavigation: (@MainActor (CameraNoticeAction) async -> Void)?
 
     /// The guide content whose callbacks remain bound for its entire presentation.
     private lazy var guide: OnboardingGuideView = {
         let view = OnboardingGuideView()
+        view.dismissesOnBackdropClick = dismissesOnBackdropClick
         view.onDismiss = { [weak self] in self?.viewModel.onboardingRepo.dismiss() }
         view.onPrevious = { [weak self] in self?.viewModel.onboardingRepo.previous() }
-        view.onRefresh = { [weak self] in self?.viewModel.refresh() }
-        view.onSettings = { [weak self] in
-            guard let self else { return }
-            if self.viewModel.onboardingRepo.step == .camera {
-                self.viewModel.openCameraSettings()
-            } else {
-                self.viewModel.virtualCameraRepo.openSettings()
-            }
-        }
         view.onSelectCamera = { [weak self] id in
             guard let self, !self.viewModel.generationRepo.settingsLocked else { return }
             self.viewModel.generationRepo.cameraID = id
         }
-        view.onPrimary = { [weak self] in
-            guard let self, !self.isStopped, !self.isDismissing,
-                self.actionTask == nil, self.viewModel.primaryEnabled
-            else { return }
-            self.actionTask = Task { @MainActor [weak self] in
-                await self?.viewModel.performPrimaryAction()
-                self?.actionTask = nil
-            }
-        }
+        view.onPrimary = { [weak self] in self?.performPrimaryAction() }
         return view
     }()
 
     /// The current explicit permission action, cancelled when the guide leaves the window.
     private var actionTask: Task<Void, Never>?
+
+    /// Prevents a cancelled action from clearing a task started after the guide is reopened.
+    private var actionID: UUID?
 
     /// Retains the modal until its exit animation finishes and cancels removal when reopened.
     private var dismissalTask: Task<Void, Never>?
@@ -71,9 +68,11 @@ final class OnboardingViewController: NSViewController {
 
     /// Uses the same presentation model as the persistent home reminder.
     init(
-        viewModel: OnboardingFlowViewModel
+        viewModel: OnboardingFlowViewModel,
+        dismissesOnBackdropClick: Bool = true
     ) {
         self.viewModel = viewModel
+        self.dismissesOnBackdropClick = dismissesOnBackdropClick
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -117,11 +116,12 @@ final class OnboardingViewController: NSViewController {
 
     /// Enters from below after layout or reverses an unfinished exit from its visible position.
     func present() {
-        guard !isStopped else { return }
+        guard !isStopped, view.window != nil else { return }
         dismissalTask?.cancel()
         dismissalTask = nil
         isDismissing = false
         guide.update(model: viewModel)
+        viewModel.onboardingRepo.recordPresentation()
         guide.animatePresentation(visible: true)
         focus()
     }
@@ -137,6 +137,7 @@ final class OnboardingViewController: NSViewController {
         isDismissing = true
         actionTask?.cancel()
         actionTask = nil
+        actionID = nil
         guard animated, ControlMotion.isAnimated(in: guide) else {
             completion()
             return
@@ -157,7 +158,33 @@ final class OnboardingViewController: NSViewController {
         dismissalTask = nil
         actionTask?.cancel()
         actionTask = nil
+        actionID = nil
         observations.removeAll()
+    }
+
+    /// Owns the explicit action and suppresses navigation after the modal has been dismissed.
+    private func performPrimaryAction() {
+        guard !isStopped, !isDismissing, actionTask == nil, viewModel.primaryEnabled else { return }
+        let actionID = UUID()
+        self.actionID = actionID
+        actionTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer {
+                if self.actionID == actionID {
+                    self.actionTask = nil
+                    self.actionID = nil
+                }
+            }
+            let navigation = await self.viewModel.performPrimaryAction()
+            guard !Task.isCancelled, !self.isStopped, !self.isDismissing,
+                self.viewModel.onboardingRepo.isPresented, let navigation
+            else { return }
+            if navigation == .chooseCamera {
+                self.guide.showCameraPicker()
+            } else {
+                await self.onCameraNavigation?(navigation)
+            }
+        }
     }
 
     /// Defers state reads until the published values that triggered them have been committed.

@@ -36,13 +36,64 @@ enum ControlMotion {
         }
     }
 
-    /// Commits native opacity immediately while blending from its currently visible value.
+    /// Gives rejected input a brief horizontal shake without changing its constrained geometry.
+    static func shake(
+        _ view: NSView
+    ) {
+        guard let layer = view.layer else { return }
+        let visible = layer.presentation()?.value(forKeyPath: "transform.translation.x") as? NSNumber ?? 0
+        stopShake(in: view)
+        guard isAnimated(in: view), !view.isHiddenOrHasHiddenAncestor else { return }
+        let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        animation.values = [visible, -6, 6, -4, 4, -2, 2, 0]
+        animation.keyTimes = [0, 0.12, 0.26, 0.4, 0.54, 0.68, 0.82, 1]
+        animation.duration = duration
+        animation.calculationMode = .cubic
+        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        animation.isAdditive = true
+        layer.add(animation, forKey: "ControlMotion.shake")
+    }
+
+    /// Drops only validation motion when a control is hidden or detached.
+    static func stopShake(
+        in view: NSView
+    ) {
+        view.layer?.removeAnimation(forKey: "ControlMotion.shake")
+    }
+
+    /// Blends premultiplied sRGB components so transparent fills never introduce a dark midpoint.
+    nonisolated static func blend(
+        _ start: NSColor,
+        toward end: NSColor,
+        progress: CGFloat
+    ) -> NSColor {
+        let amount = min(1, max(0, progress))
+        if amount == 0 { return start }
+        if amount == 1 { return end }
+        guard let source = start.usingColorSpace(.extendedSRGB),
+            let destination = end.usingColorSpace(.extendedSRGB)
+        else { return start.blended(withFraction: amount, of: end) ?? end }
+        let sourceWeight = source.alphaComponent * (1 - amount)
+        let destinationWeight = destination.alphaComponent * amount
+        let alpha = sourceWeight + destinationWeight
+        guard alpha > 0 else { return end.withAlphaComponent(0) }
+        return NSColor(
+            srgbRed: (source.redComponent * sourceWeight + destination.redComponent * destinationWeight) / alpha,
+            green: (source.greenComponent * sourceWeight + destination.greenComponent * destinationWeight) / alpha,
+            blue: (source.blueComponent * sourceWeight + destination.blueComponent * destinationWeight) / alpha,
+            alpha: alpha
+        )
+    }
+
+    /// Blends native opacity from its visible value, or an explicit start for newly revealed content.
     static func setOpacity(
         _ opacity: CGFloat,
-        on view: NSView
+        on view: NSView,
+        from initialOpacity: CGFloat? = nil,
+        duration: TimeInterval = ControlMotion.duration
     ) {
-        guard view.alphaValue != opacity else { return }
-        let visible = view.layer?.presentation()?.opacity ?? Float(view.alphaValue)
+        guard view.alphaValue != opacity || initialOpacity != nil else { return }
+        let visible = initialOpacity.map { Float($0) } ?? view.layer?.presentation()?.opacity ?? Float(view.alphaValue)
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         view.alphaValue = opacity
@@ -53,7 +104,8 @@ enum ControlMotion {
             keyPath: "opacity",
             from: visible,
             to: Float(opacity),
-            in: view
+            in: view,
+            duration: duration
         )
     }
 
@@ -87,7 +139,8 @@ enum ControlMotion {
         keyPath: String,
         from start: Any?,
         to end: Any,
-        in view: NSView
+        in view: NSView,
+        duration: TimeInterval = ControlMotion.duration
     ) {
         let key = "ControlMotion.\(keyPath)"
         guard isAnimated(in: view), let start else {

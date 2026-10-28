@@ -28,7 +28,9 @@ final class OnboardingSetupViewModel {
     /// The explicit activation action shown for the current installation state.
     var installTitle: String {
         virtualCameraRepo.isEnabled
-            ? "Update" : virtualCameraRepo.isAwaitingApproval ? "Awaiting Approval" : "Install & Enable"
+            ? OnboardingStrings.update
+            : virtualCameraRepo.isAwaitingApproval
+                ? OnboardingStrings.setupAwaitingApproval : OnboardingStrings.guideInstallEnable
     }
 
     /// Whether an installed extension exposes the removal action.
@@ -36,8 +38,8 @@ final class OnboardingSetupViewModel {
 
     /// Whether discovery or a system operation needs indeterminate progress.
     var isWaiting: Bool {
-        virtualCameraRepo.isRefreshing || (virtualCameraRepo.isBusy && !virtualCameraRepo.isAwaitingApproval)
-            || virtualCameraRepo.isWaitingForDevice
+        if case .checking = virtualCameraRepo.readiness { return true }
+        return false
     }
 
     /// Whether the launch explicitly enabled the diagnostic video controls.

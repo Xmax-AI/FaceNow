@@ -1,5 +1,5 @@
 {
-  "originHash" : "a86f205618568345ffa4d5ebecec0f3476d9bf561144d20f1669bde772438a60",
+  "originHash" : "8fb0fc5a08581aa24ebc69c5d14d25821c5785870395bc15f0b003f04ad7cb25",
   "pins" : [
     {
       "identity" : "agorainfra_macos",
@@ -88,6 +88,15 @@
       "state" : {
         "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
         "version" : "5.7.1"
+      }
+    },
+    {
+      "identity" : "sparkle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparkle-project/Sparkle",
+      "state" : {
+        "revision" : "ab7d71291238df6e0492143b120c9b696a35f603",
+        "version" : "2.10.1"
       }
     },
     {

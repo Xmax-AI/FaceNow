@@ -31,7 +31,7 @@ final class OnboardingSetupView: Canvas {
     /// The virtual-camera setup title.
     private lazy var heading: NSTextField = {
         let view = makeLabel(
-            "Virtual Camera",
+            OnboardingStrings.virtualCamera,
             size: 15,
             weight: .medium
         )
@@ -57,15 +57,15 @@ final class OnboardingSetupView: Canvas {
         let view = Button()
         view.symbolName = "arrow.clockwise"
         view.iconSize = 14
-        view.setAccessibilityLabel("Refresh Virtual Camera")
-        view.toolTip = "Refresh camera extension status"
+        view.setAccessibilityLabel(OnboardingStrings.setupRefreshVirtualCamera)
+        view.toolTip = OnboardingStrings.setupRefreshCameraExtensionStatus
         view.onClick = { [weak self] in self?.virtualCameraRepo.refresh(retryDeviceDiscovery: true) }
         return view
     }()
 
     /// Requests installation or replacement of the bundled camera extension.
     private lazy var install: Button = {
-        let view = Button("Install & Enable")
+        let view = Button(OnboardingStrings.guideInstallEnable)
         view.onClick = { [weak self] in self?.virtualCameraRepo.install() }
         return view
     }()
@@ -73,7 +73,7 @@ final class OnboardingSetupView: Canvas {
     /// Requests removal of the currently installed extension.
     private lazy var remove: Button = {
         let view = Button(
-            "Remove",
+            OnboardingStrings.remove,
             style: .destructive
         )
         view.onClick = { [weak self] in self?.virtualCameraRepo.uninstall() }
@@ -82,14 +82,14 @@ final class OnboardingSetupView: Canvas {
 
     /// Opens the system's extension settings after a user action.
     private lazy var openSettings: Button = {
-        let view = Button("Open System Settings")
+        let view = Button(OnboardingStrings.noticeOpenSystemSettings)
         view.onClick = { [weak self] in self?.virtualCameraRepo.openSettings() }
         return view
     }()
 
     /// Invokes the optional diagnostic video action owned by the home coordinator.
     private lazy var testVideo: Button = {
-        let view = Button("Test Video")
+        let view = Button(OnboardingStrings.setupTestVideo)
         view.onClick = { [weak self] in
             self?.onTestVideo?()
         }
@@ -128,7 +128,7 @@ final class OnboardingSetupView: Canvas {
         remove.isEnabled = install.isEnabled
         remove.isHidden = !viewModel.showsRemove
         testVideo.isHidden = !viewModel.showsTestVideo
-        testVideo.title = testPatternActive ? "Stop Test Video" : "Test Video"
+        testVideo.title = testPatternActive ? OnboardingStrings.setupStopTestVideo : OnboardingStrings.setupTestVideo
         testVideo.isEnabled = viewModel.canTestVideo(
             isBusy: isBusy,
             sessionActive: sessionActive

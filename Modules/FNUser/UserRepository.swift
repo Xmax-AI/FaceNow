@@ -10,6 +10,7 @@
 
 import Factory
 import Combine
+import CryptoKit
 import Foundation
 #if canImport(FNNetwork)
     import FNNetwork
@@ -34,7 +35,39 @@ final class UserRepository: ObservableObject {
     /// Emits only after a manual login has committed its authenticated identity.
     private let signInEvents = PassthroughSubject<Void, Never>()
 
-    /// The profile validated for the current token.
+    /// Distinguishes cached home presentation from a server-verified session.
+    private enum SessionState {
+
+        /// No session may currently open home.
+        case signedOut
+
+        /// A Keychain credential permits immediate home presentation while validation runs.
+        case cached
+
+        /// The server has confirmed the current identity.
+        case verified
+    }
+
+    /// The navigation state, independent of background request progress.
+    @Published private var sessionState = SessionState.signedOut
+
+    /// A transient login-page notification after background validation fails.
+    @Published private(set) var sessionNotice: String?
+
+    /// A presentation snapshot bound to the credential without copying its plaintext into preferences.
+    private struct CachedSession: Codable {
+
+        /// The SHA-256 digest used to reject another session's profile snapshot.
+        let credentialDigest: String
+
+        /// The last server-confirmed account details.
+        let profile: AccountProfile
+    }
+
+    /// The preferences key for the cached profile and credential digest.
+    private static let profileCacheKey = "xmax.camera.accountProfile"
+
+    /// The current profile, initially loaded from a matching local snapshot when available.
     @Published private(set) var profile: AccountProfile?
 
     /// Whether the initial saved-session check is still running.
@@ -67,8 +100,11 @@ final class UserRepository: ObservableObject {
     /// Whether a validated account session is available.
     var isSignedIn: Bool { profile != nil && token != nil }
 
-    /// Home access requires a server-validated identity after saved-session restoration completes.
-    var canAccessHome: Bool { isSignedIn && !isRestoring }
+    /// A saved Keychain session opens home immediately, including migration from versions without profile caching.
+    var canAccessHome: Bool { token != nil && sessionState != .signedOut }
+
+    /// Billable generation waits for background identity verification to finish.
+    var hasVerifiedSession: Bool { isSignedIn && sessionState == .verified && !isRestoring }
 
     /// Whether restoration can be retried without sending another verification code.
     var hasSavedSession: Bool { token != nil }
@@ -86,7 +122,7 @@ final class UserRepository: ObservableObject {
         if let phone = profile?.phone, phone.count == 11 {
             return String(phone.prefix(3)) + "••••" + String(phone.suffix(4))
         }
-        return isAPIKeySession ? "API Key" : "Account"
+        return isAPIKeySession ? UserStrings.apiKey : AccountStrings.accountAccount
     }
 
     /// The platform repository resolved from the application container.
@@ -133,6 +169,21 @@ final class UserRepository: ObservableObject {
         if let client { self.networkRepo = client }
         if let store { self.store = store }
         _apiKey = Published(initialValue: self.defaults.string(forKey: Self.apiKeyDefaultsKey) ?? "")
+        // Read before the first render so saved accounts never mount the login page on startup.
+        token = try? self.store.read()
+        if let token {
+            sessionState = .cached
+            if let data = self.defaults.data(forKey: Self.profileCacheKey),
+                let cached = try? JSONDecoder().decode(CachedSession.self, from: data),
+                cached.credentialDigest == Self.credentialDigest(token)
+            {
+                profile = cached.profile
+            } else {
+                self.defaults.removeObject(forKey: Self.profileCacheKey)
+            }
+        } else {
+            self.defaults.removeObject(forKey: Self.profileCacheKey)
+        }
     }
 
     /// Loads the tenant's verified sign-in capabilities without exposing transport to views.
@@ -159,7 +210,7 @@ final class UserRepository: ObservableObject {
         )
     }
 
-    /// Validates the saved token, retaining it on transport or temporary service errors.
+    /// Refreshes cached identity in the background and returns failed sessions to login with a notice.
     func restore() async {
         guard !isBusy, !isRestoring else { return }
         isRestoring = true
@@ -168,7 +219,11 @@ final class UserRepository: ObservableObject {
         defer { if lifecycle == operation { isRestoring = false } }
         do {
             token = try store.read()
-            guard let token else { return }
+            guard let token else {
+                reset()
+                return
+            }
+            sessionState = .cached
             if isAPIKeySession {
                 let records = try await networkRepo.send(
                     UserAPI.apiKeys,
@@ -202,11 +257,22 @@ final class UserRepository: ObservableObject {
             guard lifecycle == operation, !Task.isCancelled else { return }
             let preferredKey = apiKey
             apiKey = ""
-            self.profile = profile
+            commitProfile(profile)
             await reloadKeys(preferredKey: preferredKey)
         } catch {
             guard lifecycle == operation, !Task.isCancelled else { return }
             await handleSessionError(error)
+            // A temporary failure retains the Keychain credential but must still leave the cached home.
+            sessionState = .signedOut
+            profile = nil
+            keys = []
+            apiKey = ""
+            clearCredits()
+            defaults.removeObject(forKey: Self.profileCacheKey)
+            sessionNotice =
+                (error as? NetworkError)?.isUnauthorized == true
+                ? AccountStrings.sessionExpired
+                : AccountStrings.sessionUnavailable
         }
     }
 
@@ -239,6 +305,9 @@ final class UserRepository: ObservableObject {
             throw NetworkError.missingData
         }
         try store.save(receivedToken)
+        defaults.removeObject(forKey: Self.profileCacheKey)
+        profile = nil
+        sessionState = .signedOut
         token = receivedToken
         let receivedProfile: AccountProfile
         do {
@@ -258,7 +327,7 @@ final class UserRepository: ObservableObject {
         keys = []
         await reloadKeys()
         guard lifecycle == operation, !Task.isCancelled else { throw CancellationError() }
-        profile = receivedProfile
+        commitProfile(receivedProfile)
         signInEvents.send()
     }
 
@@ -271,7 +340,7 @@ final class UserRepository: ObservableObject {
         guard credential.hasPrefix("uk-"), credential.count > 3 else {
             throw NetworkError.server(
                 code: 400,
-                message: "Enter a valid API key beginning with uk-."
+                message: AccountStrings.invalidAPIKey
             )
         }
         isBusy = true
@@ -319,7 +388,7 @@ final class UserRepository: ObservableObject {
         else {
             throw NetworkError.server(
                 code: 401,
-                message: "This API key is invalid or no longer active."
+                message: AccountStrings.inactiveAPIKey
             )
         }
         return record
@@ -339,7 +408,7 @@ final class UserRepository: ObservableObject {
         guard owner == record.userUid else {
             throw NetworkError.server(
                 code: 401,
-                message: "The account profile does not match this API key."
+                message: AccountStrings.ownerMismatch
             )
         }
         return profile
@@ -359,7 +428,7 @@ final class UserRepository: ObservableObject {
                 && !$0.apiKey.isEmpty
         }
         apiKey = keys.first(where: { $0.apiKey == preferredKey })?.apiKey ?? credential
-        self.profile = profile
+        commitProfile(profile)
         errorMessage = nil
     }
 
@@ -431,9 +500,9 @@ final class UserRepository: ObservableObject {
     func refreshCredits(
         force: Bool = false
     ) async {
-        guard canAccessHome, let token, !isBusy, !isLoadingCredits else { return }
+        guard hasVerifiedSession, let token, !isBusy, !isLoadingCredits else { return }
         let now = ContinuousClock.now
-        if !force, let creditsRefreshedAt, now - creditsRefreshedAt < .seconds(10) { return }
+        if !force, let creditsRefreshedAt, now - creditsRefreshedAt < .seconds(5) { return }
         creditsRefreshedAt = now
         isLoadingCredits = true
         let operation = lifecycle
@@ -487,8 +556,36 @@ final class UserRepository: ObservableObject {
                 return
             }
             reset()
+            sessionNotice = AccountStrings.sessionExpired
         }
         errorMessage = error.localizedDescription
+    }
+
+    /// Dismisses the transient authentication notice without altering form layout.
+    func dismissSessionNotice() { sessionNotice = nil }
+
+    /// Publishes and persists only a profile obtained with the current credential.
+    private func commitProfile(
+        _ profile: AccountProfile
+    ) {
+        guard let token else { return }
+        self.profile = profile
+        sessionState = .verified
+        sessionNotice = nil
+        let cached = CachedSession(
+            credentialDigest: Self.credentialDigest(token),
+            profile: profile
+        )
+        if let data = try? JSONEncoder().encode(cached) {
+            defaults.set(data, forKey: Self.profileCacheKey)
+        }
+    }
+
+    /// Associates cached display data with a credential without persisting the credential itself.
+    private static func credentialDigest(
+        _ credential: String
+    ) -> String {
+        Data(SHA256.hash(data: Data(credential.utf8))).base64EncodedString()
     }
 
     /// Removes the previous account's balance and invalidates its refresh state.
@@ -504,6 +601,9 @@ final class UserRepository: ObservableObject {
         lifecycle = UUID()
         token = nil
         profile = nil
+        sessionState = .signedOut
+        sessionNotice = nil
+        defaults.removeObject(forKey: Self.profileCacheKey)
         keys = []
         clearCredits()
         apiKey = ""

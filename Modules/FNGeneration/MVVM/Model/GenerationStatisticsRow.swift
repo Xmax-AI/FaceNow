@@ -16,6 +16,9 @@ struct GenerationStatisticsRow: Identifiable {
     /// The identity used to associate this value with its displayed or pending state.
     let id: String
 
+    /// The localized display label, independent of the stable metric identity.
+    var title: String { GenerationStrings.statisticsTitle(id) }
+
     /// The formatted metric value, using a dash when the source value is unavailable.
     var value = "—"
 

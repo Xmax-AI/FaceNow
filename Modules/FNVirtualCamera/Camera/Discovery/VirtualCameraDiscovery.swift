@@ -54,7 +54,7 @@ final class VirtualCameraDeviceMonitor {
     /// Creates an idle monitor without enumerating hardware or starting capture.
     private init() {}
 
-    /// Constructing controllers or reading an empty picker must not initialize the hardware list.
+    /// Starts shared discovery for authorized home selection, helper confirmation, or an explicit preview action.
     func start() {
         guard !isStarted else { return }
         isStarted = true

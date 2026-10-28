@@ -43,7 +43,7 @@ final class UserLoginScenariosView: Canvas {
     /// The centered section label uses the application's shared typography.
     private lazy var title: NSTextField = {
         let view = makeLabel(
-            "Scenarios",
+            UserStrings.scenarios,
             size: 16,
             color: Self.contentColor,
             weight: .medium
@@ -103,7 +103,7 @@ final class UserLoginScenariosView: Canvas {
         viewport.layer?.addSublayer(track)
         setAccessibilityElement(true)
         setAccessibilityRole(.group)
-        setAccessibilityLabel("Scenarios: " + Self.icons.map(\.name).joined(separator: ", "))
+        setAccessibilityLabel(UserStrings.scenarios + ": " + Self.icons.map(\.name).joined(separator: ", "))
         let silhouettes = Self.icons.map { icon in
             NSImage(named: icon.asset)?.cgImage(
                 forProposedRect: nil,

@@ -35,6 +35,7 @@ final class GenerationVideoPanel: Canvas {
             size: 14,
             color: .white.withAlphaComponent(0.55)
         )
+        view.font = .systemFont(ofSize: 14)
         view.alignment = .center
         return view
     }()
@@ -52,6 +53,7 @@ final class GenerationVideoPanel: Canvas {
             size: 12,
             color: .white.withAlphaComponent(0.65)
         )
+        view.font = .systemFont(ofSize: 12)
         return view
     }()
 
@@ -72,6 +74,7 @@ final class GenerationVideoPanel: Canvas {
             color: .white.withAlphaComponent(0.8),
             weight: .semibold
         )
+        view.font = .systemFont(ofSize: 13, weight: .semibold)
         view.isHidden = !showsWatermark
         return view
     }()

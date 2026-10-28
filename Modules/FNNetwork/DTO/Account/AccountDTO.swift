@@ -113,7 +113,7 @@ public struct CaptchaProof: Sendable {
 }
 
 /// The profile fields used by the native account menu.
-public struct AccountProfile: ResponseModel {
+public struct AccountProfile: ResponseModel, Codable {
 
     /// The optional platform user identifier.
     public var uid: String? = nil

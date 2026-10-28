@@ -32,7 +32,7 @@ final class GenerationRepository: ObservableObject {
     let model = RealtimeModel.x2_1
 
     /// Whether diagnostic panels are visible; collection remains independent.
-    @Published var statisticsVisible = true
+    @Published var statisticsVisible = false
 
     /// The selected reference mode and owner of the current selection intent.
     @Published var activeMode = GenerationMode.charx {
@@ -43,7 +43,9 @@ final class GenerationRepository: ObservableObject {
     }
 
     /// Physical inputs exclude the virtual output to prevent feedback loops.
-    @Published var cameraID = ""
+    @Published var cameraID = "" {
+        didSet { virtualCameraRepo.updateInputSelection(cameraID) }
+    }
 
     /// The currently selectable physical inputs, excluding FaceNow's own output.
     @Published private(set) var cameras: [CaptureDevice] = []
@@ -53,7 +55,7 @@ final class GenerationRepository: ObservableObject {
 
     // MARK: - State
 
-    /// Whether a connection has entered the active session page.
+    /// Whether local capture has opened the preview workspace, independently of cloud or virtual output.
     @Published private(set) var sessionActive = false
 
     /// The local camera stream retained through preview and asynchronous cleanup.
@@ -188,7 +190,7 @@ final class GenerationRepository: ObservableObject {
     var hasAPIKey: Bool { userRepo.hasAPIKey }
 
     /// Whether the current session accepts reference or prompt generation commands.
-    var canGenerate: Bool { hasAPIKey && !isBusy && sessionActive }
+    var canGenerate: Bool { userRepo.hasVerifiedSession && hasAPIKey && !isBusy && sessionActive }
 
     /// The uploaded reference currently associated with Free Prompt.
     var freeReference: GenerationReference? { uploadedReferences.first { $0.mode == .free } }
@@ -209,7 +211,7 @@ final class GenerationRepository: ObservableObject {
     /// Discovers physical inputs without opening a capture session.
     func refreshCameras() {
         guard !settingsLocked else { return }
-        cameras = deviceMonitor.devices.filter {
+        let available = deviceMonitor.devices.filter {
             $0.uniqueID.caseInsensitiveCompare(VirtualCameraConfiguration.deviceID.uuidString) != .orderedSame
                 && $0.localizedName != VirtualCameraConfiguration.deviceName
         }.map {
@@ -218,7 +220,12 @@ final class GenerationRepository: ObservableObject {
                 name: $0.localizedName
             )
         }
-        if !cameras.contains(where: { $0.id == cameraID }) { cameraID = cameras.first?.id ?? "" }
+        if !cameras.elementsEqual(available, by: { $0.id == $1.id && $0.name == $1.name }) {
+            cameras = available
+        }
+        // Preserve a valid explicit choice; otherwise select the first published physical input.
+        let selection = available.contains(where: { $0.id == cameraID }) ? cameraID : available.first?.id ?? ""
+        if selection != cameraID { cameraID = selection }
     }
 
     /// Exercises the installed camera transport without starting a generation session.
@@ -260,25 +267,19 @@ final class GenerationRepository: ObservableObject {
         useMicrophone: Bool = false,
         requestedAt: UInt64 = DispatchTime.now().uptimeNanoseconds
     ) async {
-        guard userRepo.canAccessHome else {
-            errorMessage = "Sign in before starting the camera."
-            return
-        }
         guard !isClosing else {
-            errorMessage = "The previous session is still stopping. Please try again in a moment."
+            errorMessage = GenerationStrings.errorThePreviousSessionIsStillStoppingPleaseTryAgain
             return
         }
         guard !isBusy, localStream == nil else { return }
-        guard hasAPIKey else {
-            errorMessage = "API Key is required — click the key button in the top-right corner to enter it"
+        virtualCameraRepo.prepareCameraInputs()
+        guard virtualCameraRepo.canStartSession else {
+            errorMessage = virtualCameraRepo.startUnavailableMessage
             return
         }
-        guard deviceMonitor.isStarted else {
-            errorMessage = "Enable Virtual Camera before starting the camera."
-            return
-        }
+        refreshCameras()
         guard !cameraID.isEmpty else {
-            errorMessage = "Connect a physical camera and select it from the camera list."
+            errorMessage = GenerationStrings.errorConnectAPhysicalCameraAndSelectItFromThe
             return
         }
         if testPatternActive { await close() }
@@ -338,14 +339,15 @@ final class GenerationRepository: ObservableObject {
         await manager.setStateListener { [weak self] state in
             guard let self, self.lifecycleID == operation else { return }
             self.state = state
-            if [.connected, .generating].contains(state.connectionState), !self.sessionActive {
-                self.sessionActive = true
+            if [.connected, .generating].contains(state.connectionState), self.sessionStartedAt == nil {
                 self.sessionStartedAt = Date()
             }
             if ![.connected, .generating].contains(state.connectionState) { self.remoteStream = nil }
             if case let .failure(error) = state.reason {
                 self.errorMessage = error.message
-                if !self.sessionActive {
+                if self.sessionActive {
+                    self.isBusy = false
+                } else {
                     self.resetSession()
                 }
             }
@@ -386,8 +388,8 @@ final class GenerationRepository: ObservableObject {
                 await manager.close()
                 return
             }
-            // Keep the preview bound on the landing page so native capture can enter ready.
             localStream = stream
+            sessionActive = true
             try await manager.setRemoteAudioVolume(remoteAudioVolume)
             guard lifecycleID == operation else { return }
             pendingInitialReference = reference
@@ -404,27 +406,31 @@ final class GenerationRepository: ObservableObject {
     private func startPendingGeneration(
         operation: UUID
     ) async {
-        guard lifecycleID == operation, state.connectionState == .ready, localStream != nil,
-            let reference = pendingInitialReference
-        else { return }
+        guard lifecycleID == operation, localStream != nil, let reference = pendingInitialReference else { return }
+        guard userRepo.hasVerifiedSession, hasAPIKey else {
+            pendingInitialReference = nil
+            isBusy = false
+            return
+        }
+        guard state.connectionState == .ready else { return }
         pendingInitialReference = nil
         do {
             try await generate(reference: reference)
             guard lifecycleID == operation else { return }
             isBusy = false
-            startVirtualOutput(operation: operation)
         } catch {
             guard lifecycleID == operation else { return }
             errorMessage = error.localizedDescription
-            resetSession()
-            await cleanup?.value
+            isBusy = false
         }
     }
 
-    /// Virtual-camera discovery and connection start after the result is available, outside SDK startup.
+    /// Connects optional virtual output after generation when the extension is ready.
     private func startVirtualOutput(
         operation: UUID
     ) {
+        virtualCameraRepo.synchronizeReadiness()
+        guard virtualCameraRepo.isVirtualCameraReady, outputStartup == nil else { return }
         outputStartup = Task { [weak self, output] in
             let startedAt = ContinuousClock.now
             do {
@@ -438,16 +444,12 @@ final class GenerationRepository: ObservableObject {
                 )
             } catch {
                 guard !Task.isCancelled, let self, self.lifecycleID == operation else { return }
-                let message = "Virtual camera output failed: \(error.localizedDescription)"
+                let message = GenerationStrings.outputFailed(message: error.localizedDescription)
                 self.startupLogger.error(
                     "Virtual camera output failed: \(error.localizedDescription, privacy: .public)"
                 )
-                // Do not leave a paid generation session running without its required output.
-                // Clear this task before cleanup so output shutdown cannot await its own caller.
                 self.outputStartup = nil
-                self.resetSession()
                 self.errorMessage = message
-                await self.cleanup?.value
             }
         }
     }
@@ -630,6 +632,7 @@ final class GenerationRepository: ObservableObject {
             operation: operation
         )
         remoteStream = remote
+        startVirtualOutput(operation: operation)
     }
 
     /// Called after the SDK's cached first result frame is bound to the visible result view.
@@ -830,7 +833,7 @@ final class GenerationRepository: ObservableObject {
                 code: 1,
                 userInfo: [
                     NSLocalizedDescriptionKey:
-                        "Unable to decode reference image; please choose a supported image file"
+                        GenerationStrings.errorUnableToDecodeReferenceImagePleaseChooseASupported
                 ]
             )
         }

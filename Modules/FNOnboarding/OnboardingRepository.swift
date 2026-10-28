@@ -34,9 +34,9 @@ final class OnboardingRepository: ObservableObject {
         /// The concise progress label displayed above the guide.
         var title: String {
             switch self {
-            case .camera: "Camera access"
-            case .virtualCamera: "Virtual Camera"
-            case .videoCalls: "Video calls"
+            case .camera: OnboardingStrings.contentCameraAccess
+            case .virtualCamera: OnboardingStrings.virtualCamera
+            case .videoCalls: OnboardingStrings.contentVideoCalls
             }
         }
     }
@@ -56,38 +56,64 @@ final class OnboardingRepository: ObservableObject {
     /// The latest installed-version and output-device check.
     @Published private(set) var virtualCameraReady = false
 
+    /// Keeps ready stages visible in order while the complete onboarding interface is being reviewed.
+    private var reviewsAllSteps = false
+
     /// The preference written only after the video-call instructions are completed.
     var hasCompletedGuide: Bool { userDefaults.bool(forKey: "facenow.onboarding.completed.v1") }
+
+    /// Suppresses future automatic guides after any presentation, including unfinished preparation.
+    var hasShownGuide: Bool {
+        userDefaults.bool(forKey: "facenow.onboarding.shown.v1") || hasCompletedGuide
+    }
+
+    /// Persists actual presentation separately from scheduling and successful preparation.
+    func recordPresentation() {
+        userDefaults.set(true, forKey: "facenow.onboarding.shown.v1")
+    }
 
     /// The first unmet device requirement, followed by the video-call instructions.
     var firstIncompleteStep: Step {
         !cameraReady ? .camera : !virtualCameraReady ? .virtualCamera : .videoCalls
     }
 
-    /// Rechecks device requirements on every entry instead of trusting a saved permission state.
+    /// Opens the first unmet requirement or explicitly reviews every stage from camera access.
     func begin(
-        at requestedStep: Step? = nil
+        at requestedStep: Step? = nil,
+        fromFirstStep: Bool = false
     ) {
-        step = requestedStep ?? firstIncompleteStep
+        reviewsAllSteps = fromFirstStep
+        let requested = fromFirstStep ? .camera : requestedStep ?? firstIncompleteStep
+        if !cameraReady {
+            step = .camera
+        } else if requested == .videoCalls, !virtualCameraReady {
+            step = .virtualCamera
+        } else {
+            step = requested
+        }
         isPresented = true
     }
 
     /// Advances newly completed requirements and returns to requirements that become invalid.
     func updateReadiness(
         camera: Bool,
-        virtualCamera: Bool
+        virtualCamera: Bool,
+        cameraAccessJustGranted: Bool = false
     ) {
         let cameraChanged = cameraReady != camera
         let virtualCameraChanged = virtualCameraReady != virtualCamera
         if cameraChanged { cameraReady = camera }
         if virtualCameraChanged { virtualCameraReady = virtualCamera }
         guard isPresented else { return }
-        if cameraChanged, !camera {
+        if cameraAccessJustGranted, step == .camera {
+            step = .virtualCamera
+        } else if cameraChanged, !camera {
             step = .camera
         } else if virtualCameraChanged, !virtualCamera, step == .videoCalls {
             step = firstIncompleteStep
-        } else if (cameraChanged && camera && step == .camera)
-            || (virtualCameraChanged && virtualCamera && step == .virtualCamera)
+        } else if !reviewsAllSteps,
+            (cameraChanged && camera && step == .camera)
+                || (virtualCameraChanged && virtualCamera && step == .virtualCamera)
         {
             step = firstIncompleteStep
         }
@@ -101,7 +127,8 @@ final class OnboardingRepository: ObservableObject {
     /// Moves forward only after the current device requirement is satisfied.
     func advance() {
         switch step {
-        case .camera where cameraReady: step = virtualCameraReady ? .videoCalls : .virtualCamera
+        case .camera where cameraReady:
+            step = !reviewsAllSteps && virtualCameraReady ? .videoCalls : .virtualCamera
         case .virtualCamera where cameraReady && virtualCameraReady: step = .videoCalls
         default: break
         }
@@ -121,10 +148,10 @@ final class OnboardingRepository: ObservableObject {
     }
 
     /// The headline above the initial camera stage.
-    let headline = "Use a new look with FaceNow"
+    let headline = OnboardingStrings.contentBringYourNewLookIntoVideoCallingApps
 
-    /// The guidance displayed beneath the Start Camera action.
-    let previewHint = "Preview your new look before going live."
+    /// The service notice displayed with policy links beneath the Start Camera action.
+    let serviceNotice = OnboardingStrings.contentWeAccessYourCameraInAccordanceWithOurTerms
 
     /// The product's terms of use.
     let termsURL = URL(string: "https://platform.xmaxsi.com/docs/resources/terms")!
@@ -133,7 +160,7 @@ final class OnboardingRepository: ObservableObject {
     let privacyURL = URL(string: "https://platform.xmaxsi.com/docs/resources/privacy")!
 
     /// The ownership line displayed below the stage.
-    let copyright = "Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved."
+    let copyright = OnboardingStrings.contentCopyright2026XMAXAIPTELTDAllRightsReserved
 }
 
 extension Container {

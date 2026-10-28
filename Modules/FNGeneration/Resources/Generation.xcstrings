@@ -1,0 +1,1614 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "controls.2_frame_interpolation_is_on_click_to_turn_off": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2× frame interpolation is on. Click to turn off"
+          }
+        }
+      }
+    },
+    "controls.2x": {
+      "comment": "Generation control state or interpolation label.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2x"
+          }
+        }
+      }
+    },
+    "controls.adjust_remote_playback_volume": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust remote playback volume"
+          }
+        }
+      }
+    },
+    "controls.describe_how_you_want_the_video_to_change": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe how you want the video to change"
+          }
+        }
+      }
+    },
+    "controls.frame_interpolation": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frame interpolation"
+          }
+        }
+      }
+    },
+    "controls.frame_interpolation_is_off_click_to_turn_on": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frame interpolation is off. Click to turn on"
+          }
+        }
+      }
+    },
+    "controls.generating": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generating…"
+          }
+        }
+      }
+    },
+    "controls.hide_statistics_collection_and_logging_continue": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide statistics (collection and logging continue)"
+          }
+        }
+      }
+    },
+    "controls.local": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        }
+      }
+    },
+    "controls.muted": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muted"
+          }
+        }
+      }
+    },
+    "controls.remote_volume": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote volume"
+          }
+        }
+      }
+    },
+    "controls.remove_reference": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove reference"
+          }
+        }
+      }
+    },
+    "controls.result": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Result"
+          }
+        }
+      }
+    },
+    "controls.show_statistics": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show statistics"
+          }
+        }
+      }
+    },
+    "controls.stop_session": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop Session"
+          }
+        }
+      }
+    },
+    "controls.stopping": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopping…"
+          }
+        }
+      }
+    },
+    "controls.submit_prompt": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Submit prompt"
+          }
+        }
+      }
+    },
+    "controls.switching": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching"
+          }
+        }
+      }
+    },
+    "controls.switching_frame_interpolation": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching frame interpolation…"
+          }
+        }
+      }
+    },
+    "controls.upload": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload"
+          }
+        }
+      }
+    },
+    "controls.upload_reference_image": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload reference image"
+          }
+        }
+      }
+    },
+    "controls.upload_your_own_reference_image": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload your own reference image"
+          }
+        }
+      }
+    },
+    "controls.waiting_for_connection": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for connection…"
+          }
+        }
+      }
+    },
+    "error.connect_a_physical_camera_and_select_it_from_the": {
+      "comment": "Displayed text in Modules/FNGeneration/GenerationRepository.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect a physical camera and select it from the camera list."
+          }
+        }
+      }
+    },
+    "error.the_previous_session_is_still_stopping_please_try_again": {
+      "comment": "Displayed text in Modules/FNGeneration/GenerationRepository.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The previous session is still stopping. Please try again in a moment."
+          }
+        }
+      }
+    },
+    "error.unable_to_decode_reference_image_please_choose_a_supported": {
+      "comment": "Displayed text in Modules/FNGeneration/GenerationRepository.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to decode reference image; please choose a supported image file"
+          }
+        }
+      }
+    },
+    "message.virtual_camera_output_failed_error_localizeddescription": {
+      "comment": "Complete message; preserve all format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual camera output failed: %@"
+          }
+        }
+      }
+    },
+    "mode.character_swap": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Character Swap"
+          }
+        }
+      }
+    },
+    "mode.free_prompt": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free Prompt"
+          }
+        }
+      }
+    },
+    "mode.style_transfer": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Style Transfer"
+          }
+        }
+      }
+    },
+    "mode.virtual_try_on": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Try-On"
+          }
+        }
+      }
+    },
+    "preset.3d_cartoon": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D Cartoon"
+          }
+        }
+      }
+    },
+    "preset.3d_cow": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset"
+          }
+        }
+      }
+    },
+    "preset.3d_kangaroo": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D Kangaroo"
+          }
+        }
+      }
+    },
+    "preset.3d_milk_frog": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 1"
+          }
+        }
+      }
+    },
+    "preset.alien_kitty": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset"
+          }
+        }
+      }
+    },
+    "preset.all_denim_outfit": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All-Denim Outfit"
+          }
+        }
+      }
+    },
+    "preset.american_cartoon": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "American Cartoon"
+          }
+        }
+      }
+    },
+    "preset.anime_boy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anime Boy"
+          }
+        }
+      }
+    },
+    "preset.anime_girl": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anime Girl"
+          }
+        }
+      }
+    },
+    "preset.anthropomorphic": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anthropomorphic"
+          }
+        }
+      }
+    },
+    "preset.black_classical_robe": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black Classical Robe"
+          }
+        }
+      }
+    },
+    "preset.black_collar_academy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black-Collar Academy"
+          }
+        }
+      }
+    },
+    "preset.black_pinafore": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black Pinafore"
+          }
+        }
+      }
+    },
+    "preset.blonde_girl": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blonde Girl"
+          }
+        }
+      }
+    },
+    "preset.blue_and_white_retro": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blue and White Retro"
+          }
+        }
+      }
+    },
+    "preset.blue_plaid_academy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blue Plaid Academy"
+          }
+        }
+      }
+    },
+    "preset.british_brown_plaid": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "British Brown Plaid"
+          }
+        }
+      }
+    },
+    "preset.bronze_figure": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bronze Figure"
+          }
+        }
+      }
+    },
+    "preset.bronze_warrior_armor": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bronze Warrior Armor"
+          }
+        }
+      }
+    },
+    "preset.burgundy_stripes": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Burgundy Stripes"
+          }
+        }
+      }
+    },
+    "preset.business_milk_frog": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 6"
+          }
+        }
+      }
+    },
+    "preset.cartoon_boy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cartoon Boy"
+          }
+        }
+      }
+    },
+    "preset.cel_shading": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cel Shading"
+          }
+        }
+      }
+    },
+    "preset.chill_capybara": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chill Capybara"
+          }
+        }
+      }
+    },
+    "preset.classical_boy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classical Boy"
+          }
+        }
+      }
+    },
+    "preset.classical_girl": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classical Girl"
+          }
+        }
+      }
+    },
+    "preset.coffee_cardigan": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coffee Cardigan"
+          }
+        }
+      }
+    },
+    "preset.corporate_cow": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corporate Cow"
+          }
+        }
+      }
+    },
+    "preset.curly_haired_boy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curly-Haired Boy"
+          }
+        }
+      }
+    },
+    "preset.cute_hamster": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cute Hamster"
+          }
+        }
+      }
+    },
+    "preset.designer_toy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Designer Toy"
+          }
+        }
+      }
+    },
+    "preset.disney_style": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disney Style"
+          }
+        }
+      }
+    },
+    "preset.gentle_panda": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gentle Panda"
+          }
+        }
+      }
+    },
+    "preset.gilded_goddess": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gilded Goddess"
+          }
+        }
+      }
+    },
+    "preset.gray_eveningwear": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gray Eveningwear"
+          }
+        }
+      }
+    },
+    "preset.humanoid_robot": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Humanoid Robot"
+          }
+        }
+      }
+    },
+    "preset.illustrated_girl": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Illustrated Girl"
+          }
+        }
+      }
+    },
+    "preset.japanese_animation": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Japanese Animation"
+          }
+        }
+      }
+    },
+    "preset.japanese_anime": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Japanese Anime"
+          }
+        }
+      }
+    },
+    "preset.light_blue_sportswear": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light Blue Sportswear"
+          }
+        }
+      }
+    },
+    "preset.lilac_slip_dress": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lilac Slip Dress"
+          }
+        }
+      }
+    },
+    "preset.long_coat_set": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long Coat Set"
+          }
+        }
+      }
+    },
+    "preset.luxury_suit": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luxury Suit"
+          }
+        }
+      }
+    },
+    "preset.magenta_techwear": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magenta Techwear"
+          }
+        }
+      }
+    },
+    "preset.mecha_girl": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mecha Girl"
+          }
+        }
+      }
+    },
+    "preset.mecha_warrior": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 8"
+          }
+        }
+      }
+    },
+    "preset.modern_boy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern Boy"
+          }
+        }
+      }
+    },
+    "preset.modern_girl": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern Girl"
+          }
+        }
+      }
+    },
+    "preset.monochrome_vanguard": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monochrome Vanguard"
+          }
+        }
+      }
+    },
+    "preset.navy_officewear": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navy Officewear"
+          }
+        }
+      }
+    },
+    "preset.navy_sailor_outfit": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navy Sailor Outfit"
+          }
+        }
+      }
+    },
+    "preset.pink_academy": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pink Academy"
+          }
+        }
+      }
+    },
+    "preset.realistic_animals": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Realistic Animals"
+          }
+        }
+      }
+    },
+    "preset.school_anime": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "School Anime"
+          }
+        }
+      }
+    },
+    "preset.silver_casualwear": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silver Casualwear"
+          }
+        }
+      }
+    },
+    "preset.silver_fantasy_robe": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silver Fantasy Robe"
+          }
+        }
+      }
+    },
+    "preset.special_ops": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Special Ops"
+          }
+        }
+      }
+    },
+    "preset.surrealism": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surrealism"
+          }
+        }
+      }
+    },
+    "preset.urban_anime": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Urban Anime"
+          }
+        }
+      }
+    },
+    "preset.vintage_brown": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vintage Brown"
+          }
+        }
+      }
+    },
+    "reference.retry_error": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ — Click to retry"
+          }
+        }
+      }
+    },
+    "statistics.downlink_bitrate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink bitrate"
+          }
+        }
+      }
+    },
+    "statistics.downlink_frame_rate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink frame rate"
+          }
+        }
+      }
+    },
+    "statistics.downlink_network_and_latency": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink network and latency"
+          }
+        }
+      }
+    },
+    "statistics.downlink_network_quality": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink network quality"
+          }
+        }
+      }
+    },
+    "statistics.downlink_packet_loss": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink packet loss"
+          }
+        }
+      }
+    },
+    "statistics.downlink_resolution": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink resolution"
+          }
+        }
+      }
+    },
+    "statistics.downlink_video_statistics": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink video statistics"
+          }
+        }
+      }
+    },
+    "statistics.e2e_rtc_estimate": {
+      "comment": "Display label for a diagnostic metric; the metric ID remains stable.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E2E (RTC estimate)"
+          }
+        }
+      }
+    },
+    "statistics.first_frame_latency": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First frame latency"
+          }
+        }
+      }
+    },
+    "statistics.from_generation_signal_submission_to_the_first_display_ready": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From generation signal submission to the first display-ready result frame"
+          }
+        }
+      }
+    },
+    "statistics.from_joining_the_rtc_channel_until_the_connection_succeeds": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From joining the RTC channel until the connection succeeds"
+          }
+        }
+      }
+    },
+    "statistics.from_starting_generation_after_camera_readiness_to_the_first": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From starting generation after camera readiness to the first display-ready result. Camera preparation is excluded; the total is measured directly, not added from stage durations."
+          }
+        }
+      }
+    },
+    "statistics.launch_timing": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch timing"
+          }
+        }
+      }
+    },
+    "statistics.metric": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld %2$@"
+          }
+        }
+      }
+    },
+    "statistics.milliseconds": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.1f ms"
+          }
+        }
+      }
+    },
+    "statistics.not_exposed_by_the_macos_sdk": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not exposed by the macOS SDK"
+          }
+        }
+      }
+    },
+    "statistics.packet_loss_from_this_sdk_to_the_rtc_cloud": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packet loss from this SDK to the RTC cloud, not local preview loss"
+          }
+        }
+      }
+    },
+    "statistics.playback_buffer_delay": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playback buffer delay"
+          }
+        }
+      }
+    },
+    "statistics.qualityBad": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bad"
+          }
+        }
+      }
+    },
+    "statistics.qualityDown": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Down"
+          }
+        }
+      }
+    },
+    "statistics.qualityExcellent": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excellent"
+          }
+        }
+      }
+    },
+    "statistics.qualityGood": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good"
+          }
+        }
+      }
+    },
+    "statistics.qualityPoor": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poor"
+          }
+        }
+      }
+    },
+    "statistics.qualityUnknown": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown"
+          }
+        }
+      }
+    },
+    "statistics.resolution": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld × %2$lld"
+          }
+        }
+      }
+    },
+    "statistics.rtc_connection": {
+      "comment": "Display label for a diagnostic metric; the metric ID remains stable.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RTC connection"
+          }
+        }
+      }
+    },
+    "statistics.rtt_cloud": {
+      "comment": "Display label for a diagnostic metric; the metric ID remains stable.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RTT (cloud)"
+          }
+        }
+      }
+    },
+    "statistics.session_creation": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session creation"
+          }
+        }
+      }
+    },
+    "statistics.stream_publication": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream publication"
+          }
+        }
+      }
+    },
+    "statistics.time_spent_creating_the_server_side_generation_session": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time spent creating the server-side generation session"
+          }
+        }
+      }
+    },
+    "statistics.time_spent_publishing_the_local_media_stream_to_the": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time spent publishing the local media stream to the RTC channel"
+          }
+        }
+      }
+    },
+    "statistics.total_startup": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total startup"
+          }
+        }
+      }
+    },
+    "statistics.uplink_bitrate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink bitrate"
+          }
+        }
+      }
+    },
+    "statistics.uplink_frame_rate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink frame rate"
+          }
+        }
+      }
+    },
+    "statistics.uplink_network_and_latency": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink network and latency"
+          }
+        }
+      }
+    },
+    "statistics.uplink_network_quality": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink network quality"
+          }
+        }
+      }
+    },
+    "statistics.uplink_packet_loss": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink packet loss"
+          }
+        }
+      }
+    },
+    "statistics.uplink_resolution": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink resolution"
+          }
+        }
+      }
+    },
+    "statistics.uplink_rtt": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink RTT"
+          }
+        }
+      }
+    },
+    "statistics.uplink_video_statistics": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink video statistics"
+          }
+        }
+      }
+    },
+    "statistics.very_bad": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very bad"
+          }
+        }
+      }
+    },
+    "value.percentage": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

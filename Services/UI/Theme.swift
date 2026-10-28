@@ -77,6 +77,65 @@ enum Palette {
         blue: 38 / 255,
         alpha: 1
     )
+
+    /// The green foreground for confirmed available states.
+    static let success = NSColor(
+        srgbRed: 21 / 255,
+        green: 128 / 255,
+        blue: 61 / 255,
+        alpha: 1
+    )
+}
+
+/// Shared appearance metrics for home and generation toolbar buttons.
+enum ToolbarControlMetrics {
+
+    /// The subtle resting outline shared by neutral toolbar controls.
+    static let border = NSColor(
+        srgbRed: 235 / 255,
+        green: 238 / 255,
+        blue: 242 / 255,
+        alpha: 1
+    )
+
+    /// The stronger outline reserved for the toolbar control under the pointer.
+    static let hoverBorder = NSColor(
+        srgbRed: 201 / 255,
+        green: 206 / 255,
+        blue: 214 / 255,
+        alpha: 1
+    )
+
+    /// The gap between adjacent controls, including account and camera group boundaries.
+    static let spacing: CGFloat = 12
+
+    /// The title and avatar text size shared by the toolbar controls.
+    static let fontSize: CGFloat = 13
+
+    /// The fixed height of compact session controls, matching the XLab action row.
+    static let compactHeight: CGFloat = 36
+
+    /// The common icon slot size.
+    static let iconSize: CGFloat = 16
+
+    /// The gap between an icon and its title.
+    static let contentSpacing: CGFloat = 8
+
+    /// The leading and trailing content inset for a pill.
+    static let horizontalPadding: CGFloat = 14
+
+    /// The width reserved for a disclosure chevron.
+    static let disclosureWidth: CGFloat = 6
+
+    /// The trailing inset including the title-to-chevron gap and chevron itself.
+    static let disclosurePadding = horizontalPadding + contentSpacing + disclosureWidth
+
+    /// The common responsive height used for measuring and constraining toolbar controls.
+    static func height(
+        viewportWidth: CGFloat
+    ) -> CGFloat {
+        min(48, max(35, viewportWidth * 0.0055 + 26))
+    }
 }
 
 /// Uses the bundled Web font for native labels and controls.

@@ -23,86 +23,64 @@ final class GenerationToolbarView: Canvas {
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
 
     /// Toggles statistics visibility without stopping metric collection.
-    private lazy var statisticsButton: Button = {
-        let view = Button(
+    private lazy var statisticsButton: ToolbarButton = {
+        let view = ToolbarButton(
             icon: .statistics,
-            style: .statistics
+            style: .statistics,
+            shape: .circle
         )
-        view.font = Typography.font(
-            size: 13,
-            weight: .semibold
-        )
-        view.setAccessibilityLabel("Show statistics")
+        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
+        view.setAccessibilityLabel(GenerationStrings.controlsShowStatistics)
         view.onClick = { [weak self] in self?.generationRepo.statisticsVisible.toggle() }
         return view
     }()
 
     /// Opens the remote generated-audio playback control.
-    private lazy var volumeButton: Button = {
-        let view = Button(
+    private lazy var volumeButton: ToolbarButton = {
+        let view = ToolbarButton(
             icon: .muted,
-            style: .volume
+            style: .volume,
+            shape: .circle
         )
-        view.font = Typography.font(
-            size: 13,
-            weight: .semibold
-        )
-        view.toolTip = "Adjust remote playback volume"
-        view.setAccessibilityLabel("Remote volume")
+        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
+        view.toolTip = GenerationStrings.controlsAdjustRemotePlaybackVolume
+        view.setAccessibilityLabel(GenerationStrings.controlsRemoteVolume)
         view.onClick = { [weak self] in self?.showVolume() }
         return view
     }()
 
     /// Toggles SDK frame interpolation and displays its pending state.
-    private lazy var interpolationButton: Button = {
-        let view = Button(
-            "2x",
+    private lazy var interpolationButton: ToolbarButton = {
+        let view = ToolbarButton(
+            GenerationStrings.controls2x,
             icon: .lightning,
             style: .interpolation
         )
-        view.font = Typography.font(
-            size: 13,
-            weight: .semibold
-        )
-        view.iconSize = 15
-        view.iconSpacing = 3
-        view.leadingPadding = 12
-        view.trailingPadding = 15
-        view.setAccessibilityLabel("Frame interpolation")
+        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
+        view.setAccessibilityLabel(GenerationStrings.controlsFrameInterpolation)
         view.onClick = { [weak self] in
             Task { [weak self] in await self?.generationRepo.toggleInterpolation() }
         }
         return view
     }()
 
-    /// The passive elapsed-session label with stable monospaced digits.
-    private lazy var elapsed: Button = {
-        let view = Button("00:00")
-        view.font = Typography.font(
-            size: 13,
-            weight: .medium,
-            monospacedDigits: true
-        )
+    /// The passive elapsed-session label using the same proportional font as the toolbar.
+    private lazy var elapsed: ToolbarButton = {
+        let view = ToolbarButton("00:00")
+        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .medium)
         view.passive = true
         view.isEnabled = false
         return view
     }()
 
     /// Closes the active session and reflects asynchronous cleanup.
-    private lazy var stopButton: Button = {
-        let view = Button(
-            "Stop Session",
+    private lazy var stopButton: ToolbarButton = {
+        let view = ToolbarButton(
+            GenerationStrings.controlsStopSession,
             icon: .stop,
             style: .destructive
         )
-        view.font = Typography.font(
-            size: 13,
-            weight: .semibold
-        )
-        view.iconSize = 12
-        view.iconSpacing = 7
-        view.leadingPadding = 16
-        view.trailingPadding = 16
+        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
         view.onClick = { [weak self] in Task { [weak self] in await self?.generationRepo.close() } }
         return view
     }()
@@ -119,17 +97,18 @@ final class GenerationToolbarView: Canvas {
         view.target = self
         view.action = #selector(volumeChanged)
         view.isContinuous = true
-        view.setAccessibilityLabel("Remote volume")
+        view.setAccessibilityLabel(GenerationStrings.controlsRemoteVolume)
         return view
     }()
 
     /// The formatted mute state or playback-volume percentage.
     private lazy var volumeValue: NSTextField = {
         let view = makeLabel(
-            "Muted",
+            GenerationStrings.controlsMuted,
             size: 12,
             color: Palette.secondary
         )
+        view.font = .systemFont(ofSize: 12)
         return view
     }()
 
@@ -146,14 +125,15 @@ final class GenerationToolbarView: Canvas {
     init() {
         super.init()
         [statisticsButton, volumeButton, interpolationButton, elapsed, stopButton].forEach(addSubview)
-        var previous: Button?
-        for (button, width) in controls {
+        var previous: ToolbarButton?
+        for button in controls {
             button.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.height.equalTo(36)
-                make.width.equalTo(width)
+                make.top.bottom.equalToSuperview()
+                if button.shape == .capsule {
+                    make.width.equalTo(preferredWidth(for: button))
+                }
                 if let previous {
-                    make.leading.equalTo(previous.snp.trailing).offset(12)
+                    make.leading.equalTo(previous.snp.trailing).offset(ToolbarControlMetrics.spacing)
                 } else {
                     make.leading.equalToSuperview()
                 }
@@ -167,57 +147,77 @@ final class GenerationToolbarView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// The controls and widths used for both measurement and placement.
-    private var controls: [(Button, CGFloat)] {
-        let stopWidth =
-            ceil(
-                Typography.size(
-                    "Stop Session",
-                    font: stopButton.font!
-                ).width
-            ) + 12 + 7 + 32
-        return [
-            (statisticsButton, 36), (volumeButton, 36),
-            (interpolationButton, interpolationButton.preferredWidth),
-            (elapsed, elapsed.preferredWidth), (stopButton, stopWidth),
-        ]
+    /// The persistent controls shared by measurement and constraint updates.
+    private var controls: [ToolbarButton] {
+        [statisticsButton, volumeButton, interpolationButton, elapsed, stopButton]
+    }
+
+    /// Reserves a stable stop-action width using the component's own label measurement.
+    private func preferredWidth(
+        for button: ToolbarButton
+    ) -> CGFloat {
+        if button === stopButton {
+            return max(
+                button.preferredWidth(for: GenerationStrings.controlsStopSession),
+                button.preferredWidth(for: GenerationStrings.controlsStopping)
+            )
+        }
+        return button.preferredWidth
     }
 
     /// The complete action row width including the gaps between controls.
-    var preferredWidth: CGFloat {
-        controls.reduce(CGFloat(0)) { $0 + $1.1 } + CGFloat(controls.count - 1) * 12
+    func preferredWidth(
+        controlHeight: CGFloat
+    ) -> CGFloat {
+        controls.reduce(CGFloat(0)) { width, button in
+            width
+                + (button.shape == .circle
+                    ? button.preferredWidth(controlHeight: controlHeight) : preferredWidth(for: button))
+        } + CGFloat(controls.count - 1) * ToolbarControlMetrics.spacing
     }
 
     /// Applies the latest generation and playback state without replacing controls.
     func update() {
         statisticsButton.selected = generationRepo.statisticsVisible
         statisticsButton.toolTip =
-            generationRepo.statisticsVisible ? "Hide statistics (collection and logging continue)" : "Show statistics"
-        statisticsButton.setAccessibilityValue(generationRepo.statisticsVisible ? "On" : "Off")
+            generationRepo.statisticsVisible
+            ? GenerationStrings.controlsHideStatisticsCollectionAndLoggingContinue
+            : GenerationStrings.controlsShowStatistics
+        statisticsButton.setAccessibilityValue(
+            generationRepo.statisticsVisible ? GenerationStrings.on : GenerationStrings.off
+        )
         volumeButton.icon =
             generationRepo.remoteAudioVolume == 0
             ? .muted : generationRepo.remoteAudioVolume > 0.5 ? .volume : .volumeLow
         volumeButton.selected = generationRepo.remoteAudioVolume > 0
         volumeButton.isEnabled = !generationRepo.isClosing
         volumeButton.setAccessibilityValue(
-            generationRepo.remoteAudioVolume == 0 ? "Muted" : "\(Int(generationRepo.remoteAudioVolume * 100))%"
+            generationRepo.remoteAudioVolume == 0
+                ? GenerationStrings.controlsMuted
+                : GenerationStrings.percentage(value: Int(generationRepo.remoteAudioVolume * 100))
         )
         volumeSlider.isEnabled = !generationRepo.isClosing
         if volumeTask == nil { volumeSlider.doubleValue = Double(generationRepo.remoteAudioVolume) }
         volumeValue.stringValue =
-            generationRepo.remoteAudioVolume == 0 ? "Muted" : "\(Int(generationRepo.remoteAudioVolume * 100))%"
+            generationRepo.remoteAudioVolume == 0
+            ? GenerationStrings.controlsMuted
+            : GenerationStrings.percentage(value: Int(generationRepo.remoteAudioVolume * 100))
         interpolationButton.selected = generationRepo.interpolationEnabled
         interpolationButton.loading = generationRepo.interpolationSwitching
         interpolationButton.isEnabled = !generationRepo.isBusy
         interpolationButton.toolTip =
             generationRepo.interpolationSwitching
-            ? "Switching frame interpolation…"
+            ? GenerationStrings.controlsSwitchingFrameInterpolation
             : generationRepo.interpolationEnabled
-                ? "2× frame interpolation is on. Click to turn off" : "Frame interpolation is off. Click to turn on"
+                ? GenerationStrings.controls2FrameInterpolationIsOnClickToTurnOff
+                : GenerationStrings.controlsFrameInterpolationIsOffClickToTurnOn
         interpolationButton.setAccessibilityValue(
-            generationRepo.interpolationSwitching ? "Switching" : generationRepo.interpolationEnabled ? "On" : "Off"
+            generationRepo.interpolationSwitching
+                ? GenerationStrings.controlsSwitching
+                : generationRepo.interpolationEnabled ? GenerationStrings.on : GenerationStrings.off
         )
-        stopButton.title = generationRepo.isClosing ? "Stopping…" : "Stop Session"
+        stopButton.title =
+            generationRepo.isClosing ? GenerationStrings.controlsStopping : GenerationStrings.controlsStopSession
         stopButton.loading = generationRepo.isClosing
         stopButton.isEnabled = !generationRepo.isClosing
         updateElapsed()
@@ -227,10 +227,10 @@ final class GenerationToolbarView: Canvas {
 
     /// Places the controls within the header-provided action row.
     override func layout() {
-        super.layout()
-        for (button, width) in controls {
-            button.snp.updateConstraints { make in make.width.equalTo(width) }
+        for button in controls where button.shape == .capsule {
+            button.snp.updateConstraints { make in make.width.equalTo(preferredWidth(for: button)) }
         }
+        super.layout()
     }
 
     /// Cancels queued volume updates and releases its popover during shutdown.
@@ -290,7 +290,8 @@ final class GenerationToolbarView: Canvas {
             make.width.equalTo(244)
             make.height.equalTo(88)
         }
-        let label = makeLabel("Remote volume", size: 12)
+        let label = makeLabel(GenerationStrings.controlsRemoteVolume, size: 12)
+        label.font = .systemFont(ofSize: 12)
         volumeValue.alignment = .right
         [label, volumeValue, volumeSlider].forEach(content.addSubview)
         label.snp.makeConstraints { make in
@@ -300,7 +301,7 @@ final class GenerationToolbarView: Canvas {
         }
         volumeValue.snp.remakeConstraints { make in
             make.trailing.equalToSuperview().inset(14)
-            make.firstBaseline.equalTo(label)
+            make.lastBaseline.equalTo(label.snp.lastBaseline)
             make.width.equalTo(71)
             make.height.equalTo(18)
         }
@@ -318,7 +319,8 @@ final class GenerationToolbarView: Canvas {
     /// Queues the latest volume value while a previous SDK update is in flight.
     @objc private func volumeChanged() {
         let value = Float(volumeSlider.doubleValue)
-        volumeValue.stringValue = value == 0 ? "Muted" : "\(Int(value * 100))%"
+        volumeValue.stringValue =
+            value == 0 ? GenerationStrings.controlsMuted : GenerationStrings.percentage(value: Int(value * 100))
         pendingVolume = value
         guard volumeTask == nil else { return }
         volumeTask = Task { [weak self] in

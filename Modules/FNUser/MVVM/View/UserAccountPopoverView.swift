@@ -83,7 +83,7 @@ final class UserAccountPopoverView: Canvas {
         return view
     }()
 
-    /// Keeps only the masked account identifier selectable within the card.
+    /// Keeps the account identifier selectable within the card.
     private lazy var name: NSTextField = {
         let view = makeLabel(
             size: 13,
@@ -108,7 +108,7 @@ final class UserAccountPopoverView: Canvas {
     /// Opens the existing credit purchase page without changing the authenticated session.
     private lazy var rechargeButton: Button = {
         let view = Button(
-            "Buy Credits",
+            AccountStrings.accountBuyCredits,
             style: .primary
         )
         view.font = Typography.font(
@@ -120,7 +120,7 @@ final class UserAccountPopoverView: Canvas {
         view.leadingPadding = 10
         view.trailingPadding = 10
         view.showsShadow = false
-        view.setAccessibilityLabel("Buy Credits")
+        view.setAccessibilityLabel(AccountStrings.accountBuyCredits)
         view.onClick = { [weak self] in self?.onRecharge?() }
         return view
     }()
@@ -128,7 +128,7 @@ final class UserAccountPopoverView: Canvas {
     /// Opens the account's usage history.
     private lazy var usageButton: Button = {
         let view = makeAction(
-            "View Usage",
+            AccountStrings.accountViewUsage,
             symbol: "chart.bar"
         )
         view.onClick = { [weak self] in self?.onUsage?() }
@@ -138,7 +138,7 @@ final class UserAccountPopoverView: Canvas {
     /// Opens the existing product privacy policy.
     private lazy var privacyButton: Button = {
         let view = makeAction(
-            "Privacy Policy",
+            AccountStrings.privacyPolicy,
             symbol: "hand.raised"
         )
         view.onClick = { [weak self] in self?.onPrivacyPolicy?() }
@@ -148,7 +148,7 @@ final class UserAccountPopoverView: Canvas {
     /// Opens the existing product user agreement.
     private lazy var agreementButton: Button = {
         let view = makeAction(
-            "Terms of Use",
+            AccountStrings.termsOfUse,
             symbol: "doc.text"
         )
         view.onClick = { [weak self] in self?.onUserAgreement?() }
@@ -158,7 +158,7 @@ final class UserAccountPopoverView: Canvas {
     /// Ends the current account session through its existing cleanup flow.
     private lazy var signOutButton: Button = {
         let view = makeAction(
-            "Sign out",
+            AccountStrings.accountSignOut,
             symbol: "rectangle.portrait.and.arrow.right"
         )
         view.onClick = { [weak self] in self?.onSignOut?() }
@@ -188,15 +188,15 @@ final class UserAccountPopoverView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Refreshes the masked identity, shared balance, and account action availability.
+    /// Refreshes the account identity, shared balance, and account action availability.
     func update() {
         avatar.title = viewModel.avatarText
         avatar.symbolName = avatar.title.isEmpty ? "person.fill" : nil
         name.stringValue = viewModel.accountTitle
         name.toolTip = viewModel.accountTitle
-        credits.stringValue = "Credits: \(viewModel.creditsText)"
+        credits.stringValue = AccountStrings.balanceTitle(balance: viewModel.creditsText)
         credits.toolTip = viewModel.creditsHelp
-        credits.setAccessibilityLabel("Remaining credits: \(viewModel.creditsText)")
+        credits.setAccessibilityLabel(AccountStrings.balanceAccessibility(balance: viewModel.creditsText))
         rechargeButton.isEnabled = viewModel.canRecharge
         signOutButton.isEnabled = viewModel.canSignOut
         updateMenuHover()

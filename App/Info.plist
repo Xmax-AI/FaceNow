@@ -4,6 +4,10 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>FaceNow</string>
 	<key>CFBundleExecutable</key>
@@ -30,6 +34,22 @@
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUFeedURL</key>
+	<string>$(FACENOW_UPDATE_FEED_URL)</string>
+	<key>SUPublicEDKey</key>
+	<string>$(FACENOW_UPDATE_PUBLIC_KEY)</string>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
+	<key>SUEnableDownloaderService</key>
+	<false/>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
+	<key>SUSendProfileInfo</key>
+	<false/>
 	<key>NSSystemExtensionUsageDescription</key>
 	<string>Enable FaceNow - Xmax Virtual Camera to use generated video in meeting apps.</string>
 	<key>NSMicrophoneUsageDescription</key>

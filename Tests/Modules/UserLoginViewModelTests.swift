@@ -6,6 +6,60 @@ import FNNetwork
 @MainActor
 final class UserLoginViewModelTests: XCTestCase {
 
+    func testVerificationCodeRejectionsOfferRetryOrResend() {
+        let model = UserLoginViewModel()
+        for message in ["验证码错误", "验证码校验失败", "Invalid verification code", "Incorrect code", "验证码错误或已过期"] {
+            XCTAssertEqual(
+                model.signInErrorMessage(for: NetworkError.server(code: 400, message: message)),
+                UserStrings.incorrectCode
+            )
+        }
+        for message in ["验证码已过期", "验证码已失效", "Verification code has expired"] {
+            XCTAssertEqual(
+                model.signInErrorMessage(for: NetworkError.server(code: 400, message: message)),
+                UserStrings.expiredCode
+            )
+        }
+    }
+
+    func testSignInPresentationDoesNotBlameInputForUnrelatedFailures() {
+        let model = UserLoginViewModel()
+        let failures: [Error] = [
+            URLError(.notConnectedToInternet),
+            NetworkError.server(code: 429, message: "Too many incorrect verification codes"),
+            NetworkError.server(code: 503, message: "Verification code service failed"),
+            NetworkError.server(code: 403, message: "Account is suspended"),
+        ]
+        for error in failures {
+            XCTAssertEqual(
+                model.signInErrorMessage(for: error),
+                error.localizedDescription
+            )
+        }
+        XCTAssertEqual(
+            model.signInErrorMessage(for: NetworkError.server(code: 400, message: "图形验证码错误")),
+            UserStrings.securityFailed
+        )
+    }
+
+    func testAPIKeyRejectionsHideTechnicalDetailsWithoutHidingAnOutage() {
+        let model = UserLoginViewModel()
+        for code in [400, 401, 403, 46002] {
+            XCTAssertEqual(
+                model.signInErrorMessage(
+                    for: NetworkError.server(code: code, message: "Credential validation details"),
+                    usingAPIKey: true
+                ),
+                AccountStrings.invalidAPIKey
+            )
+        }
+        let outage = NetworkError.server(code: 503, message: "Service unavailable")
+        XCTAssertEqual(
+            model.signInErrorMessage(for: outage, usingAPIKey: true),
+            outage.localizedDescription
+        )
+    }
+
     func testChannelSwitchRestoresIndependentUnmodifiedDrafts() async {
         let model = UserLoginViewModel()
         let initial = model.switchMethod(

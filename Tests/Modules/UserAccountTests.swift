@@ -173,7 +173,8 @@ final class UserAccountTests: XCTestCase {
 
     func testAPIKeyProfileFailureDuringRestorationKeepsHomeClosed() async {
         for unauthorized in [false, true] {
-            let response = unauthorized
+            let response =
+                unauthorized
                 ? #"{"success":false,"code":401,"message":"Unauthorized","data":null}"#
                 : #"{"success":false,"code":503,"message":"Try later","data":null}"#
             let context = makeContext(routes: [
@@ -246,7 +247,7 @@ final class UserAccountTests: XCTestCase {
         XCTAssertNil(context.store.value)
     }
 
-    func testAPIKeyRestorationMustRevalidateBeforeOpeningHome() async throws {
+    func testSavedAPIKeyOpensHomeWhileGenerationWaitsForVerification() async throws {
         let context = makeContext(
             routes: [
                 "/baas/api/user/apikey/list": activeAPIKeyResponse,
@@ -259,9 +260,11 @@ final class UserAccountTests: XCTestCase {
         let restoration = _Concurrency.Task { await context.account.restore() }
         try await _Concurrency.Task.sleep(for: .milliseconds(10))
         XCTAssertTrue(context.account.isRestoring)
-        XCTAssertFalse(context.account.canAccessHome)
+        XCTAssertTrue(context.account.canAccessHome)
+        XCTAssertFalse(context.account.hasVerifiedSession)
         await restoration.value
         XCTAssertTrue(context.account.canAccessHome)
+        XCTAssertTrue(context.account.hasVerifiedSession)
         XCTAssertEqual(
             context.account.profile?.uid,
             "api-key-user"
@@ -304,6 +307,108 @@ final class UserAccountTests: XCTestCase {
         XCTAssertFalse(context.account.canAccessHome)
         XCTAssertNil(context.store.value)
         XCTAssertNil(context.account.profile)
+    }
+
+    func testCachedProfileOpensHomeBeforeAnyRequestAndRefreshesInBackground() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/login": #"{"success":true,"code":200,"data":"test-session"}"#,
+            "/baas/api/user/info": #"{"success":true,"code":200,"data":{"uid":"user","nickname":"Cached name"}}"#,
+            "/baas/api/user/apikey/list": keysResponse,
+        ])
+        defer { context.cleanup() }
+        try await context.account.signIn(
+            method: .sms,
+            account: "13800000000",
+            code: "123456",
+            proof: CaptchaProof()
+        )
+        let refreshed = makeContext(routes: [
+            "/baas/api/user/info": #"{"success":true,"code":200,"data":{"uid":"user","nickname":"Updated name"}}"#,
+            "/baas/api/user/apikey/list": keysResponse,
+        ])
+        defer { refreshed.cleanup() }
+        let relaunched = UserRepository(defaults: context.defaults, client: refreshed.client, store: context.store)
+        XCTAssertTrue(relaunched.canAccessHome)
+        XCTAssertFalse(relaunched.hasVerifiedSession)
+        XCTAssertEqual(relaunched.profile?.nickname, "Cached name")
+        let data = try XCTUnwrap(context.defaults.data(forKey: "xmax.camera.accountProfile"))
+        XCTAssertFalse(String(decoding: data, as: UTF8.self).contains("test-session"))
+        await relaunched.restore()
+        XCTAssertTrue(relaunched.hasVerifiedSession)
+        XCTAssertEqual(relaunched.profile?.nickname, "Updated name")
+        let nextLaunch = UserRepository(defaults: context.defaults, client: refreshed.client, store: context.store)
+        XCTAssertEqual(nextLaunch.profile?.nickname, "Updated name")
+    }
+
+    func testCachedHomeReturnsToLoginWithNoticeOnBackgroundFailure() async throws {
+        for code in [401, 503] {
+            let context = makeContext(routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": apiKeyProfileResponse,
+            ])
+            defer { context.cleanup() }
+            try await context.account.signIn(apiKey: activeAPIKey)
+            let failure = makeContext(routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": "{\"success\":false,\"code\":\(code),\"message\":\"Failed\",\"data\":null}",
+            ])
+            defer { failure.cleanup() }
+            let relaunched = UserRepository(defaults: context.defaults, client: failure.client, store: context.store)
+            XCTAssertTrue(relaunched.canAccessHome)
+            XCTAssertEqual(relaunched.profile?.uid, "api-key-user")
+            await relaunched.restore()
+            XCTAssertFalse(relaunched.canAccessHome)
+            XCTAssertFalse(relaunched.hasVerifiedSession)
+            XCTAssertNil(relaunched.profile)
+            XCTAssertNil(context.defaults.data(forKey: "xmax.camera.accountProfile"))
+            XCTAssertEqual(context.store.value, code == 401 ? nil : activeAPIKey)
+            XCTAssertEqual(
+                relaunched.sessionNotice,
+                code == 401
+                    ? "Your session has expired. Please sign in again."
+                    : "Unable to verify your session. Check your connection and sign in again."
+            )
+            relaunched.dismissSessionNotice()
+            XCTAssertNil(relaunched.sessionNotice)
+        }
+    }
+
+    func testProfileCacheNeverDisplaysForAnotherCredential() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+        ])
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        context.store.value = "another-session"
+        let relaunched = UserRepository(defaults: context.defaults, client: context.client, store: context.store)
+        XCTAssertNil(relaunched.profile)
+        XCTAssertNil(context.defaults.data(forKey: "xmax.camera.accountProfile"))
+        XCTAssertFalse(relaunched.hasVerifiedSession)
+    }
+
+    func testLateCachedSessionRefreshCannotUndoLogoutOrRecreateProfileCache() async throws {
+        let context = makeContext(
+            routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": apiKeyProfileResponse,
+            ],
+            delay: 0.05
+        )
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        let relaunched = UserRepository(defaults: context.defaults, client: context.client, store: context.store)
+        XCTAssertTrue(relaunched.canAccessHome)
+        let restoration = _Concurrency.Task { await relaunched.restore() }
+        try await _Concurrency.Task.sleep(for: .milliseconds(10))
+        try await relaunched.signOut()
+        await restoration.value
+        XCTAssertFalse(relaunched.canAccessHome)
+        XCTAssertNil(relaunched.profile)
+        XCTAssertNil(context.store.value)
+        XCTAssertNil(context.defaults.data(forKey: "xmax.camera.accountProfile"))
+        let nextLaunch = UserRepository(defaults: context.defaults, client: context.client, store: context.store)
+        XCTAssertFalse(nextLaunch.canAccessHome)
     }
 
     private var activeAPIKey: String {
@@ -512,6 +617,7 @@ final class UserAccountTests: XCTestCase {
             )
         )
         return Context(
+            client: client,
             store: store,
             account: UserRepository(
                 defaults: defaults,
@@ -525,6 +631,7 @@ final class UserAccountTests: XCTestCase {
 
     private struct Context {
 
+        let client: NetworkRepository
         let store: MemoryTokenStore
         let account: UserRepository
         let defaults: UserDefaults

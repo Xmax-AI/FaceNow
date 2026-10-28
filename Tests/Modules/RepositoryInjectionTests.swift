@@ -30,10 +30,11 @@ final class RepositoryInjectionTests: XCTestCase {
                     defaults.string(forKey: "xmax.camera.apiKey"),
                     "isolated-test-key"
                 )
+                XCTAssertEqual(store.readCount, 1)
                 await generation.userRepo.restore()
                 XCTAssertEqual(
                     store.readCount,
-                    1
+                    2
                 )
                 XCTAssertFalse(generation.userRepo.hasSavedSession)
             }

@@ -32,7 +32,7 @@ final class GenerationWorkspaceView: Canvas {
     /// The local preview kept mounted while capture readiness is established.
     private lazy var localPanel: GenerationVideoPanel = {
         let view = GenerationVideoPanel(
-            title: "Local",
+            title: GenerationStrings.controlsLocal,
             statistics: statistics.localStatisticsPanels
         )
         return view
@@ -41,7 +41,7 @@ final class GenerationWorkspaceView: Canvas {
     /// The generated-result preview and its independent downlink statistics.
     private lazy var resultPanel: GenerationVideoPanel = {
         let view = GenerationVideoPanel(
-            title: "Result",
+            title: GenerationStrings.controlsResult,
             statistics: statistics.remoteStatisticsPanels,
             showsWatermark: true
         )
@@ -54,6 +54,7 @@ final class GenerationWorkspaceView: Canvas {
             titles: GenerationMode.allCases.map(\.title),
             distribution: .content
         )
+        view.font = .systemFont(ofSize: 13.5, weight: .medium)
         view.onSelectionChanged = { [weak self] index in
             guard let self, !self.generationRepo.isBusy else { return }
             self.generationRepo.activeMode = GenerationMode.allCases[index]
@@ -86,13 +87,13 @@ final class GenerationWorkspaceView: Canvas {
     /// The composition-aware native prompt editor.
     private lazy var promptEditor: GenerationPromptTextView = {
         let view = GenerationPromptTextView()
-        view.placeholder = "Describe how you want the video to change"
+        view.placeholder = GenerationStrings.controlsDescribeHowYouWantTheVideoToChange
         view.placeholderColor = Palette.secondary
         view.onCommittedTextChange = { [weak self] text in
             guard let self, self.generationRepo.prompt != text else { return }
             self.generationRepo.prompt = text
         }
-        view.font = Typography.font(size: 15)
+        view.font = .systemFont(ofSize: 15)
         view.textColor = Palette.text
         view.isRichText = false
         view.drawsBackground = false
@@ -101,7 +102,7 @@ final class GenerationWorkspaceView: Canvas {
         view.textContainerInset = .zero
         view.textContainer?.lineFragmentPadding = 0
         view.textContainer?.widthTracksTextView = true
-        view.setAccessibilityLabel("Describe how you want the video to change")
+        view.setAccessibilityLabel(GenerationStrings.controlsDescribeHowYouWantTheVideoToChange)
         return view
     }()
 
@@ -126,8 +127,8 @@ final class GenerationWorkspaceView: Canvas {
             icon: .close,
             style: .dismiss
         )
-        view.toolTip = "Remove reference"
-        view.setAccessibilityLabel("Remove reference")
+        view.toolTip = GenerationStrings.controlsRemoveReference
+        view.setAccessibilityLabel(GenerationStrings.controlsRemoveReference)
         view.iconSize = 11
         view.foregroundColor = .white
         view.backgroundInset = 6
@@ -145,7 +146,7 @@ final class GenerationWorkspaceView: Canvas {
         )
         view.iconSize = 20
         view.showsShadow = false
-        view.setAccessibilityLabel("Submit prompt")
+        view.setAccessibilityLabel(GenerationStrings.controlsSubmitPrompt)
         view.onClick = { [weak self] in Task { [weak self] in await self?.generationRepo.submitPrompt() } }
         return view
     }()
@@ -188,7 +189,7 @@ final class GenerationWorkspaceView: Canvas {
             generationRepo.state.connectionState == .generating && generationRepo.remoteStream != nil
             ? ""
             : [.connected, .generating].contains(generationRepo.state.connectionState)
-                ? "Generating…" : "Waiting for connection…"
+                ? GenerationStrings.controlsGenerating : GenerationStrings.controlsWaitingForConnection
         resultPanel.update(
             track: generationRepo.remoteStream?.videoTrack,
             message: placeholder,
