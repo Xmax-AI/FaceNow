@@ -10,6 +10,7 @@
 
 import Factory
 import AppKit
+import SnapKit
 
 /// Owns the generation actions, elapsed time, and serialized playback-volume edits.
 @MainActor
@@ -145,6 +146,20 @@ final class GenerationToolbarView: Canvas {
     init() {
         super.init()
         [statisticsButton, volumeButton, interpolationButton, elapsed, stopButton].forEach(addSubview)
+        var previous: Button?
+        for (button, width) in controls {
+            button.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.height.equalTo(36)
+                make.width.equalTo(width)
+                if let previous {
+                    make.leading.equalTo(previous.snp.trailing).offset(12)
+                } else {
+                    make.leading.equalToSuperview()
+                }
+            }
+            previous = button
+        }
     }
 
     /// Storyboard decoding is unsupported for this programmatic view.
@@ -206,21 +221,15 @@ final class GenerationToolbarView: Canvas {
         stopButton.loading = generationRepo.isClosing
         stopButton.isEnabled = !generationRepo.isClosing
         updateElapsed()
+        needsLayout = true
 
     }
 
     /// Places the controls within the header-provided action row.
     override func layout() {
         super.layout()
-        var x: CGFloat = 0
         for (button, width) in controls {
-            button.frame = NSRect(
-                x: x,
-                y: 0,
-                width: width,
-                height: 36
-            )
-            x += width + 12
+            button.snp.updateConstraints { make in make.width.equalTo(width) }
         }
     }
 
@@ -264,7 +273,7 @@ final class GenerationToolbarView: Canvas {
         let popover = NSPopover()
         popover.behavior = .transient
         popover.contentViewController = controller
-        popover.contentSize = content.frame.size
+        popover.contentSize = content.fittingSize
         self.popover = popover
         popover.show(
             relativeTo: button.bounds,
@@ -277,34 +286,29 @@ final class GenerationToolbarView: Canvas {
     private func showVolume() {
         let content = Canvas()
 
-        content.frame.size = NSSize(
-            width: 244,
-            height: 88
-        )
-        let label = makeLabel(
-            "Remote volume",
-            size: 12
-        )
-        label.frame = NSRect(
-            x: 14,
-            y: 14,
-            width: 145,
-            height: 18
-        )
-        volumeValue.frame = NSRect(
-            x: 159,
-            y: 14,
-            width: 71,
-            height: 18
-        )
+        content.snp.makeConstraints { make in
+            make.width.equalTo(244)
+            make.height.equalTo(88)
+        }
+        let label = makeLabel("Remote volume", size: 12)
         volumeValue.alignment = .right
-        volumeSlider.frame = NSRect(
-            x: 14,
-            y: 46,
-            width: 216,
-            height: 24
-        )
         [label, volumeValue, volumeSlider].forEach(content.addSubview)
+        label.snp.makeConstraints { make in
+            make.leading.top.equalToSuperview().offset(14)
+            make.height.equalTo(18)
+            make.trailing.equalTo(volumeValue.snp.leading)
+        }
+        volumeValue.snp.remakeConstraints { make in
+            make.trailing.equalToSuperview().inset(14)
+            make.firstBaseline.equalTo(label)
+            make.width.equalTo(71)
+            make.height.equalTo(18)
+        }
+        volumeSlider.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(14)
+            make.top.equalTo(label.snp.bottom).offset(14)
+            make.height.equalTo(24)
+        }
         presentPopover(
             content: content,
             from: volumeButton

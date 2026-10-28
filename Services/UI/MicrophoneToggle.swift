@@ -20,7 +20,14 @@ final class MicrophoneToggle: NSButton {
     override var state: NSControl.StateValue { didSet { updateAppearance() } }
 
     /// The native enabled state controlling the toggle's visual opacity.
-    override var isEnabled: Bool { didSet { alphaValue = isEnabled ? 1 : 0.5 } }
+    override var isEnabled: Bool {
+        didSet {
+            ControlMotion.setOpacity(
+                isEnabled ? 1 : 0.5,
+                on: self
+            )
+        }
+    }
 
     /// The animatable zero-through-one position of the toggle knob.
     @objc dynamic private var onProgress: CGFloat = 0 {
@@ -43,6 +50,7 @@ final class MicrophoneToggle: NSButton {
         super.init(frame: .zero)
         title = "Microphone"
         font = Typography.font(size: 13)
+        wantsLayer = true
         // Checkbox cells only track their native indicator/title, not the custom track on the right.
         setButtonType(.pushOnPushOff)
         // Keep full-bounds mouse tracking; draw(_:) supplies the Web appearance instead of the native bezel.
@@ -85,11 +93,7 @@ final class MicrophoneToggle: NSButton {
         let progress: CGFloat = state == .on ? 1 : 0
         guard progress != targetProgress else { return }
         targetProgress = progress
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration =
-                window != nil && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-                ? 0.18 : 0
-            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        ControlMotion.animate(in: self) {
             animator().onProgress = progress
         }
     }

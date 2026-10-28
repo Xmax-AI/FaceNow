@@ -26,6 +26,9 @@ public enum AccountAPI: APITargetType {
     /// Reads the current user's identity and validates a persisted session.
     case profile
 
+    /// Reads the remaining credits from the Open API billing service.
+    case balance
+
     /// Invalidates the current platform session.
     case logout
 
@@ -44,6 +47,7 @@ public enum AccountAPI: APITargetType {
             return "/baas/api/message/public/\(method == .sms ? "sms-code" : "email-code")/send"
         case .login: return "/baas/api/user/login"
         case .profile: return "/baas/api/user/info"
+        case .balance: return "/open/api/v1/points/balance"
         case .logout: return "/baas/api/user/logout"
         }
     }
@@ -51,7 +55,7 @@ public enum AccountAPI: APITargetType {
     /// Reads public configuration and profiles with GET; mutations use POST.
     public var method: Moya.Method {
         switch self {
-        case .configuration, .profile: return .get
+        case .configuration, .profile, .balance: return .get
         default: return .post
         }
     }
@@ -94,14 +98,14 @@ public enum AccountAPI: APITargetType {
                 parameters: request.toJSON() ?? [:],
                 encoding: JSONEncoding.default
             )
-        case .profile, .logout: return .requestPlain
+        case .profile, .balance, .logout: return .requestPlain
         }
     }
 
-    /// Only profile and logout calls require the current account token.
+    /// Profile, balance, and logout calls require the current account credential.
     public var requiresAuthorization: Bool {
         switch self {
-        case .profile, .logout: return true
+        case .profile, .balance, .logout: return true
         default: return false
         }
     }

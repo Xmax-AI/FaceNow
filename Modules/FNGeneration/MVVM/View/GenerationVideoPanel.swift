@@ -9,6 +9,7 @@
 //
 
 import AppKit
+import SnapKit
 import XmaxSDK
 
 /// The SDK view remains attached throughout startup and page transitions.
@@ -103,6 +104,7 @@ final class GenerationVideoPanel: Canvas {
         captionBackground.addSubview(caption)
         addSubview(watermark)
         setAccessibilityLabel(title)
+        configureLayout()
     }
 
     /// Storyboard decoding is unsupported for this programmatic component.
@@ -129,52 +131,40 @@ final class GenerationVideoPanel: Canvas {
         }
     }
 
-    /// Places the video, caption, watermark, and measured statistics overlays.
-    override func layout() {
-        super.layout()
-        videoContainer.frame = bounds
-        video.frame = videoContainer.bounds
-        placeholder.frame = NSRect(
-            x: 20,
-            y: bounds.midY - 10,
-            width: bounds.width - 40,
-            height: 20
-        )
-        let captionSize = Typography.size(
-            caption.stringValue,
-            font: caption.font!
-        )
-        captionBackground.frame = NSRect(
-            x: 14,
-            y: bounds.height - 12 - captionSize.height - 6,
-            width: ceil(captionSize.width) + 16,
-            height: captionSize.height + 6
-        )
-        caption.frame = NSRect(
-            x: 6,
-            y: 3,
-            width: ceil(captionSize.width) + 4,
-            height: captionSize.height
-        )
-        let watermarkSize = Typography.size(
-            watermark.stringValue,
-            font: watermark.font!
-        )
-        watermark.frame = NSRect(
-            x: bounds.width - 16 - watermarkSize.width - 2,
-            y: 12,
-            width: watermarkSize.width + 4,
-            height: watermarkSize.height
-        )
-        var y: CGFloat = 12
+    /// Keeps preview bindings and overlays attached using native view constraints.
+    private func configureLayout() {
+        videoContainer.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        video.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        placeholder.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.centerY.equalToSuperview()
+            make.height.equalTo(20)
+        }
+        captionBackground.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(14)
+            make.bottom.equalToSuperview().inset(12)
+        }
+        caption.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(6)
+            make.top.bottom.equalToSuperview().inset(3)
+        }
+        watermark.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        var previous: GenerationStatisticsPanel?
         for panel in panels {
-            panel.frame = NSRect(
-                x: 14,
-                y: y,
-                width: panel.panelWidth,
-                height: panel.panelHeight
-            )
-            y += panel.panelHeight + 8
+            panel.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(14)
+                make.width.equalTo(panel.panelWidth)
+                make.height.equalTo(panel.panelHeight)
+                if let previous {
+                    make.top.equalTo(previous.snp.bottom).offset(8)
+                } else {
+                    make.top.equalToSuperview().offset(12)
+                }
+            }
+            previous = panel
         }
     }
 }

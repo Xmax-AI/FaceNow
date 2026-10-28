@@ -35,23 +35,36 @@ final class HomeViewController: NSViewController {
     /// Owns the initial saved-session validation.
     private var accountRestore: Task<Void, Never>?
 
+    /// Refreshes credits while a validated account is displayed in the home header.
+    private var accountRefresh: Task<Void, Never>?
+
     /// The generation lifecycle owner, created with the same user settings as the editor.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
 
     /// The extension owner refreshed when the application becomes active.
     @Injected(\.virtualCameraRepo) var virtualCameraRepo: VirtualCameraRepository
 
+    /// The preparation presentation model shared with the persistent home reminder.
+    private lazy var onboardingModel: OnboardingFlowViewModel = {
+        let viewModel = OnboardingFlowViewModel()
+        return viewModel
+    }()
+
+    /// The currently mounted modal preparation guide.
+    private var onboardingPage: OnboardingViewController?
+
+    /// Limits automatic presentation to one attempt per authenticated visit to home.
+    private var onboardingAutoPresented = false
+
+    /// Delays automatic preparation until the login-to-home transition has settled.
+    private var onboardingPresentationTask: Task<Void, Never>?
+
     /// The window content canvas containing scrolling pages and the error overlay.
     private lazy var root: Canvas = {
         let view = Canvas(color: .white)
-        view.frame = NSRect(
-            x: 0,
-            y: 0,
-            width: 1360,
-            height: 850
-        )
         view.addSubview(scroll)
         view.addSubview(errorView)
+        view.addSubview(signInToast)
         return view
     }()
 
@@ -94,6 +107,7 @@ final class HomeViewController: NSViewController {
     /// The camera selection and extension-setup entry points.
     private lazy var cameraControls: HomeCameraControlsView = {
         let view = HomeCameraControlsView()
+        view.onShowOnboarding = { [weak self] step in self?.showOnboarding(at: step) }
         return view
     }()
 
@@ -101,6 +115,9 @@ final class HomeViewController: NSViewController {
     private lazy var userView: UserAPIKeyView = {
         let view = UserAPIKeyView()
         view.onSignIn = { [weak self] in
+            #if DEBUG
+                self?.viewModel.endHomePreview()
+            #endif
             self?.synchronizeLoginPage()
         }
         view.onSignOut = { [weak self] in self?.signOut() }
@@ -118,6 +135,8 @@ final class HomeViewController: NSViewController {
     private lazy var landing: OnboardingLandingView = {
         let view = OnboardingLandingView()
         view.onStart = { [weak self] in self?.startCamera() }
+        view.onPreview = { [weak self] in self?.toggleCameraPreview() }
+        view.onSetup = { [weak self] in self?.showOnboarding() }
         return view
     }()
 
@@ -134,11 +153,24 @@ final class HomeViewController: NSViewController {
     }()
 
     /// The selectable error notification overlaid on the window content.
-    private lazy var errorView: HomeErrorView = {
-        let view = HomeErrorView()
+    private lazy var errorView: HomeToastView = {
+        let view = HomeToastView()
         view.onDismiss = { [weak self] in self?.generationRepo.dismissError() }
         return view
     }()
+
+    /// The success notification retained above the newly authenticated home page.
+    private lazy var signInToast: HomeToastView = {
+        let view = HomeToastView()
+        view.onDismiss = { [weak self] in self?.dismissSignInToast() }
+        return view
+    }()
+
+    /// Whether the success toast temporarily owns the notification position.
+    private var signInToastVisible = false
+
+    /// Removes the explicit-login notification after its short display interval.
+    private var signInToastTask: Task<Void, Never>?
 
     /// Retains notifications from user, generation, and extension state owners.
     private var observations: Set<AnyCancellable> = []
@@ -148,6 +180,9 @@ final class HomeViewController: NSViewController {
 
     /// Prevents an already-enqueued render from rebuilding views during shutdown.
     private var isShuttingDown = false
+
+    /// Avoids reapplying unchanged responsive constraint metrics.
+    private var layoutSignature = ""
 
     /// The last rendered page identity.
     private var displayedSession: Bool?
@@ -179,13 +214,29 @@ final class HomeViewController: NSViewController {
         view = root
         scroll.documentView = document
         [header, landing, workspace, footer].forEach(document.addSubview)
-        [logo, homeControls, toolbar].forEach(header.addSubview)
-        [cameraControls, userView].forEach(homeControls.addSubview)
+        [logo, homeControls, toolbar, userView].forEach(header.addSubview)
+        homeControls.addSubview(cameraControls)
+        configureLayout()
 
         userRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(in: &observations)
         homeRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(in: &observations)
         generationRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(in: &observations)
         virtualCameraRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(in: &observations)
+        onboardingModel.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(in: &observations)
+        onboardingModel.onboardingRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }
+            .store(in: &observations)
+        NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, !self.isShuttingDown else { return }
+                    self.generationRepo.refreshCameras()
+                    self.scheduleRender()
+                }
+            }.store(in: &observations)
+        userRepo.signInCompleted.sink { [weak self] in
+            // The profile's queued render finishes the login-to-home transition first.
+            DispatchQueue.main.async { [weak self] in self?.showSignInToast() }
+        }.store(in: &observations)
         render()
         accountRestore = Task { [weak self] in await self?.userRepo.restore() }
     }
@@ -193,6 +244,7 @@ final class HomeViewController: NSViewController {
     /// Starts the existing status refresh cadence after the page is attached.
     override func viewDidAppear() {
         super.viewDidAppear()
+        synchronizeOnboarding()
         guard ticker == nil else { return }
         ticker = Task { [weak self] in
             while !Task.isCancelled {
@@ -206,11 +258,18 @@ final class HomeViewController: NSViewController {
         }
     }
 
+    /// The pending handoff from local preview to generation capture.
+    private var cameraStartTask: Task<Void, Never>?
+
     /// Stops view work before awaiting generation and virtual-output cleanup.
     func shutdown() async {
         isShuttingDown = true
+        cameraStartTask?.cancel()
+        dismissOnboarding(animated: false)
         accountRestore?.cancel()
         accountRestore = nil
+        accountRefresh?.cancel()
+        accountRefresh = nil
         userRepo.cancelPendingOperations()
         loginPage?.shutdown()
         observations.removeAll()
@@ -218,11 +277,16 @@ final class HomeViewController: NSViewController {
         ticker = nil
         errorTask?.cancel()
         errorTask = nil
+        signInToastTask?.cancel()
+        signInToastTask = nil
+        signInToast.shutdown()
+        errorView.shutdown()
         cameraControls.closePopover()
-        userView.closePopover()
+        userView.shutdown()
         toolbar.shutdown()
         footer.closePopover()
         workspace.suspendImages()
+        await homeRepo.stopPreview()
         await generationRepo.shutdown()
     }
 
@@ -239,16 +303,66 @@ final class HomeViewController: NSViewController {
 
     /// Routes the explicit Start action after checking actual extension readiness.
     private func startCamera() {
-        guard loginPage == nil else { return }
+        guard loginPage == nil, cameraStartTask == nil, !isShuttingDown else { return }
+        guard viewModel.canStart else {
+            generationRepo.showSetupError(viewModel.startUnavailableMessage)
+            return
+        }
         let requestedAt = DispatchTime.now().uptimeNanoseconds
+        cameraStartTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                self.cameraStartTask = nil
+                self.scheduleRender()
+            }
+            await self.homeRepo.stopPreview()
+            guard !Task.isCancelled, !self.isShuttingDown, !self.viewModel.needsLogin,
+                self.onboardingPage == nil
+            else { return }
+            await self.viewModel.startCamera(requestedAt: requestedAt)
+        }
+        scheduleRender()
+    }
+
+    /// Toggles local video without starting generation, network streaming, or microphone capture.
+    private func toggleCameraPreview() {
+        guard !isShuttingDown, !viewModel.needsLogin, loginPage == nil, onboardingPage == nil,
+            !generationRepo.settingsLocked, !generationRepo.isClosing, cameraStartTask == nil,
+            !homeRepo.isPreviewLoading
+        else { return }
         Task { [weak self] in
-            await self?.viewModel.startCamera(requestedAt: requestedAt)
+            guard let self, !self.isShuttingDown, !self.viewModel.needsLogin,
+                self.onboardingPage == nil, !self.generationRepo.settingsLocked,
+                !self.generationRepo.isClosing, self.cameraStartTask == nil
+            else { return }
+            if self.homeRepo.isPreviewing {
+                await self.homeRepo.stopPreview()
+            } else {
+                do {
+                    try await self.homeRepo.startPreview(deviceID: self.generationRepo.cameraID)
+                } catch is CancellationError {
+                    return
+                } catch {
+                    guard !self.isShuttingDown, !self.viewModel.needsLogin else { return }
+                    self.generationRepo.showSetupError(error.localizedDescription)
+                }
+            }
         }
     }
 
     /// Applies committed state through each business component without recreating its views.
     private func render() {
+        onboardingModel.synchronize()
+        #if DEBUG
+            if userRepo.canAccessHome { viewModel.endHomePreview() }
+        #endif
         let active = generationRepo.sessionActive
+        if let deviceID = homeRepo.previewDeviceID,
+            viewModel.needsLogin || generationRepo.settingsLocked || generationRepo.isClosing
+                || deviceID != generationRepo.cameraID
+        {
+            Task { [weak self] in await self?.homeRepo.stopPreview() }
+        }
         let pageChanged = displayedSession != active
         let previousCameraWidth = cameraControls.preferredWidth
         let previousUserWidth = userView.preferredWidth(controlHeight: homeControls.bounds.height)
@@ -257,9 +371,16 @@ final class HomeViewController: NSViewController {
         userView.update()
         toolbar.update()
         landing.update(
-            isStarting: viewModel.isStarting,
+            isStarting: viewModel.isStarting || cameraStartTask != nil,
             canStart: viewModel.canStart,
             unavailableMessage: viewModel.startUnavailableMessage
+        )
+        landing.updatePreparation(model: onboardingModel)
+        landing.updatePreview(
+            session: homeRepo.cameraPreview.session,
+            isPreviewing: homeRepo.isPreviewing,
+            isLoading: homeRepo.isPreviewLoading,
+            isAvailable: !generationRepo.settingsLocked && !generationRepo.isClosing && cameraStartTask == nil
         )
         workspace.update()
         let needsPageLayout =
@@ -284,13 +405,104 @@ final class HomeViewController: NSViewController {
         }
         updateError()
         if needsPageLayout { view.needsLayout = true }
-        if pageChanged {
+        if pageChanged, !viewModel.needsLogin, loginPage == nil, view.window != nil {
             view.layoutSubtreeIfNeeded()
             animateEntry(active ? workspace : landing)
             if !active { animateEntry(footer) }
         }
         if active, view.window != nil { generationRepo.resultViewDidBecomeReady() }
         synchronizeLoginPage()
+        synchronizeOnboarding()
+        synchronizeAccountRefresh()
+    }
+
+    /// Schedules unfinished preparation half a second after the authenticated home page becomes available.
+    private func synchronizeOnboarding() {
+        guard !isShuttingDown else { return }
+        if viewModel.needsLogin {
+            onboardingAutoPresented = false
+            dismissOnboarding(animated: false)
+            return
+        }
+        guard userRepo.canAccessHome, view.window != nil, !generationRepo.sessionActive,
+            !onboardingAutoPresented
+        else { return }
+        onboardingAutoPresented = true
+        guard !onboardingModel.onboardingRepo.hasCompletedGuide else { return }
+        onboardingPresentationTask = Task { @MainActor [weak self] in
+            do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
+            guard !Task.isCancelled, let self else { return }
+            self.onboardingPresentationTask = nil
+            guard !self.isShuttingDown, self.userRepo.canAccessHome, !self.viewModel.needsLogin,
+                self.loginPage == nil, self.view.window != nil, !self.generationRepo.settingsLocked,
+                self.onboardingPage == nil, !self.onboardingModel.onboardingRepo.hasCompletedGuide
+            else { return }
+            self.showOnboarding()
+        }
+    }
+
+    /// Mounts the guide above the home page while retaining all existing preview resources.
+    private func showOnboarding(
+        at step: OnboardingRepository.Step? = nil
+    ) {
+        guard !isShuttingDown, !viewModel.needsLogin, view.window != nil else { return }
+        Task { [weak self] in await self?.homeRepo.stopPreview() }
+        onboardingPresentationTask?.cancel()
+        onboardingPresentationTask = nil
+        onboardingAutoPresented = true
+        cameraControls.closePopover()
+        userView.closePopover()
+        toolbar.closePopover()
+        footer.closePopover()
+        onboardingModel.refresh()
+        onboardingModel.onboardingRepo.begin(at: step)
+        if let page = onboardingPage {
+            page.present()
+            return
+        }
+        let page = OnboardingViewController(viewModel: onboardingModel)
+        page.onDismiss = { [weak self] in self?.dismissOnboarding() }
+        onboardingPage = page
+        addChild(page)
+        root.addSubview(page.view)
+        page.view.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        root.layoutSubtreeIfNeeded()
+        page.present()
+    }
+
+    /// Releases modal work on deferral, completion, sign-out, or application shutdown.
+    private func dismissOnboarding(
+        animated: Bool = true
+    ) {
+        onboardingPresentationTask?.cancel()
+        onboardingPresentationTask = nil
+        onboardingModel.onboardingRepo.dismiss()
+        guard let page = onboardingPage else { return }
+        page.dismiss(animated: animated) { [weak self, weak page] in
+            guard let self, let page, self.onboardingPage === page else { return }
+            page.shutdown()
+            page.view.removeFromSuperview()
+            page.removeFromParent()
+            self.onboardingPage = nil
+            self.view.window?.makeFirstResponder(nil)
+        }
+    }
+
+    /// Starts a bounded refresh cadence and stops it when the account leaves the home page.
+    private func synchronizeAccountRefresh() {
+        guard userRepo.canAccessHome else {
+            accountRefresh?.cancel()
+            accountRefresh = nil
+            return
+        }
+        guard accountRefresh == nil else { return }
+        accountRefresh = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self, !self.isShuttingDown, self.userRepo.canAccessHome else { return }
+                await self.userRepo.refreshCredits()
+                do { try await Task.sleep(for: .seconds(30)) } catch { return }
+            }
+        }
     }
 
     /// Shows a full native login page while preserving mounted generation preview bindings.
@@ -298,10 +510,18 @@ final class HomeViewController: NSViewController {
         guard isViewLoaded, !isShuttingDown else { return }
         let needsLogin = viewModel.needsLogin
         if needsLogin, loginPage == nil {
+            dismissSignInToast()
             userView.closePopover()
             cameraControls.closePopover()
             let form = UserLoginFormView()
             let page = UserLoginViewController(formView: form)
+            #if DEBUG
+                page.onSkip = { [weak self] in
+                    guard let self else { return }
+                    self.viewModel.previewHome()
+                    self.render()
+                }
+            #endif
             form.presenter = page
             loginPage = page
             addChild(page)
@@ -311,7 +531,10 @@ final class HomeViewController: NSViewController {
             }
             scroll.isHidden = true
             errorView.isHidden = true
-            page.view.layoutSubtreeIfNeeded()
+            if root.window != nil {
+                root.layoutSubtreeIfNeeded()
+                animateEntry(page.view)
+            }
             if generationRepo.settingsLocked { Task { [weak self] in await self?.generationRepo.close() } }
         } else if !needsLogin, let page = loginPage {
             page.shutdown()
@@ -320,23 +543,33 @@ final class HomeViewController: NSViewController {
             loginPage = nil
             scroll.isHidden = false
             errorView.isHidden = generationRepo.errorMessage == nil
+            if root.window != nil {
+                root.layoutSubtreeIfNeeded()
+                animateEntry(document)
+            }
         }
     }
 
     /// Stops billable generation and virtual output before invalidating account credentials.
     private func signOut() {
+        dismissOnboarding()
+        cameraStartTask?.cancel()
         Task { [weak self] in
-            await self?.viewModel.signOut()
+            guard let self else { return }
+            await self.homeRepo.stopPreview()
+            await self.viewModel.signOut()
         }
     }
 
     /// Announces each new error once and retains the existing auto-dismiss interval.
     private func updateError() {
         let changed = displayedError != generationRepo.errorMessage
+        if changed, generationRepo.errorMessage != nil { dismissSignInToast() }
         errorView.update(
             message: generationRepo.errorMessage,
             announce: changed
         )
+        if signInToastVisible { errorView.isHidden = true }
         guard changed else { return }
         displayedError = generationRepo.errorMessage
         errorTask?.cancel()
@@ -347,100 +580,142 @@ final class HomeViewController: NSViewController {
         }
     }
 
-    /// Arranges persistent pages while delegating their internal layouts to their modules.
-    override func viewDidLayout() {
-        super.viewDidLayout()
-        scroll.frame = root.bounds
-        let width = scroll.contentSize.width
-        let height = scroll.contentSize.height
+    /// Shows one success toast only for an explicit, validated login event.
+    private func showSignInToast() {
+        guard !isShuttingDown, userRepo.canAccessHome else { return }
+        synchronizeLoginPage()
+        signInToastTask?.cancel()
+        signInToastVisible = true
+        errorView.isHidden = true
+        signInToast.update(
+            message: "Signed in successfully",
+            announce: true,
+            style: .success
+        )
+        signInToast.place(in: root.bounds)
+        signInToastTask = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(3)) } catch { return }
+            self?.dismissSignInToast()
+        }
+    }
+
+    /// Restores normal error presentation after the success notice closes or expires.
+    private func dismissSignInToast() {
+        guard signInToastVisible else { return }
+        signInToastTask?.cancel()
+        signInToastTask = nil
+        signInToastVisible = false
+        signInToast.update(
+            message: nil,
+            announce: false
+        )
+        errorView.isHidden = loginPage != nil || generationRepo.errorMessage == nil
+    }
+
+    /// Installs persistent page relationships while keeping both SDK previews mounted.
+    private func configureLayout() {
+        scroll.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        document.snp.makeConstraints { make in
+            // Viewport-derived heights follow resizing instead of becoming a window minimum.
+            make.leading.top.equalTo(scroll.contentView)
+            make.width.equalTo(scroll.contentView)
+            make.height.equalTo(0).priority(490)
+        }
+        header.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(28)
+            make.top.equalToSuperview().offset(16)
+            make.height.equalTo(0).priority(490)
+        }
+        landing.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(header)
+            make.top.equalTo(header.snp.bottom).offset(30)
+            make.height.equalTo(0).priority(490)
+        }
+        workspace.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(header)
+            make.top.equalTo(header.snp.bottom)
+            make.height.equalTo(0).priority(490)
+        }
+        footer.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(header)
+            make.bottom.equalToSuperview().inset(48)
+            make.height.equalTo(80)
+        }
+        logo.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.top.equalToSuperview().offset(8)
+            make.height.equalTo(34)
+            make.width.equalTo(logo.snp.height).multipliedBy(552.0 / 172)
+        }
+        userView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview()
+            make.centerY.equalTo(logo)
+            make.width.equalTo(userView.preferredWidth(controlHeight: 36))
+            make.height.equalTo(36)
+        }
+        homeControls.snp.makeConstraints { make in
+            make.trailing.equalTo(userView.snp.leading).offset(-12)
+            make.centerY.equalTo(logo)
+            make.width.equalTo(cameraControls.preferredWidth)
+            make.height.equalTo(36)
+        }
+        cameraControls.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        toolbar.snp.makeConstraints { make in
+            make.trailing.equalTo(userView.snp.leading).offset(-20)
+            make.centerY.equalTo(logo)
+            make.width.equalTo(toolbar.preferredWidth)
+            make.height.equalTo(36)
+        }
+    }
+
+    /// Supplies current viewport dimensions before AppKit resolves the persistent child constraints.
+    override func viewWillLayout() {
+        super.viewWillLayout()
+        let width = root.bounds.width
+        let height = root.bounds.height
+        guard width > 0, height > 0 else { return }
+        let active = generationRepo.sessionActive
+        let controlHeight = min(48, max(35, width * 0.0055 + 26))
+        let cameraWidth = cameraControls.preferredWidth
+        let userWidth = userView.preferredWidth(controlHeight: controlHeight)
+        let signature =
+            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbar.preferredWidth)|\(displayedError ?? "")"
+        guard signature != layoutSignature else { return }
+        layoutSignature = signature
         let contentWidth = max(0, width - 56)
         landing.viewportWidth = width
         let landingHeight = landing.preferredHeight(contentWidth: contentWidth)
         let workspaceHeight = workspace.preferredHeight(contentWidth: contentWidth)
         let logoHeight = min(52, max(34, width * 0.008 + 24))
-        let controlHeight = generationRepo.sessionActive ? 36 : min(48, max(35, width * 0.0055 + 26))
-        let headerHeight = max(logoHeight, controlHeight) + 8 + 24
-        let footerHeight: CGFloat = 56 + 24
-        let active = generationRepo.sessionActive
+        let headerHeight = max(logoHeight, active ? 36 : controlHeight) + 32
         let minimumHeight =
             active
-            ? 16 + headerHeight + workspaceHeight + 48 : 16 + headerHeight + 30 + landingHeight + 30 + footerHeight + 48
+            ? 16 + headerHeight + workspaceHeight + 48
+            : 16 + headerHeight + 30 + landingHeight + 30 + 80 + 48
         let documentHeight = max(height, minimumHeight)
         let surplus = max(0, documentHeight - minimumHeight)
-        document.frame = NSRect(
-            x: 0,
-            y: 0,
-            width: width,
-            height: documentHeight
-        )
-        header.frame = NSRect(
-            x: 28,
-            y: 16 + (active ? surplus / 2 : 0),
-            width: contentWidth,
-            height: headerHeight
-        )
-        layoutHeader(viewportWidth: width)
-        landing.frame = NSRect(
-            x: 28,
-            y: header.frame.maxY + 30 + surplus / 2,
-            width: contentWidth,
-            height: landingHeight
-        )
-        workspace.frame = NSRect(
-            x: 28,
-            y: header.frame.maxY,
-            width: contentWidth,
-            height: workspaceHeight
-        )
-        footer.frame = NSRect(
-            x: 28,
-            y: documentHeight - 48 - footerHeight,
-            width: contentWidth,
-            height: footerHeight
-        )
+        document.snp.updateConstraints { make in make.height.equalTo(documentHeight).priority(490) }
+        header.snp.updateConstraints { make in
+            make.top.equalToSuperview().offset(16 + (active ? surplus / 2 : 0))
+            make.height.equalTo(headerHeight).priority(490)
+        }
+        landing.snp.updateConstraints { make in
+            make.top.equalTo(header.snp.bottom).offset(30 + surplus / 2)
+            make.height.equalTo(landingHeight).priority(490)
+        }
+        workspace.snp.updateConstraints { make in make.height.equalTo(workspaceHeight).priority(490) }
+        logo.snp.updateConstraints { make in make.height.equalTo(logoHeight) }
+        userView.snp.updateConstraints { make in
+            make.width.equalTo(userWidth)
+            make.height.equalTo(controlHeight)
+        }
+        homeControls.snp.updateConstraints { make in
+            make.width.equalTo(cameraWidth)
+            make.height.equalTo(controlHeight)
+        }
+        toolbar.snp.updateConstraints { make in make.width.equalTo(toolbar.preferredWidth) }
         errorView.place(in: root.bounds)
-    }
-
-    /// Places the setup and generation rows around the same product wordmark.
-    private func layoutHeader(
-        viewportWidth width: CGFloat
-    ) {
-        let logoHeight = min(52, max(34, width * 0.008 + 24))
-        let controlHeight = min(48, max(35, width * 0.0055 + 26))
-        let rowHeight = header.bounds.height - 8 - 24
-        logo.frame = NSRect(
-            x: 0,
-            y: 8 + (rowHeight - logoHeight) / 2,
-            width: logoHeight * 552 / 172,
-            height: logoHeight
-        )
-        let cameraWidth = cameraControls.preferredWidth
-        let keyWidth = userView.preferredWidth(controlHeight: controlHeight)
-        let homeWidth = cameraWidth + 12 + keyWidth
-        homeControls.frame = NSRect(
-            x: header.bounds.width - homeWidth,
-            y: 8 + (rowHeight - controlHeight) / 2,
-            width: homeWidth,
-            height: controlHeight
-        )
-        cameraControls.frame = NSRect(
-            x: 0,
-            y: 0,
-            width: cameraWidth,
-            height: controlHeight
-        )
-        userView.frame = NSRect(
-            x: cameraWidth + 12,
-            y: 0,
-            width: keyWidth,
-            height: controlHeight
-        )
-        toolbar.frame = NSRect(
-            x: header.bounds.width - toolbar.preferredWidth,
-            y: 8 + (rowHeight - 36) / 2,
-            width: toolbar.preferredWidth,
-            height: 36
-        )
+        if signInToastVisible { signInToast.place(in: root.bounds) }
     }
 
     /// Animates only page presentation and honors the system's reduced-motion preference.

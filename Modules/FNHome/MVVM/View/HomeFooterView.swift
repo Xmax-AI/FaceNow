@@ -10,6 +10,7 @@
 
 import Factory
 import AppKit
+import SnapKit
 import Kingfisher
 
 /// Owns product links and the WeChat follow popover on the home page.
@@ -77,19 +78,6 @@ final class HomeFooterView: Canvas {
         return view
     }()
 
-    /// Opens the organization's public repository page after an explicit click.
-    private lazy var github: Button = {
-        let view = Button(
-            "GitHub",
-            style: .plain
-        )
-        view.onClick = { [weak self] in
-            guard let self else { return }
-            NSWorkspace.shared.open(self.homeRepo.githubURL)
-        }
-        return view
-    }()
-
     /// Opens the Xmax API platform after an explicit click.
     private lazy var platform: Button = {
         let view = Button(
@@ -109,7 +97,8 @@ final class HomeFooterView: Canvas {
     /// Creates the footer links without opening external destinations.
     init() {
         super.init()
-        [wechat, social, website, contact, github, platform].forEach(addSubview)
+        [wechat, social, website, contact, platform].forEach(addSubview)
+        configureLayout()
     }
 
     /// Storyboard decoding is unsupported for this programmatic view.
@@ -118,45 +107,25 @@ final class HomeFooterView: Canvas {
     ) { fatalError("init(coder:) has not been implemented") }
 
     /// Places social links and platform destinations on their original footer row.
-    override func layout() {
-        super.layout()
-        let contentWidth = bounds.width
-        wechat.frame = NSRect(
-            x: 0,
-            y: 56,
-            width: 24,
-            height: 24
-        )
-        social.frame = NSRect(
-            x: 52,
-            y: 56,
-            width: 24,
-            height: 24
-        )
-        website.frame = NSRect(
-            x: 104,
-            y: 56,
-            width: 24,
-            height: 24
-        )
-        contact.frame = NSRect(
-            x: contentWidth - 292,
-            y: 56,
-            width: 98,
-            height: 26
-        )
-        github.frame = NSRect(
-            x: contentWidth - 182,
-            y: 56,
-            width: 70,
-            height: 26
-        )
-        platform.frame = NSRect(
-            x: contentWidth - 100,
-            y: 56,
-            width: 100,
-            height: 26
-        )
+    private func configureLayout() {
+        for (index, button) in [wechat, social, website].enumerated() {
+            button.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(CGFloat(index) * 52)
+                make.top.equalToSuperview().offset(56)
+                make.size.equalTo(24)
+            }
+        }
+        platform.snp.makeConstraints { make in
+            make.trailing.equalToSuperview()
+            make.top.equalToSuperview().offset(56)
+            make.width.equalTo(100)
+            make.height.equalTo(26)
+        }
+        contact.snp.makeConstraints { make in
+            make.trailing.equalTo(platform.snp.leading).offset(-12)
+            make.top.height.equalTo(platform)
+            make.width.equalTo(98)
+        }
     }
 
     /// Dismisses the footer popover during transitions and shutdown.
@@ -176,7 +145,7 @@ final class HomeFooterView: Canvas {
         let popover = NSPopover()
         popover.behavior = .transient
         popover.contentViewController = controller
-        popover.contentSize = content.frame.size
+        popover.contentSize = content.fittingSize
         self.popover = popover
         popover.show(
             relativeTo: button.bounds,
@@ -189,18 +158,11 @@ final class HomeFooterView: Canvas {
     private func showWeChat() {
         let content = Canvas()
 
-        content.frame.size = NSSize(
-            width: 208,
-            height: 242
-        )
-        let image = NSImageView(
-            frame: NSRect(
-                x: 14,
-                y: 14,
-                width: 180,
-                height: 180
-            )
-        )
+        content.snp.makeConstraints { make in
+            make.width.equalTo(208)
+            make.height.equalTo(242)
+        }
+        let image = NSImageView()
         image.imageScaling = .scaleProportionallyUpOrDown
         image.kf.setImage(
             with: homeRepo.wechatImageURL,
@@ -217,19 +179,22 @@ final class HomeFooterView: Canvas {
             ]
         )
         let label = makeLabel(
-            "Follow us on WeChat",
+            "Scan with WeChat to follow us",
             size: 12
         )
         label.alignment = .center
 
-        label.frame = NSRect(
-            x: 14,
-            y: 202,
-            width: 180,
-            height: 24
-        )
         content.addSubview(image)
         content.addSubview(label)
+        image.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview().inset(14)
+            make.height.equalTo(image.snp.width)
+        }
+        label.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(image)
+            make.top.equalTo(image.snp.bottom).offset(8)
+            make.height.equalTo(24)
+        }
         presentPopover(
             content: content,
             from: wechat

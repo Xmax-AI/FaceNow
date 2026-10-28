@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import CoreFoundation
 import HandyJSON
 
 /// Verification-code methods supported by the domestic platform.
@@ -137,6 +138,26 @@ public struct AccountProfile: ResponseModel {
         _ value: [String: Any]
     ) -> Bool {
         [value["uid"] as? String, value["id"] as? String].contains { $0?.isEmpty == false }
+    }
+}
+
+/// The server-calculated credits remaining for the authenticated account.
+public struct AccountBalance: ResponseModel {
+
+    /// The remaining credits; missing or malformed values are rejected before mapping.
+    public var currentBalance: Double = 0
+
+    /// Creates an empty DTO for HandyJSON's field mapping.
+    public init() {}
+
+    /// Requires a finite number so an unavailable balance can never become a fabricated zero.
+    public static func isValidJSON(
+        _ value: [String: Any]
+    ) -> Bool {
+        guard let number = value["currentBalance"] as? NSNumber,
+            CFGetTypeID(number) != CFBooleanGetTypeID()
+        else { return false }
+        return number.doubleValue.isFinite && number.doubleValue >= 0
     }
 }
 

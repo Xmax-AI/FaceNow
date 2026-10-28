@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC8231BB541F4514A55C1A8B /* UserAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1EB20C9D994E738036DF46 /* UserAccountViewModel.swift */; };
 		ED10A5000000000000000001 /* AppLaunchTiming.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A5000000000000000002 /* AppLaunchTiming.swift */; };
 		ED10A4000000000000000001 /* VirtualCameraDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A4000000000000000002 /* VirtualCameraDiagnostics.swift */; };
 		ED10A3000000000000000001 /* AppShutdownCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A3000000000000000002 /* AppShutdownCoordinator.swift */; };
@@ -46,7 +47,7 @@
 		B6CEC4DBFDCB5ABD5C478BE8 /* GenerationVideoPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD6255C8E5D4462EC1B5B53F /* GenerationVideoPanel.swift */; };
 		8AE2364A8A6CBAFE13319C39 /* GenerationWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C174A9084F61A056530525 /* GenerationWorkspaceView.swift */; };
 		5B770C916864127B5715935A /* HomeCameraControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */; };
-		7DD3892CF0363949D2DC1D72 /* HomeErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691BDD5482F6BCB68F00B895 /* HomeErrorView.swift */; };
+		7DD3892CF0363949D2DC1D72 /* HomeToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691BDD5482F6BCB68F00B895 /* HomeToastView.swift */; };
 		46806423B5CCB6CE2636238C /* HomeFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6DF3DE892E7D9E93FDC6E2E /* HomeFooterView.swift */; };
 		F9F6B1F8886585EF47432290 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514DED5EAE346D143F942D77 /* HomeViewController.swift */; };
 		94C5E5C5E77B7A9C9ACBFB3A /* OnboardingCheckerboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 987BF99E0F34E27DF750400B /* OnboardingCheckerboardView.swift */; };
@@ -98,6 +99,18 @@
 		B277F3BF08033840EE799C5E /* OnboardingSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CF603E942F85BA6C57484A /* OnboardingSetupViewModel.swift */; };
 		AED0F5F4E004E75635F16DDF /* UserLoginDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AC376E6CAD36702E99624F /* UserLoginDraft.swift */; };
 		A7A946C556E92421398351EC /* UserLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A938E5E34943DD696B3ADE /* UserLoginViewModel.swift */; };
+		2AD194AAFC8D4F2F80863F57 /* UserLoginScenariosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98280DFBAE6460E870B6A27 /* UserLoginScenariosView.swift */; };
+		D9B1D163922D4770A5C30B3E /* Scenarios.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F39F8AE3B18C4042BC1A57F3 /* Scenarios.xcassets */; };
+		7677C849730641A9B4611D7D /* Scenarios-Licenses.txt in Resources */ = {isa = PBXBuildFile; fileRef = F8C8CF0B01CC496CBFACB8D8 /* Scenarios-Licenses.txt */; };
+		4C533EF55E5E4C8C9F92356F /* ControlMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80D2214D9084042A1EA3AC0 /* ControlMotion.swift */; };
+		E527DC19526C40BA8118BEC9 /* UserAccountPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 574BC78EAE1641B2A19738DB /* UserAccountPopoverView.swift */; };
+		9C12CC5BEC5C4ADFB1DA9F13 /* UserCreditsPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C2D6DFB324DEC9C679E38 /* UserCreditsPopoverView.swift */; };
+		704A8FCED2ABDDB31F8F0101 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBBE619AF71A5264F158BFF /* OnboardingViewController.swift */; };
+		375154E1E8F3A7D11904167D /* OnboardingFlowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D08E87919CF646151FA1E3 /* OnboardingFlowViewModel.swift */; };
+		34314E09BC40C7D8668595A3 /* OnboardingGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A45BF51BCA018341C737F3 /* OnboardingGuideView.swift */; };
+		244DA2B340CF128DAB2DBE11 /* Onboarding.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CCA273043A2E923BF52CBC88 /* Onboarding.xcassets */; };
+		0D1B106224F346A3A3540D3D /* CameraPreviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C09869C4F24E07AF0C5387 /* CameraPreviewSession.swift */; };
+		9A19FD523E244D39BFC48018 /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF77E49892D344C8924CEEB1 /* CameraPreviewView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,6 +154,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3C1EB20C9D994E738036DF46 /* UserAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountViewModel.swift; sourceTree = "<group>"; };
 		ED10A5000000000000000002 /* AppLaunchTiming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLaunchTiming.swift; sourceTree = "<group>"; };
 		ED10A4000000000000000002 /* VirtualCameraDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCameraDiagnostics.swift; sourceTree = "<group>"; };
 		ED10A3000000000000000002 /* AppShutdownCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShutdownCoordinator.swift; sourceTree = "<group>"; };
@@ -180,7 +194,7 @@
 		FD6255C8E5D4462EC1B5B53F /* GenerationVideoPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationVideoPanel.swift; sourceTree = "<group>"; };
 		A4C174A9084F61A056530525 /* GenerationWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationWorkspaceView.swift; sourceTree = "<group>"; };
 		C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCameraControlsView.swift; sourceTree = "<group>"; };
-		691BDD5482F6BCB68F00B895 /* HomeErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeErrorView.swift; sourceTree = "<group>"; };
+		691BDD5482F6BCB68F00B895 /* HomeToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeToastView.swift; sourceTree = "<group>"; };
 		E6DF3DE892E7D9E93FDC6E2E /* HomeFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFooterView.swift; sourceTree = "<group>"; };
 		514DED5EAE346D143F942D77 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		987BF99E0F34E27DF750400B /* OnboardingCheckerboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCheckerboardView.swift; sourceTree = "<group>"; };
@@ -226,6 +240,18 @@
 		20CF603E942F85BA6C57484A /* OnboardingSetupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSetupViewModel.swift; sourceTree = "<group>"; };
 		10AC376E6CAD36702E99624F /* UserLoginDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginDraft.swift; sourceTree = "<group>"; };
 		68A938E5E34943DD696B3ADE /* UserLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginViewModel.swift; sourceTree = "<group>"; };
+		F98280DFBAE6460E870B6A27 /* UserLoginScenariosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginScenariosView.swift; sourceTree = "<group>"; };
+		F39F8AE3B18C4042BC1A57F3 /* Scenarios.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Scenarios.xcassets; sourceTree = "<group>"; };
+		F8C8CF0B01CC496CBFACB8D8 /* Scenarios-Licenses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Scenarios-Licenses.txt"; sourceTree = "<group>"; };
+		F80D2214D9084042A1EA3AC0 /* ControlMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlMotion.swift; sourceTree = "<group>"; };
+		574BC78EAE1641B2A19738DB /* UserAccountPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountPopoverView.swift; sourceTree = "<group>"; };
+		B90C2D6DFB324DEC9C679E38 /* UserCreditsPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCreditsPopoverView.swift; sourceTree = "<group>"; };
+		5EBBE619AF71A5264F158BFF /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
+		73D08E87919CF646151FA1E3 /* OnboardingFlowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowViewModel.swift; sourceTree = "<group>"; };
+		E8A45BF51BCA018341C737F3 /* OnboardingGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingGuideView.swift; sourceTree = "<group>"; };
+		CCA273043A2E923BF52CBC88 /* Onboarding.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Onboarding.xcassets; sourceTree = "<group>"; };
+		A1C09869C4F24E07AF0C5387 /* CameraPreviewSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewSession.swift; sourceTree = "<group>"; };
+		BF77E49892D344C8924CEEB1 /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -391,6 +417,8 @@
 		3ED4F3A4DAC4313755D8C618 /* FNOnboarding */ = {
 			isa = PBXGroup;
 			children = (
+				F8352AB1287D8B7BD7C3BBE7 /* Resources */,
+				5EBBE619AF71A5264F158BFF /* OnboardingViewController.swift */,
 				3B97C6AFFECDA69FF33F441C /* OnboardingRepository.swift */,
 				4D9E74D8D878270D83B055B6 /* MVVM */,
 			);
@@ -433,6 +461,7 @@
 			children = (
 				DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
+				A1C09869C4F24E07AF0C5387 /* CameraPreviewSession.swift */,
 				5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */,
 			);
 			path = Media;
@@ -453,6 +482,8 @@
 				6AD2BBE5DA1FB5B2E8A9B3FB /* Button.swift */,
 				4DE5A2B551C24E46A4D5C26E /* TabSwitcher.swift */,
 				D03A235589184995AA031226 /* InputField.swift */,
+				F80D2214D9084042A1EA3AC0 /* ControlMotion.swift */,
+				BF77E49892D344C8924CEEB1 /* CameraPreviewView.swift */,
 				FAC6CAB3E9E6622372D354EF /* Canvas.swift */,
 				01F524530A0CBFD115F8EEFD /* Icon.swift */,
 				13236EB4FB9622509B8A345D /* MicrophoneToggle.swift */,
@@ -495,8 +526,11 @@
 		15DEE3F11D70EE0CCF8E1C3D /* View */ = {
 			isa = PBXGroup;
 			children = (
+				574BC78EAE1641B2A19738DB /* UserAccountPopoverView.swift */,
+				B90C2D6DFB324DEC9C679E38 /* UserCreditsPopoverView.swift */,
 				38A97ED0F12177BE33625639 /* UserAPIKeyView.swift */,
 				E014FF6C6F121B6DC00BADC8 /* UserLoginFormView.swift */,
+				F98280DFBAE6460E870B6A27 /* UserLoginScenariosView.swift */,
 				D61A163FF4B7E3406C167839 /* UserLoginViewController.swift */,
 				EE39765D51056C8D85848742 /* UserCaptchaViewController.swift */,
 			);
@@ -516,7 +550,7 @@
 			isa = PBXGroup;
 			children = (
 				C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */,
-				691BDD5482F6BCB68F00B895 /* HomeErrorView.swift */,
+				691BDD5482F6BCB68F00B895 /* HomeToastView.swift */,
 				E6DF3DE892E7D9E93FDC6E2E /* HomeFooterView.swift */,
 			);
 			path = View;
@@ -561,6 +595,7 @@
 		92B7858E6B639D6FE9AEB18F /* View */ = {
 			isa = PBXGroup;
 			children = (
+				E8A45BF51BCA018341C737F3 /* OnboardingGuideView.swift */,
 				987BF99E0F34E27DF750400B /* OnboardingCheckerboardView.swift */,
 				E25C3778831D54DBDCB25C43 /* OnboardingLandingView.swift */,
 				8F6B203A9D981F1252632D34 /* OnboardingSetupView.swift */,
@@ -662,6 +697,8 @@
 		4435AB8D3B0D3D1D7E0186F2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F39F8AE3B18C4042BC1A57F3 /* Scenarios.xcassets */,
+				F8C8CF0B01CC496CBFACB8D8 /* Scenarios-Licenses.txt */,
 				AC37D1101BE9AD8F2DD5E48C /* Login */,
 			);
 			path = Resources;
@@ -706,6 +743,7 @@
 		1B33537A46C0244713EF01E3 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				73D08E87919CF646151FA1E3 /* OnboardingFlowViewModel.swift */,
 				20CF603E942F85BA6C57484A /* OnboardingSetupViewModel.swift */,
 			);
 			path = ViewModel;
@@ -723,10 +761,12 @@
 			isa = PBXGroup;
 			children = (
 				68A938E5E34943DD696B3ADE /* UserLoginViewModel.swift */,
+				3C1EB20C9D994E738036DF46 /* UserAccountViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		F8352AB1287D8B7BD7C3BBE7 /* Resources */ = {isa = PBXGroup; children = (CCA273043A2E923BF52CBC88 /* Onboarding.xcassets */, ); path = Resources; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -856,8 +896,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				244DA2B340CF128DAB2DBE11 /* Onboarding.xcassets in Resources */,
 				2CAB5C069C0382B757753C16 /* FaceNowLoginPoster.png in Resources */,
 				DE879A72457C337936CF43C0 /* FaceNowLogin.mp4 in Resources */,
+				D9B1D163922D4770A5C30B3E /* Scenarios.xcassets in Resources */,
+				7677C849730641A9B4611D7D /* Scenarios-Licenses.txt in Resources */,
 				DF0A05F53FF000F057E788D2 /* Assets.xcassets in Resources */,
 				ED10A2000000000000000001 /* AppIcon.icon in Resources */,
 				53274E996AA64BA9F7D07367 /* DMSans.ttf in Resources */,
@@ -896,7 +939,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34314E09BC40C7D8668595A3 /* OnboardingGuideView.swift in Sources */,
+				375154E1E8F3A7D11904167D /* OnboardingFlowViewModel.swift in Sources */,
+				704A8FCED2ABDDB31F8F0101 /* OnboardingViewController.swift in Sources */,
+				2AD194AAFC8D4F2F80863F57 /* UserLoginScenariosView.swift in Sources */,
+				4C533EF55E5E4C8C9F92356F /* ControlMotion.swift in Sources */,
+				9A19FD523E244D39BFC48018 /* CameraPreviewView.swift in Sources */,
 				A7A946C556E92421398351EC /* UserLoginViewModel.swift in Sources */,
+				BC8231BB541F4514A55C1A8B /* UserAccountViewModel.swift in Sources */,
 
 				AED0F5F4E004E75635F16DDF /* UserLoginDraft.swift in Sources */,
 
@@ -925,6 +975,7 @@
 				CEFF0A08E9F38FE7C4B209E0 /* OnboardingRepository.swift in Sources */,
 
 				BB7B1C98C1280FBC8D9FFFBE /* HomeRepository.swift in Sources */,
+				0D1B106224F346A3A3540D3D /* CameraPreviewSession.swift in Sources */,
 
 				0F76EC8BCE85FC03742B9C6A /* UserDTO.swift in Sources */,
 				23914E8FA7C3BB547AFF7A67 /* AccountDTO.swift in Sources */,
@@ -948,12 +999,14 @@
 				B6CEC4DBFDCB5ABD5C478BE8 /* GenerationVideoPanel.swift in Sources */,
 				8AE2364A8A6CBAFE13319C39 /* GenerationWorkspaceView.swift in Sources */,
 				5B770C916864127B5715935A /* HomeCameraControlsView.swift in Sources */,
-				7DD3892CF0363949D2DC1D72 /* HomeErrorView.swift in Sources */,
+				7DD3892CF0363949D2DC1D72 /* HomeToastView.swift in Sources */,
 				46806423B5CCB6CE2636238C /* HomeFooterView.swift in Sources */,
 				F9F6B1F8886585EF47432290 /* HomeViewController.swift in Sources */,
 				94C5E5C5E77B7A9C9ACBFB3A /* OnboardingCheckerboardView.swift in Sources */,
 				3F480F0AB94795F00403BF76 /* OnboardingLandingView.swift in Sources */,
 				62BBF8A0DAB47DE0C69B7BB4 /* OnboardingSetupView.swift in Sources */,
+				E527DC19526C40BA8118BEC9 /* UserAccountPopoverView.swift in Sources */,
+				9C12CC5BEC5C4ADFB1DA9F13 /* UserCreditsPopoverView.swift in Sources */,
 				0B0EA34AE7D986BD7A75F08A /* UserAPIKeyView.swift in Sources */,
 				99B6573E67E21FA86FBDC3A3 /* VirtualCameraRepository.swift in Sources */,
 				6242D52E5ADEF6CCA9A58154 /* VirtualCameraOutput.swift in Sources */,

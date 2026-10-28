@@ -9,6 +9,7 @@
 //
 
 import AppKit
+import SnapKit
 
 /// A persistent overlay displaying one group of formatted generation metrics.
 final class GenerationStatisticsPanel: Canvas {
@@ -75,6 +76,7 @@ final class GenerationStatisticsPanel: Canvas {
             addSubview(value)
             labels.append((label, value))
         }
+        configureLayout()
         update(group)
     }
 
@@ -100,8 +102,9 @@ final class GenerationStatisticsPanel: Canvas {
                     weight: row.total ? .semibold : .regular,
                     color: .white.withAlphaComponent(0.9)
                 )
-                // A value can gain a digit without changing the panel's widest row.
-                needsLayout = true
+                pair.1.snp.updateConstraints { make in
+                    make.width.equalTo(max(64, ceil(pair.1.attributedStringValue.size().width)) + 4)
+                }
             }
             if pair.0.toolTip != row.help {
                 pair.0.toolTip = row.help
@@ -120,49 +123,40 @@ final class GenerationStatisticsPanel: Canvas {
         if panelWidth != ceil(width) {
             panelWidth = ceil(width)
             needsLayout = true
-            superview?.needsLayout = true
+            if superview != nil { snp.updateConstraints { make in make.width.equalTo(panelWidth) } }
         }
     }
 
-    /// Places metric labels and total-row dividers within the measured panel.
-    override func layout() {
-        super.layout()
-        var y: CGFloat = 8
+    /// Aligns metric rows and their native text baselines without assigning frames.
+    private func configureLayout() {
+        var previous: NSTextField?
         var dividerIndex = 0
-        for (row, pair) in zip(
-            rows,
-            labels
-        ) {
-            if row.total {
-                dividers[dividerIndex].frame = NSRect(
-                    x: 10,
-                    y: y + 5,
-                    width: bounds.width - 20,
-                    height: 1
-                )
-                dividerIndex += 1
-                y += 11
+        for (row, pair) in zip(rows, labels) {
+            pair.0.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(8)
+                make.trailing.equalTo(pair.1.snp.leading).offset(-12)
+                make.height.equalTo(16.5)
+                if let previous {
+                    make.top.equalTo(previous.snp.bottom).offset(row.total ? 11 : 0)
+                } else {
+                    make.top.equalToSuperview().offset(row.total ? 19 : 8)
+                }
             }
-            let valueWidth = max(
-                64,
-                ceil(
-                    pair.1.attributedStringValue.size().width
-                )
-            )
-            // Compensate for NSTextField's 2pt cell inset so the visible text matches the Web padding.
-            pair.0.frame = NSRect(
-                x: 8,
-                y: y,
-                width: bounds.width - 20 - valueWidth - 16 + 4,
-                height: 16.5
-            )
-            pair.1.frame = NSRect(
-                x: bounds.width - 10 - valueWidth - 2,
-                y: y,
-                width: valueWidth + 4,
-                height: 16.5
-            )
-            y += 16.5
+            pair.1.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().inset(8)
+                make.firstBaseline.equalTo(pair.0)
+                make.height.equalTo(16.5)
+                make.width.equalTo(max(64, ceil(pair.1.attributedStringValue.size().width)) + 4)
+            }
+            if row.total {
+                dividers[dividerIndex].snp.makeConstraints { make in
+                    make.leading.trailing.equalToSuperview().inset(10)
+                    make.top.equalTo(pair.0.snp.top).offset(-6)
+                    make.height.equalTo(1)
+                }
+                dividerIndex += 1
+            }
+            previous = pair.0
         }
     }
 }

@@ -11,7 +11,7 @@
 import AppKit
 import CoreText
 
-/// Light colors matching Web X-Lab.
+/// Shared light surfaces and blue accents for native product controls.
 enum Palette {
 
     /// The primary foreground color used by product labels and controls.
@@ -38,6 +38,14 @@ enum Palette {
         alpha: 1
     )
 
+    /// The lighter idle background used by native login inputs.
+    static let inputSurface = NSColor(
+        srgbRed: 0.985,
+        green: 0.987,
+        blue: 0.990,
+        alpha: 1
+    )
+
     /// The neutral border color used by input containers and upload controls.
     static let border = NSColor(
         srgbRed: 0.898,
@@ -46,7 +54,7 @@ enum Palette {
         alpha: 1
     )
 
-    /// The primary product accent color.
+    /// The product accent shared by primary actions, links, and focus indicators.
     static let accent = NSColor(
         srgbRed: 47 / 255,
         green: 70 / 255,
@@ -54,11 +62,19 @@ enum Palette {
         alpha: 1
     )
 
-    /// The accent color used while a primary action is hovered.
+    /// The deeper blue used while a primary action is hovered.
     static let accentHover = NSColor(
         srgbRed: 36 / 255,
         green: 56 / 255,
         blue: 196 / 255,
+        alpha: 1
+    )
+
+    /// The shared red foreground for stop actions and low-credit warnings.
+    static let destructive = NSColor(
+        srgbRed: 220 / 255,
+        green: 38 / 255,
+        blue: 38 / 255,
         alpha: 1
     )
 }

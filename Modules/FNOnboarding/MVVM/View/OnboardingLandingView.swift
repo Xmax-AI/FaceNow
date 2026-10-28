@@ -10,6 +10,8 @@
 
 import Factory
 import AppKit
+import SnapKit
+import AVFoundation
 
 /// Presents the initial camera-start experience without owning a generation session.
 @MainActor
@@ -18,8 +20,52 @@ final class OnboardingLandingView: Canvas {
     /// The first-launch content supplied by the module's data boundary.
     @Injected(\.onboardingRepo) private var onboardingRepo: OnboardingRepository
 
-    /// Notifies the home coordinator of an explicit Start click.
+    /// Notifies the home coordinator of an explicit Start Camera click.
     var onStart: (() -> Void)?
+
+    /// Reopens preparation from the persistent device-readiness reminder.
+    var onSetup: (() -> Void)?
+
+    /// Toggles physical camera preview without entering the generation workspace.
+    var onPreview: (() -> Void)?
+
+    /// The live camera surface behind all canvas actions.
+    private lazy var cameraPreview: CameraPreviewView = {
+        let view = CameraPreviewView()
+        view.isHidden = true
+        return view
+    }()
+
+    /// Dims the full live canvas while leaving its buttons above the overlay.
+    private lazy var previewOverlay: Canvas = {
+        let view = Canvas(color: .black.withAlphaComponent(0.4))
+        view.isHidden = true
+        return view
+    }()
+
+    /// Offers a secondary, translucent preview action beneath Start Camera.
+    private lazy var previewButton: Button = {
+        let view = Button("Preview", style: .plain)
+        view.font = Typography.font(size: 13, weight: .medium)
+        view.foregroundColor = .white
+        view.restingBackgroundColor = .black.withAlphaComponent(0.45)
+        view.hoverBackgroundColor = .black.withAlphaComponent(0.65)
+        view.cornerRadius = 18
+        view.showsShadow = false
+        view.onClick = { [weak self] in self?.onPreview?() }
+        return view
+    }()
+
+    /// Keeps missing permissions and unfinished preparation visible after the dialog is deferred.
+    private lazy var setupReminder: Button = {
+        let view = Button()
+        view.font = Typography.font(size: 12)
+        view.symbolName = "exclamationmark.circle"
+        view.iconSize = 14
+        view.showsShadow = false
+        view.onClick = { [weak self] in self?.onSetup?() }
+        return view
+    }()
 
     /// The scroll viewport width used for responsive typography and spacing.
     var viewportWidth: CGFloat = 1360 { didSet { needsLayout = true } }
@@ -35,7 +81,7 @@ final class OnboardingLandingView: Canvas {
         return view
     }()
 
-    /// The placeholder canvas containing the start action and legal links.
+    /// The placeholder canvas containing the start action and preview guidance.
     private lazy var checkerboard: OnboardingCheckerboardView = {
         let view = OnboardingCheckerboardView()
         return view
@@ -50,26 +96,20 @@ final class OnboardingLandingView: Canvas {
         )
         view.iconSize = 20
         view.iconSpacing = 10
+        view.disabledOpacity = 1
+        view.loadingOpacity = 0.65
         view.onClick = { [weak self] in self?.onStart?() }
         return view
     }()
 
-    /// The native text view retaining selectable terms and privacy links.
-    private lazy var terms: NSTextView = {
+    /// The selectable guidance beneath the Start Camera action.
+    private lazy var previewHint: NSTextView = {
         let view = NSTextView()
         view.isEditable = false
         view.isSelectable = true
         view.drawsBackground = false
         view.textContainerInset = .zero
         view.textContainer?.lineFragmentPadding = 0
-        view.linkTextAttributes = [
-            .foregroundColor: NSColor(
-                srgbRed: 0.765,
-                green: 0.776,
-                blue: 0.8,
-                alpha: 1
-            )
-        ]
         return view
     }()
 
@@ -88,13 +128,22 @@ final class OnboardingLandingView: Canvas {
     init() {
         super.init()
         [titleLabel, checkerboard, copyright].forEach(addSubview)
-        [startButton, terms].forEach(checkerboard.addSubview)
+        [cameraPreview, previewOverlay, setupReminder, startButton, previewButton, previewHint]
+            .forEach(checkerboard.addSubview)
+        configureLayout()
     }
 
     /// Storyboard decoding is unsupported for this programmatic view.
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
+
+    /// Shares the responsive canvas width between page measurement and actual layout.
+    private func preferredStageWidth(
+        contentWidth: CGFloat
+    ) -> CGFloat {
+        min(contentWidth, min(1040, max(640, viewportWidth * 0.55)))
+    }
 
     /// Measures the headline, video-shaped placeholder, and copyright line.
     func preferredHeight(
@@ -118,13 +167,13 @@ final class OnboardingLandingView: Canvas {
                 font: copyright.font!
             ).height
         )
-        let stageWidth = min(contentWidth, min(940, max(580, viewportWidth * 0.45)))
+        let stageWidth = preferredStageWidth(contentWidth: contentWidth)
         let stageHeight =
             stageWidth * CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
         return titleHeight + titleGap + stageHeight + 16 + copyrightHeight
     }
 
-    /// Reflects start availability without creating or opening a capture device.
+    /// Keeps unavailable starts clickable for coordinator feedback while blocking duplicate startup requests.
     func update(
         isStarting: Bool,
         canStart: Bool,
@@ -132,13 +181,87 @@ final class OnboardingLandingView: Canvas {
     ) {
         startButton.title = isStarting ? "Starting…" : "Start Camera"
         startButton.loading = isStarting
-        startButton.isEnabled = !isStarting && canStart
+        startButton.isEnabled = !isStarting
         startButton.toolTip = canStart ? "Start Camera" : unavailableMessage
+    }
+
+    /// Reflects live device preparation without dismissing the reminder on a timer.
+    func updatePreparation(
+        model: OnboardingFlowViewModel
+    ) {
+        setupReminder.title = model.reminder
+        setupReminder.toolTip = model.reminder
+        let ready = model.cameraReady && model.virtualCameraReady
+        setupReminder.symbolName = ready ? "checkmark.circle" : "exclamationmark.circle"
+        setupReminder.foregroundColor = !model.cameraReady ? .systemRed : ready ? .systemGreen : .systemOrange
+    }
+
+    /// Binds the local capture surface and reflects only the preview toggle's state.
+    func updatePreview(
+        session: AVCaptureSession,
+        isPreviewing: Bool,
+        isLoading: Bool,
+        isAvailable: Bool
+    ) {
+        cameraPreview.bind(session: session)
+        cameraPreview.isHidden = !isPreviewing
+        previewOverlay.isHidden = !isPreviewing
+        previewButton.loading = isLoading
+        previewButton.isEnabled = isAvailable && !isLoading
+        previewButton.toolTip = isPreviewing ? "Close camera preview" : "Open camera preview"
+        previewButton.setAccessibilityValue(isPreviewing ? "On" : "Off")
+    }
+
+    /// Installs the headline, ratio-constrained canvas, and centered startup controls once.
+    private func configureLayout() {
+        cameraPreview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        previewOverlay.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        previewButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(startButton.snp.bottom).offset(12)
+            make.width.equalTo(112)
+            make.height.equalTo(36)
+        }
+        titleLabel.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+            make.height.equalTo(40)
+        }
+        checkerboard.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(titleLabel.snp.bottom).offset(32)
+            make.width.equalTo(640)
+            make.height.equalTo(checkerboard.snp.width).multipliedBy(
+                CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
+            )
+        }
+        copyright.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(checkerboard.snp.bottom).offset(16)
+            make.height.equalTo(18)
+        }
+        startButton.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.equalTo(200)
+            make.height.equalTo(54)
+        }
+        setupReminder.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.top.equalToSuperview().offset(14)
+            make.height.equalTo(34)
+        }
+        previewHint.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(30)
+            make.height.equalTo(20)
+        }
     }
 
     /// Arranges the startup controls using the shared media aspect ratio.
     override func layout() {
-        super.layout()
+        guard bounds.width > 40 else {
+            super.layout()
+            return
+        }
         let titleSize = min(45, max(27, viewportWidth * 0.01 + 18))
         let titleGap = min(40, max(26, viewportWidth * 0.011 + 17))
         let paragraph = NSMutableParagraphStyle()
@@ -162,39 +285,31 @@ final class OnboardingLandingView: Canvas {
                 )
             ).height
         )
-        let stageWidth = min(bounds.width, min(940, max(580, viewportWidth * 0.45)))
-        let stageHeight =
-            stageWidth * CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
-        titleLabel.frame = NSRect(
-            x: 0,
-            y: 0,
-            width: bounds.width,
-            height: titleHeight
+        let stageWidth = preferredStageWidth(contentWidth: bounds.width)
+        titleLabel.snp.updateConstraints { make in make.height.equalTo(titleHeight) }
+        checkerboard.snp.updateConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(titleGap)
+            make.width.equalTo(stageWidth)
+        }
+        layoutStartControls(
+            viewportWidth: viewportWidth,
+            stageWidth: stageWidth
         )
-        checkerboard.frame = NSRect(
-            x: (bounds.width - stageWidth) / 2,
-            y: titleHeight + titleGap,
-            width: stageWidth,
-            height: stageHeight
-        )
-        layoutStartControls(viewportWidth: viewportWidth)
         let copyrightHeight = ceil(
             Typography.size(
                 copyright.stringValue,
                 font: copyright.font!
             ).height
         )
-        copyright.frame = NSRect(
-            x: 0,
-            y: checkerboard.frame.maxY + 16,
-            width: bounds.width,
-            height: copyrightHeight
-        )
+        copyright.snp.updateConstraints { make in make.height.equalTo(copyrightHeight) }
+        // Resolve the canvas and its children together using the current viewport dimensions.
+        super.layout()
     }
 
-    /// Centers the stable-width start button and lays out selectable legal links.
+    /// Centers the stable-width start button and lays out selectable preview guidance.
     private func layoutStartControls(
-        viewportWidth width: CGFloat
+        viewportWidth width: CGFloat,
+        stageWidth: CGFloat
     ) {
         let fontSize = min(18, max(15, width * 0.003 + 12))
         let smallSize = min(15, max(12, width * 0.0028 + 9.5))
@@ -226,16 +341,14 @@ final class OnboardingLandingView: Canvas {
             labelWidth + startButton.iconSize + startButton.iconSpacing + startButton.leadingPadding
                 + startButton.trailingPadding
         )
-        startButton.frame = NSRect(
-            x: (checkerboard.bounds.width - buttonWidth) / 2,
-            y: (checkerboard.bounds.height - buttonHeight) / 2,
-            width: buttonWidth,
-            height: buttonHeight
-        )
-        let text = onboardingRepo.agreement
+        startButton.snp.updateConstraints { make in
+            make.width.equalTo(buttonWidth)
+            make.height.equalTo(buttonHeight)
+        }
+        let text = onboardingRepo.previewHint
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
-        let attributed = NSMutableAttributedString(
+        let attributed = NSAttributedString(
             string: text,
             attributes: [
                 .font: Typography.font(size: smallSize), .paragraphStyle: paragraph,
@@ -247,33 +360,20 @@ final class OnboardingLandingView: Canvas {
                 ),
             ]
         )
-        attributed.addAttribute(
-            .link,
-            value: onboardingRepo.termsURL.absoluteString,
-            range: (text as NSString).range(of: "Terms of Use")
-        )
-        attributed.addAttribute(
-            .link,
-            value: onboardingRepo.privacyURL.absoluteString,
-            range: (text as NSString).range(of: "Privacy Policy")
-        )
-        let termsWidth = checkerboard.bounds.width - 40
-        let termsHeight = ceil(
+        let hintWidth = max(1, stageWidth - 40)
+        let hintHeight = ceil(
             attributed.boundingRect(
                 with: NSSize(
-                    width: termsWidth,
+                    width: hintWidth,
                     height: 100
                 ),
                 options: [.usesLineFragmentOrigin, .usesFontLeading]
             ).height
         )
-        terms.frame = NSRect(
-            x: 20,
-            y: checkerboard.bounds.height - 30 - termsHeight,
-            width: termsWidth,
-            height: termsHeight
-        )
-        if !terms.attributedString().isEqual(to: attributed) { terms.textStorage?.setAttributedString(attributed) }
+        previewHint.snp.updateConstraints { make in make.height.equalTo(hintHeight) }
+        if !previewHint.attributedString().isEqual(to: attributed) {
+            previewHint.textStorage?.setAttributedString(attributed)
+        }
     }
 
 }

@@ -10,6 +10,7 @@
 
 import Factory
 import AppKit
+import SnapKit
 
 /// Persistent extension installation controls, updated independently of the session page.
 @MainActor
@@ -104,11 +105,8 @@ final class OnboardingSetupView: Canvas {
     /// Creates setup actions without owning generation or initiating installation.
     init() {
         super.init()
-        frame.size = NSSize(
-            width: 376,
-            height: 220
-        )
         [heading, status, refresh, install, remove, openSettings, testVideo, spinner].forEach(addSubview)
+        configureLayout()
     }
 
     /// Storyboard decoding is unsupported for this programmatic component.
@@ -142,18 +140,8 @@ final class OnboardingSetupView: Canvas {
             waiting,
             color: Palette.secondary
         )
-        let buttons = actionButtons
-        let width = max(376, buttons.reduce(CGFloat(36)) { $0 + $1.preferredWidth } + CGFloat(buttons.count - 1) * 10)
-        if frame.width != width {
-            setFrameSize(
-                NSSize(
-                    width: width,
-                    height: frame.height
-                )
-            )
-        }
-        needsLayout = true
-        layoutSubtreeIfNeeded()
+        updateActionConstraints()
+        invalidateIntrinsicContentSize()
     }
 
     /// The currently available setup and optional diagnostic controls.
@@ -162,76 +150,72 @@ final class OnboardingSetupView: Canvas {
         return testVideo.isHidden ? setup : setup + [testVideo]
     }
 
-    /// Places the current status and visible actions within the measured setup popover.
-    override func layout() {
-        super.layout()
-        heading.frame = NSRect(
-            x: 18,
-            y: 23,
-            width: bounds.width - 84,
-            height: 24
-        )
-        refresh.frame = NSRect(
-            x: bounds.width - 48,
-            y: 18,
-            width: 30,
-            height: 30
-        )
-        spinner.frame = NSRect(
-            x: refresh.frame.midX - 8,
-            y: refresh.frame.midY - 8,
-            width: 16,
-            height: 16
-        )
-        var y: CGFloat = 64
-        place(
-            status,
-            at: &y
-        )
-        var x: CGFloat = 18
-        for button in actionButtons {
-            button.frame = NSRect(
-                x: x,
-                y: y,
-                width: button.preferredWidth,
-                height: 36
-            )
-            x = button.frame.maxX + 10
-        }
-        y += 36
-        let height = y + 18
-        if frame.height != height {
-            setFrameSize(
-                NSSize(
-                    width: frame.width,
-                    height: height
-                )
-            )
-        }
-    }
-
-    /// Measures and places a wrapping status label before the setup actions.
-    private func place(
-        _ label: NSTextField,
-        at y: inout CGFloat
-    ) {
-        let width = bounds.width - 36
-        let height = ceil(
-            label.cell?.cellSize(
+    /// Measures the popover boundary from content while child positions remain constrained.
+    override var intrinsicContentSize: NSSize {
+        let buttons = actionButtons
+        let width = max(376, buttons.reduce(CGFloat(36)) { $0 + $1.preferredWidth } + CGFloat(buttons.count - 1) * 10)
+        let textHeight = ceil(
+            status.cell?.cellSize(
                 forBounds: NSRect(
                     x: 0,
                     y: 0,
-                    width: width,
+                    width: width - 36,
                     height: .greatestFiniteMagnitude
                 )
             ).height ?? 20
         )
-        label.frame = NSRect(
-            x: 18,
-            y: y,
-            width: width,
-            height: height
-        )
-        y += height + 16
+        return NSSize(width: width, height: 134 + textHeight)
+    }
+
+    /// Tracks the visible action identities and status measurement without rebuilding unchanged rows.
+    private var actionSignature = ""
+
+    /// Installs the header and wrapping status above the action row.
+    private func configureLayout() {
+        heading.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(18)
+            make.top.equalToSuperview().offset(23)
+            make.trailing.lessThanOrEqualTo(refresh.snp.leading).offset(-18)
+            make.height.equalTo(24)
+        }
+        refresh.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(18)
+            make.top.equalToSuperview().offset(18)
+            make.size.equalTo(30)
+        }
+        spinner.snp.makeConstraints { make in
+            make.center.equalTo(refresh)
+            make.size.equalTo(16)
+        }
+        status.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(18)
+            make.top.equalToSuperview().offset(64)
+            make.height.equalTo(20)
+        }
+        updateActionConstraints()
+    }
+
+    /// Reflows only when wrapping status text or the visible actions actually change.
+    private func updateActionConstraints() {
+        let buttons = actionButtons
+        let signature = status.stringValue + buttons.map { "\($0.title):\($0.preferredWidth)" }.joined(separator: "|")
+        guard signature != actionSignature else { return }
+        actionSignature = signature
+        status.snp.updateConstraints { make in make.height.equalTo(intrinsicContentSize.height - 134) }
+        for button in [install, remove, openSettings, testVideo] { button.snp.removeConstraints() }
+        var previous: Button?
+        for button in buttons {
+            button.snp.makeConstraints { make in
+                make.top.equalTo(status.snp.bottom).offset(16)
+                make.height.equalTo(36)
+                make.width.equalTo(button.preferredWidth)
+                if let previous {
+                    make.leading.equalTo(previous.snp.trailing).offset(10)
+                } else {
+                    make.leading.equalToSuperview().offset(18)
+                }
+            }
+            previous = button
+        }
     }
 }

@@ -6,6 +6,8 @@
 //
 
 import AppKit
+import CoreText
+import SnapKit
 
 /// A rounded native input with shared colors, optional fixed prefix, and accessory space.
 @MainActor
@@ -14,21 +16,38 @@ final class InputField: Canvas {
     /// The noneditable leading text, kept outside the field's editable value.
     var prefix: String? {
         didSet {
+            guard prefix != oldValue else { return }
             prefixLabel.stringValue = prefix ?? ""
-            prefixLabel.isHidden = prefix == nil
-            separator.isHidden = prefix == nil
-            needsLayout = true
+            updatePrefixConstraints()
         }
     }
 
     /// The space reserved for a host-owned trailing action inside the input.
-    var trailingInset: CGFloat = 0 { didSet { needsLayout = true } }
+    var trailingInset: CGFloat = 0 {
+        didSet { editorTrailing?.update(inset: 20 + trailingInset) }
+    }
+
+    /// The host-selected editor font, also sizing the regular-weight fixed prefix.
+    var font: NSFont = Typography.font(size: 15) {
+        didSet {
+            textField.font = font
+            textField.currentEditor()?.font = font
+            prefixLabel.font = Typography.font(
+                size: font.pointSize,
+                weight: .regular
+            )
+            needsLayout = true
+        }
+    }
 
     /// Whether editing and the fixed-prefix presentation are enabled.
     var isEnabled = true {
         didSet {
             textField.isEnabled = isEnabled
-            alphaValue = isEnabled ? 1 : 0.55
+            ControlMotion.setOpacity(
+                isEnabled ? 1 : 0.55,
+                on: self
+            )
         }
     }
 
@@ -38,28 +57,65 @@ final class InputField: Canvas {
     /// The last focus state rendered by the shared input surface.
     private var focused = false
 
+    /// The editor's leading edge while no fixed prefix is shown.
+    private var plainLeading: Constraint?
+
+    /// The editor's leading edge after the visible prefix separator.
+    private var prefixedLeading: Constraint?
+
+    /// The trailing constraint reserves space for a host-owned accessory.
+    private var editorTrailing: Constraint?
+
+    /// The separator's inset from the prefix region's trailing edge, in points.
+    private let prefixSeparatorInset: CGFloat = 2
+
+    /// The last native-editor offset applied for matching visible spacing across the separator.
+    private var prefixEditorOffset: CGFloat?
+
+    /// The fixed prefix owns its horizontal padding independently of the editable value.
+    private lazy var prefixRegion: Canvas = {
+        let view = Canvas()
+        view.isHidden = true
+        return view
+    }()
+
     /// The native editor, whose delegate and accessibility label belong to the host.
     private(set) lazy var textField: NSTextField = {
-        let field = secure ? NSSecureTextField() : NSTextField()
+        let reportFocus: () -> Void = { [weak self] in self?.setFocused(true) }
+        let field: NSTextField
+        if secure {
+            let editor = FocusSecureTextField()
+            editor.onFocus = reportFocus
+            field = editor
+        } else {
+            let editor = FocusTextField()
+            editor.onFocus = reportFocus
+            field = editor
+        }
         field.isBordered = false
         field.isBezeled = false
         field.drawsBackground = false
         field.focusRingType = .none
-        field.font = Typography.font(size: 15)
+        field.font = font
         field.textColor = Palette.text
         return field
     }()
 
     /// The fixed prefix cannot receive text selection or keyboard edits.
-    private lazy var prefixLabel: NSTextField = {
-        let label = makeLabel(
-            size: 15,
-            weight: .medium
+    private lazy var prefixLabel: InputPrefixView = {
+        let label = InputPrefixView()
+        label.font = Typography.font(
+            size: font.pointSize,
+            weight: .regular
         )
-        label.isHidden = true
-        label.usesSingleLineMode = true
-        label.lineBreakMode = .byClipping
-        label.alignment = .center
+        label.setContentHuggingPriority(
+            .defaultHigh,
+            for: .horizontal
+        )
+        label.setContentCompressionResistancePriority(
+            .required,
+            for: .horizontal
+        )
         return label
     }()
 
@@ -76,12 +132,14 @@ final class InputField: Canvas {
     ) {
         self.secure = secure
         super.init(
-            color: Palette.surface,
-            radius: 14
+            color: Palette.inputSurface,
+            radius: 12
         )
         layer?.borderColor = Palette.border.cgColor
         layer?.borderWidth = 1
-        [textField, prefixLabel, separator].forEach(addSubview)
+        [textField, prefixRegion, separator].forEach(addSubview)
+        prefixRegion.addSubview(prefixLabel)
+        configureLayout()
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(editingBegan),
@@ -94,12 +152,6 @@ final class InputField: Canvas {
             name: NSControl.textDidEndEditingNotification,
             object: textField
         )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(synchronizeFocus),
-            name: NSWindow.didUpdateNotification,
-            object: nil
-        )
     }
 
     /// Storyboard decoding is unsupported for this programmatic component.
@@ -110,34 +162,61 @@ final class InputField: Canvas {
     /// Removes editing observations when this input is released.
     deinit { NotificationCenter.default.removeObserver(self) }
 
-    /// Centers the editor and reserves prefix and accessory space without changing its value.
+    /// Constrains the native editor and independent prefix region without assigning child frames.
+    private func configureLayout() {
+        prefixRegion.snp.makeConstraints { make in
+            make.leading.top.bottom.equalToSuperview()
+            make.width.greaterThanOrEqualTo(64)
+            make.width.equalTo(prefixLabel.snp.width).offset(32)
+        }
+        prefixLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.bottom.equalToSuperview()
+        }
+        separator.snp.makeConstraints { make in
+            // Tighten the trailing gap without shifting the country code's leading inset.
+            make.leading.equalTo(prefixRegion.snp.trailing).offset(-prefixSeparatorInset)
+            make.centerY.equalToSuperview()
+            make.width.equalTo(1)
+            make.height.equalTo(20)
+        }
+        textField.snp.makeConstraints { make in
+            plainLeading = make.leading.equalToSuperview().offset(20).constraint
+            editorTrailing = make.trailing.equalToSuperview().inset(20 + trailingInset).constraint
+            make.centerY.equalToSuperview()
+            make.top.greaterThanOrEqualToSuperview()
+            make.bottom.lessThanOrEqualToSuperview()
+        }
+        textField.snp.prepareConstraints { make in
+            prefixedLeading = make.leading.equalTo(separator.snp.trailing).offset(20).constraint
+        }
+        updatePrefixConstraints()
+    }
+
+    /// Matches the visible text gaps while accounting for the native cell's own horizontal inset.
     override func layout() {
         super.layout()
-        var leading: CGFloat = 20
-        if prefix != nil {
-            let width = max(76, ceil(prefixLabel.intrinsicContentSize.width) + 40)
-            let height = ceil(prefixLabel.intrinsicContentSize.height)
-            prefixLabel.frame = NSRect(
-                x: 0,
-                y: (bounds.height - height) / 2,
-                width: width,
-                height: height
-            )
-            separator.frame = NSRect(
-                x: prefixLabel.frame.maxX,
-                y: (bounds.height - 20) / 2,
-                width: 1,
-                height: 20
-            )
-            leading = separator.frame.maxX + 20
+        guard prefix != nil, prefixRegion.bounds.width > 0 else { return }
+        let prefixGap = (prefixRegion.bounds.width - prefixLabel.inkWidth) / 2 - prefixSeparatorInset
+        let cellInset = textField.cell?.drawingRect(forBounds: textField.bounds).minX ?? 0
+        let offset = max(0, prefixGap - cellInset)
+        guard prefixEditorOffset != offset else { return }
+        prefixEditorOffset = offset
+        prefixedLeading?.update(offset: offset)
+    }
+
+    /// Switches only the leading relationship when the host changes input mode.
+    private func updatePrefixConstraints() {
+        let showsPrefix = prefix != nil
+        prefixRegion.isHidden = !showsPrefix
+        separator.isHidden = !showsPrefix
+        if showsPrefix {
+            plainLeading?.deactivate()
+            prefixedLeading?.activate()
+        } else {
+            prefixedLeading?.deactivate()
+            plainLeading?.activate()
         }
-        let editorHeight = ceil(textField.intrinsicContentSize.height)
-        textField.frame = NSRect(
-            x: leading,
-            y: (bounds.height - editorHeight) / 2,
-            width: max(0, bounds.width - leading - 20 - trailingInset),
-            height: editorHeight
-        )
     }
 
     /// Lets the entire enabled input surface focus its native editor.
@@ -157,42 +236,121 @@ final class InputField: Canvas {
         setFocused(false)
     }
 
-    /// Includes focus changes that occur before the user types the first character.
-    @objc private func synchronizeFocus(
-        _ notification: Notification
-    ) {
-        guard let window, notification.object as? NSWindow === window else { return }
-        setFocused(textField.currentEditor() != nil)
-    }
-
     /// Animates focus colors from their current presentation so rapid focus changes stay smooth.
     private func setFocused(
         _ focused: Bool
     ) {
         guard self.focused != focused, let layer else { return }
         self.focused = focused
-        let visible = layer.presentation() ?? layer
-        let background = (focused ? NSColor.white : Palette.surface).cgColor
+        let background = (focused ? NSColor.white : Palette.inputSurface).cgColor
         let border = (focused ? Palette.accent.withAlphaComponent(0.6) : Palette.border).cgColor
         let width: CGFloat = focused ? 1.5 : 1
-        let transitions: [(String, Any?, Any)] = [
-            ("backgroundColor", visible.backgroundColor, background),
-            ("borderColor", visible.borderColor, border),
-            ("borderWidth", visible.borderWidth, width),
+        let transitions: [(String, Any)] = [
+            ("backgroundColor", background),
+            ("borderColor", border),
+            ("borderWidth", width),
         ]
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        layer.backgroundColor = background
-        layer.borderColor = border
-        layer.borderWidth = width
-        CATransaction.commit()
-        for (key, start, end) in transitions {
-            let animation = CABasicAnimation(keyPath: key)
-            animation.fromValue = start
-            animation.toValue = end
-            animation.duration = 0.3
-            animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            layer.add(animation, forKey: "InputField.\(key)")
+        for (key, value) in transitions {
+            ControlMotion.set(
+                value,
+                for: key,
+                on: layer,
+                in: self
+            )
         }
+    }
+}
+
+/// Centers the noneditable prefix's visible glyphs independently of native editor baseline metrics.
+@MainActor
+private final class InputPrefixView: Canvas {
+
+    /// The country code displayed without becoming part of the editable phone number.
+    var stringValue = "" {
+        didSet {
+            invalidateIntrinsicContentSize()
+            needsDisplay = true
+        }
+    }
+
+    /// The shared application font used for both measurement and drawing.
+    var font = Typography.font(size: 15, weight: .regular) {
+        didSet {
+            invalidateIntrinsicContentSize()
+            needsDisplay = true
+        }
+    }
+
+    /// The native text line preserves the bundled font's actual glyph shapes.
+    private var textLine: CTLine {
+        CTLineCreateWithAttributedString(
+            NSAttributedString(
+                string: stringValue,
+                attributes: [
+                    NSAttributedString.Key(kCTFontAttributeName as String): font,
+                    NSAttributedString.Key(kCTForegroundColorAttributeName as String): Palette.text.cgColor,
+                ]
+            )
+        )
+    }
+
+    /// The visible glyph width used to match the editor's spacing across the separator.
+    var inkWidth: CGFloat { CTLineGetBoundsWithOptions(textLine, .useGlyphPathBounds).width }
+
+    /// Supplies the glyph width to the prefix region's content and padding constraints.
+    override var intrinsicContentSize: NSSize {
+        let ink = CTLineGetBoundsWithOptions(textLine, .useGlyphPathBounds)
+        return NSSize(width: ceil(ink.width), height: ceil(ink.height))
+    }
+
+    /// Draws the actual glyph bounds at the region's optical center without a fixed offset.
+    override func draw(
+        _ dirtyRect: NSRect
+    ) {
+        guard let context = NSGraphicsContext.current?.cgContext, !stringValue.isEmpty else { return }
+        let line = textLine
+        let ink = CTLineGetBoundsWithOptions(line, .useGlyphPathBounds)
+        context.saveGState()
+        context.translateBy(x: 0, y: bounds.height)
+        context.scaleBy(x: 1, y: -1)
+        context.textMatrix = .identity
+        context.textPosition = CGPoint(x: bounds.midX - ink.midX, y: bounds.midY - ink.midY)
+        CTLineDraw(line, context)
+        context.restoreGState()
+    }
+
+    /// Passes pointer events through to the input surface and its native editor.
+    override func hitTest(
+        _ point: NSPoint
+    ) -> NSView? { nil }
+}
+
+/// Reports native focus before any text changes while retaining the normal field editor.
+@MainActor
+private final class FocusTextField: NSTextField {
+
+    /// Updates the surrounding input surface after native focus succeeds.
+    var onFocus: (() -> Void)?
+
+    /// Starts the input transition when the field gains keyboard focus.
+    override func becomeFirstResponder() -> Bool {
+        let accepted = super.becomeFirstResponder()
+        if accepted { onFocus?() }
+        return accepted
+    }
+}
+
+/// Keeps secure editing intact while reporting focus before a key is typed.
+@MainActor
+private final class FocusSecureTextField: NSSecureTextField {
+
+    /// Updates the surrounding input surface after native focus succeeds.
+    var onFocus: (() -> Void)?
+
+    /// Starts the input transition without changing secure field-editor behavior.
+    override func becomeFirstResponder() -> Bool {
+        let accepted = super.becomeFirstResponder()
+        if accepted { onFocus?() }
+        return accepted
     }
 }

@@ -9,6 +9,7 @@
 //
 
 import AppKit
+import SnapKit
 
 /// Only changes to item identity reload the collection; toolbar and statistics updates preserve cells.
 final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSCollectionViewDelegate {
@@ -66,6 +67,12 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
         )
         scroll.documentView = collection
         addSubview(scroll)
+        scroll.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        collection.snp.makeConstraints { make in
+            make.leading.top.equalTo(scroll.contentView)
+            make.width.equalTo(scroll.contentView)
+            make.height.equalTo(0).priority(490)
+        }
     }
 
     /// Storyboard decoding is unsupported for this programmatic component.
@@ -76,7 +83,6 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     /// Places the current reference content within the host-provided bounds.
     override func layout() {
         super.layout()
-        scroll.frame = bounds
         let width = scroll.contentSize.width
         let columns = max(1, Int((width + 14) / 90))
         let rows = (references.count + 1 + columns - 1) / columns
@@ -85,7 +91,7 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
             height: max(scroll.contentSize.height, CGFloat(rows) * 98 - 14)
         )
         if collection.frame.size != size {
-            collection.setFrameSize(size)
+            collection.snp.updateConstraints { make in make.height.equalTo(size.height).priority(490) }
             collection.collectionViewLayout?.invalidateLayout()
         }
     }
@@ -101,7 +107,10 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
         self.references = references
         self.selectedID = selectedID
         self.enabled = enabled
-        alphaValue = dimmed ? 0.35 : 1
+        ControlMotion.setOpacity(
+            dimmed ? 0.35 : 1,
+            on: self
+        )
         if changed {
             collection.reloadData()
             needsLayout = true

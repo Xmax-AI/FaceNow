@@ -10,10 +10,27 @@
 
 import Factory
 import AppKit
+import AVFoundation
+import SnapKit
 
 /// Native camera setup pills sharing the XLab header typography and button styling.
 @MainActor
 final class HomeCameraControlsView: Canvas {
+
+    /// Opens the preparation flow at a missing requirement or its first incomplete stage.
+    var onShowOnboarding: ((OnboardingRepository.Step?) -> Void)?
+
+    /// Reopens the preparation guide immediately to the left of physical camera selection.
+    private lazy var guideButton: Button = {
+        let view = Button("Setup Guide")
+        view.symbolName = "questionmark.circle"
+        view.font = Typography.font(size: 12)
+        view.iconSize = 15
+        view.toolTip = "How to use FaceNow in video calls"
+        view.setAccessibilityLabel("Open FaceNow setup guide")
+        view.onClick = { [weak self] in self?.onShowOnboarding?(nil) }
+        return view
+    }()
 
     /// The session owner supplying physical camera choices and setup restrictions.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
@@ -67,7 +84,20 @@ final class HomeCameraControlsView: Canvas {
     /// Creates the camera-selection and onboarding entry points for the shared state owners.
     init() {
         super.init()
-        [cameraButton, extensionButton].forEach(addSubview)
+        [guideButton, cameraButton, extensionButton].forEach(addSubview)
+        guideButton.snp.makeConstraints { make in
+            make.leading.top.bottom.equalToSuperview()
+            make.width.equalTo(guideButton.preferredWidth)
+        }
+        cameraButton.snp.makeConstraints { make in
+            make.leading.equalTo(guideButton.snp.trailing).offset(12)
+            make.top.bottom.equalToSuperview()
+            make.width.equalTo(cameraWidth)
+        }
+        extensionButton.snp.makeConstraints { make in
+            make.leading.equalTo(cameraButton.snp.trailing).offset(12)
+            make.top.bottom.trailing.equalToSuperview()
+        }
         update()
     }
 
@@ -80,7 +110,7 @@ final class HomeCameraControlsView: Canvas {
     private var cameraWidth: CGFloat { min(150 + 16 + 8 + 14 + 30, cameraButton.preferredWidth) }
 
     /// The combined setup-control width including the gap between the pills.
-    var preferredWidth: CGFloat { cameraWidth + 12 + extensionButton.preferredWidth }
+    var preferredWidth: CGFloat { guideButton.preferredWidth + 12 + cameraWidth + 12 + extensionButton.preferredWidth }
 
     /// Receives the parent's coalesced state updates without rebuilding the setup controls.
     func update() {
@@ -94,7 +124,7 @@ final class HomeCameraControlsView: Canvas {
             sessionActive: generationRepo.sessionActive
         )
         if popover?.isShown == true, pickerContent == nil {
-            popover?.contentSize = settings.frame.size
+            popover?.contentSize = settings.intrinsicContentSize
         }
         if popover?.isShown == true, pickerContent != nil {
             if generationRepo.settingsLocked { closePopover() } else { updateCameraPicker() }
@@ -104,19 +134,8 @@ final class HomeCameraControlsView: Canvas {
 
     /// Places the camera selection and virtual-camera setup pills on the same row.
     override func layout() {
+        cameraButton.snp.updateConstraints { make in make.width.equalTo(cameraWidth) }
         super.layout()
-        cameraButton.frame = NSRect(
-            x: 0,
-            y: 0,
-            width: cameraWidth,
-            height: bounds.height
-        )
-        extensionButton.frame = NSRect(
-            x: cameraWidth + 12,
-            y: 0,
-            width: extensionButton.preferredWidth,
-            height: bounds.height
-        )
     }
 
     /// Dismisses camera setup and releases its transient device-list view.
@@ -136,7 +155,7 @@ final class HomeCameraControlsView: Canvas {
         let popover = NSPopover()
         popover.behavior = .transient
         popover.contentViewController = viewController
-        popover.contentSize = content.frame.size
+        popover.contentSize = content.fittingSize
         self.popover = popover
         popover.show(
             relativeTo: button.bounds,
@@ -148,8 +167,12 @@ final class HomeCameraControlsView: Canvas {
     /// Refreshes physical inputs or opens onboarding when the virtual camera is unavailable.
     private func showCameras() {
         guard !generationRepo.settingsLocked else { return }
+        guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else {
+            onShowOnboarding?(.camera)
+            return
+        }
         guard virtualCameraRepo.canStartSession else {
-            showExtensionSettings()
+            onShowOnboarding?(.virtualCamera)
             return
         }
         closePopover()
@@ -171,7 +194,7 @@ final class HomeCameraControlsView: Canvas {
         guard signature != pickerSignature || content.subviews.isEmpty else { return }
         pickerSignature = signature
         content.subviews.forEach { $0.removeFromSuperview() }
-        var y: CGFloat = 8
+        var previous: NSView?
         for camera in generationRepo.cameras {
             let option = Button(
                 camera.name + (camera.id == generationRepo.cameraID ? "  ✓" : ""),
@@ -179,44 +202,45 @@ final class HomeCameraControlsView: Canvas {
             )
             option.selected = camera.id == generationRepo.cameraID
             option.toolTip = camera.name
-            option.frame = NSRect(
-                x: 8,
-                y: y,
-                width: 260,
-                height: 34
-            )
             option.onClick = { [weak self] in
                 guard let self, !self.generationRepo.settingsLocked else { return }
                 self.generationRepo.cameraID = camera.id
                 self.closePopover()
             }
             content.addSubview(option)
-            y += 36
+            option.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(8)
+                make.height.equalTo(34)
+                if let previous {
+                    make.top.equalTo(previous.snp.bottom).offset(2)
+                } else {
+                    make.top.equalToSuperview().offset(8)
+                }
+            }
+            previous = option
         }
-        if generationRepo.cameras.isEmpty {
-            let label = makeLabel(
-                "No cameras found",
-                size: 12,
-                color: Palette.secondary
-            )
-            label.frame = NSRect(
-                x: 16,
-                y: y + 8,
-                width: 244,
-                height: 20
-            )
+        if previous == nil {
+            let label = makeLabel("No cameras found", size: 12, color: Palette.secondary)
             content.addSubview(label)
-            y += 36
+            label.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(16)
+                make.top.equalToSuperview().offset(16)
+                make.height.equalTo(20)
+            }
+            previous = label
         }
-        content.frame.size = NSSize(
-            width: 276,
-            height: y + 6
-        )
-        popover?.contentSize = content.frame.size
+        previous?.snp.makeConstraints { make in make.bottom.equalToSuperview().inset(8) }
+        content.snp.remakeConstraints { make in make.width.equalTo(276) }
+        popover?.contentSize = content.fittingSize
     }
 
     /// Opens the onboarding setup view and requests a fresh extension-state query.
     private func showExtensionSettings() {
+        if !virtualCameraRepo.canStartSession, onShowOnboarding != nil {
+            closePopover()
+            onShowOnboarding?(.virtualCamera)
+            return
+        }
         closePopover()
         settings.update(
             settingsLocked: generationRepo.settingsLocked,

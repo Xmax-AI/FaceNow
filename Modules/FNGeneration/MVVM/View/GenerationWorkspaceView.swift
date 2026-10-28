@@ -10,6 +10,7 @@
 
 import Factory
 import AppKit
+import SnapKit
 import UniformTypeIdentifiers
 import XmaxSDK
 
@@ -97,7 +98,6 @@ final class GenerationWorkspaceView: Canvas {
         view.drawsBackground = false
         view.isVerticallyResizable = true
         view.isHorizontallyResizable = false
-        view.autoresizingMask = [.width]
         view.textContainerInset = .zero
         view.textContainer?.lineFragmentPadding = 0
         view.textContainer?.widthTracksTextView = true
@@ -240,80 +240,65 @@ final class GenerationWorkspaceView: Canvas {
         freeReference.thumbnail.cancel()
     }
 
-    /// Applies the shared video ratio and the current editor dimensions.
-    override func layout() {
-        super.layout()
-        let contentWidth = bounds.width
-        let panelWidth = (contentWidth - 24) / 2
-        let panelHeight =
-            panelWidth * CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
-        localPanel.frame = NSRect(
-            x: 0,
-            y: 0,
-            width: panelWidth,
-            height: panelHeight
-        )
-        resultPanel.frame = NSRect(
-            x: panelWidth + 24,
-            y: 0,
-            width: panelWidth,
-            height: panelHeight
-        )
-        let tabWidth = min(contentWidth, tabs.preferredWidth)
-        tabs.frame = NSRect(
-            x: (contentWidth - tabWidth) / 2,
-            y: panelHeight + 34,
-            width: tabWidth,
-            height: 42
-        )
-        let listY = tabs.frame.maxY + 28
-        for list in lists.values {
-            list.frame = NSRect(
-                x: 0,
-                y: listY,
-                width: contentWidth,
-                height: 190
+    /// Keeps panels, tabs, references, and prompt controls in one persistent constraint graph.
+    private func configureLayout() {
+        localPanel.snp.makeConstraints { make in
+            make.leading.top.equalToSuperview()
+            make.trailing.equalTo(resultPanel.snp.leading).offset(-24)
+            make.width.equalTo(resultPanel)
+            make.height.equalTo(localPanel.snp.width).multipliedBy(
+                CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
             )
         }
-        let promptWidth = min(contentWidth, 880)
-        promptContainer.frame = NSRect(
-            x: (contentWidth - promptWidth) / 2,
-            y: listY + 4,
-            width: promptWidth,
-            height: 160
-        )
-        let promptPadding: CGFloat = 18
-        let promptHeight: CGFloat = 96 - promptPadding
-        promptScroll.frame = NSRect(
-            x: promptPadding,
-            y: promptPadding,
-            width: promptWidth - 2 * promptPadding,
-            height: promptHeight
-        )
-        promptEditor.setFrameSize(
-            NSSize(
-                width: promptScroll.contentSize.width,
-                height: max(promptHeight, promptEditor.frame.height)
-            )
-        )
-        freeReference.frame = NSRect(
-            x: promptWidth - 110,
-            y: 104,
-            width: 44,
-            height: 44
-        )
-        removeReference.frame = NSRect(
-            x: promptWidth - 88,
-            y: 92,
-            width: 32,
-            height: 32
-        )
-        submitButton.frame = NSRect(
-            x: promptWidth - 56,
-            y: 104,
-            width: 44,
-            height: 44
-        )
+        resultPanel.snp.makeConstraints { make in
+            make.trailing.top.equalToSuperview()
+            make.height.equalTo(localPanel)
+        }
+        tabs.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(localPanel.snp.bottom).offset(34)
+            make.width.lessThanOrEqualToSuperview()
+            make.width.equalTo(tabs.preferredWidth).priority(490)
+            make.height.equalTo(42)
+        }
+        for list in lists.values {
+            list.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.top.equalTo(tabs.snp.bottom).offset(28)
+                make.height.equalTo(190)
+            }
+        }
+        promptContainer.snp.makeConstraints { make in
+            // A preferred fill width must yield before AppKit's window-size priority, including while hidden.
+            make.centerX.equalToSuperview()
+            make.top.equalTo(tabs.snp.bottom).offset(32)
+            make.width.equalToSuperview().priority(490)
+            make.width.lessThanOrEqualTo(880)
+            make.height.equalTo(160)
+        }
+        promptScroll.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview().inset(18)
+            make.height.equalTo(78)
+        }
+        promptEditor.snp.makeConstraints { make in
+            make.leading.top.equalTo(promptScroll.contentView)
+            make.width.equalTo(promptScroll.contentView)
+            make.height.greaterThanOrEqualTo(promptScroll.contentView)
+        }
+        submitButton.snp.makeConstraints { make in
+            make.trailing.bottom.equalToSuperview().inset(12)
+            make.size.equalTo(44)
+        }
+        freeReference.snp.makeConstraints { make in
+            make.trailing.equalTo(submitButton.snp.leading).offset(-10)
+            make.centerY.equalTo(submitButton)
+            make.size.equalTo(44)
+        }
+        removeReference.snp.makeConstraints { make in
+            make.leading.equalTo(freeReference.snp.leading).offset(22)
+            make.top.equalTo(freeReference.snp.top).offset(-12)
+            make.size.equalTo(32)
+        }
     }
 
     /// Builds persistent generation controls and binds their mode-specific actions.
@@ -334,6 +319,7 @@ final class GenerationWorkspaceView: Canvas {
         [promptScroll, freeReference, removeReference, submitButton].forEach(promptContainer.addSubview)
         // Keep a 32pt hit area around the smaller 20pt circular background.
         removeReference.isBordered = true
+        configureLayout()
     }
 
     /// Opens a single-image picker and forwards the selected security-scoped file for upload.

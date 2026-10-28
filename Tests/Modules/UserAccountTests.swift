@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import Moya
 import XCTest
@@ -7,6 +8,77 @@ import Storage
 
 @MainActor
 final class UserAccountTests: XCTestCase {
+
+    func testVerifiedAPIKeyCanLoadCreditsWithoutChangingGenerationCredential() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+            "/open/api/v1/points/balance": #"{"success":true,"code":200,"data":{"currentBalance":1250.75}}"#,
+        ])
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        XCTAssertNil(context.account.remainingCredits)
+        await context.account.refreshCredits()
+        XCTAssertEqual(context.account.remainingCredits, 1250.75)
+        XCTAssertEqual(context.account.apiKey, activeAPIKey)
+        XCTAssertNil(context.account.creditsErrorMessage)
+        XCTAssertFalse(context.account.isLoadingCredits)
+        try await context.account.signOut()
+        XCTAssertNil(context.account.remainingCredits)
+    }
+
+    func testUnavailableBalanceDoesNotBecomeZeroOrInvalidateAnOtherwiseValidAccount() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+            "/open/api/v1/points/balance": #"{"success":false,"code":503,"message":"Try later","data":null}"#,
+        ])
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        await context.account.refreshCredits()
+        XCTAssertNil(context.account.remainingCredits)
+        XCTAssertEqual(context.account.creditsErrorMessage, "Try later")
+        XCTAssertTrue(context.account.canAccessHome)
+        let model = UserAccountViewModel(user: context.account)
+        XCTAssertEqual(model.creditsText, "—")
+        XCTAssertTrue(model.creditsHelp.contains("unavailable"))
+    }
+
+    func testLateBalanceCannotRepopulateASignedOutAccount() async throws {
+        let context = makeContext(
+            routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": apiKeyProfileResponse,
+                "/open/api/v1/points/balance": #"{"success":true,"code":200,"data":{"currentBalance":999}}"#,
+            ],
+            delay: 0.08
+        )
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        let refresh = _Concurrency.Task { await context.account.refreshCredits() }
+        try await _Concurrency.Task.sleep(for: .milliseconds(10))
+        try await context.account.signOut()
+        await refresh.value
+        XCTAssertNil(context.account.remainingCredits)
+        XCTAssertNil(context.account.creditsErrorMessage)
+        XCTAssertFalse(context.account.isLoadingCredits)
+        XCTAssertFalse(context.account.canAccessHome)
+    }
+
+    func testProfileProvidesTextAvatarAndConfirmedZeroIsDisplayed() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/info": #"{"success":true,"code":200,"data":{"uid":"user","phone":"13800000042"}}"#,
+            "/baas/api/user/apikey/list": keysResponse,
+            "/open/api/v1/points/balance": #"{"success":true,"code":200,"data":{"currentBalance":0}}"#,
+        ])
+        defer { context.cleanup() }
+        context.store.value = "test-session"
+        await context.account.restore()
+        await context.account.refreshCredits()
+        let model = UserAccountViewModel(user: context.account)
+        XCTAssertEqual(model.avatarText, "13")
+        XCTAssertEqual(model.creditsText, "0")
+    }
 
     func testSavedSDKKeyAloneNeverGrantsHomeAccess() async {
         let context = makeContext(routes: [:])
@@ -31,10 +103,24 @@ final class UserAccountTests: XCTestCase {
         XCTAssertNil(context.store.value)
     }
 
-    func testAPIKeySignInRequiresAnActiveRecordAndPublishesItsVerifiedOwner() async throws {
-        let context = makeContext(routes: ["/baas/api/user/apikey/list": activeAPIKeyResponse])
+    func testAPIKeySignInRequiresAnActiveRecordAndPublishesItsFetchedProfile() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+        ])
         defer { context.cleanup() }
+        var signInCount = 0
+        let observation = context.account.signInCompleted.sink {
+            signInCount += 1
+            XCTAssertEqual(context.account.profile?.nickname, "Test account")
+            XCTAssertEqual(context.store.value, self.activeAPIKey)
+            XCTAssertTrue(context.account.canAccessHome)
+        }
+        defer { observation.cancel() }
         try await context.account.signIn(apiKey: "  \(activeAPIKey)\n")
+        XCTAssertEqual(signInCount, 1)
+        XCTAssertEqual(context.account.profile?.email, "test@example.invalid")
+        XCTAssertEqual(context.account.displayName, "Test account")
         XCTAssertTrue(context.account.canAccessHome)
         XCTAssertEqual(
             context.account.profile?.uid,
@@ -52,6 +138,57 @@ final class UserAccountTests: XCTestCase {
             context.account.keys.count,
             1
         )
+    }
+
+    func testAPIKeyProfileFailureCannotCommitSessionOrEmitSuccess() async {
+        let responses = [
+            #"{"success":false,"code":503,"message":"Try later","data":null}"#,
+            #"{"success":false,"code":401,"message":"Unauthorized","data":null}"#,
+            #"{"success":true,"code":200,"data":null}"#,
+            #"{"success":true,"code":200,"data":{"nickname":"Missing identity"}}"#,
+            #"{"success":true,"code":200,"data":{"uid":"another-user"}}"#,
+        ]
+        for response in responses {
+            let context = makeContext(routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": response,
+            ])
+            defer { context.cleanup() }
+            var signInCount = 0
+            let observation = context.account.signInCompleted.sink { signInCount += 1 }
+            defer { observation.cancel() }
+            do {
+                try await context.account.signIn(apiKey: activeAPIKey)
+                XCTFail("Expected profile validation to fail")
+            } catch {}
+            XCTAssertFalse(context.account.canAccessHome)
+            XCTAssertFalse(context.account.isBusy)
+            XCTAssertNil(context.account.profile)
+            XCTAssertNil(context.store.value)
+            XCTAssertTrue(context.account.keys.isEmpty)
+            XCTAssertEqual(context.account.apiKey, "")
+            XCTAssertEqual(signInCount, 0)
+        }
+    }
+
+    func testAPIKeyProfileFailureDuringRestorationKeepsHomeClosed() async {
+        for unauthorized in [false, true] {
+            let response = unauthorized
+                ? #"{"success":false,"code":401,"message":"Unauthorized","data":null}"#
+                : #"{"success":false,"code":503,"message":"Try later","data":null}"#
+            let context = makeContext(routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": response,
+            ])
+            defer { context.cleanup() }
+            context.store.value = activeAPIKey
+            await context.account.restore()
+            XCTAssertFalse(context.account.canAccessHome)
+            XCTAssertFalse(context.account.isRestoring)
+            XCTAssertNil(context.account.profile)
+            XCTAssertEqual(context.store.value, unauthorized ? nil : activeAPIKey)
+            XCTAssertNotNil(context.account.errorMessage)
+        }
     }
 
     func testRejectedAPIKeyCannotPersistCredentialsOrGrantHomeAccess() async {
@@ -111,7 +248,10 @@ final class UserAccountTests: XCTestCase {
 
     func testAPIKeyRestorationMustRevalidateBeforeOpeningHome() async throws {
         let context = makeContext(
-            routes: ["/baas/api/user/apikey/list": activeAPIKeyResponse],
+            routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": apiKeyProfileResponse,
+            ],
             delay: 0.05
         )
         defer { context.cleanup() }
@@ -146,7 +286,10 @@ final class UserAccountTests: XCTestCase {
 
     func testLateAPIKeyVerificationCannotRecreateASignedOutSession() async throws {
         let context = makeContext(
-            routes: ["/baas/api/user/apikey/list": activeAPIKeyResponse],
+            routes: [
+                "/baas/api/user/apikey/list": activeAPIKeyResponse,
+                "/baas/api/user/info": apiKeyProfileResponse,
+            ],
             delay: 0.08
         )
         defer { context.cleanup() }
@@ -169,6 +312,10 @@ final class UserAccountTests: XCTestCase {
                 repeating: "a",
                 count: 20
             )
+    }
+
+    private var apiKeyProfileResponse: String {
+        #"{"success":true,"code":200,"data":{"uid":"api-key-user","nickname":"Test account","email":"test@example.invalid"}}"#
     }
 
     private var activeAPIKeyResponse: String {

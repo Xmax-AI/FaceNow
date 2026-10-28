@@ -9,6 +9,7 @@
 //
 
 import AppKit
+import SnapKit
 
 /// Native buttons retain their identity, loading animation, keyboard focus, and target action.
 final class Button: NSButton {
@@ -77,26 +78,66 @@ final class Button: NSButton {
     /// Shrinks the visible background without reducing the control's hit area.
     var backgroundInset: CGFloat = 0 { didSet { needsDisplay = true } }
 
+    /// An optional compact corner radius; nil preserves the role's original capsule shape.
+    var cornerRadius: CGFloat? { didSet { needsDisplay = true } }
+
     /// Whether the control's current visual role may draw a shadow.
     var showsShadow = true { didSet { needsDisplay = true } }
 
+    /// Scales the shadow's opacity, blur radius, and offset for a more restrained appearance.
+    var shadowScale: CGFloat = 1 { didSet { needsDisplay = true } }
+
     /// An explicit foreground override for a specialized control.
-    var foregroundColor: NSColor?
+    var foregroundColor: NSColor? { didSet { needsDisplay = true } }
+
+    /// An optional hover fill for plain actions, using the shared appearance transition.
+    var hoverBackgroundColor: NSColor? { didSet { needsDisplay = true } }
+
+    /// An optional resting fill for plain actions, using the shared appearance transition.
+    var restingBackgroundColor: NSColor? { didSet { needsDisplay = true } }
 
     /// Whether an activity ring replaces the control's glyph.
     var loading = false { didSet { updateLoading() } }
 
     /// Whether the control presents information without invoking an action.
-    var passive = false
+    var passive = false { didSet { updateOpacity() } }
+
+    /// The host-selected opacity for a disabled control without an active loading indicator.
+    var disabledOpacity: CGFloat = 0.5 { didSet { updateOpacity() } }
+
+    /// The host-selected opacity while the activity indicator is visible.
+    var loadingOpacity: CGFloat = 1 { didSet { updateOpacity() } }
 
     /// The action invoked when the user activates this control.
     var onClick: (() -> Void)?
+
+    /// Reports pointer entry and exit without exposing the button's drawing state.
+    var onHoverChanged: ((Bool) -> Void)?
 
     /// Whether the pointer is currently inside the control.
     private var hovered = false
 
     /// The current visible-bounds tracking area.
     private var hoverArea: NSTrackingArea?
+
+    /// The appearance visible when the latest interaction transition began.
+    private var transitionStart: ButtonVisualState?
+
+    /// The latest destination; repeated state refreshes do not restart its animation.
+    private var transitionTarget: ButtonVisualState?
+
+    /// Native animation updates the custom drawing without replacing the button or its content.
+    @objc dynamic private var appearanceProgress: CGFloat = 1 {
+        didSet { needsDisplay = true }
+    }
+
+    /// Supplies native interpolation for the custom-drawn control appearance.
+    override class func defaultAnimation(
+        forKey key: NSAnimatablePropertyKey
+    ) -> Any? {
+        if key == "appearanceProgress" { return CABasicAnimation() }
+        return super.defaultAnimation(forKey: key)
+    }
 
     /// The lazily created loading ring retained across state updates.
     private lazy var spinner: Spinner = {
@@ -110,7 +151,7 @@ final class Button: NSButton {
     /// The native enabled state whose appearance also accounts for loading and passive presentation.
     override var isEnabled: Bool {
         didSet {
-            alphaValue = isEnabled || loading || passive ? 1 : 0.5
+            updateOpacity()
             needsDisplay = true
         }
     }
@@ -129,6 +170,7 @@ final class Button: NSButton {
         self.onClick = action
         isBordered = false
         setButtonType(.momentaryPushIn)
+        alignment = .center
         font = Typography.font(size: 13)
         if style == .plain {
             leadingPadding = 0
@@ -138,6 +180,11 @@ final class Button: NSButton {
         self.action = #selector(invoke)
         wantsLayer = true
         addSubview(spinner)
+        spinner.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.size.equalTo(iconSize)
+        }
         spinner.isHidden = true
     }
 
@@ -168,6 +215,7 @@ final class Button: NSButton {
     ) {
         hovered = true
         needsDisplay = true
+        onHoverChanged?(true)
     }
 
     /// Clears hover presentation when the pointer leaves the control.
@@ -176,20 +224,14 @@ final class Button: NSButton {
     ) {
         hovered = false
         needsDisplay = true
+        onHoverChanged?(false)
     }
 
     /// The effective foreground color for the current role, selection, and pointer state.
     private var foreground: NSColor {
         if let foregroundColor { return foregroundColor }
         if style == .primary { return .white }
-        if style == .destructive {
-            return NSColor(
-                srgbRed: 220 / 255,
-                green: 38 / 255,
-                blue: 38 / 255,
-                alpha: 1
-            )
-        }
+        if style == .destructive { return Palette.destructive }
         if selected && style == .statistics { return Palette.accent }
         if selected && style == .interpolation {
             return NSColor(
@@ -219,9 +261,44 @@ final class Button: NSButton {
             loading,
             color: foreground
         )
-        alphaValue = isEnabled || loading || passive ? 1 : 0.5
+        updateOpacity()
         needsDisplay = true
         needsLayout = true
+    }
+
+    /// Blends availability while applying the native interaction state immediately.
+    private func updateOpacity() {
+        ControlMotion.setOpacity(
+            loading ? min(1, max(0, loadingOpacity)) : isEnabled || passive ? 1 : min(1, max(0, disabledOpacity)),
+            on: self
+        )
+        needsDisplay = true
+    }
+
+    /// Retargets colors and shadows from the last visible appearance, including rapid reversals.
+    private func visualState(
+        for target: ButtonVisualState
+    ) -> ButtonVisualState {
+        if transitionTarget != target {
+            let visible =
+                transitionStart?.blended(
+                    toward: transitionTarget ?? target,
+                    progress: appearanceProgress
+                ) ?? target
+            let animated = transitionTarget != nil && ControlMotion.isAnimated(in: self)
+            transitionStart = visible
+            transitionTarget = target
+            appearanceProgress = animated ? 0 : 1
+            if animated {
+                ControlMotion.animate(in: self) {
+                    animator().appearanceProgress = 1
+                }
+            }
+        }
+        return transitionStart?.blended(
+            toward: target,
+            progress: appearanceProgress
+        ) ?? target
     }
 
     /// Measures the label and icon with the Web component's explicit padding.
@@ -250,7 +327,15 @@ final class Button: NSButton {
             ).width
         )
         let total = iconWidth + textWidth
-        let x = leadingPadding + (bounds.width - leadingPadding - trailingPadding - total) / 2
+        let x: CGFloat
+        switch alignment {
+        case .left:
+            x = leadingPadding
+        case .right:
+            x = bounds.width - trailingPadding - total
+        default:
+            x = leadingPadding + (bounds.width - leadingPadding - trailingPadding - total) / 2
+        }
         return (
             NSRect(
                 x: x,
@@ -269,8 +354,12 @@ final class Button: NSButton {
 
     /// Places the retained activity ring at the measured icon position.
     override func layout() {
+        let iconRect = contentFrames().0
+        spinner.snp.updateConstraints { make in
+            make.leading.equalToSuperview().offset(iconRect.minX)
+            make.size.equalTo(iconSize)
+        }
         super.layout()
-        spinner.frame = contentFrames().0
     }
 
     /// Draws the button's current background, border, shadow, icon, and title.
@@ -281,10 +370,11 @@ final class Button: NSButton {
             dx: backgroundInset + 0.5,
             dy: backgroundInset + 0.5
         )
+        let radius = min(rect.height / 2, max(0, cornerRadius ?? rect.height / 2))
         let path = NSBezierPath(
             roundedRect: rect,
-            xRadius: rect.height / 2,
-            yRadius: rect.height / 2
+            xRadius: radius,
+            yRadius: radius
         )
         let hot = hovered && isEnabled && !passive
         var top = NSColor.white
@@ -370,7 +460,8 @@ final class Button: NSButton {
             bottom = top
             border = .clear
         case .plain:
-            top = .white.withAlphaComponent(0)
+            let fill = restingBackgroundColor ?? .clear
+            top = hot ? hoverBackgroundColor ?? fill : fill
             bottom = top
             border = .clear
         default: break
@@ -382,54 +473,71 @@ final class Button: NSButton {
                     of: .black
                 ) ?? bottom
         }
+        let outlined =
+            style == .pill || style == .volume || style == .destructive
+            || (!selected && (style == .statistics || style == .interpolation))
+        let flat =
+            style == .plain || (style == .tab && !selected)
+            || (selected && (style == .statistics || style == .interpolation))
+        let visual = visualState(
+            for: ButtonVisualState(
+                top: top,
+                bottom: bottom,
+                border: border,
+                foreground: foreground,
+                highlightOpacity: outlined ? 0.6 : 0,
+                shadowColor: style == .primary ? Palette.accent : .black,
+                shadowOpacity: shadowScale
+                    * (!showsShadow || flat ? 0 : style == .primary ? 0.35 : style == .tab ? 0.1 : hot ? 0.08 : 0.05),
+                shadowRadius: shadowScale * (style == .primary ? 15 : style == .tab ? 4 : hot ? 8 : 6),
+                shadowOffset: shadowScale * (style == .primary ? 10 : style == .tab ? 2 : hot ? 6 : 4)
+            )
+        )
         NSGradient(
-            starting: top,
-            ending: bottom
+            starting: visual.top,
+            ending: visual.bottom
         )?.draw(
             in: path,
             angle: 90
         )
-        if style == .pill || style == .volume || style == .destructive
-            || (!selected && (style == .statistics || style == .interpolation))
-        {
+        if visual.highlightOpacity > 0 {
             let highlight = NSBezierPath(
                 roundedRect: rect.insetBy(
                     dx: 1,
                     dy: 1
                 ),
-                xRadius: rect.height / 2 - 1,
-                yRadius: rect.height / 2 - 1
+                xRadius: max(0, radius - 1),
+                yRadius: max(0, radius - 1)
             )
-            NSColor.white.withAlphaComponent(0.6).setStroke()
+            NSColor.white.withAlphaComponent(visual.highlightOpacity).setStroke()
             highlight.lineWidth = 1
             highlight.stroke()
         }
-        border.setStroke()
+        visual.border.setStroke()
         path.lineWidth = 1
         path.stroke()
-        layer?.shadowColor = (style == .primary ? Palette.accent : NSColor.black).cgColor
-        let flat =
-            style == .plain || (style == .tab && !selected)
-            || (selected && (style == .statistics || style == .interpolation))
-        layer?.shadowOpacity =
-            !showsShadow || flat ? 0 : style == .primary ? 0.35 : style == .tab ? 0.1 : hot ? 0.08 : 0.05
-        layer?.shadowRadius = style == .primary ? 15 : style == .tab ? 4 : hot ? 8 : 6
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        layer?.shadowColor = visual.shadowColor.cgColor
+        layer?.shadowOpacity = Float(visual.shadowOpacity)
+        layer?.shadowRadius = visual.shadowRadius
         layer?.shadowOffset = CGSize(
             width: 0,
-            height: style == .primary ? 10 : style == .tab ? 2 : hot ? 6 : 4
+            height: visual.shadowOffset
         )
         layer?.shadowPath = CGPath(
             roundedRect: rect,
-            cornerWidth: rect.height / 2,
-            cornerHeight: rect.height / 2,
+            cornerWidth: radius,
+            cornerHeight: radius,
             transform: nil
         )
+        CATransaction.commit()
         let (iconRect, textRect) = contentFrames()
         if let icon, !loading {
             Icon.draw(
                 icon,
                 in: iconRect,
-                color: foreground
+                color: visual.foreground
             )
         }
         if let symbolName, !loading {
@@ -437,7 +545,7 @@ final class Button: NSButton {
                 systemSymbolName: symbolName,
                 accessibilityDescription: nil
             )?
-            .withSymbolConfiguration(.init(paletteColors: [foreground]))?
+            .withSymbolConfiguration(.init(paletteColors: [visual.foreground]))?
             .draw(
                 in: iconRect,
                 from: .zero,
@@ -450,7 +558,7 @@ final class Button: NSButton {
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineBreakMode = .byTruncatingTail
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: font ?? Typography.font(size: 13), .foregroundColor: foreground, .paragraphStyle: paragraph,
+            .font: font ?? Typography.font(size: 13), .foregroundColor: visual.foreground, .paragraphStyle: paragraph,
             .kern: tracking,
         ]
         let height = (title as NSString).size(withAttributes: attributes).height
@@ -490,5 +598,55 @@ final class Button: NSButton {
             arrow.lineWidth = 1
             arrow.stroke()
         }
+    }
+}
+
+/// Captures interpolatable colors and shadow metrics independently of native interaction state.
+private struct ButtonVisualState: Equatable {
+
+    /// The upper gradient color.
+    var top: NSColor
+
+    /// The lower gradient color.
+    var bottom: NSColor
+
+    /// The outer outline color.
+    var border: NSColor
+
+    /// The shared title and icon color.
+    var foreground: NSColor
+
+    /// The inner highlight's opacity.
+    var highlightOpacity: CGFloat
+
+    /// The shadow's tint.
+    var shadowColor: NSColor
+
+    /// The shadow's opacity.
+    var shadowOpacity: CGFloat
+
+    /// The shadow's blur radius, in points.
+    var shadowRadius: CGFloat
+
+    /// The shadow's vertical offset, in points.
+    var shadowOffset: CGFloat
+
+    /// Interpolates the complete appearance at the native animation's current progress.
+    func blended(
+        toward target: ButtonVisualState,
+        progress: CGFloat
+    ) -> ButtonVisualState {
+        let amount = min(1, max(0, progress))
+        return ButtonVisualState(
+            top: top.blended(withFraction: amount, of: target.top) ?? target.top,
+            bottom: bottom.blended(withFraction: amount, of: target.bottom) ?? target.bottom,
+            border: border.blended(withFraction: amount, of: target.border) ?? target.border,
+            foreground: foreground.blended(withFraction: amount, of: target.foreground) ?? target.foreground,
+            highlightOpacity: highlightOpacity + (target.highlightOpacity - highlightOpacity) * amount,
+            shadowColor: shadowColor.blended(withFraction: amount, of: target.shadowColor) ?? target.shadowColor,
+            shadowOpacity: shadowOpacity + (target.shadowOpacity - shadowOpacity) * amount,
+            shadowRadius: shadowRadius + (target.shadowRadius - shadowRadius) * amount,
+            shadowOffset: shadowOffset + (target.shadowOffset - shadowOffset) * amount
+        )
     }
 }

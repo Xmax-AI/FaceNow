@@ -9,6 +9,7 @@
 //
 
 import AppKit
+import SnapKit
 
 /// Reusable native reference buttons update selection and upload progress in place.
 final class GenerationReferenceButton: NSButton {
@@ -31,6 +32,19 @@ final class GenerationReferenceButton: NSButton {
 
     /// Whether this reference represents the current generation selection.
     private var selected = false
+
+    /// The title color follows the same transition duration as the thumbnail outline.
+    @objc dynamic private var selectionProgress: CGFloat = 0 {
+        didSet { needsDisplay = true }
+    }
+
+    /// Supplies native interpolation for the custom-drawn selection color.
+    override class func defaultAnimation(
+        forKey key: NSAnimatablePropertyKey
+    ) -> Any? {
+        if key == "selectionProgress" { return CABasicAnimation() }
+        return super.defaultAnimation(forKey: key)
+    }
 
     /// Whether an initial reference state has already been applied.
     private var configured = false
@@ -61,6 +75,21 @@ final class GenerationReferenceButton: NSButton {
         addSubview(overlay)
         overlay.addSubview(progressLabel)
         addSubview(spinner)
+        thumbnail.snp.makeConstraints { make in
+            make.centerX.top.equalToSuperview()
+            make.size.equalTo(64)
+        }
+        spinner.snp.makeConstraints { make in
+            make.centerX.equalTo(thumbnail)
+            make.centerY.equalTo(thumbnail).offset(-6)
+            make.size.equalTo(16)
+        }
+        overlay.snp.makeConstraints { make in make.edges.equalTo(thumbnail) }
+        progressLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.centerY.equalToSuperview().offset(13)
+            make.height.equalTo(14)
+        }
     }
 
     /// Storyboard decoding is unsupported for this programmatic component.
@@ -87,7 +116,13 @@ final class GenerationReferenceButton: NSButton {
         else { return }
         configured = true
         self.reference = reference
+        let selectionChanged = self.selected != selected
         self.selected = selected
+        if selectionChanged {
+            ControlMotion.animate(in: self) {
+                animator().selectionProgress = selected ? 1 : 0
+            }
+        }
         isEnabled = canSelect
         thumbnail.isHidden = reference == nil
         spinner.setSpinning(
@@ -135,19 +170,8 @@ final class GenerationReferenceButton: NSButton {
     /// Places the current reference content within the host-provided bounds.
     override func layout() {
         super.layout()
-        let size: CGFloat = compact ? 44 : 64
-        thumbnail.frame = NSRect(
-            x: (bounds.width - size) / 2,
-            y: 0,
-            width: size,
-            height: size
-        )
-        spinner.frame = NSRect(
-            x: bounds.midX - 8,
-            y: size / 2 - 14,
-            width: 16,
-            height: 16
-        )
+        thumbnail.snp.updateConstraints { make in make.size.equalTo(compact ? 44 : 64) }
+        overlay.layer?.cornerRadius = (compact ? 44 : 64) / 2
     }
 
     /// Draws the reference's cropped image or its upload and selection decoration.
@@ -194,7 +218,11 @@ final class GenerationReferenceButton: NSButton {
                     size: 11,
                     weight: selected ? .semibold : .regular
                 ),
-                .foregroundColor: selected ? Palette.accent : Palette.secondary, .paragraphStyle: paragraph,
+                .foregroundColor: Palette.secondary.blended(
+                    withFraction: min(1, max(0, selectionProgress)),
+                    of: Palette.accent
+                ) ?? Palette.secondary,
+                .paragraphStyle: paragraph,
             ]
             ((reference?.name ?? "Upload") as NSString).draw(
                 in: NSRect(
@@ -212,7 +240,7 @@ final class GenerationReferenceButton: NSButton {
     override func viewWillDraw() {
         super.viewWillDraw()
         thumbnail.layer?.borderWidth = 2
-        thumbnail.layer?.borderColor =
+        let border =
             (selected
             ? Palette.accent
             : hovered && isEnabled
@@ -226,13 +254,18 @@ final class GenerationReferenceButton: NSButton {
                     white: 0.95,
                     alpha: 1
                 )).cgColor
+        ControlMotion.set(
+            border,
+            for: "borderColor",
+            on: thumbnail.layer,
+            in: self
+        )
         // The overlay lives above the image; changing upload progress never reloads its source.
         let progress = reference?.uploadState == .uploading
         let error = reference?.uploadState == .error
         overlay.isHidden = !progress && !error
-        overlay.frame = thumbnail.frame
         overlay.layer?.cornerRadius = overlay.bounds.height / 2
-        overlay.layer?.backgroundColor =
+        let background =
             (error
             ? NSColor(
                 srgbRed: 120 / 255,
@@ -240,13 +273,16 @@ final class GenerationReferenceButton: NSButton {
                 blue: 20 / 255,
                 alpha: 0.65
             ) : .black.withAlphaComponent(0.55)).cgColor
-        progressLabel.stringValue = error ? "Retry" : "\(Int((reference?.uploadProgress ?? 0) * 100))%"
-        progressLabel.frame = NSRect(
-            x: 0,
-            y: error ? overlay.bounds.midY - 7 : overlay.bounds.midY + 6,
-            width: overlay.bounds.width,
-            height: 14
+        ControlMotion.set(
+            background,
+            for: "backgroundColor",
+            on: overlay.layer,
+            in: self
         )
+        progressLabel.stringValue = error ? "Retry" : "\(Int((reference?.uploadProgress ?? 0) * 100))%"
+        progressLabel.snp.updateConstraints { make in
+            make.centerY.equalToSuperview().offset(error ? 0 : 13)
+        }
     }
 
     /// The noninteractive upload or failure overlay above the thumbnail.

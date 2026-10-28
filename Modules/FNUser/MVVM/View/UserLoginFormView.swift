@@ -44,24 +44,55 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// The independent public-config request.
     private var configurationTask: Task<Void, Never>?
 
+    /// Lets the existing sign-in action retry a failed configuration request.
+    private var configurationFailed = false
+
+    /// Retains request failures for existing control tooltips without adding status labels.
+    private var requestError: String?
+
     /// Updates resend labels without retaining a hidden view indefinitely.
     private var ticker: Task<Void, Never>?
 
     /// Receives account state changes on the main actor.
     private var observation: AnyCancellable?
 
-    /// Chooses between tenant-enabled login methods.
+    /// The bounded page scale currently applied to fonts and layout constants.
+    private var layoutScale: CGFloat = 1
+
+    /// Places sign-in below the single credential field in API-key mode.
+    private var apiKeyLoginTop: Constraint?
+
+    /// Places sign-in below the verification field in phone and email modes.
+    private var codeLoginTop: Constraint?
+
+    /// Preserves the two-row form footprint while allowing compact API-key actions.
+    private var termsBottom: Constraint?
+
+    /// Chooses between verification-code channels and API-key sign-in.
     private lazy var methods: TabSwitcher = {
         let view = TabSwitcher(
-            titles: ["Phone", "Email"]
+            titles: ["Phone", "Email", "API Key"]
         )
-        view.onSelectionChanged = { [weak self] index in self?.switchMethod(index == 0 ? .sms : .email) }
+        view.cornerRadius = 12
+        view.font = Typography.font(
+            size: 15,
+            weight: .medium
+        )
+        view.onSelectionChanged = { [weak self] index in
+            guard let self else { return }
+            if index == 2 {
+                self.selectAPIKeyMode()
+            } else {
+                self.switchMethod(index == 0 ? .sms : .email)
+            }
+        }
         return view
     }()
 
     /// The shared account input with a noneditable domestic dialing prefix.
     private lazy var accountInput: InputField = {
         let view = InputField()
+        view.font = Typography.font(size: 16)
         view.prefix = "+86"
         view.textField.delegate = self
         view.textField.setAccessibilityLabel("Phone number")
@@ -75,8 +106,9 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// The shared masked input used by API-key sign-in.
     private lazy var apiKeyInput: InputField = {
         let view = InputField(secure: true)
+        view.font = Typography.font(size: 16)
         view.textField.delegate = self
-        view.textField.placeholderString = "API key"
+        view.textField.placeholderString = "Enter your active Xmax API key"
         view.textField.setAccessibilityLabel("API Key")
         return view
     }()
@@ -84,22 +116,11 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// The masked native editor retains the alternate sign-in draft.
     private var apiKeyField: NSTextField { apiKeyInput.textField }
 
-    /// Explains which credential can be used by the alternate sign-in method.
-    private lazy var apiKeyHint: NSTextField = {
-        let view = makeLabel(
-            "Use an active API key from your Xmax account.",
-            size: 12,
-            color: Palette.secondary
-        )
-        view.maximumNumberOfLines = 2
-        view.lineBreakMode = .byWordWrapping
-        return view
-    }()
-
     /// The shared verification input reserves space for its inline resend action.
     private lazy var codeInput: InputField = {
         let view = InputField()
-        view.trailingInset = 104
+        view.font = Typography.font(size: 16)
+        view.trailingInset = 112
         view.textField.delegate = self
         view.textField.setAccessibilityLabel("Verification code")
         view.textField.placeholderString = "Enter verification code"
@@ -112,12 +133,22 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// Sends a code after a fresh security challenge.
     private lazy var sendButton: Button = {
         let view = Button(
-            "Get code",
-            style: .pill
+            "Get Code",
+            style: .primary
         )
+        view.disabledOpacity = 0.65
         view.showsShadow = false
-        view.font = Typography.font(size: 12)
+        view.cornerRadius = 8
+        view.font = Typography.font(size: 13.5)
+        view.leadingPadding = 8
+        view.trailingPadding = 8
         view.onClick = { [weak self] in self?.run(login: false) }
+        return view
+    }()
+
+    /// Separates the inline code action from the native editor, matching the phone prefix divider.
+    private lazy var sendDivider: Canvas = {
+        let view = Canvas(color: Palette.border)
         return view
     }()
 
@@ -127,6 +158,14 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
             "Sign in",
             style: .primary
         )
+        view.cornerRadius = 12
+        view.shadowScale = 0.5
+        view.disabledOpacity = 0.65
+        view.font = Typography.font(
+            size: 17,
+            weight: .medium
+        )
+        view.setAccessibilityLabel("Sign in")
         view.onClick = { [weak self] in self?.run(login: true) }
         return view
     }()
@@ -134,6 +173,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// Presents the same platform legal destinations as the existing onboarding.
     private lazy var terms: NSTextView = {
         let view = NSTextView()
+        view.alphaValue = 0.75
         view.isEditable = false
         view.isSelectable = true
         view.drawsBackground = false
@@ -151,7 +191,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         let value = NSMutableAttributedString(
             string: text,
             attributes: [
-                .font: Typography.font(size: 12), .foregroundColor: Palette.secondary,
+                .font: Typography.font(size: 15), .foregroundColor: Palette.secondary,
                 .paragraphStyle: paragraph,
             ]
         )
@@ -169,45 +209,13 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Displays request failures and successful code-send feedback in place.
-    private lazy var status: NSTextField = {
-        let view = makeLabel(
-            size: 12,
-            color: Palette.secondary
-        )
-        view.maximumNumberOfLines = 3
-        view.lineBreakMode = .byWordWrapping
-        return view
-    }()
-
-    /// Retries a failed configuration or saved-session lookup.
-    private lazy var retryButton: Button = {
-        let view = Button(
-            "Retry",
-            style: .plain
-        )
-        view.onClick = { [weak self] in self?.retry() }
-        return view
-    }()
-
-    /// Switches input modes within the login page without granting home access.
-    private lazy var manualButton: Button = {
-        let view = Button(
-            "Use an API key instead",
-            style: .plain
-        )
-        view.onClick = { [weak self] in self?.toggleAPIKeyMode() }
-        return view
-    }()
-
     /// Creates native controls without opening a camera or sending a code.
     init() {
         super.init()
         [
-            methods, accountInput, codeInput, loginButton, terms, status,
-            retryButton, manualButton, apiKeyInput, apiKeyHint,
+            methods, accountInput, codeInput, loginButton, terms, apiKeyInput,
         ].forEach(addSubview)
-        codeInput.addSubview(sendButton)
+        [sendButton, sendDivider].forEach(codeInput.addSubview)
         configureLayout()
         observation = userRepo.objectWillChange.sink { [weak self] in
             DispatchQueue.main.async { self?.update() }
@@ -220,12 +228,67 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Reserves a stable form height across feedback and countdown changes.
-    override var fittingSize: NSSize {
-        NSSize(
-            width: 480,
-            height: 448
+    /// Updates presentation metrics while preserving native editors, drafts, focus, and legal links.
+    func applyLayoutScale(
+        _ scale: CGFloat
+    ) {
+        guard abs(layoutScale - scale) > 0.001 else { return }
+        layoutScale = scale
+        methods.font = Typography.font(
+            size: 15 * scale,
+            weight: .medium
         )
+        for input in [accountInput, codeInput, apiKeyInput] {
+            input.font = Typography.font(size: 16 * scale)
+        }
+        methods.cornerRadius = 12 * scale
+        loginButton.cornerRadius = 12 * scale
+        sendButton.cornerRadius = 8 * scale
+        codeInput.trailingInset = 112 * scale
+        sendButton.font = Typography.font(size: 13.5 * scale)
+        sendButton.leadingPadding = 8 * scale
+        sendButton.trailingPadding = 8 * scale
+        loginButton.font = Typography.font(
+            size: 17 * scale,
+            weight: .medium
+        )
+        terms.textStorage?.addAttribute(
+            .font,
+            value: Typography.font(size: 15 * scale),
+            range: NSRange(
+                location: 0,
+                length: terms.textStorage?.length ?? 0
+            )
+        )
+        methods.snp.updateConstraints { make in make.height.equalTo(48 * scale) }
+        accountInput.snp.updateConstraints { make in
+            make.top.equalTo(methods.snp.bottom).offset(24 * scale)
+            make.height.equalTo(54 * scale)
+        }
+        codeInput.snp.updateConstraints { make in
+            make.top.equalTo(accountInput.snp.bottom).offset(16 * scale)
+            make.height.equalTo(54 * scale)
+        }
+        sendButton.snp.updateConstraints { make in
+            make.trailing.equalToSuperview().inset(8 * scale)
+            make.top.bottom.equalToSuperview().inset(8 * scale)
+            make.width.equalTo(112 * scale)
+        }
+        sendDivider.snp.updateConstraints { make in
+            make.trailing.equalTo(sendButton.snp.leading).offset(-8 * scale)
+            make.height.equalTo(20 * scale)
+        }
+        loginButton.snp.updateConstraints { make in
+            make.height.equalTo(54 * scale)
+        }
+        apiKeyLoginTop?.update(offset: 20 * scale)
+        codeLoginTop?.update(offset: 20 * scale)
+        terms.snp.updateConstraints { make in
+            make.top.equalTo(loginButton.snp.bottom).offset(24 * scale)
+        }
+        updateChannelLayout()
+        needsLayout = true
+        needsDisplay = true
     }
 
     /// Starts public configuration and countdown work only while attached to a window.
@@ -259,58 +322,74 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     private func configureLayout() {
         methods.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
-            make.height.equalTo(42)
+            make.height.equalTo(48)
         }
         accountInput.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(methods.snp.bottom).offset(32)
-            make.height.equalTo(56)
+            make.top.equalTo(methods.snp.bottom).offset(24)
+            make.height.equalTo(54)
         }
         apiKeyInput.snp.makeConstraints { make in
             make.edges.equalTo(accountInput)
         }
-        apiKeyHint.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalTo(accountInput.snp.bottom).offset(20)
-            make.height.equalTo(56)
-        }
         codeInput.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(accountInput.snp.bottom).offset(20)
-            make.height.equalTo(56)
+            make.top.equalTo(accountInput.snp.bottom).offset(16)
+            make.height.equalTo(54)
         }
         sendButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(6)
-            make.top.bottom.equalToSuperview().inset(6)
-            make.width.equalTo(104)
+            make.trailing.equalToSuperview().inset(8)
+            make.top.bottom.equalToSuperview().inset(8)
+            make.width.equalTo(112)
+        }
+        sendDivider.snp.makeConstraints { make in
+            make.trailing.equalTo(sendButton.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+            make.width.equalTo(1)
+            make.height.equalTo(20)
         }
         loginButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(codeInput.snp.bottom).offset(28)
-            make.height.equalTo(56)
+            codeLoginTop = make.top.equalTo(codeInput.snp.bottom).offset(20).constraint
+            make.height.equalTo(54)
+        }
+        loginButton.snp.prepareConstraints { make in
+            apiKeyLoginTop = make.top.equalTo(apiKeyInput.snp.bottom).offset(20).constraint
         }
         terms.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(loginButton.snp.bottom).offset(18)
-            make.height.equalTo(44)
+            make.top.equalTo(loginButton.snp.bottom).offset(24)
+            make.height.equalTo(20)
+            termsBottom = make.bottom.equalToSuperview().constraint
         }
-        status.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
-            make.trailing.equalTo(retryButton.snp.leading)
-            make.top.equalTo(terms.snp.bottom).offset(12)
-            make.height.equalTo(32)
+    }
+
+    /// Measures wrapped legal text so centering follows the visible form instead of reserved blank space.
+    override func layout() {
+        let height = ceil(
+            terms.attributedString().boundingRect(
+                with: NSSize(
+                    width: max(1, bounds.width),
+                    height: .greatestFiniteMagnitude
+                ),
+                options: [.usesLineFragmentOrigin, .usesFontLeading]
+            ).height
+        )
+        terms.snp.updateConstraints { make in make.height.equalTo(height) }
+        super.layout()
+    }
+
+    /// Moves unused API-key row space below the actions so the selector and first input stay anchored.
+    private func updateChannelLayout() {
+        if usesAPIKey {
+            codeLoginTop?.deactivate()
+            apiKeyLoginTop?.activate()
+        } else {
+            apiKeyLoginTop?.deactivate()
+            codeLoginTop?.activate()
         }
-        retryButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-            make.top.equalTo(status).offset(-2)
-            make.width.equalTo(48)
-            make.height.equalTo(26)
-        }
-        manualButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalTo(status.snp.bottom).offset(20)
-            make.height.equalTo(28)
-        }
+        let unusedRowHeight: CGFloat = usesAPIKey ? 54 + 16 : 0
+        termsBottom?.update(inset: unusedRowHeight * layoutScale)
     }
 
     /// Returns the current destination after normalizing the native editor's value.
@@ -328,8 +407,10 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// Updates enablement from actual work and tenant capabilities without replacing inputs.
     private func update() {
         let busy = operation != nil || userRepo.isBusy || userRepo.isRestoring
+        let loadingConfiguration = configurationTask != nil && !usesAPIKey
         let ready = configuration?.supports(method) == true && configurationTask == nil
         methods.isEnabled = !busy
+        methods.selectedIndex = usesAPIKey ? 2 : method == .sms ? 0 : 1
         methods.setEnabled(
             configuration?.enableSmsLogin ?? false,
             at: 0
@@ -343,29 +424,28 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         accountInput.prefix = method == .sms ? "+86" : nil
         apiKeyInput.isEnabled = !busy
         apiKeyInput.isHidden = !usesAPIKey
-        apiKeyHint.isHidden = !usesAPIKey
         codeInput.isHidden = usesAPIKey
         codeInput.isEnabled = !busy
         sendButton.isEnabled = ready && !busy && validAccount && cooldown == 0
-        sendButton.title = cooldown > 0 ? "Resend (\(cooldown)s)" : "Get code"
-        loginButton.loading = busy
-        loginButton.title = userRepo.isRestoring ? "Restoring session…" : busy ? "Please wait…" : "Sign in"
+        sendButton.title = cooldown > 0 ? "Resend (\(cooldown)s)" : "Get Code"
+        let loading = busy || loadingConfiguration
+        loginButton.title = loading ? "" : "Sign in"
+        loginButton.loading = loading
         loginButton.isEnabled =
             !busy
             && (usesAPIKey
                 ? !apiKeyField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                : ready && validAccount && codeField.stringValue.count == codeLength)
-        manualButton.isEnabled = !busy
-        manualButton.title = usesAPIKey ? "Use phone number or email" : "Use an API key instead"
-        retryButton.isHidden = configuration != nil && !userRepo.hasSavedSession
-        retryButton.isEnabled = !busy && configurationTask == nil
-        if status.stringValue.isEmpty, let message = userRepo.errorMessage { status.stringValue = message }
+                : configurationFailed || (ready && validAccount && codeField.stringValue.count == codeLength))
+        loginButton.toolTip = requestError ?? userRepo.errorMessage
+        sendButton.toolTip = requestError
+        updateChannelLayout()
     }
 
     /// Fetches tenant settings and chooses an enabled method without sending a code.
     private func loadConfiguration() {
         guard configurationTask == nil else { return }
-        status.stringValue = "Loading sign-in options…"
+        configurationFailed = false
+        requestError = nil
         configurationTask = Task { [weak self] in
             guard let self else { return }
             defer {
@@ -378,12 +458,13 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
                 try self.viewModel.applyConfiguration(settings)
                 if !self.usesAPIKey {
                     if !settings.supports(self.method), settings.supports(.email) { self.switchMethod(.email) }
-                    self.status.stringValue =
+                    self.requestError =
                         settings.enableSmsLogin || settings.enableEmailLogin
-                        ? "" : "Verification-code login is currently unavailable."
+                        ? nil : "Verification-code login is currently unavailable."
                 }
             } catch is CancellationError {} catch {
-                if !self.usesAPIKey { self.status.stringValue = error.localizedDescription }
+                self.configurationFailed = true
+                if !self.usesAPIKey { self.requestError = error.localizedDescription }
             }
         }
         update()
@@ -397,11 +478,15 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
             if login { signInWithAPIKey() }
             return
         }
+        if login, configurationFailed {
+            loadConfiguration()
+            return
+        }
         guard operation == nil, !userRepo.isRestoring, let configuration, configuration.supports(method), validAccount
         else { return }
         guard login ? codeField.stringValue.count == codeLength : cooldown == 0 else { return }
         let method = method, destination = destination, code = codeField.stringValue
-        status.stringValue = ""
+        requestError = nil
         operation = Task { [weak self] in
             guard let self else { return }
             defer {
@@ -437,7 +522,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
                     )
                     try Task.checkCancellation()
                     if !self.userRepo.isSignedIn {
-                        self.status.stringValue = self.userRepo.errorMessage ?? "Please try signing in again."
+                        self.requestError = self.userRepo.errorMessage ?? "Please try signing in again."
                     }
                 } else {
                     try await self.userRepo.sendCode(
@@ -451,22 +536,20 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
                         method: method,
                         cooldown: configuration.cooldown(for: method)
                     )
-                    self.status.stringValue = "Verification code sent."
                     self.window?.makeFirstResponder(self.codeField)
                 }
-            } catch is CancellationError {} catch { self.status.stringValue = error.localizedDescription }
+            } catch is CancellationError {} catch { self.requestError = error.localizedDescription }
         }
         update()
     }
 
     /// Shows API-key input on the same page while retaining the verification-code drafts.
-    private func toggleAPIKeyMode() {
+    private func selectAPIKeyMode() {
         guard operation == nil, !userRepo.isBusy, !userRepo.isRestoring else { return }
-        viewModel.selectAPIKey(!usesAPIKey)
-        methods.selectedIndex = usesAPIKey ? nil : method == .sms ? 0 : 1
-        status.stringValue = ""
+        viewModel.selectAPIKey(true)
+        requestError = nil
         update()
-        window?.makeFirstResponder(usesAPIKey ? apiKeyField : accountField)
+        window?.makeFirstResponder(apiKeyField)
     }
 
     /// Verifies the submitted key before the account can publish authenticated home access.
@@ -474,7 +557,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         guard operation == nil, !userRepo.isBusy, !userRepo.isRestoring else { return }
         let credential = apiKeyField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !credential.isEmpty else { return }
-        status.stringValue = ""
+        requestError = nil
         operation = Task { [weak self] in
             guard let self else { return }
             defer {
@@ -485,29 +568,11 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
                 try await self.userRepo.signIn(apiKey: credential)
                 try Task.checkCancellation()
                 if !self.userRepo.isSignedIn {
-                    self.status.stringValue = self.userRepo.errorMessage ?? "Please try signing in again."
+                    self.requestError = self.userRepo.errorMessage ?? "Please try signing in again."
                 }
-            } catch is CancellationError {} catch { self.status.stringValue = error.localizedDescription }
+            } catch is CancellationError {} catch { self.requestError = error.localizedDescription }
         }
         update()
-    }
-
-    /// Retries only a read operation when configuration or saved-session validation failed.
-    private func retry() {
-        status.stringValue = ""
-        if configuration == nil { loadConfiguration() }
-        if userRepo.hasSavedSession {
-            operation = Task { [weak self] in
-                guard let self else { return }
-                defer {
-                    self.operation = nil
-                    self.update()
-                }
-                await self.userRepo.restore()
-                self.status.stringValue = self.userRepo.errorMessage ?? ""
-            }
-            update()
-        }
     }
 
     /// Restores the selected channel's independent destination and code draft.
@@ -519,12 +584,11 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
             account: accountField.stringValue,
             code: codeField.stringValue
         )
-        methods.selectedIndex = next == .sms ? 0 : 1
         accountField.stringValue = draft.account
         codeField.stringValue = draft.code
         accountField.placeholderString = next == .sms ? "Enter your phone number" : "Enter your email address"
         accountField.setAccessibilityLabel(next == .sms ? "Phone number" : "Email address")
-        status.stringValue = ""
+        requestError = nil
         update()
     }
 
@@ -538,7 +602,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         } else if field === accountField {
             codeField.stringValue = ""
         }
-        status.stringValue = ""
+        requestError = nil
         update()
     }
 

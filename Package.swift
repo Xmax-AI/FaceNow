@@ -41,6 +41,12 @@ let package = Package(
             path: "Modules/FNGeneration/MVVM/Model"
         ),
         .target(
+            name: "FNOnboarding",
+            dependencies: ["Storage", "Factory"],
+            path: "Modules/FNOnboarding",
+            exclude: ["MVVM", "Resources", "OnboardingViewController.swift"]
+        ),
+        .target(
             name: "FNVirtualCameraCore",
             dependencies: ["CameraCore"],
             path: "Modules/FNVirtualCamera/Camera",
@@ -59,7 +65,7 @@ let package = Package(
         ),
         .testTarget(
             name: "ModuleTests",
-            dependencies: ["FNUser", "FNGenerationModels", "FNNetwork", "Storage", "Moya", "Factory"],
+            dependencies: ["FNUser", "FNGenerationModels", "FNOnboarding", "FNNetwork", "Storage", "Moya", "Factory"],
             path: "Tests/Modules"
         ),
     ]

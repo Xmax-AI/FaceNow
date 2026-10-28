@@ -22,6 +22,18 @@ import Foundation
 @MainActor
 final class UserRepository: ObservableObject {
 
+    /// The account credit page opened from the header balance.
+    let creditsURL = URL(string: "https://platform.xmax.ai/credits")!
+
+    /// The account usage page opened from the profile card.
+    let usageURL = URL(string: "https://platform.xmax.ai/usage")!
+
+    /// Reports explicit, validated sign-ins without replaying saved-session restoration.
+    var signInCompleted: AnyPublisher<Void, Never> { signInEvents.eraseToAnyPublisher() }
+
+    /// Emits only after a manual login has committed its authenticated identity.
+    private let signInEvents = PassthroughSubject<Void, Never>()
+
     /// The profile validated for the current token.
     @Published private(set) var profile: AccountProfile?
 
@@ -40,6 +52,18 @@ final class UserRepository: ObservableObject {
     /// The active API keys available to this signed-in user.
     @Published private(set) var keys: [APIKeyRecord] = []
 
+    /// The last server-confirmed credit balance; nil means it has not been obtained.
+    @Published private(set) var remainingCredits: Double?
+
+    /// Whether a balance request is already in flight.
+    @Published private(set) var isLoadingCredits = false
+
+    /// A balance-specific failure that preserves the last confirmed value.
+    @Published private(set) var creditsErrorMessage: String?
+
+    /// The last attempted balance refresh, measured independently of wall-clock changes.
+    private var creditsRefreshedAt: ContinuousClock.Instant?
+
     /// Whether a validated account session is available.
     var isSignedIn: Bool { profile != nil && token != nil }
 
@@ -48,6 +72,12 @@ final class UserRepository: ObservableObject {
 
     /// Whether restoration can be retried without sending another verification code.
     var hasSavedSession: Bool { token != nil }
+
+    /// The final four characters of an API-key login credential, without exposing the full key.
+    var sessionAPIKeySuffix: String? {
+        guard isAPIKeySession, let token else { return nil }
+        return token.count > 4 ? String(token.suffix(4)) : ""
+    }
 
     /// A compact account label, avoiding plaintext API keys in the header.
     var displayName: String {
@@ -150,8 +180,14 @@ final class UserRepository: ObservableObject {
                     token,
                     in: records
                 )
+                let profile = try await loadAPIKeyProfile(
+                    token,
+                    record: record
+                )
+                guard lifecycle == operation, !Task.isCancelled else { return }
                 applyAPIKeySession(
                     token,
+                    profile: profile,
                     record: record,
                     records: records,
                     preferredKey: apiKey
@@ -186,6 +222,7 @@ final class UserRepository: ObservableObject {
         errorMessage = nil
         let operation = UUID()
         lifecycle = operation
+        clearCredits()
         defer { if lifecycle == operation { isBusy = false } }
         let endpoint = AccountAPI.login(
             method: method,
@@ -222,9 +259,10 @@ final class UserRepository: ObservableObject {
         await reloadKeys()
         guard lifecycle == operation, !Task.isCancelled else { throw CancellationError() }
         profile = receivedProfile
+        signInEvents.send()
     }
 
-    /// Signs in with an API key only after the platform confirms its active owner record.
+    /// Signs in only after the platform confirms the active key and its owner's profile.
     func signIn(
         apiKey value: String
     ) async throws {
@@ -240,6 +278,7 @@ final class UserRepository: ObservableObject {
         errorMessage = nil
         let operation = UUID()
         lifecycle = operation
+        clearCredits()
         defer { if lifecycle == operation { isBusy = false } }
         let records = try await networkRepo.send(
             UserAPI.apiKeys,
@@ -251,13 +290,20 @@ final class UserRepository: ObservableObject {
             credential,
             in: records
         )
+        let profile = try await loadAPIKeyProfile(
+            credential,
+            record: record
+        )
+        guard lifecycle == operation, !Task.isCancelled else { throw CancellationError() }
         try store.save(credential)
         applyAPIKeySession(
             credential,
+            profile: profile,
             record: record,
             records: records,
             preferredKey: credential
         )
+        signInEvents.send()
     }
 
     /// Finds the exact active key and its tenant-scoped identity rather than trusting a nonempty input.
@@ -279,9 +325,30 @@ final class UserRepository: ObservableObject {
         return record
     }
 
+    /// Requires a complete profile response whose identity matches the verified key owner.
+    private func loadAPIKeyProfile(
+        _ credential: String,
+        record: APIKeyRecord
+    ) async throws -> AccountProfile {
+        let profile = try await networkRepo.send(
+            AccountAPI.profile,
+            as: AccountProfile.self,
+            bearerToken: credential
+        )
+        let owner = profile.uid?.isEmpty == false ? profile.uid : profile.id
+        guard owner == record.userUid else {
+            throw NetworkError.server(
+                code: 401,
+                message: "The account profile does not match this API key."
+            )
+        }
+        return profile
+    }
+
     /// Publishes only identity and keys confirmed by the authenticated API-key response.
     private func applyAPIKeySession(
         _ credential: String,
+        profile: AccountProfile,
         record: APIKeyRecord,
         records: [APIKeyRecord],
         preferredKey: String
@@ -292,9 +359,7 @@ final class UserRepository: ObservableObject {
                 && !$0.apiKey.isEmpty
         }
         apiKey = keys.first(where: { $0.apiKey == preferredKey })?.apiKey ?? credential
-        var identity = AccountProfile()
-        identity.uid = record.userUid
-        profile = identity
+        self.profile = profile
         errorMessage = nil
     }
 
@@ -362,6 +427,32 @@ final class UserRepository: ObservableObject {
         apiKey = record.apiKey
     }
 
+    /// Refreshes server-owned credits without changing the active generation key.
+    func refreshCredits(
+        force: Bool = false
+    ) async {
+        guard canAccessHome, let token, !isBusy, !isLoadingCredits else { return }
+        let now = ContinuousClock.now
+        if !force, let creditsRefreshedAt, now - creditsRefreshedAt < .seconds(10) { return }
+        creditsRefreshedAt = now
+        isLoadingCredits = true
+        let operation = lifecycle
+        defer { if lifecycle == operation { isLoadingCredits = false } }
+        do {
+            let balance = try await networkRepo.send(
+                AccountAPI.balance,
+                as: AccountBalance.self,
+                bearerToken: token
+            )
+            guard lifecycle == operation, !Task.isCancelled else { return }
+            remainingCredits = balance.currentBalance
+            creditsErrorMessage = nil
+        } catch {
+            guard lifecycle == operation, !Task.isCancelled else { return }
+            creditsErrorMessage = error.localizedDescription
+        }
+    }
+
     /// Clears the local session before making a best-effort server logout request.
     func signOut() async throws {
         let previous = isAPIKeySession ? nil : token
@@ -382,6 +473,7 @@ final class UserRepository: ObservableObject {
         isBusy = false
         isRestoring = false
         isLoadingKeys = false
+        isLoadingCredits = false
     }
 
     /// Clears session state only when the service explicitly rejects authentication.
@@ -399,12 +491,21 @@ final class UserRepository: ObservableObject {
         errorMessage = error.localizedDescription
     }
 
+    /// Removes the previous account's balance and invalidates its refresh state.
+    private func clearCredits() {
+        remainingCredits = nil
+        creditsErrorMessage = nil
+        creditsRefreshedAt = nil
+        isLoadingCredits = false
+    }
+
     /// Makes stale requests harmless and clears SDK credentials with the account.
     private func reset() {
         lifecycle = UUID()
         token = nil
         profile = nil
         keys = []
+        clearCredits()
         apiKey = ""
         isBusy = false
         isRestoring = false

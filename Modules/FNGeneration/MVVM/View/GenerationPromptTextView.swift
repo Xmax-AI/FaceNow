@@ -9,6 +9,7 @@
 //
 
 import AppKit
+import SnapKit
 
 /// Draws the placeholder at the text origin and preserves input-method composition.
 final class GenerationPromptTextView: NSTextView {
@@ -30,7 +31,33 @@ final class GenerationPromptTextView: NSTextView {
 
     /// The editor contents whose replacement invalidates placeholder presentation.
     override var string: String {
-        didSet { needsDisplay = true }
+        didSet {
+            needsDisplay = true
+            invalidateIntrinsicContentSize()
+        }
+    }
+
+    /// The last width used to measure wrapping in the native text container.
+    private var measuredWidth: CGFloat = -1
+
+    /// Supplies a content-driven document height to the scroll view's SnapKit constraints.
+    override var intrinsicContentSize: NSSize {
+        guard let layoutManager, let textContainer else {
+            return NSSize(width: NSView.noIntrinsicMetric, height: 0)
+        }
+        layoutManager.ensureLayout(for: textContainer)
+        return NSSize(
+            width: NSView.noIntrinsicMetric,
+            height: ceil(layoutManager.usedRect(for: textContainer).height + textContainerInset.height * 2)
+        )
+    }
+
+    /// Remeasures wrapping when Auto Layout changes the editor width.
+    override func layout() {
+        super.layout()
+        guard measuredWidth != bounds.width else { return }
+        measuredWidth = bounds.width
+        invalidateIntrinsicContentSize()
     }
 
     /// Draws the empty-editor hint at the native text-container origin.
@@ -103,6 +130,7 @@ final class GenerationPromptTextView: NSTextView {
     /// Publishes only text that is outside all active composition operations.
     private func updateInputState() {
         needsDisplay = true
+        invalidateIntrinsicContentSize()
         guard inputOperationDepth == 0, !hasMarkedText() else { return }
         onCommittedTextChange?(string)
     }

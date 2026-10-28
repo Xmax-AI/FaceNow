@@ -5,6 +5,38 @@ import XCTest
 
 final class NetworkTests: XCTestCase {
 
+    func testCreditBalanceUsesAuthenticatedOpenAPIRouteAndPreservesZeroAndFractions() async throws {
+        for balance in [0.0, 1250.75] {
+            let client = makeClient(
+                status: 200,
+                json: "{\"success\":true,\"code\":200,\"data\":{\"currentBalance\":\(balance)}}"
+            )
+            let request = try client.request(
+                for: AccountAPI.balance,
+                bearerToken: "test-session"
+            )
+            XCTAssertEqual(request.url?.path, "/open/api/v1/points/balance")
+            XCTAssertEqual(request.httpMethod, "GET")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-session")
+            XCTAssertNil(request.httpBody)
+            let response = try await client.send(
+                AccountAPI.balance,
+                as: AccountBalance.self,
+                bearerToken: "test-session"
+            )
+            XCTAssertEqual(response.currentBalance, balance)
+        }
+    }
+
+    func testMissingOrMalformedCreditsNeverDecodeAsZero() {
+        for payload: [String: Any] in [
+            [:], ["currentBalance": NSNull()], ["currentBalance": true],
+            ["currentBalance": "100"], ["currentBalance": -1], ["currentBalance": Double.infinity],
+        ] {
+            XCTAssertNil(AccountBalance.mapJSON(payload))
+        }
+    }
+
     func testHandyJSONDefaultsCannotReplaceMissingSecurityConfiguration() async throws {
         let client = makeClient(
             status: 200,

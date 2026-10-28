@@ -115,7 +115,6 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
     /// Loads only the official Tencent SDK and forwards its result through a narrow bridge.
     override func loadView() {
         let canvas = Canvas(color: .white)
-        canvas.frame.size = preferredContentSize
         view = canvas
         let title = makeLabel(
             "Complete the security check",

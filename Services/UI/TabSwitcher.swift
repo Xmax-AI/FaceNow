@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import SnapKit
 
 /// A shared pill-shaped tab group with persistent native buttons and product typography.
 @MainActor
@@ -30,6 +31,29 @@ final class TabSwitcher: Canvas {
     /// Reports user selections; programmatic updates never invoke this callback.
     var onSelectionChanged: ((Int) -> Void)?
 
+    /// An optional rounded-rectangle radius shared with the inset tab backgrounds.
+    var cornerRadius: CGFloat? {
+        didSet {
+            for button in buttons { button.cornerRadius = cornerRadius.map { max(0, $0 - 4) } }
+            needsLayout = true
+        }
+    }
+
+    /// The host-selected type size and weight shared by all tab labels.
+    var font: NSFont = Typography.font(
+        size: 13.5,
+        weight: .medium
+    )
+    {
+        didSet {
+            for button in buttons {
+                button.font = font
+                button.needsDisplay = true
+            }
+            needsLayout = true
+        }
+    }
+
     /// The labels retained for the lifetime of this group.
     private let titles: [String]
 
@@ -46,10 +70,7 @@ final class TabSwitcher: Canvas {
                 title,
                 style: .tab
             )
-            button.font = Typography.font(
-                size: 13.5,
-                weight: .medium
-            )
+            button.font = font
             button.tracking = 0.135
             button.leadingPadding = 22
             button.trailingPadding = 22
@@ -77,6 +98,21 @@ final class TabSwitcher: Canvas {
             radius: 21
         )
         buttons.forEach(addSubview)
+        var previous: Button?
+        for button in buttons {
+            button.snp.makeConstraints { make in
+                make.top.bottom.equalToSuperview().inset(4)
+                if let previous {
+                    make.leading.equalTo(previous.snp.trailing).offset(2)
+                    if distribution == .equal { make.width.equalTo(previous) }
+                } else {
+                    make.leading.equalToSuperview().offset(4)
+                }
+                if button === buttons.last { make.trailing.equalToSuperview().inset(4) }
+                if distribution == .content { make.width.equalTo(button.preferredWidth).priority(490) }
+            }
+            previous = button
+        }
         updateButtons()
     }
 
@@ -97,6 +133,9 @@ final class TabSwitcher: Canvas {
             )
         return contentWidth + CGFloat(max(0, widths.count - 1)) * 2 + 8
     }
+
+    /// The retained tab controls available to a host-managed modal keyboard focus cycle.
+    var selectionControls: [NSControl] { buttons }
 
     /// The shared tab height including its background insets.
     override var fittingSize: NSSize {
@@ -119,6 +158,7 @@ final class TabSwitcher: Canvas {
     /// Applies the sizing policy within the shared rounded background.
     override func layout() {
         super.layout()
+        layer?.cornerRadius = min(bounds.height / 2, cornerRadius ?? bounds.height / 2)
         guard !buttons.isEmpty else { return }
         let available = max(0, bounds.width - 8 - CGFloat(buttons.count - 1) * 2)
         let naturalWidth = buttons.map(\.preferredWidth).reduce(
@@ -126,17 +166,10 @@ final class TabSwitcher: Canvas {
             +
         )
         let scale = naturalWidth > 0 ? min(1, available / naturalWidth) : 1
-        var x: CGFloat = 4
-        for button in buttons {
-            let width =
-                distribution == .equal ? available / CGFloat(buttons.count) : button.preferredWidth * scale
-            button.frame = NSRect(
-                x: x,
-                y: 4,
-                width: width,
-                height: max(0, bounds.height - 8)
-            )
-            x += width + 2
+        if distribution == .content {
+            for button in buttons {
+                button.snp.updateConstraints { make in make.width.equalTo(button.preferredWidth * scale).priority(490) }
+            }
         }
     }
 

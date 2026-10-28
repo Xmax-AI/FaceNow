@@ -40,7 +40,12 @@ final class Spinner: Canvas {
         _ spinning: Bool,
         color: NSColor
     ) {
-        ring.strokeColor = color.cgColor
+        ControlMotion.set(
+            color.cgColor,
+            for: "strokeColor",
+            on: ring,
+            in: self
+        )
         isHidden = !spinning
         guard spinning, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
             ring.removeAnimation(forKey: "spin")
