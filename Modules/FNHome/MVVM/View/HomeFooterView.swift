@@ -94,12 +94,16 @@ final class HomeFooterView: Canvas {
         return view
     }()
 
-    /// Reserves the documentation entry until its destination URL is supplied.
+    /// Opens the troubleshooting document after an explicit click.
     private lazy var troubleshooting: Button = {
         let view = Button(
             HomeStrings.troubleshooting,
             style: .plain
         )
+        view.onClick = { [weak self] in
+            guard let self else { return }
+            NSWorkspace.shared.open(self.homeRepo.troubleshootingURL)
+        }
         return view
     }()
 

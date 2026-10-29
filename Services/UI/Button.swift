@@ -212,19 +212,23 @@ class Button: NSButton {
 
     /// Supplies the shared native rendering configuration used by ToolbarButton.
     func configureForToolbar(
-        weight: NSFont.Weight,
-        monospacedDigits: Bool
+        weight: NSFont.Weight
     ) {
         usesToolbarAppearance = true
-        font = Typography.font(
-            size: ToolbarControlMetrics.fontSize,
-            weight: weight,
-            monospacedDigits: monospacedDigits
+        font = .systemFont(
+            ofSize: ToolbarControlMetrics.fontSize,
+            weight: weight
         )
         iconSize = ToolbarControlMetrics.iconSize
         iconSpacing = ToolbarControlMetrics.contentSpacing
-        leadingPadding = ToolbarControlMetrics.horizontalPadding
-        trailingPadding = chevron ? ToolbarControlMetrics.disclosurePadding : ToolbarControlMetrics.horizontalPadding
+        leadingPadding = ToolbarControlMetrics.leadingPadding
+        if chevron {
+            trailingPadding = ToolbarControlMetrics.disclosurePadding
+        } else {
+            trailingPadding =
+                icon != nil || symbolName != nil
+                ? ToolbarControlMetrics.trailingPadding : ToolbarControlMetrics.leadingPadding
+        }
         backgroundInset = 0
         cornerRadius = nil
         shadowScale = 1
@@ -704,7 +708,8 @@ class Button: NSButton {
         let outlined =
             style == .pill || style == .volume || style == .destructive || style == .success
             || (!selected && (style == .statistics || style == .interpolation))
-        let flat = style == .plain
+        let flat =
+            style == .plain
             || (!usesToolbarAppearance
                 && ((style == .tab && !selected)
                     || (selected && (style == .statistics || style == .interpolation))))
@@ -825,7 +830,7 @@ class Button: NSButton {
             let arrow = NSBezierPath()
             let x =
                 usesToolbarAppearance
-                ? bounds.width - ToolbarControlMetrics.horizontalPadding - ToolbarControlMetrics.disclosureWidth / 2
+                ? bounds.width - ToolbarControlMetrics.trailingPadding - ToolbarControlMetrics.disclosureWidth / 2
                 : bounds.width - 20
             let y = bounds.midY
             arrow.move(

@@ -37,21 +37,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     /// Prevents credential changes while generation or cleanup owns the SDK key.
     var settingsLocked = false
 
-    /// Uses native fonts for the shared generation header while preserving home typography.
-    var usesSystemFont = false {
-        didSet {
-            guard usesSystemFont != oldValue else { return }
-            button.font =
-                usesSystemFont
-                ? .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
-                : Typography.font(size: ToolbarControlMetrics.fontSize, weight: .semibold)
-            creditsButton.font =
-                usesSystemFont
-                ? .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .medium)
-                : Typography.font(size: ToolbarControlMetrics.fontSize)
-        }
-    }
-
     /// Opens the existing account menu from a circular text avatar.
     private lazy var button: ToolbarButton = {
         let button = ToolbarButton(
@@ -69,8 +54,10 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
 
     /// Displays server-confirmed credits and opens the platform credit page.
     private lazy var creditsButton: ToolbarButton = {
-        let button = ToolbarButton()
-        button.symbolName = "bolt.fill"
+        let button = ToolbarButton(
+            icon: .lightning,
+            weight: .medium
+        )
         button.onClick = { [weak self] in
             guard let self else { return }
             self.closePopover()

@@ -21,7 +21,7 @@ final class HomeCameraControlsView: Canvas {
     /// Reopens the preparation guide immediately to the left of virtual-camera status.
     private lazy var guideButton: ToolbarButton = {
         let view = ToolbarButton(shape: .circle)
-        view.symbolName = "lightbulb"
+        view.symbolName = "info.circle"
         view.toolTip = HomeStrings.homeHowToUseFaceNowInVideoCalls
         view.setAccessibilityLabel(HomeStrings.homeOpenFaceNowSetupGuide)
         view.onClick = { [weak self] in self?.onShowOnboarding?(nil) }

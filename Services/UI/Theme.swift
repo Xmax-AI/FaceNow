@@ -112,23 +112,29 @@ enum ToolbarControlMetrics {
     /// The title and avatar text size shared by the toolbar controls.
     static let fontSize: CGFloat = 13
 
-    /// The fixed height of compact session controls, matching the XLab action row.
+    /// The fixed height shared by home and generation toolbar controls.
     static let compactHeight: CGFloat = 36
 
     /// The common icon slot size.
     static let iconSize: CGFloat = 16
 
     /// The gap between an icon and its title.
-    static let contentSpacing: CGFloat = 8
+    static let contentSpacing: CGFloat = 4
 
-    /// The leading and trailing content inset for a pill.
-    static let horizontalPadding: CGFloat = 14
+    /// The shared leading content inset for a pill.
+    static let leadingPadding: CGFloat = 12
+
+    /// The trailing content inset for a pill with an icon; text-only pills use the leading inset on both sides.
+    static let trailingPadding: CGFloat = 13
 
     /// The width reserved for a disclosure chevron.
     static let disclosureWidth: CGFloat = 6
 
+    /// The title-to-chevron gap, independent of icon-to-title spacing.
+    static let disclosureSpacing: CGFloat = 8
+
     /// The trailing inset including the title-to-chevron gap and chevron itself.
-    static let disclosurePadding = horizontalPadding + contentSpacing + disclosureWidth
+    static let disclosurePadding = trailingPadding + disclosureSpacing + disclosureWidth
 
     /// The common responsive height used for measuring and constraining toolbar controls.
     static func height(

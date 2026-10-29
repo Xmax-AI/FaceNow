@@ -34,8 +34,7 @@ final class ToolbarButton: Button {
         style: Appearance = .pill,
         shape: Shape = .capsule,
         chevron: Bool = false,
-        weight: NSFont.Weight = .regular,
-        monospacedDigits: Bool = false
+        weight: NSFont.Weight = .regular
     ) {
         self.shape = shape
         super.init(
@@ -45,26 +44,21 @@ final class ToolbarButton: Button {
         )
         self.chevron = chevron
         configureForToolbar(
-            weight: weight,
-            monospacedDigits: monospacedDigits
+            weight: weight
         )
+        if icon == .lightning {
+            iconSize = 15
+        }
         switch style {
         case .statistics, .volume:
             iconSize = 18
-        case .interpolation:
-            iconSize = 15
-            iconSpacing = 3
-            leadingPadding = 12
-            trailingPadding = 15
         case .destructive where icon == .stop:
             iconSize = 12
-            iconSpacing = 7
-            leadingPadding = 16
-            trailingPadding = 16
         default:
             break
         }
         if shape == .circle {
+            iconSize = 18
             leadingPadding = 0
             trailingPadding = 0
             centersSymbolVisually = true

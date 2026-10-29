@@ -28,12 +28,10 @@ final class HomeCameraPickerView: Canvas {
     /// The translucent capsule retains the original microphone control's compact styling.
     private lazy var button: ToolbarButton = {
         let view = ToolbarButton(
-            icon: .camera,
             style: .plain,
             chevron: true
         )
         view.font = Typography.font(size: 13)
-        view.iconSize = 14
         view.foregroundColor = .white.withAlphaComponent(0.85)
         view.hoverBackgroundColor = .white.withAlphaComponent(0.08)
         view.cornerRadius = 16

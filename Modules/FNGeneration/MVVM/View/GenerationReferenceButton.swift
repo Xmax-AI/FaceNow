@@ -17,6 +17,12 @@ final class GenerationReferenceButton: NSButton {
     /// The retained thumbnail view used by this reference button.
     lazy var thumbnail: GenerationThumbnailView = {
         let view = GenerationThumbnailView()
+        view.layer?.borderWidth = 2
+        view.layer?.borderColor =
+            NSColor(
+                white: 0.95,
+                alpha: 1
+            ).cgColor
         return view
     }()
 
@@ -48,6 +54,9 @@ final class GenerationReferenceButton: NSButton {
 
     /// Whether an initial reference state has already been applied.
     private var configured = false
+
+    /// Distinguishes an existing visible control from a new, reused, or restored reference surface.
+    private var hasPresentedAppearance = false
 
     /// Whether the pointer is currently inside the control.
     private var hovered = false
@@ -114,11 +123,14 @@ final class GenerationReferenceButton: NSButton {
                 || self.reference?.uploadProgress != reference?.uploadProgress
                 || self.reference?.uploadError != reference?.uploadError || isEnabled != canSelect
         else { return }
+        if !configured || self.reference?.id != reference?.id { resetAppearance() }
         configured = true
         self.reference = reference
         let selectionChanged = self.selected != selected
         self.selected = selected
-        if selectionChanged {
+        if !hasPresentedAppearance {
+            selectionProgress = selected ? 1 : 0
+        } else if selectionChanged {
             ControlMotion.animate(in: self) {
                 animator().selectionProgress = selected ? 1 : 0
             }
@@ -189,6 +201,7 @@ final class GenerationReferenceButton: NSButton {
     /// Prevents retained reference rows from carrying hover into a different window.
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        resetAppearance()
         synchronizeHover()
     }
 
@@ -196,13 +209,44 @@ final class GenerationReferenceButton: NSButton {
     override func viewDidHide() {
         super.viewDidHide()
         hovered = false
-        needsDisplay = true
+        resetAppearance()
     }
 
     /// Restores the outline for the pointer position when the page reappears.
     override func viewDidUnhide() {
         super.viewDidUnhide()
+        resetAppearance()
         synchronizeHover()
+    }
+
+    /// Discards previous layer transitions before the reference identity or visible page changes.
+    private func resetAppearance() {
+        hasPresentedAppearance = false
+        thumbnail.layer?.removeAnimation(forKey: "ControlMotion.borderColor")
+        overlay.layer?.removeAnimation(forKey: "ControlMotion.backgroundColor")
+        selectionProgress = selected ? 1 : 0
+        needsDisplay = true
+    }
+
+    /// Seeds restored surfaces immediately while retaining transitions for visible interactions.
+    private func applySurfaceColor(
+        _ color: CGColor,
+        for key: String,
+        on layer: CALayer?
+    ) {
+        if hasPresentedAppearance {
+            ControlMotion.set(
+                color,
+                for: key,
+                on: layer,
+                in: self
+            )
+        } else {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            layer?.setValue(color, forKeyPath: key)
+            CATransaction.commit()
+        }
     }
 
     /// Places the current reference content within the host-provided bounds.
@@ -277,7 +321,6 @@ final class GenerationReferenceButton: NSButton {
     /// Updates the existing thumbnail border and upload or retry overlay before drawing.
     override func viewWillDraw() {
         super.viewWillDraw()
-        thumbnail.layer?.borderWidth = 2
         let border =
             (selected
             ? Palette.accent
@@ -292,11 +335,10 @@ final class GenerationReferenceButton: NSButton {
                     white: 0.95,
                     alpha: 1
                 )).cgColor
-        ControlMotion.set(
+        applySurfaceColor(
             border,
             for: "borderColor",
-            on: thumbnail.layer,
-            in: self
+            on: thumbnail.layer
         )
         // The overlay lives above the image; changing upload progress never reloads its source.
         let progress = reference?.uploadState == .uploading
@@ -311,12 +353,12 @@ final class GenerationReferenceButton: NSButton {
                 blue: 20 / 255,
                 alpha: 0.65
             ) : .black.withAlphaComponent(0.55)).cgColor
-        ControlMotion.set(
+        applySurfaceColor(
             background,
             for: "backgroundColor",
-            on: overlay.layer,
-            in: self
+            on: overlay.layer
         )
+        hasPresentedAppearance = true
         progressLabel.stringValue =
             error
             ? GenerationStrings.retry : GenerationStrings.percentage(value: Int((reference?.uploadProgress ?? 0) * 100))

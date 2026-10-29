@@ -22,11 +22,12 @@ final class VirtualCameraStatusView: Canvas {
     private lazy var capsule: ToolbarButton = {
         let view = ToolbarButton(
             OnboardingStrings.virtualCamera,
-            style: .destructive
+            style: .destructive,
+            weight: .semibold
         )
         view.passive = true
         view.alignment = .left
-        view.trailingPadding = ToolbarControlMetrics.horizontalPadding + 8 + 8
+        view.trailingPadding = ToolbarControlMetrics.trailingPadding + 8 + 8
         view.setAccessibilityElement(false)
         return view
     }()
@@ -45,7 +46,7 @@ final class VirtualCameraStatusView: Canvas {
         capsule.addSubview(indicator)
         capsule.snp.makeConstraints { make in make.edges.equalToSuperview() }
         indicator.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(ToolbarControlMetrics.horizontalPadding)
+            make.trailing.equalToSuperview().inset(ToolbarControlMetrics.trailingPadding)
             make.centerY.equalToSuperview()
             make.size.equalTo(8)
         }

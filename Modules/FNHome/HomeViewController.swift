@@ -356,7 +356,6 @@ final class HomeViewController: NSViewController {
         let previousCameraWidth = cameraControls.preferredWidth(controlHeight: homeControls.bounds.height)
         let previousUserWidth = userView.preferredWidth(controlHeight: homeControls.bounds.height)
         cameraControls.update(state: cameraStatusModel.virtualCameraIndicator)
-        userView.usesSystemFont = active
         userView.settingsLocked = viewModel.settingsLocked
         userView.update()
         toolbar.update()
@@ -738,8 +737,7 @@ final class HomeViewController: NSViewController {
         let height = root.bounds.height
         guard width > 0, height > 0 else { return }
         let active = generationRepo.sessionActive
-        let controlHeight =
-            active ? ToolbarControlMetrics.compactHeight : ToolbarControlMetrics.height(viewportWidth: width)
+        let controlHeight = ToolbarControlMetrics.compactHeight
         let cameraWidth = cameraControls.preferredWidth(controlHeight: controlHeight)
         let userWidth = userView.preferredWidth(controlHeight: controlHeight)
         let toolbarWidth = toolbar.preferredWidth(controlHeight: controlHeight)

@@ -25,6 +25,9 @@ final class HomeRepository: ObservableObject {
     /// The product support destination.
     let contactURL = URL(string: "mailto:facenow@xmax.ai")!
 
+    /// The troubleshooting document opened from the home footer.
+    let troubleshootingURL = URL(string: "https://zcn0qf3aul03.feishu.cn/docx/T6DLdmYoxoo1h5x24aQc8urwnWd")!
+
     /// The public app version shown in the home footer, independent of the internal build number.
     let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
 
