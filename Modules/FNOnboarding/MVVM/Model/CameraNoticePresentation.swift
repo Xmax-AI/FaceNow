@@ -31,6 +31,12 @@ enum CameraSettingsDestination: Equatable {
 /// Selects focused guidance without deriving navigation from displayed text.
 enum CameraHelpTopic: Equatable {
 
+    /// Covers camera permission and physical-input preparation.
+    case cameraAccess
+
+    /// Covers extension installation, approval, and virtual-device recovery.
+    case virtualCamera
+
     /// Explains restrictions enforced by macOS or a device administrator.
     case restrictedCameraAccess
 }
@@ -81,7 +87,7 @@ enum CameraNoticeAction: Equatable {
         case .reinstallVirtualCamera: OnboardingStrings.install
         case .checkAgain: OnboardingStrings.noticeCheckAgain
         case .retry: OnboardingStrings.retry
-        case .showHelp: OnboardingStrings.noticeViewHelp
+        case .showHelp: OnboardingStrings.viewAction
         case .revealApplication: OnboardingStrings.noticeShowInFinder
         case .restartApplication: OnboardingStrings.noticeRestartFaceNow
         case .copyErrorDetails: OnboardingStrings.copyErrorDetails
@@ -128,6 +134,28 @@ struct CameraNoticePresentation: Equatable {
         failure: CameraOperationFailure?,
         actionsLocked: Bool,
         surface: CameraNoticeSurface = .banner
+    ) -> Self? {
+        guard let notice = resolve(
+            readiness: readiness,
+            operation: operation,
+            failure: failure,
+            actionsLocked: actionsLocked,
+            surface: surface
+        ) else { return nil }
+        guard surface == .banner else { return notice }
+        return Self(
+            message: notice.message,
+            action: .showHelp(guideTopic(for: notice, readiness: readiness, failure: failure))
+        )
+    }
+
+    /// Keeps device commands and their progress inside the guide while retaining shared state copy.
+    private static func resolve(
+        readiness: CameraReadiness,
+        operation: CameraOperationContext?,
+        failure: CameraOperationFailure?,
+        actionsLocked: Bool,
+        surface: CameraNoticeSurface
     ) -> Self? {
         if let operation, operation.origin == .user {
             switch readiness {
@@ -231,6 +259,30 @@ struct CameraNoticePresentation: Equatable {
         return result
     }
 
+    /// Opens the stage that owns the rendered issue, including failures on an otherwise-ready device.
+    private static func guideTopic(
+        for notice: Self,
+        readiness: CameraReadiness,
+        failure: CameraOperationFailure?
+    ) -> CameraHelpTopic {
+        if let operation = notice.action.operation {
+            return operation.belongs(to: .cameraInput) ? .cameraAccess : .virtualCamera
+        }
+        switch notice.action {
+        case .openSettings(.cameraPrivacy), .chooseCamera:
+            return .cameraAccess
+        case .showHelp(let topic):
+            return topic
+        case .copyErrorDetails:
+            if case .unavailable(.operationFailed(let embedded)) = readiness {
+                return embedded.operation.belongs(to: .cameraInput) ? .cameraAccess : .virtualCamera
+            }
+            return failure?.operation.belongs(to: .cameraInput) == true ? .cameraAccess : .virtualCamera
+        default:
+            return .virtualCamera
+        }
+    }
+
     /// Presents an explicit operation without erasing its underlying readiness facts.
     private static func progress(
         _ operation: CameraOperation
@@ -286,7 +338,7 @@ struct CameraNoticePresentation: Equatable {
                 action: .revealApplication
             )
         case .invalidBundle:
-            return Self(message: OnboardingStrings.noticeInvalidCameraBundle, action: .copyErrorDetails)
+            return Self(message: OnboardingStrings.noticeInvalidCameraBundle, action: .installVirtualCamera)
         case .systemPolicy:
             return Self(message: OnboardingStrings.noticeCameraBlockedByPolicy, action: .copyErrorDetails)
         case .recoveryExhausted:

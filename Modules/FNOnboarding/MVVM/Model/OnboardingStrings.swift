@@ -16,6 +16,15 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum OnboardingStrings {
 
+    /// Opens the guide from any visible camera status banner.
+    static var viewAction: String {
+        Localization.string(
+            "action.view",
+            table: "Onboarding",
+            defaultValue: "View"
+        )
+    }
+
     /// Explains the native administrator authorization requirement without suggesting a blind retry.
     static var noticeSetupAuthorizationRequired: String {
         Localization.string(
@@ -106,7 +115,7 @@ enum OnboardingStrings {
             "notice.invalid_camera_bundle",
             table: "Onboarding",
             defaultValue:
-                "The camera extension couldn’t be validated. Install a trusted copy of FaceNow or contact support."
+                "macOS couldn’t validate the camera extension. If this continues, reinstall the latest signed version of FaceNow."
         )
     }
 
@@ -174,7 +183,7 @@ enum OnboardingStrings {
             "guide.explanation.contact_support",
             table: "Onboarding",
             defaultValue:
-                "Click “Copy Error Details” in the bottom-right corner and include the details when contacting FaceNow support. Repeating the same installation request will not resolve a signature, policy, or unclassified system error."
+                "Click “Copy Error Details” in the bottom-right corner and include the details when contacting FaceNow support."
         )
     }
 

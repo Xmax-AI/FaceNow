@@ -369,12 +369,12 @@ final class OnboardingLandingView: Canvas {
         attributed.addAttribute(
             .link,
             value: onboardingRepo.termsURL,
-            range: (text as NSString).range(of: OnboardingStrings.termsOfUse)
+            range: serviceNoticeLinkRange(OnboardingStrings.termsOfUse, in: text)
         )
         attributed.addAttribute(
             .link,
             value: onboardingRepo.privacyURL,
-            range: (text as NSString).range(of: OnboardingStrings.privacyPolicy)
+            range: serviceNoticeLinkRange(OnboardingStrings.privacyPolicy, in: text)
         )
         let hintWidth = max(1, stageWidth - 40)
         let hintHeight = ceil(
@@ -390,6 +390,16 @@ final class OnboardingLandingView: Canvas {
         if !serviceNotice.attributedString().isEqual(to: attributed) {
             serviceNotice.textStorage?.setAttributedString(attributed)
         }
+    }
+
+    /// Includes Chinese book-title marks in each document's link appearance and click target.
+    private func serviceNoticeLinkRange(
+        _ title: String,
+        in text: String
+    ) -> NSRange {
+        let value = text as NSString
+        let wrappedRange = value.range(of: "《\(title)》")
+        return wrappedRange.location == NSNotFound ? value.range(of: title) : wrappedRange
     }
 
 }

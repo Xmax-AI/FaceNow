@@ -13,8 +13,12 @@ import Foundation
 /// Resolves app-owned text with an explicit language, independent of the system's preferences.
 public enum Localization {
 
-    /// The first release always uses English; future language selection belongs at this boundary.
+    /// The app target fixes its language independently of system and user preferences.
+    #if OVERSEA
     public static let languageCode = "en"
+    #else
+    public static let languageCode = "zh-Hans"
+    #endif
 
     /// The locale used when formatting parameters inside app-owned localized messages.
     public static let locale = Locale(identifier: languageCode)

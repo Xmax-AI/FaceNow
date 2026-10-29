@@ -17,11 +17,20 @@ import Foundation
 @MainActor
 final class UserLoginViewModel {
 
+    /// The verification tabs offered by this edition, followed by API-key sign-in in the view.
+    static let verificationMethods: [LoginMethod] = {
+        #if OVERSEA
+            return [.email]
+        #else
+            return [.sms, .email]
+        #endif
+    }()
+
     /// The capabilities validated for the domestic open-platform tenant.
     private(set) var configuration: LoginConfiguration?
 
-    /// The selected verification channel, initially mainland mobile numbers.
-    private(set) var method = LoginMethod.sms
+    /// The selected verification channel, supplied by the edition's form or a test fixture.
+    private(set) var method: LoginMethod
 
     /// Selects the API-key input form without changing authenticated account state.
     private(set) var usesAPIKey = false
@@ -96,9 +105,11 @@ final class UserLoginViewModel {
 
     /// Creates idle form state without reading credentials or issuing a request.
     init(
-        uptime: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }
+        uptime: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
+        initialMethod: LoginMethod = .sms
     ) {
         self.uptime = uptime
+        self.method = initialMethod
     }
 
     /// Accepts settings only for the domestic open-platform account contract.
@@ -108,6 +119,11 @@ final class UserLoginViewModel {
         guard value.tenantName == AccountAPI.tenant else { throw NetworkError.invalidResponse }
         configuration = value
     }
+
+    /// Keeps channel selection available until verified settings explicitly disable a method.
+    func isMethodSelectable(
+        _ method: LoginMethod
+    ) -> Bool { configuration?.supports(method) ?? true }
 
     /// Trims surrounding whitespace while preserving the destination's entered case.
     func destination(

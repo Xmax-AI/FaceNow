@@ -10,6 +10,12 @@
             "state": "translated",
             "value": "Back"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回"
+          }
         }
       }
     },
@@ -21,6 +27,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Continue"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
           }
         }
       }
@@ -34,6 +46,12 @@
             "state": "translated",
             "value": "Dismiss"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
         }
       }
     },
@@ -45,6 +63,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Install"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装"
           }
         }
       }
@@ -58,6 +82,12 @@
             "state": "translated",
             "value": "Remove"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
         }
       }
     },
@@ -69,6 +99,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
           }
         }
       }
@@ -82,6 +118,12 @@
             "state": "translated",
             "value": "Update"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
+          }
         }
       }
     },
@@ -93,6 +135,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Virtual Camera"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头"
           }
         }
       }
@@ -106,6 +154,12 @@
             "state": "translated",
             "value": "Microphone"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风"
+          }
         }
       }
     },
@@ -117,6 +171,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Privacy Policy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私政策"
           }
         }
       }
@@ -130,6 +190,12 @@
             "state": "translated",
             "value": "Terms of Use"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用条款"
+          }
         }
       }
     },
@@ -141,6 +207,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
           }
         }
       }
@@ -154,6 +226,12 @@
             "state": "translated",
             "value": "On"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启"
+          }
         }
       }
     },
@@ -165,6 +243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Selected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已选中"
           }
         }
       }
@@ -178,6 +262,12 @@
             "state": "translated",
             "value": "OK"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好"
+          }
         }
       }
     },
@@ -189,6 +279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Check for Updates…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查更新…"
           }
         }
       }
@@ -202,6 +298,12 @@
             "state": "translated",
             "value": "Automatic updates have not been enabled for this version of FaceNow."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本的 FaceNow 尚未启用自动更新。"
+          }
         }
       }
     },
@@ -213,6 +315,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Updates are not available yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新暂不可用"
           }
         }
       }
@@ -226,6 +334,12 @@
             "state": "translated",
             "value": "Stop camera preview or generation to finish installing the update. FaceNow will then restart automatically."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请停止摄像头预览或视频生成以完成更新安装，随后 FaceNow 将自动重新启动。"
+          }
         }
       }
     },
@@ -237,6 +351,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Update ready to install"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新已就绪，可以安装"
           }
         }
       }

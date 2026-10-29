@@ -27,7 +27,7 @@ public protocol UserTokenStoring {
     func remove() throws
 }
 
-/// Stores the domestic session token or verified API key in the application's private Keychain item.
+/// Stores the session token or verified API key in the host application's private Keychain item.
 @MainActor
 public struct UserTokenStore: UserTokenStoring {
 

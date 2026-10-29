@@ -10,6 +10,12 @@
             "state": "translated",
             "value": "2× frame interpolation is on. Click to turn off"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已开启 2 倍补帧，点击关闭"
+          }
         }
       }
     },
@@ -18,6 +24,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2x"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "2x"
@@ -34,6 +46,12 @@
             "state": "translated",
             "value": "Adjust remote playback volume"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调节远端播放音量"
+          }
         }
       }
     },
@@ -45,6 +63,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Describe how you want the video to change"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "描述你希望视频如何变化"
           }
         }
       }
@@ -58,6 +82,12 @@
             "state": "translated",
             "value": "Frame interpolation"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "补帧"
+          }
         }
       }
     },
@@ -69,6 +99,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Frame interpolation is off. Click to turn on"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "补帧已关闭，点击开启"
           }
         }
       }
@@ -82,6 +118,12 @@
             "state": "translated",
             "value": "Generating…"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在生成…"
+          }
         }
       }
     },
@@ -93,6 +135,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hide statistics (collection and logging continue)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏统计信息（仍会继续采集和记录日志）"
           }
         }
       }
@@ -106,6 +154,12 @@
             "state": "translated",
             "value": "Local"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地画面"
+          }
         }
       }
     },
@@ -117,6 +171,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Muted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已静音"
           }
         }
       }
@@ -130,6 +190,12 @@
             "state": "translated",
             "value": "Remote volume"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远端音量"
+          }
         }
       }
     },
@@ -141,6 +207,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remove reference"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除参考图"
           }
         }
       }
@@ -154,6 +226,12 @@
             "state": "translated",
             "value": "Result"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成画面"
+          }
         }
       }
     },
@@ -165,6 +243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show statistics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示统计信息"
           }
         }
       }
@@ -178,6 +262,12 @@
             "state": "translated",
             "value": "Stop Session"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止会话"
+          }
         }
       }
     },
@@ -189,6 +279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stopping…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在停止…"
           }
         }
       }
@@ -202,6 +298,12 @@
             "state": "translated",
             "value": "Submit prompt"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提交提示词"
+          }
         }
       }
     },
@@ -213,6 +315,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Switching"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在切换"
           }
         }
       }
@@ -226,6 +334,12 @@
             "state": "translated",
             "value": "Switching frame interpolation…"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在切换补帧…"
+          }
         }
       }
     },
@@ -237,6 +351,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Upload"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传"
           }
         }
       }
@@ -250,6 +370,12 @@
             "state": "translated",
             "value": "Upload reference image"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传参考图"
+          }
         }
       }
     },
@@ -261,6 +387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Upload your own reference image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传你自己的参考图"
           }
         }
       }
@@ -274,6 +406,12 @@
             "state": "translated",
             "value": "Waiting for connection…"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待连接…"
+          }
         }
       }
     },
@@ -285,6 +423,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connect a physical camera and select it from the camera list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请连接实体摄像头，并从摄像头列表中选择它。"
           }
         }
       }
@@ -298,6 +442,12 @@
             "state": "translated",
             "value": "The previous session is still stopping. Please try again in a moment."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上一次会话仍在停止中，请稍后再试。"
+          }
         }
       }
     },
@@ -309,6 +459,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unable to decode reference image; please choose a supported image file"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法解码参考图，请选择受支持的图片文件"
           }
         }
       }
@@ -322,6 +478,12 @@
             "state": "translated",
             "value": "Virtual camera output failed: %@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头输出失败：%@"
+          }
         }
       }
     },
@@ -333,6 +495,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Character Swap"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "角色替换"
           }
         }
       }
@@ -346,6 +514,12 @@
             "state": "translated",
             "value": "Free Prompt"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自由提示词"
+          }
         }
       }
     },
@@ -357,6 +531,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Style Transfer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "风格迁移"
           }
         }
       }
@@ -370,6 +550,12 @@
             "state": "translated",
             "value": "Virtual Try-On"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟试穿"
+          }
         }
       }
     },
@@ -381,6 +567,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "3D Cartoon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D 卡通"
           }
         }
       }
@@ -394,6 +586,12 @@
             "state": "translated",
             "value": "removed preset"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D 奶牛"
+          }
         }
       }
     },
@@ -405,6 +603,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "3D Kangaroo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D 袋鼠"
           }
         }
       }
@@ -418,6 +622,12 @@
             "state": "translated",
             "value": "removed preset 1"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset"
+          }
         }
       }
     },
@@ -426,6 +636,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "removed preset"
@@ -442,6 +658,12 @@
             "state": "translated",
             "value": "All-Denim Outfit"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "牛仔套装"
+          }
         }
       }
     },
@@ -453,6 +675,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "American Cartoon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美式卡通"
           }
         }
       }
@@ -466,6 +694,12 @@
             "state": "translated",
             "value": "Anime Boy"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "动漫男生"
+          }
         }
       }
     },
@@ -477,6 +711,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Anime Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "动漫女生"
           }
         }
       }
@@ -490,6 +730,12 @@
             "state": "translated",
             "value": "Anthropomorphic"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拟人角色"
+          }
         }
       }
     },
@@ -501,6 +747,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Black Classical Robe"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑色古典长袍"
           }
         }
       }
@@ -514,6 +766,12 @@
             "state": "translated",
             "value": "Black-Collar Academy"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑领学院风"
+          }
         }
       }
     },
@@ -525,6 +783,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Black Pinafore"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑色背带裙"
           }
         }
       }
@@ -538,6 +802,12 @@
             "state": "translated",
             "value": "Blonde Girl"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "金发女孩"
+          }
         }
       }
     },
@@ -549,6 +819,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Blue and White Retro"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "蓝白复古风"
           }
         }
       }
@@ -562,6 +838,12 @@
             "state": "translated",
             "value": "Blue Plaid Academy"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "蓝格学院风"
+          }
         }
       }
     },
@@ -573,6 +855,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "British Brown Plaid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "英伦棕格"
           }
         }
       }
@@ -586,6 +874,12 @@
             "state": "translated",
             "value": "Bronze Figure"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "青铜人像"
+          }
         }
       }
     },
@@ -597,6 +891,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bronze Warrior Armor"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "青铜战甲"
           }
         }
       }
@@ -610,6 +910,12 @@
             "state": "translated",
             "value": "Burgundy Stripes"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "酒红条纹"
+          }
         }
       }
     },
@@ -621,6 +927,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "removed preset 6"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset"
           }
         }
       }
@@ -634,6 +946,12 @@
             "state": "translated",
             "value": "Cartoon Boy"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卡通男孩"
+          }
         }
       }
     },
@@ -645,6 +963,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cel Shading"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "赛璐璐风格"
           }
         }
       }
@@ -658,6 +982,12 @@
             "state": "translated",
             "value": "Chill Capybara"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "悠闲水豚"
+          }
         }
       }
     },
@@ -669,6 +999,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Classical Boy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古风少年"
           }
         }
       }
@@ -682,6 +1018,12 @@
             "state": "translated",
             "value": "Classical Girl"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古风少女"
+          }
         }
       }
     },
@@ -693,6 +1035,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Coffee Cardigan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "咖色针织开衫"
           }
         }
       }
@@ -706,6 +1054,12 @@
             "state": "translated",
             "value": "Corporate Cow"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "职场奶牛"
+          }
         }
       }
     },
@@ -717,6 +1071,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Curly-Haired Boy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卷发男生"
           }
         }
       }
@@ -730,6 +1090,12 @@
             "state": "translated",
             "value": "Cute Hamster"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可爱仓鼠"
+          }
         }
       }
     },
@@ -741,6 +1107,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Designer Toy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "潮流玩偶"
           }
         }
       }
@@ -754,6 +1126,12 @@
             "state": "translated",
             "value": "Disney Style"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disney 风格"
+          }
         }
       }
     },
@@ -765,6 +1143,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gentle Panda"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温柔熊猫"
           }
         }
       }
@@ -778,6 +1162,12 @@
             "state": "translated",
             "value": "Gilded Goddess"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鎏金女神"
+          }
         }
       }
     },
@@ -789,6 +1179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gray Eveningwear"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "灰色晚礼服"
           }
         }
       }
@@ -802,6 +1198,12 @@
             "state": "translated",
             "value": "Humanoid Robot"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "人形机器人"
+          }
         }
       }
     },
@@ -813,6 +1215,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Illustrated Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "插画少女"
           }
         }
       }
@@ -826,6 +1234,12 @@
             "state": "translated",
             "value": "Japanese Animation"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日式动画"
+          }
         }
       }
     },
@@ -837,6 +1251,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Japanese Anime"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日式动漫"
           }
         }
       }
@@ -850,6 +1270,12 @@
             "state": "translated",
             "value": "Light Blue Sportswear"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浅蓝运动装"
+          }
         }
       }
     },
@@ -861,6 +1287,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lilac Slip Dress"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "淡紫吊带裙"
           }
         }
       }
@@ -874,6 +1306,12 @@
             "state": "translated",
             "value": "Long Coat Set"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长款大衣套装"
+          }
         }
       }
     },
@@ -885,6 +1323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Luxury Suit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "奢华西装"
           }
         }
       }
@@ -898,6 +1342,12 @@
             "state": "translated",
             "value": "Magenta Techwear"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "品红科技风"
+          }
         }
       }
     },
@@ -909,6 +1359,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mecha Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "机甲少女"
           }
         }
       }
@@ -922,6 +1378,12 @@
             "state": "translated",
             "value": "removed preset 8"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 15"
+          }
         }
       }
     },
@@ -933,6 +1395,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Modern Boy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现代男生"
           }
         }
       }
@@ -946,6 +1414,12 @@
             "state": "translated",
             "value": "Modern Girl"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现代女生"
+          }
         }
       }
     },
@@ -957,6 +1431,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Monochrome Vanguard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑白先锋风"
           }
         }
       }
@@ -970,6 +1450,12 @@
             "state": "translated",
             "value": "Navy Officewear"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "藏蓝通勤装"
+          }
         }
       }
     },
@@ -981,6 +1467,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Navy Sailor Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "藏蓝水手服"
           }
         }
       }
@@ -994,6 +1486,12 @@
             "state": "translated",
             "value": "Pink Academy"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粉色学院风"
+          }
         }
       }
     },
@@ -1005,6 +1503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Realistic Animals"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写实动物"
           }
         }
       }
@@ -1018,6 +1522,12 @@
             "state": "translated",
             "value": "School Anime"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "校园动漫"
+          }
         }
       }
     },
@@ -1029,6 +1539,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Silver Casualwear"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银色休闲装"
           }
         }
       }
@@ -1042,6 +1558,12 @@
             "state": "translated",
             "value": "Silver Fantasy Robe"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银色奇幻长袍"
+          }
         }
       }
     },
@@ -1053,6 +1575,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Special Ops"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特种作战"
           }
         }
       }
@@ -1066,6 +1594,12 @@
             "state": "translated",
             "value": "Surrealism"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "超现实主义"
+          }
         }
       }
     },
@@ -1077,6 +1611,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Urban Anime"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "都市动漫"
           }
         }
       }
@@ -1090,6 +1630,12 @@
             "state": "translated",
             "value": "Vintage Brown"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复古棕色"
+          }
         }
       }
     },
@@ -1101,6 +1647,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ — Click to retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ — 点击重试"
           }
         }
       }
@@ -1114,6 +1666,12 @@
             "state": "translated",
             "value": "Downlink bitrate"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行码率"
+          }
         }
       }
     },
@@ -1125,6 +1683,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Downlink frame rate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行帧率"
           }
         }
       }
@@ -1138,6 +1702,12 @@
             "state": "translated",
             "value": "Downlink network and latency"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行网络与延迟"
+          }
         }
       }
     },
@@ -1149,6 +1719,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Downlink network quality"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行网络质量"
           }
         }
       }
@@ -1162,6 +1738,12 @@
             "state": "translated",
             "value": "Downlink packet loss"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行丢包率"
+          }
         }
       }
     },
@@ -1173,6 +1755,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Downlink resolution"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行分辨率"
           }
         }
       }
@@ -1186,6 +1774,12 @@
             "state": "translated",
             "value": "Downlink video statistics"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行视频统计"
+          }
         }
       }
     },
@@ -1197,6 +1791,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "E2E (RTC estimate)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端到端延迟（RTC 估算）"
           }
         }
       }
@@ -1210,6 +1810,12 @@
             "state": "translated",
             "value": "First frame latency"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首帧延迟"
+          }
         }
       }
     },
@@ -1221,6 +1827,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "From generation signal submission to the first display-ready result frame"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从提交生成指令到首个可显示的生成帧就绪的耗时"
           }
         }
       }
@@ -1234,6 +1846,12 @@
             "state": "translated",
             "value": "From joining the RTC channel until the connection succeeds"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从加入 RTC 频道到连接成功的耗时"
+          }
         }
       }
     },
@@ -1245,6 +1863,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "From starting generation after camera readiness to the first display-ready result. Camera preparation is excluded; the total is measured directly, not added from stage durations."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从摄像头就绪后开始生成，到首个可显示的生成帧就绪的耗时。不包含摄像头准备时间；总耗时直接测量，并非各阶段耗时相加。"
           }
         }
       }
@@ -1258,6 +1882,12 @@
             "state": "translated",
             "value": "Launch timing"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动耗时"
+          }
         }
       }
     },
@@ -1266,6 +1896,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld %2$@"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld %2$@"
@@ -1282,6 +1918,12 @@
             "state": "translated",
             "value": "%.1f ms"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.1f 毫秒"
+          }
         }
       }
     },
@@ -1293,6 +1935,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Not exposed by the macOS SDK"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS SDK 未提供此数据"
           }
         }
       }
@@ -1306,6 +1954,12 @@
             "state": "translated",
             "value": "Packet loss from this SDK to the RTC cloud, not local preview loss"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 SDK 到 RTC 云端的丢包率，不代表本地预览丢帧率"
+          }
         }
       }
     },
@@ -1317,6 +1971,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Playback buffer delay"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放缓冲延迟"
           }
         }
       }
@@ -1330,6 +1990,12 @@
             "state": "translated",
             "value": "Bad"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "较差"
+          }
         }
       }
     },
@@ -1341,6 +2007,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Down"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已断开"
           }
         }
       }
@@ -1354,6 +2026,12 @@
             "state": "translated",
             "value": "Excellent"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "极佳"
+          }
         }
       }
     },
@@ -1365,6 +2043,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Good"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "良好"
           }
         }
       }
@@ -1378,6 +2062,12 @@
             "state": "translated",
             "value": "Poor"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般"
+          }
         }
       }
     },
@@ -1390,6 +2080,12 @@
             "state": "translated",
             "value": "Unknown"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
+          }
         }
       }
     },
@@ -1398,6 +2094,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld × %2$lld"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld × %2$lld"
@@ -1414,6 +2116,12 @@
             "state": "translated",
             "value": "RTC connection"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RTC 连接"
+          }
         }
       }
     },
@@ -1425,6 +2133,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "RTT (cloud)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "往返延迟（云端）"
           }
         }
       }
@@ -1438,6 +2152,12 @@
             "state": "translated",
             "value": "Session creation"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话创建"
+          }
         }
       }
     },
@@ -1449,6 +2169,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stream publication"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体流发布"
           }
         }
       }
@@ -1462,6 +2188,12 @@
             "state": "translated",
             "value": "Time spent creating the server-side generation session"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "创建服务端生成会话的耗时"
+          }
         }
       }
     },
@@ -1473,6 +2205,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Time spent publishing the local media stream to the RTC channel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将本地媒体流发布到 RTC 频道的耗时"
           }
         }
       }
@@ -1486,6 +2224,12 @@
             "state": "translated",
             "value": "Total startup"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动总耗时"
+          }
         }
       }
     },
@@ -1497,6 +2241,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uplink bitrate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行码率"
           }
         }
       }
@@ -1510,6 +2260,12 @@
             "state": "translated",
             "value": "Uplink frame rate"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行帧率"
+          }
         }
       }
     },
@@ -1521,6 +2277,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uplink network and latency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行网络与延迟"
           }
         }
       }
@@ -1534,6 +2296,12 @@
             "state": "translated",
             "value": "Uplink network quality"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行网络质量"
+          }
         }
       }
     },
@@ -1545,6 +2313,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uplink packet loss"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行丢包率"
           }
         }
       }
@@ -1558,6 +2332,12 @@
             "state": "translated",
             "value": "Uplink resolution"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行分辨率"
+          }
         }
       }
     },
@@ -1569,6 +2349,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uplink RTT"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行往返延迟"
           }
         }
       }
@@ -1582,6 +2368,12 @@
             "state": "translated",
             "value": "Uplink video statistics"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行视频统计"
+          }
         }
       }
     },
@@ -1594,6 +2386,12 @@
             "state": "translated",
             "value": "Very bad"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "很差"
+          }
         }
       }
     },
@@ -1602,6 +2400,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld%%"

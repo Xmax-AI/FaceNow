@@ -121,7 +121,8 @@ final class UserCaptchaViewController: NSViewController, WKScriptMessageHandler,
         canvas.addSubview(webView)
         webView.snp.makeConstraints { make in make.edges.equalToSuperview() }
         let options: [String: String] = [
-            "appID": appID, "bizState": businessState, "language": Localization.languageCode,
+            "appID": appID, "bizState": businessState,
+            "language": Localization.languageCode == "zh-Hans" ? "zh-cn" : "en",
         ]
         guard
             let data = try? JSONSerialization.data(

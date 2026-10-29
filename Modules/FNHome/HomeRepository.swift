@@ -20,19 +20,19 @@ final class HomeRepository: ObservableObject {
     let socialURL = URL(string: "https://x.com/XmaxAIOfficial")!
 
     /// The public product website.
-    let websiteURL = URL(string: "https://xmaxai.com")!
+    let websiteURL = NetworkEnvironment.current.websiteURL
 
     /// The product support destination.
     let contactURL = URL(string: "mailto:facenow@xmax.ai")!
 
     /// The troubleshooting document opened from the home footer.
-    let troubleshootingURL = URL(string: "https://zcn0qf3aul03.feishu.cn/docx/T6DLdmYoxoo1h5x24aQc8urwnWd")!
+    let troubleshootingURL = NetworkEnvironment.current.troubleshootingURL
 
     /// The public app version shown in the home footer, independent of the internal build number.
     let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
 
-    /// The domestic API-key management portal.
-    let platformURL = URL(string: "https://platform.xmaxai.com")!
+    /// The current edition's API-key management portal.
+    let platformURL = NetworkEnvironment.current.platformURL
 
     /// The follow-popover artwork loaded on demand by the view.
     let wechatImageURL = URL(string: "https://assets.22duck.fun/image/wechatAccount.jpg")!

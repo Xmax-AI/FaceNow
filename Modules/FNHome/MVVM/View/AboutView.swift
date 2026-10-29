@@ -318,14 +318,15 @@ final class AboutView: Canvas {
         if !isDismissing { onDismiss?() }
     }
 
-    /// Gives the introduction the top edge while retaining an always-accessible close action.
+    /// Fits the card to its document while letting viewport limits keep long content scrollable.
     private func configureLayout() {
         backdrop.snp.makeConstraints { make in make.edges.equalToSuperview() }
         card.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview().offset(24)
             make.width.equalTo(980)
-            make.height.equalToSuperview().offset(-64).priority(490)
+            make.height.equalTo(document.snp.height).offset(60).priority(489)
+            make.height.lessThanOrEqualToSuperview().offset(-64).priority(490)
             make.height.lessThanOrEqualTo(760)
         }
         closeButton.snp.makeConstraints { make in
@@ -404,6 +405,7 @@ private final class AboutAdvantageView: Canvas {
             size: 13,
             color: Palette.secondary
         )
+        view.setContentHuggingPriority(.defaultHigh, for: .vertical)
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineSpacing = 3
         view.attributedStringValue = NSAttributedString(
@@ -449,8 +451,8 @@ private final class AboutAdvantageView: Canvas {
             make.leading.trailing.equalTo(metric)
             make.top.equalTo(metric.snp.bottom).offset(12)
             make.bottom.lessThanOrEqualToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(20).priority(249)
         }
-        snp.makeConstraints { make in make.height.greaterThanOrEqualTo(218) }
     }
 
     /// Storyboard decoding is unsupported for this programmatic component.

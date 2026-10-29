@@ -24,10 +24,19 @@ import Foundation
 final class UserRepository: ObservableObject {
 
     /// The account credit page opened from the header balance.
-    let creditsURL = URL(string: "https://platform.xmax.ai/credits")!
+    let creditsURL = NetworkEnvironment.current.platformURL.appendingPathComponent("credits")
 
     /// The account usage page opened from the profile card.
-    let usageURL = URL(string: "https://platform.xmax.ai/usage")!
+    let usageURL = NetworkEnvironment.current.platformURL.appendingPathComponent("usage")
+
+    /// The regional API-key management page opened from credential editing.
+    let apiKeysURL = NetworkEnvironment.current.platformURL.appendingPathComponent("api-keys")
+
+    /// The regional terms displayed on the login form.
+    let termsURL = NetworkEnvironment.current.termsURL
+
+    /// The regional privacy policy displayed on the login form.
+    let privacyURL = NetworkEnvironment.current.privacyURL
 
     /// Reports explicit, validated sign-ins without replaying saved-session restoration.
     var signInCompleted: AnyPublisher<Void, Never> { signInEvents.eraseToAnyPublisher() }
@@ -87,6 +96,9 @@ final class UserRepository: ObservableObject {
 
     /// The last server-confirmed credit balance; nil means it has not been obtained.
     @Published private(set) var remainingCredits: Double?
+
+    /// Blocks explicit camera startup only when the in-memory balance is known to be empty.
+    var hasInsufficientCredits: Bool { remainingCredits.map { $0 <= 0 } ?? false }
 
     /// Whether a balance request is already in flight.
     @Published private(set) var isLoadingCredits = false

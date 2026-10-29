@@ -23,8 +23,8 @@ public protocol APITargetType: TargetType, Sendable {
 
 extension APITargetType {
 
-    /// The domestic platform origin shared by account and API-key endpoints.
-    public var baseURL: URL { URL(string: "https://cloud.xmax.22duck.cn")! }
+    /// The target-selected platform origin shared by account and API-key endpoints.
+    public var baseURL: URL { NetworkEnvironment.current.baseURL }
 
     /// The common JSON headers, excluding credentials and application state.
     public var headers: [String: String]? { ["Accept": "application/json", "Content-Type": "application/json"] }

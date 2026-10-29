@@ -15,6 +15,9 @@ import SnapKit
 @MainActor
 final class CameraStatusBannerView: Canvas {
 
+    /// Shares the compact action inset between layout and wrapped-text measurement.
+    private static let actionTrailingInset: CGFloat = 8
+
     /// The deep orange used by warning actions in every interaction state.
     private static let actionColor = NSColor(
         srgbRed: 0.65,
@@ -23,7 +26,7 @@ final class CameraStatusBannerView: Canvas {
         alpha: 1
     )
 
-    /// Reports the rendered command without owning camera policy or device operations.
+    /// Reports the guide-navigation intent without owning camera policy or device operations.
     var onAction: ((CameraNoticeAction) -> Void)?
 
     /// The current immutable content, used only to render and report a click.
@@ -54,7 +57,7 @@ final class CameraStatusBannerView: Canvas {
         return view
     }()
 
-    /// Displays the mapped action and any inline operation progress.
+    /// Opens the guide while state-specific device actions remain inside onboarding.
     private lazy var setupButton: Button = {
         let view = Button(style: .plain)
         view.font = Typography.font(
@@ -97,9 +100,9 @@ final class CameraStatusBannerView: Canvas {
             make.bottom.lessThanOrEqualToSuperview().inset(10)
         }
         setupButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(12)
+            make.trailing.equalToSuperview().inset(Self.actionTrailingInset)
             make.centerY.equalToSuperview()
-            make.width.equalTo(64)
+            make.width.equalTo(actionWidth)
             make.height.equalTo(28)
         }
     }
@@ -127,14 +130,14 @@ final class CameraStatusBannerView: Canvas {
     }
 
     /// Measures the button through the shared native component instead of assuming a short label.
-    private var actionWidth: CGFloat { max(64, setupButton.preferredWidth) }
+    private var actionWidth: CGFloat { max(40, setupButton.preferredWidth) }
 
     /// Measures the wrapped explanation using the same content insets as the installed constraints.
     func preferredHeight(
         width: CGFloat
     ) -> CGFloat {
         guard !isHidden else { return 0 }
-        let textWidth = max(1, width - 62 - actionWidth)
+        let textWidth = max(1, width - 50 - Self.actionTrailingInset - actionWidth)
         if messageLabel.preferredMaxLayoutWidth != textWidth {
             messageLabel.preferredMaxLayoutWidth = textWidth
         }

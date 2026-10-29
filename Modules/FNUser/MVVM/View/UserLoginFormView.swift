@@ -30,7 +30,9 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     @Injected(\.userRepo) private var userRepo: UserRepository
 
     /// The channel drafts, validation, and resend state owned by this presentation.
-    private let viewModel = UserLoginViewModel()
+    private let viewModel = UserLoginViewModel(
+        initialMethod: UserLoginViewModel.verificationMethods[0]
+    )
 
     /// The tenant capabilities used to configure native controls.
     private var configuration: LoginConfiguration? { viewModel.configuration }
@@ -82,7 +84,8 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// Chooses between verification-code channels and API-key sign-in.
     private lazy var methods: TabSwitcher = {
         let view = TabSwitcher(
-            titles: [UserStrings.phone, UserStrings.email, UserStrings.apiKey]
+            titles: UserLoginViewModel.verificationMethods.map { $0 == .sms ? UserStrings.phone : UserStrings.email }
+                + [UserStrings.apiKey]
         )
         view.font = Typography.font(
             size: 15,
@@ -90,23 +93,23 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         )
         view.onSelectionChanged = { [weak self] index in
             guard let self else { return }
-            if index == 2 {
+            if index == UserLoginViewModel.verificationMethods.count {
                 self.selectAPIKeyMode()
             } else {
-                self.switchMethod(index == 0 ? .sms : .email)
+                self.switchMethod(UserLoginViewModel.verificationMethods[index])
             }
         }
         return view
     }()
 
-    /// The shared account input with a noneditable domestic dialing prefix.
+    /// The initial edition-specific account editor, with a prefix only for phone verification.
     private lazy var accountInput: InputField = {
         let view = InputField()
         view.font = Typography.font(size: 15)
-        view.prefix = "+86"
+        view.prefix = method == .sms ? "+86" : nil
         view.textField.delegate = self
-        view.textField.setAccessibilityLabel(UserStrings.phoneLabel)
-        view.textField.placeholderString = UserStrings.phonePlaceholder
+        view.textField.setAccessibilityLabel(method == .sms ? UserStrings.phoneLabel : UserStrings.emailLabel)
+        view.textField.placeholderString = method == .sms ? UserStrings.phonePlaceholder : UserStrings.emailPlaceholder
         return view
     }()
 
@@ -208,12 +211,12 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         )
         value.addAttribute(
             .link,
-            value: "https://platform.xmaxai.com/docs/resources/terms",
+            value: userRepo.termsURL,
             range: (text as NSString).range(of: UserStrings.termsOfUse)
         )
         value.addAttribute(
             .link,
-            value: "https://platform.xmaxai.com/docs/resources/privacy",
+            value: userRepo.privacyURL,
             range: (text as NSString).range(of: UserStrings.privacyPolicy)
         )
         view.textStorage?.setAttributedString(value)
@@ -419,15 +422,16 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         let busy = operation != nil || userRepo.isBusy || userRepo.isRestoring
         let ready = configuration?.supports(method) == true && configurationTask == nil
         methods.isEnabled = !busy
-        methods.selectedIndex = usesAPIKey ? 2 : method == .sms ? 0 : 1
-        methods.setEnabled(
-            configuration?.enableSmsLogin ?? false,
-            at: 0
-        )
-        methods.setEnabled(
-            configuration?.enableEmailLogin ?? false,
-            at: 1
-        )
+        methods.selectedIndex =
+            usesAPIKey
+            ? UserLoginViewModel.verificationMethods.count
+            : UserLoginViewModel.verificationMethods.firstIndex(of: method)
+        for (index, method) in UserLoginViewModel.verificationMethods.enumerated() {
+            methods.setEnabled(
+                viewModel.isMethodSelectable(method),
+                at: index
+            )
+        }
         accountInput.isEnabled = !busy
         accountInput.isHidden = usesAPIKey
         accountInput.prefix = method == .sms ? "+86" : nil
@@ -437,7 +441,8 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         codeInput.isEnabled = !busy
         apiKeyInput.validationMessage = viewModel.apiKeyValidationMessage
         codeInput.validationMessage = viewModel.codeValidationMessage
-        sendButton.isEnabled = ready && !busy && validAccount && cooldown == 0
+        sendButton.isEnabled =
+            (ready || configurationFailed) && configurationTask == nil && !busy && validAccount && cooldown == 0
         sendButton.title = cooldown > 0 ? UserStrings.resendCode(seconds: cooldown) : UserStrings.getCode
         updateSendButtonWidth(animated: true)
         let loading = isSubmittingLogin
@@ -500,7 +505,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
                 if !self.usesAPIKey {
                     if !settings.supports(self.method), settings.supports(.email) { self.switchMethod(.email) }
                     self.requestError =
-                        settings.enableSmsLogin || settings.enableEmailLogin
+                        UserLoginViewModel.verificationMethods.contains(where: settings.supports)
                         ? nil : UserStrings.loginUnavailable
                 }
             } catch is CancellationError {} catch {
@@ -519,7 +524,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
             if login { signInWithAPIKey() }
             return
         }
-        if login, configurationFailed {
+        if configurationFailed {
             loadConfiguration()
             return
         }
@@ -645,6 +650,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         codeField.stringValue = draft.code
         accountField.placeholderString = next == .sms ? UserStrings.phonePlaceholder : UserStrings.emailPlaceholder
         accountField.setAccessibilityLabel(next == .sms ? UserStrings.phoneLabel : UserStrings.emailLabel)
+        if configurationFailed { loadConfiguration() }
         requestError = nil
         update()
     }

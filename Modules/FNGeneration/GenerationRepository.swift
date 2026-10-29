@@ -304,10 +304,15 @@ final class GenerationRepository: ObservableObject {
         uplinkStatistics = nil
         downlinkStatistics = nil
         networkQuality = nil
+        #if OVERSEA
+            let environment = XmaxEnvironment.global
+        #else
+            let environment = XmaxEnvironment.china
+        #endif
         let client = XmaxClient(
             configuration: XmaxConfiguration(
                 apiKey: userRepo.apiKey,
-                environment: .china,
+                environment: environment,
                 loggerOptions: .all
             )
         )
@@ -344,12 +349,8 @@ final class GenerationRepository: ObservableObject {
             }
             if ![.connected, .generating].contains(state.connectionState) { self.remoteStream = nil }
             if case let .failure(error) = state.reason {
-                self.errorMessage = error.message
-                if self.sessionActive {
-                    self.isBusy = false
-                } else {
-                    self.resetSession()
-                }
+                self.handleGenerationFailure(error, endsSession: true)
+                return
             }
             if state.connectionState == .ready {
                 Task { [weak self] in await self?.startPendingGeneration(operation: operation) }
@@ -396,8 +397,7 @@ final class GenerationRepository: ObservableObject {
             await startPendingGeneration(operation: operation)
         } catch {
             guard lifecycleID == operation else { return }
-            errorMessage = error.localizedDescription
-            resetSession()
+            handleGenerationFailure(error, endsSession: true)
             await cleanup?.value
         }
     }
@@ -420,8 +420,8 @@ final class GenerationRepository: ObservableObject {
             isBusy = false
         } catch {
             guard lifecycleID == operation else { return }
-            errorMessage = error.localizedDescription
-            isBusy = false
+            handleGenerationFailure(error)
+            if lifecycleID == operation { isBusy = false }
         }
     }
 
@@ -572,7 +572,7 @@ final class GenerationRepository: ObservableObject {
                 $0.uploadError = error.localizedDescription
             }
             guard lifecycleID == operation else { return }
-            if selectionIntent == intent { errorMessage = error.localizedDescription }
+            if selectionIntent == intent { handleGenerationFailure(error) }
         }
     }
 
@@ -600,7 +600,7 @@ final class GenerationRepository: ObservableObject {
             if reference.mode == .free { self.prompt = reference.prompt ?? self.prompt }
             do { try await self.generate(reference: reference) } catch {
                 if self.lifecycleID == operation, self.selectionIntent == intent {
-                    self.errorMessage = error.localizedDescription
+                    self.handleGenerationFailure(error)
                 }
             }
         }
@@ -696,7 +696,7 @@ final class GenerationRepository: ObservableObject {
         interpolationSwitching = true
         errorMessage = nil
         do { try await manager.setFrameInterpolationEnabled(!interpolationEnabled) } catch {
-            if lifecycleID == operation { errorMessage = error.localizedDescription }
+            if lifecycleID == operation { handleGenerationFailure(error) }
         }
         guard lifecycleID == operation else { return }
         await refreshInterpolationState()
@@ -713,7 +713,22 @@ final class GenerationRepository: ObservableObject {
         do {
             try await manager.setRemoteAudioVolume(volume)
             if lifecycleID == operation { remoteAudioVolume = volume }
-        } catch { if lifecycleID == operation { errorMessage = error.localizedDescription } }
+        } catch { if lifecycleID == operation { handleGenerationFailure(error) } }
+    }
+
+    /// Returns terminal sessions to home while retaining their error through asynchronous cleanup.
+    private func handleGenerationFailure(
+        _ error: any Error,
+        endsSession: Bool = false
+    ) {
+        let sdkError = error as? XmaxError
+        let isPlatformFailure = sdkError?.code == .apiError || sdkError?.code == .sessionError
+        let insufficientCredits = isPlatformFailure && GenerationFailure.isInsufficientCredits(
+            apiCode: sdkError?.apiCode,
+            message: error.localizedDescription
+        )
+        if endsSession || insufficientCredits { resetSession() }
+        errorMessage = insufficientCredits ? AccountStrings.insufficientCredits : error.localizedDescription
     }
 
     /// Clears the currently displayed setup or generation failure.

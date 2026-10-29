@@ -49,7 +49,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
                 creditsToAvatar?.deactivate()
                 creditsToTrailing?.activate()
             }
-            accountButtonHovered = false
             closePopover()
             needsLayout = true
         }
@@ -70,9 +69,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         )
         button.foregroundColor = .white
         button.onClick = { [weak self] in self?.showAccount() }
-        button.onPointerHoverChanged = { [weak self] hovering in
-            self?.accountHoverChanged(hovering)
-        }
         return button
     }()
 
@@ -138,13 +134,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     /// Owns the short hover delays and cancels them on page or session changes.
     private var creditsHoverTask: Task<Void, Never>?
 
-    /// Keeps the account card visible while either its avatar or content is hovered.
-    private var accountButtonHovered = false
-    private var accountPopoverHovered = false
-
-    /// Owns account-card entry and dismissal delays independently of the credit warning.
-    private var accountHoverTask: Task<Void, Never>?
-
     /// Offers recharge through the credit pill's mutually exclusive hover card.
     private lazy var creditsCard: UserCreditsPopoverView = {
         let view = UserCreditsPopoverView()
@@ -190,16 +179,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
             NSWorkspace.shared.open(self.userRepo.usageURL)
         }
         view.onSignOut = { [weak self] in self?.signOut() }
-        view.onHoverChanged = { [weak self] hovering in
-            guard let self, self.showingAccount else { return }
-            self.accountPopoverHovered = hovering
-            if hovering {
-                self.accountHoverTask?.cancel()
-                self.accountHoverTask = nil
-            } else {
-                self.scheduleAccountDismissal()
-            }
-        }
         return view
     }()
 
@@ -255,8 +234,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
             if showingCredits { closePopover() }
         }
         if !userRepo.isSignedIn {
-            accountHoverTask?.cancel()
-            accountHoverTask = nil
             if showingAccount { closePopover() }
         } else if showingAccount, popover?.isShown == true {
             accountCard.update()
@@ -273,13 +250,10 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     func closePopover() {
         creditsHoverTask?.cancel()
         creditsHoverTask = nil
-        accountHoverTask?.cancel()
-        accountHoverTask = nil
         showingCredits = false
         creditsPopoverHovered = false
         if showingAccount { accountCard.resetMenuHover() }
         showingAccount = false
-        accountPopoverHovered = false
         popover?.close()
         popover = nil
     }
@@ -289,7 +263,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         super.viewDidMoveToWindow()
         if window == nil {
             creditsButtonHovered = false
-            accountButtonHovered = false
             closePopover()
         }
     }
@@ -298,7 +271,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     override func viewDidHide() {
         super.viewDidHide()
         creditsButtonHovered = false
-        accountButtonHovered = false
         closePopover()
     }
 
@@ -314,9 +286,9 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
             return
         }
         guard viewModel.showsLowCreditsWarning else { return }
-        guard popover?.isShown != true || showingAccount || showingCredits else { return }
+        guard popover?.isShown != true || showingCredits else { return }
         if showingCredits, popover?.isShown == true { return }
-        // End the previous hover lifecycle before starting the new card's entry delay.
+        // End the previous warning lifecycle before starting a new entry delay.
         closePopover()
         creditsHoverTask = Task { [weak self] in
             do { try await Task.sleep(for: .milliseconds(200)) } catch { return }
@@ -338,11 +310,11 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         }
     }
 
-    /// Presents the warning only while the red pill is visible and key editing is inactive.
-    private func showCreditsWarning() {
+    /// Presents a recharge action for an explicit start failure or a red-pill hover.
+    func showCreditsWarning() {
         guard viewModel.showsLowCreditsWarning, window?.isVisible == true,
             !isHiddenOrHasHiddenAncestor,
-            popover?.isShown != true || showingAccount || showingCredits
+            popover?.isShown != true || showingCredits
         else { return }
         if showingCredits, popover?.isShown == true { return }
         closePopover()
@@ -363,52 +335,17 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         )
     }
 
-    /// Shows a signed-in account on hover without triggering login or interrupting key editing.
-    private func accountHoverChanged(
-        _ hovering: Bool
-    ) {
-        accountButtonHovered = hovering
-        accountHoverTask?.cancel()
-        accountHoverTask = nil
-        guard hovering else {
-            scheduleAccountDismissal()
-            return
-        }
-        guard userRepo.isSignedIn else { return }
-        guard popover?.isShown != true || showingAccount || showingCredits else { return }
-        if showingAccount, popover?.isShown == true { return }
-        closePopover()
-        accountHoverTask = Task { [weak self] in
-            do { try await Task.sleep(for: .milliseconds(200)) } catch { return }
-            guard let self, self.accountButtonHovered, self.userRepo.isSignedIn,
-                self.window?.isVisible == true, !self.isHiddenOrHasHiddenAncestor,
-                self.popover?.isShown != true || self.showingAccount || self.showingCredits
-            else { return }
-            self.showAccount()
-        }
-    }
-
-    /// Leaves a short bridge between the avatar and its account card before dismissing it.
-    private func scheduleAccountDismissal() {
-        guard showingAccount, !accountButtonHovered, !accountPopoverHovered else { return }
-        accountHoverTask?.cancel()
-        accountHoverTask = Task { [weak self] in
-            do { try await Task.sleep(for: .milliseconds(300)) } catch { return }
-            guard let self, self.showingAccount,
-                !self.accountButtonHovered, !self.accountPopoverHovered
-            else { return }
-            self.closePopover()
-        }
-    }
-
-    /// Presents the account card on hover, retaining click and keyboard access as well.
+    /// Toggles the account card from an explicit avatar click or keyboard activation.
     private func showAccount() {
         guard showsAvatar else { return }
         guard userRepo.isSignedIn else {
             onSignIn?()
             return
         }
-        if showingAccount, popover?.isShown == true { return }
+        if showingAccount, popover?.isShown == true {
+            closePopover()
+            return
+        }
         closePopover()
         accountCard.resetMenuHover()
         accountCard.update()
@@ -451,7 +388,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         )
         attributed.addAttribute(
             .link,
-            value: "https://platform.xmaxai.com/api-keys",
+            value: userRepo.apiKeysURL,
             range: (text as NSString).range(of: "Xmax Open Platform")
         )
         let width = max(292, ceil(attributed.size().width) + 40)

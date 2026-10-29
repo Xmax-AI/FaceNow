@@ -11,7 +11,7 @@
 import Foundation
 @preconcurrency import Moya
 
-/// Describes domestic account routes as Moya targets, independently of user state.
+/// Describes regional account routes as Moya targets, independently of user state.
 public enum AccountAPI: APITargetType {
 
     /// Reads tenant-controlled login methods and security settings.
@@ -20,7 +20,7 @@ public enum AccountAPI: APITargetType {
     /// Sends a verification code after one-use security verification.
     case sendCode(method: LoginMethod, account: String, proof: CaptchaProof)
 
-    /// Exchanges a one-time code for the domestic platform's token string.
+    /// Exchanges a one-time code for the selected platform's token string.
     case login(method: LoginMethod, account: String, code: String, proof: CaptchaProof)
 
     /// Reads the current user's identity and validates a persisted session.
@@ -32,10 +32,10 @@ public enum AccountAPI: APITargetType {
     /// Invalidates the current platform session.
     case logout
 
-    /// The tenant shared with the domestic API platform.
+    /// The tenant shared by both regional API platforms.
     public static let tenant = "open-platform"
 
-    /// The service-relative route, retaining the domestic API prefix.
+    /// The service-relative route, retaining the shared BaaS and Open API prefixes.
     public var path: String {
         switch self {
         case .configuration: return "/baas/api/user/login/config"

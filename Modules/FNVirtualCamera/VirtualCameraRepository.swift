@@ -342,14 +342,16 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
                 finishOperation(context.id)
                 return
             }
+            let requiresRemoval = kind == .reinstall
+                || (isInstalled && !isVersionCurrent && !isSystemCompletionPending)
             isSystemCompletionPending = false
             deviceFailure = nil
             deviceRecovery = nil
             setupWorkflow = CameraSetupWorkflow(
                 targetVersion: bundledExtensionVersion ?? "",
-                phase: kind == .reinstall ? .removing : .installing
+                phase: requiresRemoval ? .removing : .installing
             )
-            if kind == .reinstall {
+            if requiresRemoval {
                 operation = CameraOperationContext(kind: .remove, origin: .user)
                 deactivateExtension()
             } else {
@@ -384,7 +386,6 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             return !isBusy
         case .install:
             return queryFailure == nil && pendingRequest == nil && hasCheckedInstallation
-                && (!isInstalled || isVersionCurrent || isSystemCompletionPending)
                 && !isBusy && !isRefreshing && !isWaitingForDevice
         case .reinstall, .remove:
             return queryFailure == nil && pendingRequest == nil && hasCheckedInstallation && isInstalled
@@ -542,11 +543,7 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
 
     /// Starts the same typed setup workflow used by onboarding and the home notice.
     func install() {
-        Task { [weak self] in
-            guard let self else { return }
-            let replacesObsoleteVersion = self.isInstalled && !self.isVersionCurrent && !self.isSystemCompletionPending
-            await self.perform(replacesObsoleteVersion ? .reinstall : .install)
-        }
+        Task { [weak self] in await self?.perform(.install) }
     }
 
     /// Removes the camera without scheduling a subsequent reinstall when explicitly requested.

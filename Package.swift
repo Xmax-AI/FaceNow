@@ -48,7 +48,7 @@ let package = Package(
         ),
         .target(
             name: "FNOnboarding",
-            dependencies: ["Storage", "Factory", "Localization"],
+            dependencies: ["Storage", "Factory", "Localization", "FNNetwork"],
             path: "Modules/FNOnboarding",
             exclude: ["MVVM/View", "MVVM/ViewModel", "MVVM/Model/CameraNoticePresentation.swift", "MVVM/Model/VideoCallGuide.swift", "Resources", "OnboardingViewController.swift"]
         ),

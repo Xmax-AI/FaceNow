@@ -30,9 +30,6 @@ final class UserAccountPopoverView: Canvas {
     /// Requests session cleanup and logout through the owning account coordinator.
     var onSignOut: (() -> Void)?
 
-    /// Keeps the account card open while the pointer is over its content.
-    var onHoverChanged: ((Bool) -> Void)?
-
     /// Tracks pointer movement across the entire card and its child controls.
     private var hoverArea: NSTrackingArea?
 
@@ -247,12 +244,11 @@ final class UserAccountPopoverView: Canvas {
         hoverArea = area
     }
 
-    /// Keeps pending dismissal from interrupting account actions.
+    /// Highlights the action under the pointer without changing popover visibility.
     override func mouseEntered(
         with event: NSEvent
     ) {
         updateMenuHover()
-        onHoverChanged?(true)
     }
 
     /// Reconciles the single active row even if native enter and exit events arrive out of order.
@@ -262,13 +258,12 @@ final class UserAccountPopoverView: Canvas {
         updateMenuHover()
     }
 
-    /// Allows dismissal after the pointer leaves the card and the avatar.
+    /// Clears the highlighted action while keeping the click-opened account card visible.
     override func mouseExited(
         with event: NSEvent
     ) {
         hoveredAction = nil
         updateMenuHoverBackground()
-        onHoverChanged?(false)
     }
 
     /// Resolves one enabled action from the actual pointer location in the popover window.

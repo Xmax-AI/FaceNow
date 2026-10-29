@@ -16,6 +16,15 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum AccountStrings {
 
+    /// The shared credit-exhaustion notice for camera startup and active generation.
+    static var insufficientCredits: String {
+        Localization.string(
+            "account.insufficient_credits",
+            table: "User",
+            defaultValue: "Insufficient credits. Please top up on the Xmax Open Platform first."
+        )
+    }
+
     /// Account, credit or header presentation text.
     static var accountGetAnAPIKeyFromTheXmaxOpenPlatform: String {
         Localization.string(

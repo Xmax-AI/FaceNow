@@ -324,11 +324,13 @@ final class OnboardingFlowViewModel: ObservableObject {
                         ? OnboardingStrings.guideExplanationPublicationRecovery
                         : OnboardingStrings.guideExplanationEnableExtension
                 }
-            case .openSettings(.cameraPrivacy), .showHelp(.restrictedCameraAccess):
+            case .openSettings(.cameraPrivacy), .showHelp(.restrictedCameraAccess), .showHelp(.cameraAccess):
                 nextStep =
                     isCameraRestricted
                     ? OnboardingStrings.guideIfThisMacIsManagedAskYourAdministratorTo
                     : OnboardingStrings.guideTurnOnTheSwitchNextToFaceNowUnderPrivacy
+            case .showHelp(.virtualCamera):
+                nextStep = OnboardingStrings.guideExplanationEnableExtension
             case .requestCameraAccess:
                 nextStep = OnboardingStrings.guideExplanationRequestAccess
             case .chooseCamera, .checkAgain(.discoverInput):
@@ -355,7 +357,7 @@ final class OnboardingFlowViewModel: ObservableObject {
             reason = notice.message
         }
         let diagnostics: String
-        if notice.action == .copyErrorDetails, let failure = virtualCameraRepo.preparationFailure,
+        if !notice.isLoading, let failure = virtualCameraRepo.preparationFailure,
             let domain = failure.errorDomain, let code = failure.errorCode
         {
             diagnostics = "\n\n\(domain) (\(code))"

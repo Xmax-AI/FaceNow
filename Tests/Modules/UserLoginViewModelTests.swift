@@ -6,6 +6,25 @@ import FNNetwork
 @MainActor
 final class UserLoginViewModelTests: XCTestCase {
 
+    func testUnloadedSettingsDoNotDisableChannelsAndLoadedSettingsRemainAuthoritative() throws {
+        let model = UserLoginViewModel()
+        XCTAssertTrue(model.isMethodSelectable(.sms))
+        XCTAssertTrue(model.isMethodSelectable(.email))
+
+        var settings = LoginConfiguration()
+        settings.tenantName = AccountAPI.tenant
+        settings.enableSmsLogin = false
+        settings.enableEmailLogin = true
+        try model.applyConfiguration(settings)
+        XCTAssertFalse(model.isMethodSelectable(.sms))
+        XCTAssertTrue(model.isMethodSelectable(.email))
+
+        settings.enableEmailLogin = false
+        try model.applyConfiguration(settings)
+        XCTAssertFalse(model.isMethodSelectable(.sms))
+        XCTAssertFalse(model.isMethodSelectable(.email))
+    }
+
     func testVerificationCodeRejectionsOfferRetryOrResend() {
         let model = UserLoginViewModel()
         for message in ["验证码错误", "验证码校验失败", "Invalid verification code", "Incorrect code", "验证码错误或已过期"] {

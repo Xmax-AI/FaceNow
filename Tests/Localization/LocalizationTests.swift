@@ -4,22 +4,28 @@ import XCTest
 
 final class LocalizationTests: XCTestCase {
 
-    func testEnglishIsSelectedEvenWhenTheBundleAlsoSupportsChinese() throws {
+    func testTargetLanguageIsSelectedRegardlessOfBundleDevelopmentRegion() throws {
         let fixture = try makeBundle()
         defer { try? FileManager.default.removeItem(at: fixture.url) }
+        #if OVERSEA
         XCTAssertEqual(Localization.languageCode, "en")
+        let expected = "Welcome"
+        #else
+        XCTAssertEqual(Localization.languageCode, "zh-Hans")
+        let expected = "欢迎"
+        #endif
         XCTAssertEqual(
             Localization.string("welcome", table: "User", defaultValue: "Fallback", bundle: fixture.bundle),
-            "Welcome"
+            expected
         )
     }
 
-    func testMissingEnglishTextUsesEnglishFallbackRatherThanAnotherLanguage() throws {
+    func testMissingSelectedTextUsesEnglishFallbackRatherThanAnotherLanguage() throws {
         let fixture = try makeBundle()
         defer { try? FileManager.default.removeItem(at: fixture.url) }
         XCTAssertEqual(
             Localization.string(
-                "chinese_only",
+                "other_language_only",
                 table: "User",
                 defaultValue: "English fallback",
                 bundle: fixture.bundle
@@ -39,7 +45,7 @@ final class LocalizationTests: XCTestCase {
                 arguments: ["Terms", "Privacy"],
                 bundle: fixture.bundle
             ),
-            "Privacy then Terms"
+            Localization.languageCode == "en" ? "Privacy then Terms" : "Privacy 和 Terms"
         )
         XCTAssertEqual(
             Localization.format(
@@ -49,7 +55,7 @@ final class LocalizationTests: XCTestCase {
                 arguments: [Int64(59)],
                 bundle: fixture.bundle
             ),
-            "Resend (59s)"
+            Localization.languageCode == "en" ? "Resend (59s)" : "重新发送 (59秒)"
         )
     }
 
@@ -58,15 +64,17 @@ final class LocalizationTests: XCTestCase {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         let info: [String: Any] = [
             "CFBundleIdentifier": "ai.xmax.localization-tests.\(UUID().uuidString)",
-            "CFBundleDevelopmentRegion": "zh-Hans",
+            "CFBundleDevelopmentRegion": Localization.languageCode == "en" ? "zh-Hans" : "en",
             "CFBundleLocalizations": ["zh-Hans", "en"],
         ]
         try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0)
             .write(to: url.appendingPathComponent("Info.plist"))
-        let tables = [
+        var tables = [
             "en": ["welcome": "Welcome", "agreement": "%2$@ then %1$@"],
-            "zh-Hans": ["welcome": "欢迎", "chinese_only": "仅中文"],
+            "zh-Hans": ["welcome": "欢迎", "agreement": "%2$@ 和 %1$@", "resend": "重新发送 (%lld秒)"],
         ]
+        let otherLanguage = Localization.languageCode == "en" ? "zh-Hans" : "en"
+        tables[otherLanguage]?["other_language_only"] = "Must not be selected"
         for (language, strings) in tables {
             let directory = url.appendingPathComponent(language + ".lproj")
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

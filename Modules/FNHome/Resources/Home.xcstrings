@@ -10,6 +10,12 @@
             "state": "translated",
             "value": "API Platform"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API 平台"
+          }
         }
       }
     },
@@ -21,6 +27,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t restart FaceNow. Quit and reopen the app to continue."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法重新启动 FaceNow。请退出并重新打开应用以继续。"
           }
         }
       }
@@ -34,6 +46,12 @@
             "state": "translated",
             "value": "Feedback"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意见反馈"
+          }
         }
       }
     },
@@ -45,6 +63,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "How to use FaceNow in video calls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如何在视频通话中使用 FaceNow"
           }
         }
       }
@@ -58,6 +82,12 @@
             "state": "translated",
             "value": "No cameras found"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到摄像头"
+          }
         }
       }
     },
@@ -69,6 +99,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open FaceNow setup guide"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开 FaceNow 设置指南"
           }
         }
       }
@@ -82,6 +118,12 @@
             "state": "translated",
             "value": "Scan with WeChat to follow us"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用微信扫码关注我们"
+          }
         }
       }
     },
@@ -93,6 +135,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Select Camera"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择摄像头"
           }
         }
       }
@@ -106,6 +154,12 @@
             "state": "translated",
             "value": "Signed in successfully"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录成功"
+          }
         }
       }
     },
@@ -118,6 +172,12 @@
             "state": "translated",
             "value": "TroubleShooting"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "故障排查"
+          }
         }
       }
     },
@@ -126,6 +186,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V%@"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "V%@"
@@ -142,6 +208,12 @@
             "state": "translated",
             "value": "Website"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "官方网站"
+          }
         }
       }
     },
@@ -153,6 +225,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "About Us"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于我们"
           }
         }
       }
@@ -166,6 +244,12 @@
             "state": "translated",
             "value": "Close About Us"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭“关于我们”"
+          }
         }
       }
     },
@@ -177,6 +261,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Meet Xmax X2.1"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "了解 Xmax X2.1"
           }
         }
       }
@@ -190,6 +280,12 @@
             "state": "translated",
             "value": "Xmax X2.1 is a world-leading general-purpose model for real-time interaction and video editing. A single model supports character swapping, virtual try-on, free-form editing, touch interaction, and interactions between virtual elements and the physical world. It generates 1080P video with approximately 200 ms of end-to-end latency and runs on consumer-grade GPUs, reducing reliance on costly data center GPUs. At approximately $0.001667 per second (about $6 per hour), X2.1 delivers these capabilities at a fraction of the cost of comparable solutions, making large-scale commercial deployment economically viable."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xmax X2.1 是一款面向实时互动与视频编辑的模型，支持角色替换、虚拟试穿、风格迁移、触控交互等功能。它可以以比竞品便宜数倍到数十倍的成本生成清晰、流畅的视频，为可商用的实时互动应用提供支持。"
+          }
         }
       }
     },
@@ -201,6 +297,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Built for real-world interaction"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让实时互动更流畅"
           }
         }
       }
@@ -214,6 +316,12 @@
             "state": "translated",
             "value": "Low Latency"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低延迟"
+          }
         }
       }
     },
@@ -225,6 +333,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "~200 ms"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "约 200 毫秒"
           }
         }
       }
@@ -238,6 +352,12 @@
             "state": "translated",
             "value": "End-to-end latency is measured in hundreds of milliseconds, ensuring that updates to generation conditions and interaction controls are reflected instantly."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端到端延迟为百毫秒级，首帧生成与效果切换均可实现秒级响应，响应速度显著优于同类方案。"
+          }
         }
       }
     },
@@ -249,6 +369,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cost Efficiency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低成本"
           }
         }
       }
@@ -262,6 +388,12 @@
             "state": "translated",
             "value": "~$6 / hour"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "约 6 美元 / 小时"
+          }
         }
       }
     },
@@ -273,6 +405,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Runs on consumer-grade GPUs, with costs several to tens of times lower than alternative solutions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持消费级 GPU，降低硬件门槛和运行成本，让大规模部署更容易落地。"
           }
         }
       }
@@ -286,6 +424,12 @@
             "state": "translated",
             "value": "High Fidelity"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高清画质"
+          }
         }
       }
     },
@@ -294,6 +438,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1080P (24FPS)"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "1080P (24FPS)"
@@ -310,6 +460,12 @@
             "state": "translated",
             "value": "Real-time 1080P output preserves fine details and textures, with greater fidelity to the characters, clothing, and style in your reference images."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清晰呈现人物、服装与纹理细节，更好地还原参考图中的外观和风格。"
+          }
         }
       }
     },
@@ -321,6 +477,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Beyond Video Calls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从视频通话，到更多应用场景"
           }
         }
       }
@@ -334,6 +496,12 @@
             "state": "translated",
             "value": "FaceNow brings your new look into video meetings, live streams, and more through a virtual camera. The same technology also powers other commercial experiences, including virtual try-on and interactive applications. If you are exploring a business use case, contact us to discuss a solution together. We can help you shape the experience and provide technical support."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 FaceNow 虚拟摄像头，你可以用全新形象参与视频会议、直播等活动。Xmax X2.1 的能力还可用于虚拟试穿、互动应用等更多场景。如果你正在探索相关产品或商业应用，欢迎联系我们，一起讨论需求和落地方案。我们也可以提供体验设计与技术支持。"
+          }
         }
       }
     },
@@ -346,6 +514,12 @@
             "state": "translated",
             "value": "Contact Us"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "联系我们"
+          }
         }
       }
     },
@@ -357,6 +531,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Let’s build your next real-time experience."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一起把你的创意变成实时互动体验。"
           }
         }
       }

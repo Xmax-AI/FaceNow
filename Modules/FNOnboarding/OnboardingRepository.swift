@@ -11,6 +11,9 @@
 import Factory
 import Combine
 import Foundation
+#if canImport(FNNetwork)
+    import FNNetwork
+#endif
 #if canImport(Storage)
     import Storage
 #endif
@@ -44,6 +47,19 @@ final class OnboardingRepository: ObservableObject {
     /// Device preparation is remembered on this Mac rather than attached to account credentials.
     @Injected(\.userDefaults) private var userDefaults: UserDefaults
 
+    /// Distinguishes the process requesting a relaunch from the replacement process consuming it.
+    private let processID: Int32
+
+    /// Stores the relaunch source independently of guide presentation and completion preferences.
+    private static let resumeKey = "facenow.onboarding.resumeVideoCallsFromProcess.v1"
+
+    /// Creates progress ownership with an injectable process identity for restart recovery tests.
+    init(
+        processID: Int32 = ProcessInfo.processInfo.processIdentifier
+    ) {
+        self.processID = processID
+    }
+
     /// The current preparation stage, retained while the guide is open.
     @Published private(set) var step = Step.camera
 
@@ -67,9 +83,23 @@ final class OnboardingRepository: ObservableObject {
         userDefaults.bool(forKey: "facenow.onboarding.shown.v1") || hasCompletedGuide
     }
 
+    /// Requests the final guide after a relaunch without allowing the source process to consume it.
+    var resumeStepAfterRelaunch: Step? {
+        let sourceProcess = userDefaults.integer(forKey: Self.resumeKey)
+        return sourceProcess > 0 && sourceProcess != Int(processID) ? .videoCalls : nil
+    }
+
+    /// Persists continuation before launching a replacement; a failed launch remains manually resumable.
+    func prepareForRelaunch() {
+        userDefaults.set(Int(processID), forKey: Self.resumeKey)
+    }
+
     /// Persists actual presentation separately from scheduling and successful preparation.
     func recordPresentation() {
         userDefaults.set(true, forKey: "facenow.onboarding.shown.v1")
+        if isPresented, resumeStepAfterRelaunch != nil {
+            userDefaults.removeObject(forKey: Self.resumeKey)
+        }
     }
 
     /// The first unmet device requirement, followed by the video-call instructions.
@@ -154,10 +184,10 @@ final class OnboardingRepository: ObservableObject {
     let serviceNotice = OnboardingStrings.contentWeAccessYourCameraInAccordanceWithOurTerms
 
     /// The product's terms of use.
-    let termsURL = URL(string: "https://platform.xmaxai.com/docs/resources/terms")!
+    let termsURL = NetworkEnvironment.current.termsURL
 
     /// The product's privacy policy.
-    let privacyURL = URL(string: "https://platform.xmaxai.com/docs/resources/privacy")!
+    let privacyURL = NetworkEnvironment.current.privacyURL
 
     /// The ownership line displayed below the stage.
     let copyright = OnboardingStrings.contentCopyright2026XMAXAIPTELTDAllRightsReserved

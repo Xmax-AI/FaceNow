@@ -68,7 +68,7 @@ public actor NetworkRepository {
 
     /// Creates an injectable Moya transport using an ephemeral Alamofire session by default.
     public init(
-        baseURL: URL = URL(string: "https://cloud.xmax.22duck.cn")!,
+        baseURL: URL = NetworkEnvironment.current.baseURL,
         session: Moya.Session? = nil
     ) {
         self.baseURL = baseURL

@@ -319,13 +319,18 @@ final class HomeViewController: NSViewController {
         }
     }
 
-    /// Routes the explicit Start action after checking camera permission independently of virtual output.
+    /// Checks permission and the cached balance without requesting credits during camera startup.
     private func startCamera() {
         guard loginPage == nil, aboutPage == nil, cameraStartTask == nil, cameraNoticeTask == nil, !isShuttingDown
         else { return }
         virtualCameraRepo.synchronizeReadiness()
         guard viewModel.canStart else {
             generationRepo.showSetupError(viewModel.startUnavailableMessage)
+            return
+        }
+        guard !userRepo.hasInsufficientCredits else {
+            generationRepo.showSetupError(AccountStrings.insufficientCredits)
+            userView.showCreditsWarning()
             return
         }
         let requestedAt = DispatchTime.now().uptimeNanoseconds
@@ -412,7 +417,7 @@ final class HomeViewController: NSViewController {
         onUpdateInstallationAvailabilityChanged?()
     }
 
-    /// Schedules the guide only before its first actual presentation on this Mac.
+    /// Schedules first presentation or a pending relaunch continuation after verified home readiness.
     private func synchronizeOnboarding() {
         guard !isShuttingDown else { return }
         if viewModel.needsLogin {
@@ -420,29 +425,38 @@ final class HomeViewController: NSViewController {
             dismissOnboarding(animated: false)
             return
         }
+        let resumeStep = onboardingModel.onboardingRepo.resumeStepAfterRelaunch
         guard userRepo.hasVerifiedSession, view.window != nil, !generationRepo.sessionActive,
-            aboutPage == nil, !onboardingAutoPresented
+            !generationRepo.settingsLocked, aboutPage == nil, onboardingPage == nil,
+            onboardingPresentationTask == nil, !onboardingAutoPresented || resumeStep != nil
         else { return }
+        if resumeStep != nil, case .checking = virtualCameraRepo.readiness { return }
         onboardingAutoPresented = true
-        guard !onboardingModel.onboardingRepo.hasShownGuide else { return }
+        guard resumeStep != nil || !onboardingModel.onboardingRepo.hasShownGuide else { return }
         onboardingPresentationTask = Task { @MainActor [weak self] in
             do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
             guard !Task.isCancelled, let self else { return }
             self.onboardingPresentationTask = nil
             guard !self.isShuttingDown, self.userRepo.hasVerifiedSession, !self.viewModel.needsLogin,
                 self.loginPage == nil, self.view.window != nil, !self.generationRepo.settingsLocked,
-                self.onboardingPage == nil, self.aboutPage == nil,
-                !self.onboardingModel.onboardingRepo.hasShownGuide
+                self.onboardingPage == nil, self.aboutPage == nil
             else { return }
-            self.showOnboarding(dismissesOnBackdropClick: false)
+            let resumeStep = self.onboardingModel.onboardingRepo.resumeStepAfterRelaunch
+            guard resumeStep != nil || !self.onboardingModel.onboardingRepo.hasShownGuide else { return }
+            if resumeStep != nil, case .checking = self.virtualCameraRepo.readiness { return }
+            self.showOnboarding(
+                at: resumeStep,
+                dismissesOnBackdropClick: false
+            )
         }
     }
 
-    /// Owns a notice click until the validated device command or navigation action completes.
+    /// Opens guidance from the banner without executing device commands outside the modal.
     private func performCameraNoticeAction(
         _ action: CameraNoticeAction
     ) {
-        guard !isShuttingDown, !viewModel.needsLogin, !generationRepo.sessionActive,
+        guard case .showHelp = action else { return }
+        guard !isShuttingDown, !viewModel.needsLogin,
             cameraNoticeTask == nil, onboardingPage == nil, aboutPage == nil
         else { return }
         onboardingPresentationTask?.cancel()
@@ -451,9 +465,9 @@ final class HomeViewController: NSViewController {
         cameraNoticeTask = Task { @MainActor [weak self] in
             guard let self else { return }
             defer { self.cameraNoticeTask = nil }
-            let navigation = await self.cameraStatusModel.perform(action)
+            let navigation = self.cameraStatusModel.presentation?.action ?? action
             guard !Task.isCancelled, !self.isShuttingDown, !self.viewModel.needsLogin else { return }
-            if let navigation { await self.routeCameraNoticeAction(navigation) }
+            await self.routeCameraNoticeAction(navigation)
             self.scheduleRender()
         }
     }
@@ -470,8 +484,10 @@ final class HomeViewController: NSViewController {
             virtualCameraRepo.openSettings()
         case .chooseCamera:
             landing.showCameraPicker()
-        case .showHelp(.restrictedCameraAccess):
+        case .showHelp(.restrictedCameraAccess), .showHelp(.cameraAccess):
             showOnboarding(at: .camera)
+        case .showHelp(.virtualCamera):
+            showOnboarding(at: .virtualCamera)
         case .revealApplication:
             NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
         case .restartApplication:
@@ -479,6 +495,7 @@ final class HomeViewController: NSViewController {
             await generationRepo.close()
             guard !Task.isCancelled, !isShuttingDown, !viewModel.needsLogin else { return }
             do {
+                onboardingModel.onboardingRepo.prepareForRelaunch()
                 try await ApplicationLifecycleActions.launchReplacement()
                 NSApplication.shared.terminate(nil)
             } catch {

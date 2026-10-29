@@ -621,10 +621,15 @@ private final class OnboardingIllustrationView: Canvas {
         return screenshots.isHidden ? [] : screenshots.navigationControls
     }
 
-    /// The user-supplied temporary camera-step image, independently replaceable from extension screenshots.
+    /// The edition-specific camera-access prompt, separate from virtual-camera extension screenshots.
     private lazy var cameraScreenshot: OnboardingScreenshotView = {
+        #if OVERSEA
+            let resourceName = "OnboardingCameraPermissionOversea"
+        #else
+            let resourceName = "OnboardingCameraPermission"
+        #endif
         let view = OnboardingScreenshotView(
-            resourceName: "OnboardingCameraPermission",
+            resourceName: resourceName,
             crop: NSRect(x: 0, y: 0, width: 1, height: 1)
         )
         view.setAccessibilityLabel(OnboardingStrings.guideFaceNowSetupIllustration)
@@ -777,8 +782,13 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
 
     /// The original macOS prompt screenshot, scaled proportionally within the guide.
     private lazy var promptImage: OnboardingScreenshotView = {
+        #if OVERSEA
+            let resourceName = "OnboardingVirtualCameraPermissionOversea"
+        #else
+            let resourceName = "OnboardingVirtualCameraPermission"
+        #endif
         let view = OnboardingScreenshotView(
-            resourceName: "OnboardingVirtualCameraPermission",
+            resourceName: resourceName,
             crop: NSRect(x: 0, y: 0, width: 1, height: 1)
         )
         view.setAccessibilityLabel(OnboardingStrings.guideCameraExtensionPermissionPromptChooseOpenSystemSettings)
@@ -787,8 +797,13 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
 
     /// The settings screenshot focused on the extension sheet while retaining the original asset.
     private lazy var settingsImage: OnboardingScreenshotView = {
+        #if OVERSEA
+            let resourceName = "OnboardingVirtualCameraSettingsOversea"
+        #else
+            let resourceName = "OnboardingVirtualCameraSettings"
+        #endif
         let view = OnboardingScreenshotView(
-            resourceName: "OnboardingVirtualCameraSettings",
+            resourceName: resourceName,
             crop: NSRect(x: 210.0 / 1181, y: 289.0 / 1333, width: 758.0 / 1181, height: 754.0 / 1333)
         )
         view.setAccessibilityLabel(OnboardingStrings.guideCameraExtensionsEnableFaceNowThenClickDone)

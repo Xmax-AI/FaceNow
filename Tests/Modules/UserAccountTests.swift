@@ -18,8 +18,10 @@ final class UserAccountTests: XCTestCase {
         defer { context.cleanup() }
         try await context.account.signIn(apiKey: activeAPIKey)
         XCTAssertNil(context.account.remainingCredits)
+        XCTAssertFalse(context.account.hasInsufficientCredits)
         await context.account.refreshCredits()
         XCTAssertEqual(context.account.remainingCredits, 1250.75)
+        XCTAssertFalse(context.account.hasInsufficientCredits)
         XCTAssertEqual(context.account.apiKey, activeAPIKey)
         XCTAssertNil(context.account.creditsErrorMessage)
         XCTAssertFalse(context.account.isLoadingCredits)
@@ -38,6 +40,7 @@ final class UserAccountTests: XCTestCase {
         await context.account.refreshCredits()
         XCTAssertNil(context.account.remainingCredits)
         XCTAssertEqual(context.account.creditsErrorMessage, "Try later")
+        XCTAssertFalse(context.account.hasInsufficientCredits)
         XCTAssertTrue(context.account.canAccessHome)
         let model = UserAccountViewModel(user: context.account)
         XCTAssertEqual(model.creditsText, "—")
@@ -78,6 +81,7 @@ final class UserAccountTests: XCTestCase {
         let model = UserAccountViewModel(user: context.account)
         XCTAssertEqual(model.avatarText, "13")
         XCTAssertEqual(model.creditsText, "0")
+        XCTAssertTrue(context.account.hasInsufficientCredits)
     }
 
     func testSavedSDKKeyAloneNeverGrantsHomeAccess() async {

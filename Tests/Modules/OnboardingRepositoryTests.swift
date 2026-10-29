@@ -6,6 +6,86 @@ import XCTest
 @MainActor
 final class OnboardingRepositoryTests: XCTestCase {
 
+    func testRelaunchContinuationSurvivesTheSourceProcessAndIsConsumedOnlyAfterPresentation() {
+        withRepository { _, _ in
+            let source = OnboardingRepository(processID: 101)
+            source.begin()
+            source.recordPresentation()
+            source.prepareForRelaunch()
+            XCTAssertNil(source.resumeStepAfterRelaunch)
+            source.recordPresentation()
+            XCTAssertNil(source.resumeStepAfterRelaunch)
+
+            let replacement = OnboardingRepository(processID: 202)
+            XCTAssertTrue(replacement.hasShownGuide)
+            XCTAssertEqual(replacement.resumeStepAfterRelaunch, .videoCalls)
+            replacement.updateReadiness(camera: true, virtualCamera: true)
+            replacement.begin(at: replacement.resumeStepAfterRelaunch)
+            XCTAssertEqual(replacement.step, .videoCalls)
+            XCTAssertEqual(replacement.resumeStepAfterRelaunch, .videoCalls)
+            replacement.recordPresentation()
+            XCTAssertNil(replacement.resumeStepAfterRelaunch)
+            XCTAssertNil(OnboardingRepository(processID: 303).resumeStepAfterRelaunch)
+            XCTAssertFalse(replacement.hasCompletedGuide)
+        }
+    }
+
+    func testRelaunchContinuationDoesNotSkipAnUnavailableVirtualCamera() {
+        withRepository { _, _ in
+            OnboardingRepository(processID: 101).prepareForRelaunch()
+            let replacement = OnboardingRepository(processID: 202)
+            replacement.updateReadiness(camera: true, virtualCamera: false)
+            replacement.begin(at: replacement.resumeStepAfterRelaunch)
+            XCTAssertEqual(replacement.step, .virtualCamera)
+            replacement.recordPresentation()
+            replacement.updateReadiness(camera: true, virtualCamera: true)
+            XCTAssertEqual(replacement.step, .videoCalls)
+            XCTAssertFalse(replacement.hasCompletedGuide)
+        }
+    }
+
+    func testRelaunchContinuationStillRequiresCameraPermission() {
+        withRepository { _, _ in
+            OnboardingRepository(processID: 101).prepareForRelaunch()
+            let replacement = OnboardingRepository(processID: 202)
+            replacement.updateReadiness(camera: false, virtualCamera: true)
+            replacement.begin(at: replacement.resumeStepAfterRelaunch)
+            XCTAssertEqual(replacement.step, .camera)
+            XCTAssertFalse(replacement.hasCompletedGuide)
+        }
+    }
+
+    func testCancelledPresentationLeavesRelaunchContinuationForAManualReopen() {
+        withRepository { _, _ in
+            let source = OnboardingRepository(processID: 101)
+            source.prepareForRelaunch()
+            XCTAssertFalse(source.hasShownGuide)
+            let replacement = OnboardingRepository(processID: 202)
+            replacement.begin(at: replacement.resumeStepAfterRelaunch)
+            replacement.dismiss()
+            XCTAssertEqual(replacement.resumeStepAfterRelaunch, .videoCalls)
+            let manuallyReopened = OnboardingRepository(processID: 303)
+            manuallyReopened.recordPresentation()
+            XCTAssertEqual(manuallyReopened.resumeStepAfterRelaunch, .videoCalls)
+        }
+    }
+
+    func testRelaunchContinuationCanReviewACompletedGuideWithoutResettingCompletion() {
+        withRepository { _, defaults in
+            defaults.set(true, forKey: "facenow.onboarding.completed.v1")
+            OnboardingRepository(processID: 101).prepareForRelaunch()
+            let replacement = OnboardingRepository(processID: 202)
+            XCTAssertTrue(replacement.hasCompletedGuide)
+            replacement.updateReadiness(camera: true, virtualCamera: true)
+            replacement.begin(at: replacement.resumeStepAfterRelaunch)
+            XCTAssertEqual(replacement.step, .videoCalls)
+            replacement.recordPresentation()
+            replacement.dismiss()
+            XCTAssertTrue(replacement.hasCompletedGuide)
+            XCTAssertNil(replacement.resumeStepAfterRelaunch)
+        }
+    }
+
     func testPreparationResumesAtTheFirstMissingDeviceStep() {
         withRepository { repository, _ in
             repository.begin()
