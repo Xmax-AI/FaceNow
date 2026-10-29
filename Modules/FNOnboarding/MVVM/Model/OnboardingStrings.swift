@@ -16,6 +16,24 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum OnboardingStrings {
 
+    /// Labels the previous image control in the setup walkthrough.
+    static var previousGuideImage: String {
+        Localization.string(
+            "guide.previous_image",
+            table: "Onboarding",
+            defaultValue: "Previous Guide Image"
+        )
+    }
+
+    /// Labels the next image control in the setup walkthrough.
+    static var nextGuideImage: String {
+        Localization.string(
+            "guide.next_image",
+            table: "Onboarding",
+            defaultValue: "Next Guide Image"
+        )
+    }
+
     /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
     static var noticeAllowCameraAccess: String {
         Localization.string(
@@ -448,14 +466,6 @@ enum OnboardingStrings {
         )
     }
 
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideInputCamera: String {
-        Localization.string(
-            "guide.input_camera",
-            table: "Onboarding",
-            defaultValue: "Input camera"
-        )
-    }
 
     /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
     static var back: String {
@@ -471,7 +481,7 @@ enum OnboardingStrings {
         Localization.string(
             "guide.set_up_later",
             table: "Onboarding",
-            defaultValue: "Set Up Later"
+            defaultValue: "Setup Later"
         )
     }
 

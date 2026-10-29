@@ -172,7 +172,10 @@ struct CameraNoticePresentation: Equatable {
                     action: .checkAgain(.discoverInput)
                 )
             case .selectedInputDisconnected:
-                result = Self(message: OnboardingStrings.noticeYourSelectedCameraIsDisconnected, action: .chooseCamera)
+                result = Self(
+                    message: OnboardingStrings.noticeYourSelectedCameraIsDisconnected,
+                    action: surface == .onboarding ? .checkAgain(.discoverInput) : .chooseCamera
+                )
             case .virtualCameraNotInstalled:
                 result = Self(
                     message: OnboardingStrings.noticeInstallVirtualCameraToUseFaceNowInVideoCalls,

@@ -1,6 +1,30 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "guide.previous_image": {
+      "comment": "Accessibility label for onboarding screenshot navigation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous Guide Image"
+          }
+        }
+      }
+    },
+    "guide.next_image": {
+      "comment": "Accessibility label for onboarding screenshot navigation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next Guide Image"
+          }
+        }
+      }
+    },
     "content.bring_your_new_look_into_video_calling_apps": {
       "comment": "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
       "extractionState": "manual",
@@ -433,18 +457,6 @@
         }
       }
     },
-    "guide.input_camera": {
-      "comment": "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Input camera"
-          }
-        }
-      }
-    },
     "guide.install_enable": {
       "comment": "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
       "extractionState": "manual",
@@ -596,7 +608,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set Up Later"
+            "value": "Setup Later"
           }
         }
       }
@@ -1418,7 +1430,7 @@
       }
     },
     "landing.virtual_camera_available": {
-      "comment": "Tooltip and accessible value for the read-only Virtual Camera capsule below Start Camera.",
+      "comment": "Tooltip and accessible value for the Virtual Camera toolbar button that opens onboarding.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1430,7 +1442,7 @@
       }
     },
     "landing.virtual_camera_checking": {
-      "comment": "Tooltip and accessible value for the read-only Virtual Camera capsule below Start Camera.",
+      "comment": "Tooltip and accessible value for the Virtual Camera toolbar button that opens onboarding.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1442,7 +1454,7 @@
       }
     },
     "landing.virtual_camera_unavailable": {
-      "comment": "Tooltip and accessible value for the read-only Virtual Camera capsule below Start Camera.",
+      "comment": "Tooltip and accessible value for the Virtual Camera toolbar button that opens onboarding.",
       "extractionState": "manual",
       "localizations": {
         "en": {

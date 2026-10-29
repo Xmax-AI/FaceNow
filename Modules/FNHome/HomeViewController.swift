@@ -227,7 +227,9 @@ final class HomeViewController: NSViewController {
         view = root
         scroll.documentView = document
         [header, landing, workspace, footer].forEach(document.addSubview)
-        [logo, homeControls, toolbar, userView].forEach(header.addSubview)
+        [logo, homeControls, toolbar.statisticsControl, toolbar.interpolationControl, toolbar, userView].forEach(
+            header.addSubview
+        )
         homeControls.addSubview(cameraControls)
         configureLayout()
 
@@ -295,7 +297,6 @@ final class HomeViewController: NSViewController {
         errorView.shutdown()
         landing.closeCameraPicker()
         userView.shutdown()
-        toolbar.shutdown()
         footer.closePopover()
         workspace.suspendImages()
         await generationRepo.shutdown()
@@ -353,9 +354,10 @@ final class HomeViewController: NSViewController {
         let cameraWarning = cameraStatusModel.presentation
         let cameraWarningChanged = cameraWarning != displayedCameraWarning
         displayedCameraWarning = cameraWarning
-        let previousCameraWidth = cameraControls.preferredWidth(controlHeight: homeControls.bounds.height)
+        let previousCameraWidth = cameraControls.preferredWidth
         let previousUserWidth = userView.preferredWidth(controlHeight: homeControls.bounds.height)
         cameraControls.update(state: cameraStatusModel.virtualCameraIndicator)
+        userView.showsAvatar = !active
         userView.settingsLocked = viewModel.settingsLocked
         userView.update()
         toolbar.update()
@@ -368,12 +370,14 @@ final class HomeViewController: NSViewController {
         workspace.update()
         let needsPageLayout =
             pageChanged
-            || previousCameraWidth != cameraControls.preferredWidth(controlHeight: homeControls.bounds.height)
+            || previousCameraWidth != cameraControls.preferredWidth
             || cameraWarningChanged
             || previousUserWidth != userView.preferredWidth(controlHeight: homeControls.bounds.height)
             || displayedError != currentErrorMessage
 
         homeControls.isHidden = active
+        toolbar.statisticsControl.isHidden = !active
+        toolbar.interpolationControl.isHidden = !active
         toolbar.isHidden = !active
         landing.isHidden = active
         footer.isHidden = active
@@ -382,7 +386,6 @@ final class HomeViewController: NSViewController {
             displayedSession = active
             landing.closeCameraPicker()
             userView.closePopover()
-            toolbar.closePopover()
             footer.closePopover()
             scroll.contentView.scroll(to: .zero)
             scroll.reflectScrolledClipView(scroll.contentView)
@@ -489,9 +492,9 @@ final class HomeViewController: NSViewController {
         onboardingPresentationTask?.cancel()
         onboardingPresentationTask = nil
         onboardingAutoPresented = true
+        landing.setServiceNoticeInteractionEnabled(false)
         landing.closeCameraPicker()
         userView.closePopover()
-        toolbar.closePopover()
         footer.closePopover()
         onboardingModel.refresh()
         onboardingModel.onboardingRepo.begin(
@@ -533,6 +536,7 @@ final class HomeViewController: NSViewController {
             page.view.removeFromSuperview()
             page.removeFromParent()
             self.onboardingPage = nil
+            self.landing.setServiceNoticeInteractionEnabled(true)
             self.view.window?.makeFirstResponder(nil)
         }
     }
@@ -718,12 +722,23 @@ final class HomeViewController: NSViewController {
         homeControls.snp.makeConstraints { make in
             make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
             make.centerY.equalTo(logo)
-            make.width.equalTo(cameraControls.preferredWidth(controlHeight: 36))
+            make.width.equalTo(cameraControls.preferredWidth)
             make.height.equalTo(36)
         }
         cameraControls.snp.makeConstraints { make in make.edges.equalToSuperview() }
-        toolbar.snp.makeConstraints { make in
+        toolbar.statisticsControl.snp.makeConstraints { make in
+            make.trailing.equalTo(toolbar.interpolationControl.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            make.centerY.equalTo(logo)
+            make.height.equalTo(userView)
+        }
+        toolbar.interpolationControl.snp.makeConstraints { make in
             make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            make.centerY.equalTo(logo)
+            make.height.equalTo(userView)
+            make.width.equalTo(toolbar.interpolationControl.preferredWidth)
+        }
+        toolbar.snp.makeConstraints { make in
+            make.trailing.equalToSuperview()
             make.centerY.equalTo(logo)
             make.width.equalTo(toolbar.preferredWidth(controlHeight: 36))
             make.height.equalTo(userView)
@@ -738,11 +753,12 @@ final class HomeViewController: NSViewController {
         guard width > 0, height > 0 else { return }
         let active = generationRepo.sessionActive
         let controlHeight = ToolbarControlMetrics.compactHeight
-        let cameraWidth = cameraControls.preferredWidth(controlHeight: controlHeight)
+        let cameraWidth = cameraControls.preferredWidth
         let userWidth = userView.preferredWidth(controlHeight: controlHeight)
         let toolbarWidth = toolbar.preferredWidth(controlHeight: controlHeight)
+        let interpolationWidth = toolbar.interpolationControl.preferredWidth
         let signature =
-            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
+            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(interpolationWidth)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
         guard signature != layoutSignature else { return }
         layoutSignature = signature
         let contentWidth = max(0, width - 56)
@@ -769,6 +785,7 @@ final class HomeViewController: NSViewController {
         workspace.snp.updateConstraints { make in make.height.equalTo(workspaceHeight).priority(490) }
         logo.snp.updateConstraints { make in make.height.equalTo(logoHeight) }
         userView.snp.updateConstraints { make in
+            make.trailing.equalToSuperview().offset(active ? -(toolbarWidth + ToolbarControlMetrics.spacing) : 0)
             make.width.equalTo(userWidth)
             make.height.equalTo(controlHeight)
         }
@@ -777,6 +794,7 @@ final class HomeViewController: NSViewController {
             make.height.equalTo(controlHeight)
         }
         toolbar.snp.updateConstraints { make in make.width.equalTo(toolbarWidth) }
+        toolbar.interpolationControl.snp.updateConstraints { make in make.width.equalTo(interpolationWidth) }
         errorView.place(in: root.bounds)
         if signInToastVisible { signInToast.place(in: root.bounds) }
     }

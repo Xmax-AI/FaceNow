@@ -125,7 +125,7 @@ enum ToolbarControlMetrics {
     static let leadingPadding: CGFloat = 12
 
     /// The trailing content inset for a pill with an icon; text-only pills use the leading inset on both sides.
-    static let trailingPadding: CGFloat = 13
+    static let trailingPadding: CGFloat = 14
 
     /// The width reserved for a disclosure chevron.
     static let disclosureWidth: CGFloat = 6

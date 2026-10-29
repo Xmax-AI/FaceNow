@@ -128,6 +128,14 @@ final class OnboardingLandingView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
+    /// Suspends native link activation and pressure previews while the setup overlay covers the page.
+    func setServiceNoticeInteractionEnabled(
+        _ enabled: Bool
+    ) {
+        guard serviceNotice.isSelectable != enabled else { return }
+        serviceNotice.isSelectable = enabled
+    }
+
     /// Shares the responsive canvas width between page measurement and actual layout.
     private func preferredStageWidth(
         contentWidth: CGFloat

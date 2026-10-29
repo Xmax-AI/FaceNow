@@ -37,6 +37,30 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     /// Prevents credential changes while generation or cleanup owns the SDK key.
     var settingsLocked = false
 
+    /// Keeps the avatar on home while allowing a credits-only generation header.
+    var showsAvatar = true {
+        didSet {
+            guard showsAvatar != oldValue else { return }
+            button.isHidden = !showsAvatar
+            if showsAvatar {
+                creditsToTrailing?.deactivate()
+                creditsToAvatar?.activate()
+            } else {
+                creditsToAvatar?.deactivate()
+                creditsToTrailing?.activate()
+            }
+            accountButtonHovered = false
+            closePopover()
+            needsLayout = true
+        }
+    }
+
+    /// Leaves the shared gap before the visible avatar.
+    private var creditsToAvatar: Constraint?
+
+    /// Lets the credit capsule fill the component when the avatar is hidden.
+    private var creditsToTrailing: Constraint?
+
     /// Opens the existing account menu from a circular text avatar.
     private lazy var button: ToolbarButton = {
         let button = ToolbarButton(
@@ -191,8 +215,13 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         }
         creditsButton.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
-            make.trailing.equalTo(button.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            creditsToAvatar =
+                make.trailing.equalTo(button.snp.leading).offset(-ToolbarControlMetrics.spacing).constraint
         }
+        creditsToTrailing =
+            creditsButton.snp.prepareConstraints { make in
+                make.trailing.equalToSuperview()
+            }.first
         update()
     }
 
@@ -201,12 +230,12 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Reserves separate, aligned areas for the credit readout and circular avatar.
+    /// Measures the credit capsule and reserves avatar space only while it is visible.
     func preferredWidth(
         controlHeight: CGFloat
     ) -> CGFloat {
-        button.preferredWidth(controlHeight: controlHeight) + ToolbarControlMetrics.spacing
-            + creditsButton.preferredWidth
+        creditsButton.preferredWidth
+            + (showsAvatar ? button.preferredWidth(controlHeight: controlHeight) + ToolbarControlMetrics.spacing : 0)
     }
 
     /// Updates the pill without replacing an active editor.
@@ -374,6 +403,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
 
     /// Presents the account card on hover, retaining click and keyboard access as well.
     private func showAccount() {
+        guard showsAvatar else { return }
         guard userRepo.isSignedIn else {
             onSignIn?()
             return

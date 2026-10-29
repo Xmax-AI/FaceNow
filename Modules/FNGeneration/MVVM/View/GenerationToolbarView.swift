@@ -12,12 +12,18 @@ import Factory
 import AppKit
 import SnapKit
 
-/// Owns the generation actions, elapsed time, and serialized playback-volume edits.
+/// Owns generation actions, statistics visibility, and elapsed time.
 @MainActor
 final class GenerationToolbarView: Canvas {
 
     /// Requests parent layout only when a control's measured width changes.
     var onWidthChange: (() -> Void)?
+
+    /// Lets the header place statistics at the start of the generation controls.
+    var statisticsControl: NSView { statisticsButton }
+
+    /// Lets the header place interpolation before the separately owned credit capsule.
+    var interpolationControl: ToolbarButton { interpolationButton }
 
     /// The generation state and commands represented by this toolbar.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
@@ -32,20 +38,6 @@ final class GenerationToolbarView: Canvas {
         view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
         view.setAccessibilityLabel(GenerationStrings.controlsShowStatistics)
         view.onClick = { [weak self] in self?.generationRepo.statisticsVisible.toggle() }
-        return view
-    }()
-
-    /// Opens the remote generated-audio playback control.
-    private lazy var volumeButton: ToolbarButton = {
-        let view = ToolbarButton(
-            icon: .muted,
-            style: .volume,
-            shape: .circle
-        )
-        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
-        view.toolTip = GenerationStrings.controlsAdjustRemotePlaybackVolume
-        view.setAccessibilityLabel(GenerationStrings.controlsRemoteVolume)
-        view.onClick = { [weak self] in self?.showVolume() }
         return view
     }()
 
@@ -85,46 +77,10 @@ final class GenerationToolbarView: Canvas {
         return view
     }()
 
-    /// The continuous native remote-playback volume editor.
-    private lazy var volumeSlider: NSSlider = {
-        let view = NSSlider(
-            value: 0,
-            minValue: 0,
-            maxValue: 1,
-            target: nil,
-            action: nil
-        )
-        view.target = self
-        view.action = #selector(volumeChanged)
-        view.isContinuous = true
-        view.setAccessibilityLabel(GenerationStrings.controlsRemoteVolume)
-        return view
-    }()
-
-    /// The formatted mute state or playback-volume percentage.
-    private lazy var volumeValue: NSTextField = {
-        let view = makeLabel(
-            GenerationStrings.controlsMuted,
-            size: 12,
-            color: Palette.secondary
-        )
-        view.font = .systemFont(ofSize: 12)
-        return view
-    }()
-
-    /// The transient popover currently owned by this component.
-    private var popover: NSPopover?
-
-    /// Serializes slider changes so only the latest pending volume is retained.
-    private var volumeTask: Task<Void, Never>?
-
-    /// The latest slider value waiting for the active playback update.
-    private var pendingVolume: Float?
-
     /// Creates persistent controls and binds their session actions.
     init() {
         super.init()
-        [statisticsButton, volumeButton, interpolationButton, elapsed, stopButton].forEach(addSubview)
+        controls.forEach(addSubview)
         var previous: ToolbarButton?
         for button in controls {
             button.snp.makeConstraints { make in
@@ -149,7 +105,7 @@ final class GenerationToolbarView: Canvas {
 
     /// The persistent controls shared by measurement and constraint updates.
     private var controls: [ToolbarButton] {
-        [statisticsButton, volumeButton, interpolationButton, elapsed, stopButton]
+        [elapsed, stopButton]
     }
 
     /// Reserves a stable stop-action width using the component's own label measurement.
@@ -176,7 +132,7 @@ final class GenerationToolbarView: Canvas {
         } + CGFloat(controls.count - 1) * ToolbarControlMetrics.spacing
     }
 
-    /// Applies the latest generation and playback state without replacing controls.
+    /// Applies the latest generation state without replacing controls.
     func update() {
         statisticsButton.selected = generationRepo.statisticsVisible
         statisticsButton.toolTip =
@@ -186,22 +142,6 @@ final class GenerationToolbarView: Canvas {
         statisticsButton.setAccessibilityValue(
             generationRepo.statisticsVisible ? GenerationStrings.on : GenerationStrings.off
         )
-        volumeButton.icon =
-            generationRepo.remoteAudioVolume == 0
-            ? .muted : generationRepo.remoteAudioVolume > 0.5 ? .volume : .volumeLow
-        volumeButton.selected = generationRepo.remoteAudioVolume > 0
-        volumeButton.isEnabled = !generationRepo.isClosing
-        volumeButton.setAccessibilityValue(
-            generationRepo.remoteAudioVolume == 0
-                ? GenerationStrings.controlsMuted
-                : GenerationStrings.percentage(value: Int(generationRepo.remoteAudioVolume * 100))
-        )
-        volumeSlider.isEnabled = !generationRepo.isClosing
-        if volumeTask == nil { volumeSlider.doubleValue = Double(generationRepo.remoteAudioVolume) }
-        volumeValue.stringValue =
-            generationRepo.remoteAudioVolume == 0
-            ? GenerationStrings.controlsMuted
-            : GenerationStrings.percentage(value: Int(generationRepo.remoteAudioVolume * 100))
         interpolationButton.selected = generationRepo.interpolationEnabled
         interpolationButton.loading = generationRepo.interpolationSwitching
         interpolationButton.isEnabled = !generationRepo.isBusy
@@ -233,20 +173,6 @@ final class GenerationToolbarView: Canvas {
         super.layout()
     }
 
-    /// Cancels queued volume updates and releases its popover during shutdown.
-    func shutdown() {
-        pendingVolume = nil
-        volumeTask?.cancel()
-        volumeTask = nil
-        closePopover()
-    }
-
-    /// Dismisses the playback popover when the active page changes.
-    func closePopover() {
-        popover?.close()
-        popover = nil
-    }
-
     /// Refreshes elapsed time and requests parent layout when its measured width changes.
     private func updateElapsed() {
         let seconds = max(0, Int(Date().timeIntervalSince(generationRepo.sessionStartedAt ?? Date())))
@@ -259,78 +185,6 @@ final class GenerationToolbarView: Canvas {
             let previousWidth = elapsed.preferredWidth
             elapsed.title = title
             if previousWidth != elapsed.preferredWidth { onWidthChange?() }
-        }
-    }
-
-    /// Popovers use native fields and controls, keeping keyboard editing independent of session redraws.
-    private func presentPopover(
-        content: NSView,
-        from button: NSView
-    ) {
-        popover?.close()
-        let controller = NSViewController()
-        controller.view = content
-        let popover = NSPopover()
-        popover.behavior = .transient
-        popover.contentViewController = controller
-        popover.contentSize = content.fittingSize
-        self.popover = popover
-        popover.show(
-            relativeTo: button.bounds,
-            of: button,
-            preferredEdge: .maxY
-        )
-    }
-
-    /// Presents the retained native slider without replacing an active session.
-    private func showVolume() {
-        let content = Canvas()
-
-        content.snp.makeConstraints { make in
-            make.width.equalTo(244)
-            make.height.equalTo(88)
-        }
-        let label = makeLabel(GenerationStrings.controlsRemoteVolume, size: 12)
-        label.font = .systemFont(ofSize: 12)
-        volumeValue.alignment = .right
-        [label, volumeValue, volumeSlider].forEach(content.addSubview)
-        label.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(14)
-            make.height.equalTo(18)
-            make.trailing.equalTo(volumeValue.snp.leading)
-        }
-        volumeValue.snp.remakeConstraints { make in
-            make.trailing.equalToSuperview().inset(14)
-            make.lastBaseline.equalTo(label.snp.lastBaseline)
-            make.width.equalTo(71)
-            make.height.equalTo(18)
-        }
-        volumeSlider.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(14)
-            make.top.equalTo(label.snp.bottom).offset(14)
-            make.height.equalTo(24)
-        }
-        presentPopover(
-            content: content,
-            from: volumeButton
-        )
-    }
-
-    /// Queues the latest volume value while a previous SDK update is in flight.
-    @objc private func volumeChanged() {
-        let value = Float(volumeSlider.doubleValue)
-        volumeValue.stringValue =
-            value == 0 ? GenerationStrings.controlsMuted : GenerationStrings.percentage(value: Int(value * 100))
-        pendingVolume = value
-        guard volumeTask == nil else { return }
-        volumeTask = Task { [weak self] in
-            guard let self else { return }
-            while let value = self.pendingVolume, !Task.isCancelled {
-                self.pendingVolume = nil
-                await self.generationRepo.setRemoteAudioVolume(value)
-            }
-            self.volumeTask = nil
-            self.update()
         }
     }
 

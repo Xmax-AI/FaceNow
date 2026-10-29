@@ -37,10 +37,6 @@ final class OnboardingViewController: NSViewController {
         view.dismissesOnBackdropClick = dismissesOnBackdropClick
         view.onDismiss = { [weak self] in self?.viewModel.onboardingRepo.dismiss() }
         view.onPrevious = { [weak self] in self?.viewModel.onboardingRepo.previous() }
-        view.onSelectCamera = { [weak self] id in
-            guard let self, !self.viewModel.generationRepo.settingsLocked else { return }
-            self.viewModel.generationRepo.cameraID = id
-        }
         view.onPrimary = { [weak self] in self?.performPrimaryAction() }
         return view
     }()
@@ -179,11 +175,7 @@ final class OnboardingViewController: NSViewController {
             guard !Task.isCancelled, !self.isStopped, !self.isDismissing,
                 self.viewModel.onboardingRepo.isPresented, let navigation
             else { return }
-            if navigation == .chooseCamera {
-                self.guide.showCameraPicker()
-            } else {
-                await self.onCameraNavigation?(navigation)
-            }
+            await self.onCameraNavigation?(navigation)
         }
     }
 
