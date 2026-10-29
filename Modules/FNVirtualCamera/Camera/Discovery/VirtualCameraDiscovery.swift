@@ -202,7 +202,7 @@ enum VirtualCameraDiscovery {
 
         /// The recovery instructions shown when camera publication times out.
         var errorDescription: String? {
-            "macOS has not published the camera. Turn FaceNow off and on in System Settings, then click Refresh. If it is still unavailable, restart your Mac."
+            "macOS has not published the camera. Install Virtual Camera again, enable FaceNow in Camera Extensions, and return to FaceNow to check the connection."
         }
     }
 

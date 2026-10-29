@@ -208,12 +208,12 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         )
         value.addAttribute(
             .link,
-            value: "https://platform.xmaxsi.com/docs/resources/terms",
+            value: "https://platform.xmaxai.com/docs/resources/terms",
             range: (text as NSString).range(of: UserStrings.termsOfUse)
         )
         value.addAttribute(
             .link,
-            value: "https://platform.xmaxsi.com/docs/resources/privacy",
+            value: "https://platform.xmaxai.com/docs/resources/privacy",
             range: (text as NSString).range(of: UserStrings.privacyPolicy)
         )
         view.textStorage?.setAttributedString(value)

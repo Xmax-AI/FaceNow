@@ -31,11 +31,14 @@ public protocol UserTokenStoring {
 @MainActor
 public struct UserTokenStore: UserTokenStoring {
 
-    /// Scopes the item to the domestic tenant and avoids mixing service environments.
-    private let service = "com.xmax.meeting.camera.account.cloud.xmax.22duck.cn.open-platform"
+    /// Separates application editions while retaining the original domestic session identity.
+    private let service: String
 
     /// Creates the account-token service without accessing Keychain.
-    public init() {}
+    public init() {
+        let applicationID = Bundle.main.bundleIdentifier ?? "com.xmax.meeting.camera"
+        service = "\(applicationID).account.cloud.xmax.22duck.cn.open-platform"
+    }
 
     /// Builds the stable Keychain identity without placing tokens in preferences.
     private var query: [String: Any] {

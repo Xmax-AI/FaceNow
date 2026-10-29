@@ -27,12 +27,6 @@ final class OnboardingGuideView: Canvas {
     /// Returns to the preceding device stage.
     var onPrevious: (() -> Void)?
 
-    /// The app selected for the repeatable video-call instructions.
-    private var selectedApp = "WeChat"
-
-    /// The visible stage used to update the video-call illustration after app selection.
-    private var displayedStep = OnboardingRepository.Step.camera
-
     /// Blocks child interaction while the modal is leaving the home page.
     private var isDismissing = false
 
@@ -136,23 +130,6 @@ final class OnboardingGuideView: Canvas {
         return view
     }()
 
-    /// The meeting app whose camera-selection guidance is displayed.
-    private lazy var appPicker: NSPopUpButton = {
-        let view = NSPopUpButton()
-        view.addItems(withTitles: ["WeChat", "Feishu", "Tencent Meeting", "Zoom", "Google Meet"])
-        view.font = Typography.font(size: 13)
-        view.menu?.items.forEach {
-            $0.attributedTitle = NSAttributedString(
-                string: $0.title,
-                attributes: [.font: Typography.font(size: 13)]
-            )
-        }
-        view.target = self
-        view.action = #selector(selectApp)
-        view.setAccessibilityLabel(OnboardingStrings.guideVideoCallingApp)
-        return view
-    }()
-
     /// The illustrative panel highlighting the settings action or camera-menu selection.
     private lazy var illustration: OnboardingIllustrationView = {
         let view = OnboardingIllustrationView()
@@ -213,7 +190,7 @@ final class OnboardingGuideView: Canvas {
         [heading, closeButton, progress, scroll, divider, footerNavigation, primary].forEach(card.addSubview)
         scroll.documentView = body
         [copy, illustration].forEach(body.addSubview)
-        [title, subtitle, appPicker, timeline].forEach {
+        [title, subtitle, timeline].forEach {
             copy.addArrangedSubview($0)
             $0.snp.makeConstraints { make in make.width.equalTo(copy) }
         }
@@ -312,15 +289,13 @@ final class OnboardingGuideView: Canvas {
         model: OnboardingFlowViewModel
     ) {
         let repo = model.onboardingRepo
-        displayedStep = repo.step
         progress.update(
             current: repo.step,
             cameraReady: repo.cameraReady,
             virtualCameraReady: repo.virtualCameraReady
         )
-        appPicker.isHidden = repo.step != .videoCalls
         previous.isHidden = repo.step == .camera
-        later.isHidden = repo.step == .videoCalls
+        later.isHidden = !model.showsSetupLater
         primary.title = model.primaryTitle
         primary.isEnabled = model.primaryEnabled
         primary.loading = model.primaryLoading
@@ -336,17 +311,16 @@ final class OnboardingGuideView: Canvas {
             timeline.update(items: model.preparationInstructions.map { .init(title: $0.title, detail: $0.detail) })
         case .videoCalls:
             title.stringValue = OnboardingStrings.guideUseFaceNowInVideoCalls
-            subtitle.stringValue = OnboardingStrings.guideChooseFaceNowAsYourCameraInYourVideoCalling
-            updateCallInstructions()
+            subtitle.stringValue = OnboardingStrings.videoCallsSubtitle
+            timeline.update(items: model.videoCallInstructions.map { .init(title: $0.title, detail: $0.detail) })
         }
         illustration.update(
             step: repo.step,
-            app: selectedApp,
             explanation: model.preparationExplanation,
-            needsRecovery: model.needsVirtualCameraRecovery
+            virtualCameraPages: model.virtualCameraGuidePages
         )
         let controls: [NSControl] =
-            ([closeButton, appPicker]
+            ([closeButton]
             + illustration.navigationControls + [previous, later, primary])
             .filter { !$0.isHidden && $0.isEnabled }
         for (index, control) in controls.enumerated() {
@@ -406,7 +380,6 @@ final class OnboardingGuideView: Canvas {
             make.leading.equalTo(copy.snp.trailing).offset(28)
             make.trailing.top.bottom.equalToSuperview()
         }
-        appPicker.snp.makeConstraints { make in make.height.equalTo(32) }
         footerNavigation.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(28)
             make.centerY.equalTo(primary)
@@ -425,31 +398,6 @@ final class OnboardingGuideView: Canvas {
         }
     }
 
-    /// Switches the repeatable instructions without changing any meeting-app settings.
-    @objc private func selectApp() {
-        selectedApp = appPicker.titleOfSelectedItem ?? "WeChat"
-        updateCallInstructions()
-        illustration.updateVideoCallApp(selectedApp)
-    }
-
-    /// Highlights the camera-menu entry and uses the real published device name.
-    private func updateCallInstructions() {
-        let first =
-            selectedApp == "Google Meet"
-            ? OnboardingStrings.guideOpenSettingsVideoInGoogleMeet
-            : OnboardingStrings.openVideoSettings(app: selectedApp)
-        timeline.update(items: [
-            .init(title: OnboardingStrings.guideOpenVideoSettings, detail: first),
-            .init(
-                title: OnboardingStrings.guideSelectFaceNowCamera,
-                detail: OnboardingStrings.chooseCameraNamed(name: VirtualCameraConfiguration.deviceName)
-            ),
-            .init(
-                title: OnboardingStrings.guideStartYourCamera,
-                detail: OnboardingStrings.guideReturnToFaceNowClickStartCameraAndChooseYour
-            ),
-        ])
-    }
 }
 
 /// Presents numbered setup milestones with connecting rules, action headings, and descriptions.
@@ -668,7 +616,10 @@ private final class OnboardingProgressView: Canvas {
 private final class OnboardingIllustrationView: Canvas {
 
     /// Includes screenshot page selection in the modal's keyboard navigation cycle.
-    var navigationControls: [NSControl] { screenshots.isHidden ? [] : screenshots.navigationControls }
+    var navigationControls: [NSControl] {
+        if !videoCalls.isHidden { return videoCalls.navigationControls }
+        return screenshots.isHidden ? [] : screenshots.navigationControls
+    }
 
     /// The user-supplied temporary camera-step image, independently replaceable from extension screenshots.
     private lazy var cameraScreenshot: OnboardingScreenshotView = {
@@ -686,6 +637,12 @@ private final class OnboardingIllustrationView: Canvas {
         return view
     }()
 
+    /// Displays the three original video-calling examples with names, captions, and pagination.
+    private lazy var videoCalls: VideoCallsGuideView = {
+        let view = VideoCallsGuideView()
+        return view
+    }()
+
     /// Explains the current state when the guide has no corresponding screenshot.
     private lazy var explanation: OnboardingExplanationView = {
         let view = OnboardingExplanationView()
@@ -695,10 +652,11 @@ private final class OnboardingIllustrationView: Canvas {
     /// Composes supplied screenshots and a text fallback without simulated controls.
     init() {
         super.init(color: Palette.surface, radius: 18)
-        [explanation, screenshots, cameraScreenshot].forEach(addSubview)
+        [explanation, screenshots, cameraScreenshot, videoCalls].forEach(addSubview)
         screenshots.snp.makeConstraints { make in make.edges.equalToSuperview().inset(16) }
         cameraScreenshot.snp.makeConstraints { make in make.edges.equalToSuperview().inset(24) }
         explanation.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        videoCalls.snp.makeConstraints { make in make.edges.equalToSuperview().inset(16) }
     }
 
     /// Storyboard decoding is unsupported for this programmatic illustration.
@@ -706,57 +664,43 @@ private final class OnboardingIllustrationView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Updates the explanation when the user selects a different video calling app.
-    func updateVideoCallApp(
-        _ app: String
-    ) {
-        explanation.update(
-            OnboardingStrings.guideExplanationVideoCalls(
-                app: app,
-                camera: VirtualCameraConfiguration.deviceName
-            )
-        )
-    }
-
-    /// Keeps screenshot content stable while deriving text from the current preparation state.
+    /// Displays only the pages derived from the current preparation action.
     func update(
         step: OnboardingRepository.Step,
-        app: String,
         explanation: String,
-        needsRecovery: Bool
+        virtualCameraPages: [OnboardingFlowViewModel.VirtualCameraGuidePage]
     ) {
         if step == .virtualCamera {
-            screenshots.update(explanation: explanation, needsRecovery: needsRecovery)
+            screenshots.update(explanation: explanation, pages: virtualCameraPages)
         }
         let showsScreenshots: Bool
         if #available(macOS 15, *) {
-            showsScreenshots = step == .virtualCamera
+            showsScreenshots = step == .virtualCamera && virtualCameraPages.count > 1
         } else {
             showsScreenshots = false
         }
         screenshots.isHidden = !showsScreenshots
         cameraScreenshot.isHidden = step != .camera
-        self.explanation.isHidden = showsScreenshots || step == .camera
-        if step == .videoCalls {
-            updateVideoCallApp(app)
-        } else {
-            self.explanation.update(explanation)
-        }
+        videoCalls.isHidden = step != .videoCalls
+        self.explanation.isHidden = showsScreenshots || step == .camera || step == .videoCalls
+        if step != .videoCalls { self.explanation.update(explanation) }
     }
 }
 
-/// Mirrors the three extension setup instructions with one corresponding walkthrough page each.
+/// Renders the current extension instructions without retaining obsolete setup pages.
 @MainActor
 private final class OnboardingVirtualCameraScreenshotsView: Canvas {
 
     /// The page controls exposed to the owning modal's explicit focus cycle.
-    var navigationControls: [NSControl] { [previousPage] + pageDots + [nextPage] }
+    var navigationControls: [NSControl] {
+        pages.count > 1 ? [previousPage] + pageDots.filter { !$0.isHidden } + [nextPage] : []
+    }
 
-    /// The visible walkthrough image, independent of preparation state.
+    /// Preserves the selected page while its preparation instructions remain relevant.
     private var selectedPage = 0
 
-    /// Replaces the initial permission prompt with toggle and restart guidance after publication fails.
-    private var needsRecovery = false
+    /// The view model supplies the exact pages required by the current action.
+    private var pages: [OnboardingFlowViewModel.VirtualCameraGuidePage] = [.explanation]
 
     /// Preserves the state explanation while the user browses the recovery pages.
     private var currentExplanation = ""
@@ -767,6 +711,7 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         view.orientation = .horizontal
         view.alignment = .centerY
         view.spacing = 2
+        view.detachesHiddenViews = true
         return view
     }()
 
@@ -782,12 +727,12 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         view.setAccessibilityLabel(OnboardingStrings.previousGuideImage)
         view.onClick = { [weak self] in
             guard let self else { return }
-            self.selectPage((self.selectedPage + 2) % 3)
+            self.movePage(by: -1)
         }
         return view
     }()
 
-    /// The three small indicators retain a larger native button hit area.
+    /// At most three relevant pages retain a larger native button hit area.
     private lazy var pageDots: [Button] = {
         let titles = [
             OnboardingStrings.virtualCamera, OnboardingStrings.noticeOpenSystemSettings,
@@ -819,7 +764,7 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         view.setAccessibilityLabel(OnboardingStrings.nextGuideImage)
         view.onClick = { [weak self] in
             guard let self else { return }
-            self.selectPage((self.selectedPage + 1) % 3)
+            self.movePage(by: 1)
         }
         return view
     }()
@@ -890,52 +835,58 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Refreshes the reason and resolution while preserving the currently selected screenshot page.
+    /// Resets pagination when the applicable instructions change, including completion.
     func update(
         explanation: String,
-        needsRecovery: Bool
+        pages: [OnboardingFlowViewModel.VirtualCameraGuidePage]
     ) {
         currentExplanation = explanation
-        let modeChanged = self.needsRecovery != needsRecovery
-        self.needsRecovery = needsRecovery
-        let titles =
-            needsRecovery
-            ? [
-                OnboardingStrings.virtualCamera, OnboardingStrings.guideRestartVirtualCamera,
-                OnboardingStrings.guideRestartMacIfNeeded,
-            ]
-            : [
-                OnboardingStrings.virtualCamera, OnboardingStrings.noticeOpenSystemSettings,
-                OnboardingStrings.guideEnableFaceNow,
-            ]
-        for (dot, title) in zip(pageDots, titles) { dot.setAccessibilityLabel(title) }
-        selectPage(modeChanged ? 0 : selectedPage)
+        let nextPages = pages.isEmpty ? [.explanation] : pages
+        let pagesChanged = self.pages != nextPages
+        self.pages = nextPages
+        pagination.isHidden = nextPages.count < 2
+        for (index, dot) in pageDots.enumerated() {
+            dot.isHidden = !nextPages.indices.contains(index)
+            guard !dot.isHidden else { continue }
+            switch nextPages[index] {
+            case .explanation: dot.setAccessibilityLabel(OnboardingStrings.virtualCamera)
+            case .permissionPrompt: dot.setAccessibilityLabel(OnboardingStrings.noticeOpenSystemSettings)
+            case .settings: dot.setAccessibilityLabel(OnboardingStrings.guideEnableFaceNow)
+            case .recoverySettings: dot.setAccessibilityLabel(OnboardingStrings.guideRestartVirtualCamera)
+            }
+        }
+        selectPage(pagesChanged ? 0 : selectedPage)
+    }
+
+    /// Wraps within the currently available pages rather than a fixed screenshot count.
+    private func movePage(
+        by offset: Int
+    ) {
+        guard pages.count > 1 else { return }
+        selectPage((selectedPage + offset + pages.count) % pages.count)
     }
 
     /// Switches the displayed screenshot and its matching action caption.
     private func selectPage(
         _ page: Int
     ) {
-        guard (0...2).contains(page) else { return }
+        guard pages.indices.contains(page) else { return }
         selectedPage = page
         for (index, dot) in pageDots.enumerated() {
             dot.foregroundColor = index == page ? Palette.accent : Palette.secondary.withAlphaComponent(0.35)
             dot.setAccessibilityValue(index == page ? 1 : 0)
         }
-        explanation.isHidden = page != 0 && !(needsRecovery && page == 2)
-        caption.isHidden = page == 0 || (needsRecovery && page == 2)
-        promptImage.isHidden = needsRecovery || page != 1
-        settingsImage.isHidden = page != (needsRecovery ? 1 : 2)
-        if needsRecovery {
-            explanation.update(page == 2 ? OnboardingStrings.guideRestartMacAfterToggle : currentExplanation)
-            caption.stringValue = page == 1 ? OnboardingStrings.guideToggleVirtualCamera : ""
-            return
-        }
+        let content = pages[page]
+        explanation.isHidden = content != .explanation
+        caption.isHidden = !explanation.isHidden
+        promptImage.isHidden = content != .permissionPrompt
+        settingsImage.isHidden = content != .settings && content != .recoverySettings
         explanation.update(currentExplanation)
-        switch page {
-        case 0: caption.stringValue = ""
-        case 1: caption.stringValue = OnboardingStrings.guideClickOpenSystemSettingsInTheMacOSDialog
-        default: caption.stringValue = OnboardingStrings.guideTurnOnTheSwitchNextToFaceNowThenClick
+        switch content {
+        case .explanation: caption.stringValue = ""
+        case .permissionPrompt: caption.stringValue = OnboardingStrings.guideClickOpenSystemSettingsInTheMacOSDialog
+        case .settings: caption.stringValue = OnboardingStrings.guideTurnOnTheSwitchNextToFaceNowThenClick
+        case .recoverySettings: caption.stringValue = OnboardingStrings.guideToggleVirtualCamera
         }
     }
 }

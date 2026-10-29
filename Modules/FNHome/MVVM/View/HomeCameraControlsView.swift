@@ -15,13 +15,13 @@ import SnapKit
 @MainActor
 final class HomeCameraControlsView: Canvas {
 
-    /// Opens the preparation flow at the requested stage.
+    /// Opens the current unmet requirement, or video-call guidance once preparation is complete.
     var onShowOnboarding: ((OnboardingRepository.Step?) -> Void)?
 
     /// Occupies the former physical-camera selector position in the header.
     private lazy var virtualCameraStatus: VirtualCameraStatusView = {
         let view = VirtualCameraStatusView()
-        view.onShowOnboarding = { [weak self] in self?.onShowOnboarding?(.virtualCamera) }
+        view.onShowOnboarding = { [weak self] in self?.onShowOnboarding?(nil) }
         return view
     }()
 

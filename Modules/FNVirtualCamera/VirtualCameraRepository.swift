@@ -13,6 +13,7 @@ import AppKit
 import AVFoundation
 import Combine
 import SystemExtensions
+import Darwin
 import os
 
 /// Owns shared camera preparation and explicit installation or removal of the virtual output.
@@ -52,14 +53,91 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
     /// Retains a failed explicit command independently of whether the old device is still usable.
     @Published private(set) var operationFailure: CameraOperationFailure?
 
+    /// A durable user intent, independent from actual installed-extension and device facts.
+    @Published private var setupWorkflow: CameraSetupWorkflow? {
+        didSet {
+            if oldValue != setupWorkflow { CameraSetupWorkflow.save(setupWorkflow, to: .standard) }
+        }
+    }
+
+    /// Distinguishes a real system restart from closing and reopening the application.
+    private let bootID = VirtualCameraRepository.currentBootID()
+
+    /// Surfaces a failed query when setup is blocked while keeping a healthy camera silent.
+    var preparationFailure: CameraOperationFailure? {
+        operationFailure ?? (extensionSnapshot.availability.isReady ? nil : queryFailure)
+    }
+
+    /// A user-copyable diagnostic containing only camera setup and platform details.
+    var setupDiagnostic: String {
+        let failure = operationFailure ?? requestFailure ?? queryFailure
+        return [
+            "FaceNow camera setup",
+            "App build: \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown")",
+            "Extension build: \(bundledExtensionVersion ?? "unknown")",
+            "macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)",
+            "Phase: \(setupWorkflow?.phase.rawValue ?? "none")",
+            "Boot identity available: \(!bootID.isEmpty)",
+            "Operation: \(failure?.operation.rawValue ?? "none")",
+            "Error: \(failure?.errorDomain ?? "none") (\(failure?.errorCode.map(String.init) ?? "none"))",
+            failure?.diagnosticMessage ?? status,
+        ].joined(separator: "\n")
+    }
+
+    /// Reads the stable macOS boot-session identity without relying on wall-clock estimates.
+    private static func currentBootID() -> String {
+        var size = 0
+        guard sysctlbyname("kern.bootsessionuuid", nil, &size, nil, 0) == 0, size > 0 else { return "" }
+        var bytes = [CChar](repeating: 0, count: size)
+        guard sysctlbyname("kern.bootsessionuuid", &bytes, &size, nil, 0) == 0 else { return "" }
+        return String(decoding: bytes.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
+    }
+
+    /// Bounds indeterminate native progress while retaining the pending request identity for late callbacks.
+    private var requestTimeoutTask: Task<Void, Never>?
+
+    /// Remembers which device recovery steps the user has already attempted.
+    private var deviceRecovery: CameraDeviceRecovery? {
+        didSet {
+            let key = "facenow.virtualCamera.recovery.v1"
+            if let deviceRecovery, let data = try? JSONEncoder().encode(deviceRecovery) {
+                UserDefaults.standard.set(data, forKey: key)
+            } else {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
+        }
+    }
+
+    /// Records recovery navigation without inferring that the user completed the system action.
+    func recordRecoveryNavigation(
+        relaunch: Bool
+    ) {
+        guard var recovery = deviceRecovery else { return }
+        if relaunch {
+            recovery.relaunchFromProcessID = ProcessInfo.processInfo.processIdentifier
+        } else {
+            recovery.settingsOpened = true
+        }
+        deviceRecovery = recovery
+    }
+
     /// Associates property-query completion with the user workflow that requested it.
     private var propertiesOperationID: UUID?
 
     /// Associates a bounded device check with the workflow waiting for its result.
     private var readinessOperationID: UUID?
 
-    /// Preserves install versus update identity after a native request leaves its initiating method.
+    /// Preserves the actual install or removal stage after a native request leaves its initiating method.
     private var pendingOperationKind = CameraOperation.install
+
+    /// Marks replacement races without crossing actor isolation from a synchronous native callback.
+    private nonisolated let replacementConflicts = OSAllocatedUnfairLock(initialState: Set<ObjectIdentifier>())
+
+    /// Remains true after progress times out until macOS completes the original request.
+    var hasPendingSystemRequest: Bool { pendingRequest != nil }
+
+    /// Whether the user must finish removal in System Settings before setup may continue.
+    var needsManualRemoval: Bool { setupWorkflow?.phase == .manualRemoval }
 
     /// Associates extension callbacks with the workflow that submitted the request.
     private var pendingOperationID: UUID?
@@ -94,7 +172,7 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
     @Published private var hasCheckedInstallation = false
 
     /// Whether any extension record exists, including a disabled or removing copy.
-    @Published private var isInstalled = false
+    @Published private(set) var isInstalled = false
 
     /// The latest confirmed installation or discovery failure.
     @Published private var deviceFailure: CameraUnavailableReason?
@@ -123,8 +201,8 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
     /// Whether the published virtual device exposes a usable producer sink.
     @Published private(set) var isDeviceReady = false
 
-    /// Whether system extension removal or replacement still requires a restart.
-    @Published private(set) var requiresRestart = false
+    /// Keeps a deferred native completion distinct from a camera that is actually ready.
+    @Published private(set) var isSystemCompletionPending = false
 
     /// The bounded device-publication and sink-discovery operation.
     private var readinessTask: Task<Void, Never>?
@@ -162,15 +240,29 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
     /// Observes device publication while leaving extension activation to explicit user actions.
     override init() {
         super.init()
+        if let data = UserDefaults.standard.data(forKey: "facenow.virtualCamera.recovery.v1"),
+            let recovery = try? JSONDecoder().decode(CameraDeviceRecovery.self, from: data),
+            recovery.targetVersion == bundledExtensionVersion
+        {
+            deviceRecovery = recovery
+        }
+        setupWorkflow = CameraSetupWorkflow.load(from: .standard, targetVersion: bundledExtensionVersion ?? "")
+        if let workflow = setupWorkflow {
+            isSystemCompletionPending =
+                workflow.phase == .waitingForRemovalRestart
+                || workflow.phase == .waitingForInstallationRestart
+            requestFailure = workflow.failure
+            operationFailure = workflow.failure
+        }
         synchronizeReadiness()
         readinessObservation = objectWillChange.sink { [weak self] in self?.scheduleReadinessUpdate() }
         deviceObservation = VirtualCameraDeviceMonitor.shared.changes.sink { [weak self] in
             guard let self else { return }
             self.synchronizeReadiness()
-            guard !self.isBusy, !self.requiresRestart, !self.isWaitingForDevice else { return }
+            guard !self.isBusy, !self.isSystemCompletionPending, !self.isWaitingForDevice else { return }
             if self.isDeviceReady, (try? VirtualCameraDiscovery.findSink()) != nil { return }
             // A late arrival must recover even after the previous bounded check timed out.
-            if self.isEnabled {
+            if self.isEnabled, self.isVersionCurrent, self.pendingRequest == nil, !self.needsManualRemoval {
                 self.cancelDeviceWait()
                 self.waitForDevice()
             } else {
@@ -232,6 +324,9 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         guard canPerform(kind) else { return }
         let context = CameraOperationContext(kind: kind, origin: .user)
         operationFailure = nil
+        requestFailure = nil
+        requestFailureMessage = nil
+        queryFailure = nil
         operation = context
         switch kind {
         case .requestAccess:
@@ -242,10 +337,27 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             await Task.yield()
             synchronizeReadiness()
             finishOperation(context.id)
-        case .install, .update:
-            install()
+        case .install, .reinstall:
+            guard validateInstallationLocation() else {
+                finishOperation(context.id)
+                return
+            }
+            isSystemCompletionPending = false
+            deviceFailure = nil
+            deviceRecovery = nil
+            setupWorkflow = CameraSetupWorkflow(
+                targetVersion: bundledExtensionVersion ?? "",
+                phase: kind == .reinstall ? .removing : .installing
+            )
+            if kind == .reinstall {
+                operation = CameraOperationContext(kind: .remove, origin: .user)
+                deactivateExtension()
+            } else {
+                activateExtension()
+            }
         case .remove:
-            uninstall()
+            setupWorkflow = nil
+            deactivateExtension()
         case .checkStatus, .discoverOutput:
             if kind == .discoverOutput, readinessTask != nil {
                 readinessOperationID = context.id
@@ -270,8 +382,14 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             return canStartSession
         case .checkStatus, .discoverOutput:
             return !isBusy
-        case .install, .update, .remove:
-            return !isBusy && !isRefreshing && !isWaitingForDevice
+        case .install:
+            return queryFailure == nil && pendingRequest == nil && hasCheckedInstallation
+                && (!isInstalled || isVersionCurrent || isSystemCompletionPending)
+                && !isBusy && !isRefreshing && !isWaitingForDevice
+        case .reinstall, .remove:
+            return queryFailure == nil && pendingRequest == nil && hasCheckedInstallation && isInstalled
+                && !isSystemCompletionPending
+                && !isBusy && !isRefreshing && !isWaitingForDevice
         }
     }
 
@@ -289,6 +407,8 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         isShuttingDown = true
         propertiesRequest = nil
         pendingRequest = nil
+        requestTimeoutTask?.cancel()
+        requestTimeoutTask = nil
         propertiesOperationID = nil
         pendingOperationID = nil
         operation = nil
@@ -340,7 +460,7 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             isRefreshing: isRefreshing,
             operation: isBusy ? (pendingKind == .deactivation ? .removal : .installation) : nil,
             isAwaitingApproval: isAwaitingApproval,
-            requiresRestart: requiresRestart,
+            isSystemCompletionPending: isSystemCompletionPending,
             isDeviceReady: isDeviceReady,
             isWaitingForDevice: isWaitingForDevice,
             failure: deviceFailure ?? requestFailure.map(CameraUnavailableReason.operationFailed),
@@ -396,7 +516,7 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
     /// Refreshes system state without installing or activating anything.
     func refresh(
         retryDeviceDiscovery: Bool = false,
-        preservingFailure: Bool = false
+        preservingFailure: Bool = true
     ) {
         guard !isShuttingDown else { return }
         synchronizeReadiness()
@@ -420,20 +540,36 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         OSSystemExtensionManager.shared.submitRequest(request)
     }
 
-    /// Asks macOS to activate the extension packaged inside the application.
+    /// Starts the same typed setup workflow used by onboarding and the home notice.
     func install() {
-        guard !isShuttingDown, !isBusy, !isRefreshing, !isWaitingForDevice,
-            operation == nil || operation?.kind == .install || operation?.kind == .update
-        else { return }
-        if operation == nil {
-            operationFailure = nil
-            operation = CameraOperationContext(kind: isInstalled ? .update : .install, origin: .user)
+        Task { [weak self] in
+            guard let self else { return }
+            let replacesObsoleteVersion = self.isInstalled && !self.isVersionCurrent && !self.isSystemCompletionPending
+            await self.perform(replacesObsoleteVersion ? .reinstall : .install)
         }
-        guard Bundle.main.bundleURL.resolvingSymlinksInPath().path.hasPrefix("/Applications/") else {
+    }
+
+    /// Removes the camera without scheduling a subsequent reinstall when explicitly requested.
+    func uninstall() {
+        Task { [weak self] in await self?.perform(.remove) }
+    }
+
+    /// Prevents removing a working old camera when this application cannot install its replacement.
+    private func validateInstallationLocation() -> Bool {
+        guard Bundle.main.bundleURL.resolvingSymlinksInPath().path.hasPrefix("/Applications/"),
+            let version = bundledExtensionVersion, !version.isEmpty
+        else {
             deviceFailure = .installationLocation
             status = CameraStrings.statusMoveFaceNowToApplicationsBeforeInstallingTheExtension
+            return false
+        }
+        return true
+    }
+
+    /// Activates only after the workflow has confirmed that no obsolete installation remains.
+    private func activateExtension() {
+        guard validateInstallationLocation() else {
             finishOperation(operation?.id)
-            synchronizeReadiness()
             return
         }
         submit(
@@ -445,15 +581,8 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         )
     }
 
-    /// Removes the persistent camera when explicitly requested by the user.
-    func uninstall() {
-        guard !isShuttingDown, !isBusy, !isRefreshing,
-            operation == nil || operation?.kind == .remove
-        else { return }
-        if operation == nil {
-            operationFailure = nil
-            operation = CameraOperationContext(kind: .remove, origin: .user)
-        }
+    /// Submits the removal stage while keeping the durable reinstall intent intact.
+    private func deactivateExtension() {
         submit(
             OSSystemExtensionRequest.deactivationRequest(
                 forExtensionWithIdentifier: VirtualCameraConfiguration.extensionBundleID,
@@ -461,6 +590,60 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             ),
             kind: .deactivation
         )
+    }
+
+    /// Continues a previously authorized workflow only after a successful installation-properties query.
+    private func resumeSetup(
+        records: [VirtualCameraInstallationState.Record]
+    ) -> Bool {
+        guard pendingRequest == nil, !isBusy, var workflow = setupWorkflow else { return false }
+        let next = workflow.reconcile(
+            hasRecords: !records.isEmpty,
+            hasCurrentRecord: records.contains { $0.version == workflow.targetVersion && !$0.isUninstalling },
+            onlyUninstalling: !records.isEmpty && records.allSatisfy(\.isUninstalling),
+            bootID: bootID
+        )
+        setupWorkflow = workflow
+        switch next {
+        case .install:
+            isSystemCompletionPending = false
+            operationFailure = nil
+            requestFailure = nil
+            requestFailureMessage = nil
+            operation = CameraOperationContext(kind: .install, origin: .user)
+            activateExtension()
+            return true
+        case .waitForSystem:
+            cancelDeviceWait()
+            isSystemCompletionPending = true
+            status = CameraStrings.statusInstallationIncomplete
+            return true
+        case .manualRemoval:
+            isSystemCompletionPending = false
+            let failure =
+                workflow.failure
+                ?? CameraOperationFailure(
+                    operation: .remove,
+                    kind: .missingExtensionRecord,
+                    diagnosticMessage:
+                        "The previous camera extension is still registered. Remove it in System Settings."
+                )
+            operationFailure = failure
+            requestFailure = failure
+            return true
+        case .verify:
+            isSystemCompletionPending = false
+            if requestFailure?.operation == .remove {
+                requestFailure = nil
+                operationFailure = nil
+            }
+            return false
+        case .none:
+            isSystemCompletionPending = false
+            requestFailure = workflow.failure
+            operationFailure = workflow.failure
+            return workflow.failure != nil
+        }
     }
 
     /// Opens the system extension settings without changing system preferences.
@@ -475,7 +658,7 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         _ request: OSSystemExtensionRequest,
         kind: RequestKind
     ) {
-        guard !isShuttingDown, !isBusy, !isRefreshing else { return }
+        guard !isShuttingDown, pendingRequest == nil, !isBusy, !isRefreshing else { return }
         cancelDiscoveryComparison()
         cancelDeviceWait()
         readinessPolicy.reset()
@@ -483,27 +666,58 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         requestFailure = nil
         queryFailure = nil
         deviceFailure = nil
-        requiresRestart = false
+        isSystemCompletionPending = false
         isBusy = true
         isAwaitingApproval = false
         pendingRequest = request
         pendingKind = kind
-        pendingOperationKind = operation?.kind ?? (kind == .deactivation ? .remove : isInstalled ? .update : .install)
+        pendingOperationKind = kind == .deactivation ? .remove : .install
         pendingOperationID = operation?.id
         status =
             kind == .deactivation
             ? CameraStrings.statusRemovingVirtualCamera : CameraStrings.statusInstallingCameraExtension
         request.delegate = self
         OSSystemExtensionManager.shared.submitRequest(request)
+        requestTimeoutTask?.cancel()
+        let requestID = ObjectIdentifier(request)
+        requestTimeoutTask = Task { @MainActor [weak self] in
+            do { try await Task.sleep(for: .seconds(30)) } catch { return }
+            guard let self, !self.isShuttingDown,
+                self.pendingRequest.map(ObjectIdentifier.init) == requestID,
+                !self.isAwaitingApproval
+            else { return }
+            let failure = CameraOperationFailure(
+                operation: self.pendingOperationKind,
+                kind: .pendingRequest,
+                diagnosticMessage:
+                    "macOS has not completed the extension request. Review Camera Extensions before continuing."
+            )
+            self.requestFailure = failure
+            self.operationFailure = failure
+            if var workflow = self.setupWorkflow {
+                workflow.failure = failure
+                self.setupWorkflow = workflow
+            }
+            self.isBusy = false
+            self.finishOperation(self.pendingOperationID)
+            self.requestTimeoutTask = nil
+        }
     }
 
-    /// Updates a previously installed copy when the host contains a newer build.
+    /// Rejects an obsolete-version race instead of falling back to an in-place replacement.
     nonisolated func request(
         _ request: OSSystemExtensionRequest,
         actionForReplacingExtension existing: OSSystemExtensionProperties,
         withExtension ext: OSSystemExtensionProperties
     ) -> OSSystemExtensionRequest.ReplacementAction {
-        .replace
+        guard existing.bundleVersion == ext.bundleVersion,
+            existing.bundleShortVersion == ext.bundleShortVersion
+        else {
+            let requestID = ObjectIdentifier(request)
+            replacementConflicts.withLock { _ = $0.insert(requestID) }
+            return .cancel
+        }
+        return .replace
     }
 
     /// Keeps the request pending while the user grants macOS approval.
@@ -513,6 +727,8 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
+            self.requestTimeoutTask?.cancel()
+            self.requestTimeoutTask = nil
             self.isAwaitingApproval = true
             self.status =
                 CameraStrings.statusEnableFaceNowXmaxVirtualCameraInSystemSettingsGeneral
@@ -527,7 +743,20 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         let identifier = ObjectIdentifier(request)
         Task { @MainActor in
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
+            self.requestTimeoutTask?.cancel()
+            self.requestTimeoutTask = nil
             let activated = self.pendingKind == .activation && result == .completed
+            if var workflow = self.setupWorkflow {
+                if self.pendingKind == .deactivation {
+                    workflow.removalCompleted(needsRestart: result == .willCompleteAfterReboot, bootID: self.bootID)
+                } else {
+                    workflow.installationCompleted(
+                        needsRestart: result == .willCompleteAfterReboot,
+                        bootID: self.bootID
+                    )
+                }
+                self.setupWorkflow = workflow
+            }
             let operationID = self.pendingOperationID
             self.pendingOperationID = nil
             if activated {
@@ -540,10 +769,10 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             self.isAwaitingApproval = false
             self.propertiesRequest = nil
             self.isRefreshing = false
-            self.requiresRestart = result == .willCompleteAfterReboot
-            if self.requiresRestart {
+            self.isSystemCompletionPending = result == .willCompleteAfterReboot
+            if self.isSystemCompletionPending {
                 self.cancelDeviceWait()
-                self.status = CameraStrings.statusRestartYourMacToFinishCameraExtensionSetup
+                self.status = CameraStrings.statusInstallationIncomplete
                 self.finishOperation(operationID)
             } else {
                 self.diagnoseAfterReadiness = activated && VirtualCameraDiagnostics.activationRequested
@@ -563,14 +792,20 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         let errorDomain = systemError.domain
         let errorCode = systemError.code
         let identifier = ObjectIdentifier(request)
+        let replacementConflict = replacementConflicts.withLock { $0.remove(identifier) != nil }
         Task { @MainActor in
             if self.propertiesRequest.map(ObjectIdentifier.init) == identifier {
                 let operationID = self.propertiesOperationID
                 self.propertiesOperationID = nil
                 self.propertiesRequest = nil
-                self.queryFailure = CameraOperationFailure(operation: .checkStatus, diagnosticMessage: message)
+                self.queryFailure = CameraOperationFailure(
+                    operation: .checkStatus,
+                    diagnosticMessage: message,
+                    errorDomain: errorDomain,
+                    errorCode: errorCode
+                )
                 self.isRefreshing = false
-                if !self.isBusy, !self.requiresRestart { self.status = self.requestFailureMessage ?? message }
+                if !self.isBusy, !self.isSystemCompletionPending { self.status = self.requestFailureMessage ?? message }
                 if let operationID, self.operation?.id == operationID {
                     self.operationFailure = self.queryFailure
                 }
@@ -578,13 +813,12 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
                 return
             }
             guard self.pendingRequest.map(ObjectIdentifier.init) == identifier else { return }
+            self.requestTimeoutTask?.cancel()
+            self.requestTimeoutTask = nil
             let removal = self.pendingKind == .deactivation
             let operationID = self.pendingOperationID
             self.pendingOperationID = nil
             let failure: String
-            let missingRecord =
-                removal && errorDomain == OSSystemExtensionErrorDomain
-                && errorCode == OSSystemExtensionError.Code.extensionNotFound.rawValue
             self.logger.error(
                 "Camera extension request failed: \(errorDomain, privacy: .public) (\(errorCode)): \(message, privacy: .public)"
             )
@@ -605,12 +839,34 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             self.propertiesRequest = nil
             self.isRefreshing = false
             self.requestFailureMessage = failure
-            self.requestFailure = CameraOperationFailure(
+            self.requestFailure = CameraOperationFailure.systemExtension(
                 operation: self.pendingOperationKind,
-                kind: missingRecord ? .missingExtensionRecord : .system,
-                diagnosticMessage: message
+                domain: errorDomain,
+                code: errorCode,
+                message: message
             )
+            if self.requestFailure?.kind == .invalidLocation,
+                Bundle.main.bundleURL.resolvingSymlinksInPath().path.hasPrefix("/Applications/")
+            {
+                self.requestFailure?.kind = .system
+            }
+            if replacementConflict {
+                self.requestFailure = CameraOperationFailure(
+                    operation: .remove,
+                    kind: .missingExtensionRecord,
+                    diagnosticMessage: "Another extension version remained registered after removal.",
+                    errorDomain: errorDomain,
+                    errorCode: errorCode
+                )
+            }
             self.operationFailure = self.requestFailure
+            if var workflow = self.setupWorkflow {
+                let kind = self.requestFailure?.kind
+                let isFatal = kind == .invalidBundle || kind == .systemPolicy || kind == .invalidLocation
+                workflow.phase = (removal || replacementConflict) && !isFatal ? .manualRemoval : .failed
+                workflow.failure = self.requestFailure
+                self.setupWorkflow = workflow
+            }
             self.status = failure
             self.finishOperation(operationID)
             self.refresh(preservingFailure: true)
@@ -667,14 +923,15 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
                 self.requestFailure = nil
                 self.requestFailureMessage = nil
             }
-            // A verified current enabled version supersedes an older restart requirement.
-            if current { self.requiresRestart = false }
+            // A persisted restart boundary may be crossed only after a real reboot and fresh properties.
+            if self.resumeSetup(records: records) { return }
+            if current, self.setupWorkflow == nil { self.isSystemCompletionPending = false }
             // An already-enabled old version must not complete approval for its replacement.
-            guard !self.isBusy, !self.requiresRestart else { return }
+            guard !self.isBusy, !self.isSystemCompletionPending else { return }
             if installation.requiresRestartForRemoval {
                 self.cancelDeviceWait()
-                self.requiresRestart = true
-                self.status = CameraStrings.statusRestartYourMacToFinishRemovingThePreviousCamera
+                self.isSystemCompletionPending = true
+                self.status = CameraStrings.statusInstallationIncomplete
                 return
             }
             if enabled, !current {
@@ -733,8 +990,11 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
                 self.logger.notice("Virtual camera sink discovered after enabled-state verification")
                 self.deviceFailure = nil
                 self.isDeviceReady = true
-                if self.operationFailure?.operation != .remove { self.operationFailure = nil }
-                if self.requestFailure?.operation != .remove {
+                let completedSetup = self.setupWorkflow != nil
+                self.setupWorkflow = nil
+                self.deviceRecovery = nil
+                if completedSetup || self.operationFailure?.operation != .remove { self.operationFailure = nil }
+                if completedSetup || self.requestFailure?.operation != .remove {
                     self.requestFailure = nil
                     self.requestFailureMessage = nil
                 }
@@ -763,8 +1023,26 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
                         CameraStrings.statusMacOSHasRefreshedTheCameraButFaceNowStillHas
                 }
                 guard self.readinessID == id, !Task.isCancelled else { return }
+                if reason == .devicePublicationTimedOut || reason == .reopenApplication {
+                    let recovery =
+                        self.deviceRecovery
+                        ?? CameraDeviceRecovery(
+                            targetVersion: self.bundledExtensionVersion ?? "",
+                            initialBootID: self.bootID
+                        )
+                    self.deviceRecovery = recovery
+                    switch recovery.nextStep(
+                        bootID: self.bootID,
+                        processID: ProcessInfo.processInfo.processIdentifier,
+                        staleHost: reason == .reopenApplication
+                    ) {
+                    case .restartApplication: reason = .reopenApplication
+                    case .toggleExtension: reason = .devicePublicationTimedOut
+                    case .install: reason = .installationIncomplete
+                    }
+                }
                 self.deviceFailure = reason
-                if self.operation != nil, case .operationFailed(let failure) = reason {
+                if case .operationFailed(let failure) = reason {
                     self.operationFailure = failure
                 }
                 self.isDeviceReady = false
@@ -828,6 +1106,7 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
 
     /// Cancels device-readiness and diagnostic tasks when the extension owner is released.
     isolated deinit {
+        requestTimeoutTask?.cancel()
         readinessTask?.cancel()
         diagnosticTask?.cancel()
     }

@@ -20,7 +20,7 @@ final class HomeRepository: ObservableObject {
     let socialURL = URL(string: "https://x.com/XmaxAIOfficial")!
 
     /// The public product website.
-    let websiteURL = URL(string: "https://xmaxsi.com")!
+    let websiteURL = URL(string: "https://xmaxai.com")!
 
     /// The product support destination.
     let contactURL = URL(string: "mailto:facenow@xmax.ai")!

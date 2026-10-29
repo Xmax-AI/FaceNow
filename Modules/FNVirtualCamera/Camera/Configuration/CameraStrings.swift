@@ -84,7 +84,7 @@ enum CameraStrings {
         Localization.string(
             "status.virtual_camera_needs_an_update_to_match_this_version",
             table: "Camera",
-            defaultValue: "Virtual Camera needs an update to match this version of FaceNow."
+            defaultValue: "Reinstall Virtual Camera to match this version of FaceNow."
         )
     }
 
@@ -94,15 +94,6 @@ enum CameraStrings {
             "status.approve_the_facenow_camera_extension_in_system_settings",
             table: "Camera",
             defaultValue: "Approve the FaceNow camera extension in System Settings."
-        )
-    }
-
-    /// Camera preparation status or recovery message.
-    static var statusRestartYourMacToFinishVirtualCameraSetup: String {
-        Localization.string(
-            "status.restart_your_mac_to_finish_virtual_camera_setup",
-            table: "Camera",
-            defaultValue: "Restart your Mac to finish Virtual Camera setup."
         )
     }
 
@@ -242,12 +233,12 @@ enum CameraStrings {
         )
     }
 
-    /// Camera preparation status or recovery message.
-    static var statusRestartYourMacToFinishCameraExtensionSetup: String {
+    /// Reports an incomplete native setup while keeping explicit activation available.
+    static var statusInstallationIncomplete: String {
         Localization.string(
-            "status.restart_your_mac_to_finish_camera_extension_setup",
+            "status.installation_incomplete",
             table: "Camera",
-            defaultValue: "Restart your Mac to finish camera extension setup."
+            defaultValue: "Virtual Camera setup is incomplete. Install it again to continue."
         )
     }
 
@@ -261,20 +252,11 @@ enum CameraStrings {
     }
 
     /// Camera preparation status or recovery message.
-    static var statusRestartYourMacToFinishRemovingThePreviousCamera: String {
-        Localization.string(
-            "status.restart_your_mac_to_finish_removing_the_previous_camera",
-            table: "Camera",
-            defaultValue: "Restart your Mac to finish removing the previous camera extension."
-        )
-    }
-
-    /// Camera preparation status or recovery message.
     static var statusUpdateVirtualCameraToMatchThisVersionOfFaceNow: String {
         Localization.string(
             "status.update_virtual_camera_to_match_this_version_of_facenow",
             table: "Camera",
-            defaultValue: "Update Virtual Camera to match this version of FaceNow."
+            defaultValue: "Reinstall Virtual Camera to match this version of FaceNow."
         )
     }
 
@@ -283,7 +265,7 @@ enum CameraStrings {
         Localization.string(
             "status.camera_extension_enabled_click_update_to_test_activation",
             table: "Camera",
-            defaultValue: "Camera extension enabled. Click Update to test activation."
+            defaultValue: "Camera extension enabled. Reinstall Virtual Camera to test setup."
         )
     }
 

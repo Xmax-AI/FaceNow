@@ -105,8 +105,8 @@ enum CameraUnavailableReason: Equatable, Sendable {
     /// The system requires the user's approval before activation can finish.
     case approvalRequired
 
-    /// Installation or removal requires a system restart.
-    case restartRequired
+    /// Setup remains incomplete and permits a new explicit activation request.
+    case installationIncomplete
 
     /// The bounded publication check ended without a usable producer device.
     case devicePublicationTimedOut
@@ -132,7 +132,7 @@ enum CameraUnavailableReason: Equatable, Sendable {
         case .virtualCameraDisabled: CameraStrings.statusVirtualCameraIsDisabledEnableItInSystemSettings
         case .versionMismatch: CameraStrings.statusVirtualCameraNeedsAnUpdateToMatchThisVersion
         case .approvalRequired: CameraStrings.statusApproveTheFaceNowCameraExtensionInSystemSettings
-        case .restartRequired: CameraStrings.statusRestartYourMacToFinishVirtualCameraSetup
+        case .installationIncomplete: CameraStrings.statusInstallationIncomplete
         case .devicePublicationTimedOut: CameraStrings.statusVirtualCameraDidNotBecomeAvailableInTimeCheck
         case .reopenApplication: CameraStrings.statusMacOSHasRefreshedTheCameraQuitAndReopenFaceNow
         case .installationLocation: CameraStrings.statusMoveFaceNowToApplicationsBeforeInstallingVirtualCamera
@@ -255,8 +255,8 @@ struct VirtualCameraReadinessSnapshot {
     /// Whether the user must approve the pending extension request.
     var isAwaitingApproval = false
 
-    /// Whether the system requires restart before preparation can finish.
-    var requiresRestart = false
+    /// Whether macOS deferred completion of a native setup request.
+    var isSystemCompletionPending = false
 
     /// Whether a producer sink was successfully discovered.
     var isDeviceReady = false
@@ -272,7 +272,7 @@ struct VirtualCameraReadinessSnapshot {
 
     /// The extension-only readiness projected from the latest committed facts.
     var availability: CameraAvailability {
-        if requiresRestart { return .unavailable(.restartRequired) }
+        if isSystemCompletionPending { return .unavailable(.installationIncomplete) }
         if isAwaitingApproval { return .unavailable(.approvalRequired) }
         if let operation { return .checking(operation) }
         if isEnabled && isVersionCurrent && isDeviceReady { return .ready }

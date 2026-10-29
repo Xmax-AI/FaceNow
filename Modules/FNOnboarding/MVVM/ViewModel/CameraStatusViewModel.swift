@@ -56,7 +56,7 @@ final class CameraStatusViewModel {
         surface: CameraNoticeSurface = .banner
     ) -> CameraNoticePresentation? {
         let operation = virtualCameraRepo.operation.flatMap { $0.kind.belongs(to: scope) ? $0 : nil }
-        let failure = virtualCameraRepo.operationFailure.flatMap { $0.operation.belongs(to: scope) ? $0 : nil }
+        let failure = virtualCameraRepo.preparationFailure.flatMap { $0.operation.belongs(to: scope) ? $0 : nil }
         guard
             var presentation = CameraNoticePresentation.make(
                 readiness: virtualCameraRepo.readiness(for: scope),

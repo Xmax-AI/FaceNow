@@ -1,0 +1,7 @@
+// Overseas application identity; shared implementation and service endpoints stay unchanged.
+#include "Base.xcconfig"
+
+PRODUCT_NAME = FaceNow-oversea
+PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.oversea
+FACENOW_EDITION = oversea
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) FACENOW_OVERSEA

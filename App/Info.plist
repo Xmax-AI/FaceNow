@@ -9,7 +9,9 @@
 		<string>en</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>FaceNow</string>
+	<string>$(PRODUCT_NAME)</string>
+	<key>FaceNowEdition</key>
+	<string>$(FACENOW_EDITION)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

@@ -53,15 +53,15 @@ final class CameraReadinessTests: XCTestCase {
         XCTAssertEqual(resolve(snapshot), .ready)
     }
 
-    func testExplicitOperationsApprovalAndRestartBlockEvenAnOldReadyDevice() {
+    func testPendingSystemCompletionOffersInstallationWithoutReportingAnOldDeviceReady() {
         var snapshot = currentExtension()
         snapshot.isDeviceReady = true
         snapshot.operation = .installation
         XCTAssertEqual(resolve(snapshot), .checking(.installation))
         snapshot.isAwaitingApproval = true
         XCTAssertEqual(resolve(snapshot), .unavailable(.approvalRequired))
-        snapshot.requiresRestart = true
-        XCTAssertEqual(resolve(snapshot), .unavailable(.restartRequired))
+        snapshot.isSystemCompletionPending = true
+        XCTAssertEqual(resolve(snapshot), .unavailable(.installationIncomplete))
     }
 
     func testPhysicalCameraLossIsNotReportedAsAnExtensionFailure() {

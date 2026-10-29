@@ -451,7 +451,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         )
         attributed.addAttribute(
             .link,
-            value: "https://platform.xmaxsi.com/api-keys",
+            value: "https://platform.xmaxai.com/api-keys",
             range: (text as NSString).range(of: "Xmax Open Platform")
         )
         let width = max(292, ceil(attributed.size().width) + 40)

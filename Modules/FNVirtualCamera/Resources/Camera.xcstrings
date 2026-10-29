@@ -116,7 +116,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Camera extension enabled. Click Update to test activation."
+            "value": "Camera extension enabled. Reinstall Virtual Camera to test setup."
           }
         }
       }
@@ -289,42 +289,6 @@
         }
       }
     },
-    "status.restart_your_mac_to_finish_camera_extension_setup": {
-      "comment": "Camera preparation status or recovery message.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart your Mac to finish camera extension setup."
-          }
-        }
-      }
-    },
-    "status.restart_your_mac_to_finish_removing_the_previous_camera": {
-      "comment": "Camera preparation status or recovery message.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart your Mac to finish removing the previous camera extension."
-          }
-        }
-      }
-    },
-    "status.restart_your_mac_to_finish_virtual_camera_setup": {
-      "comment": "Camera preparation status or recovery message.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart your Mac to finish Virtual Camera setup."
-          }
-        }
-      }
-    },
     "status.the_selected_camera_was_disconnected_reconnect_it_or_select": {
       "comment": "Camera preparation status or recovery message.",
       "extractionState": "manual",
@@ -344,7 +308,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Update Virtual Camera to match this version of FaceNow."
+            "value": "Reinstall Virtual Camera to match this version of FaceNow."
           }
         }
       }
@@ -416,7 +380,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Virtual Camera needs an update to match this version of FaceNow."
+            "value": "Reinstall Virtual Camera to match this version of FaceNow."
           }
         }
       }
@@ -453,6 +417,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Waiting for Virtual Camera to become available. Please wait."
+          }
+        }
+      }
+    },
+    "status.installation_incomplete": {
+      "comment": "Explains incomplete virtual-camera setup with Install as the recovery action.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera setup is incomplete. Install it again to continue."
           }
         }
       }

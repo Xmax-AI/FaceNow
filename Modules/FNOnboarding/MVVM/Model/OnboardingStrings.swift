@@ -16,6 +16,177 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum OnboardingStrings {
 
+    /// Explains the native administrator authorization requirement without suggesting a blind retry.
+    static var noticeSetupAuthorizationRequired: String {
+        Localization.string(
+            "notice.setup_authorization_required",
+            table: "Onboarding",
+            defaultValue:
+                "Administrator authorization is required to continue camera setup. Approve the macOS dialog, or review the extension in System Settings."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var reinstall: String {
+        Localization.string(
+            "action.reinstall",
+            table: "Onboarding",
+            defaultValue: "Reinstall"
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var reinstalling: String {
+        Localization.string(
+            "notice.reinstalling",
+            table: "Onboarding",
+            defaultValue: "Reinstalling…"
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var copyErrorDetails: String {
+        Localization.string(
+            "action.copy_error_details",
+            table: "Onboarding",
+            defaultValue: "Copy Error Details"
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var guideReinstallVirtualCamera: String {
+        Localization.string(
+            "guide.reinstall_virtual_camera",
+            table: "Onboarding",
+            defaultValue: "Reinstall Virtual Camera"
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeReinstallVirtualCamera: String {
+        Localization.string(
+            "notice.reinstall_virtual_camera",
+            table: "Onboarding",
+            defaultValue: "Reinstall Virtual Camera to use this version of FaceNow."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeReinstallingVirtualCamera: String {
+        Localization.string(
+            "notice.reinstalling_virtual_camera",
+            table: "Onboarding",
+            defaultValue: "Removing the previous camera extension before installing the new version…"
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeManualRemoval: String {
+        Localization.string(
+            "notice.manual_removal",
+            table: "Onboarding",
+            defaultValue:
+                "FaceNow couldn’t remove the previous camera extension automatically. Remove it in System Settings to continue."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeSetupApprovalRequired: String {
+        Localization.string(
+            "notice.setup_approval_required",
+            table: "Onboarding",
+            defaultValue:
+                "macOS is waiting for approval or another camera extension request. Review Camera Extensions in System Settings."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeInvalidCameraBundle: String {
+        Localization.string(
+            "notice.invalid_camera_bundle",
+            table: "Onboarding",
+            defaultValue:
+                "The camera extension couldn’t be validated. Install a trusted copy of FaceNow or contact support."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeCameraBlockedByPolicy: String {
+        Localization.string(
+            "notice.camera_blocked_by_policy",
+            table: "Onboarding",
+            defaultValue:
+                "macOS or your organization’s policy blocked the camera extension. Contact your administrator or FaceNow support."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeCameraRecoveryExhausted: String {
+        Localization.string(
+            "notice.camera_recovery_exhausted",
+            table: "Onboarding",
+            defaultValue:
+                "Virtual Camera is still unavailable after recovery. Copy the error details and contact support."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeSetupInterrupted: String {
+        Localization.string(
+            "notice.setup_interrupted",
+            table: "Onboarding",
+            defaultValue: "Camera setup was cancelled or interrupted. Continue when you are ready."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var noticeSetupFailedWithDetails: String {
+        Localization.string(
+            "notice.setup_failed_with_details",
+            table: "Onboarding",
+            defaultValue: "Virtual Camera setup couldn’t be completed. Copy the error details and contact support."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var guideExplanationReinstall: String {
+        Localization.string(
+            "guide.explanation.reinstall",
+            table: "Onboarding",
+            defaultValue:
+                "Click “Install” in the bottom-right corner. FaceNow will replace the previous camera extension and check that Virtual Camera is available."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var guideExplanationManualRemoval: String {
+        Localization.string(
+            "guide.explanation.manual_removal",
+            table: "Onboarding",
+            defaultValue:
+                "Click “Open System Settings” in the bottom-right corner and remove the previous FaceNow camera extension. Follow any macOS request to restart, then reopen FaceNow. Setup will continue after removal is confirmed."
+        )
+    }
+
+    /// Describes a typed virtual-camera installation or recovery step.
+    static var guideExplanationContactSupport: String {
+        Localization.string(
+            "guide.explanation.contact_support",
+            table: "Onboarding",
+            defaultValue:
+                "Click “Copy Error Details” in the bottom-right corner and include the details when contacting FaceNow support. Repeating the same installation request will not resolve a signature, policy, or unclassified system error."
+        )
+    }
+
+    /// Explains an incomplete setup without prescribing a system restart.
+    static var noticeInstallationIncomplete: String {
+        Localization.string(
+            "notice.installation_incomplete",
+            table: "Onboarding",
+            defaultValue: "Virtual Camera setup is incomplete. Install it again to continue."
+        )
+    }
+
     /// Guides recovery after macOS enables the extension without publishing its camera device.
     static var noticeVirtualCameraNotPublished: String {
         Localization.string(
@@ -45,31 +216,12 @@ enum OnboardingStrings {
     }
 
     /// Guides recovery after macOS enables the extension without publishing its camera device.
-    static var guideRestartMacIfNeeded: String {
-        Localization.string(
-            "guide.recovery.restart_mac_if_needed",
-            table: "Onboarding",
-            defaultValue: "Restart Your Mac If Needed"
-        )
-    }
-
-    /// Guides recovery after macOS enables the extension without publishing its camera device.
-    static var guideRestartMacAfterToggle: String {
-        Localization.string(
-            "guide.recovery.restart_mac_after_toggle",
-            table: "Onboarding",
-            defaultValue:
-                "If Virtual Camera is still unavailable after turning it off and back on, save your work and restart your Mac from the Apple menu. Then reopen FaceNow to check setup again."
-        )
-    }
-
-    /// Guides recovery after macOS enables the extension without publishing its camera device.
     static var guideExplanationPublicationRecovery: String {
         Localization.string(
             "guide.explanation.publication_recovery",
             table: "Onboarding",
             defaultValue:
-                "Click “Open System Settings” in the bottom-right corner. Under General → Login Items & Extensions → Camera Extensions, turn FaceNow off, then back on. Return to FaceNow to check the connection automatically.\n\nIf the camera is still unavailable, save your work and restart your Mac from the Apple menu. Then reopen FaceNow."
+                "Click “Open System Settings” in the bottom-right corner. Under General → Login Items & Extensions → Camera Extensions, turn FaceNow off, then back on. Return to FaceNow to check the connection automatically."
         )
     }
 
@@ -144,16 +296,6 @@ enum OnboardingStrings {
     }
 
     /// Explains a setup condition and the action needed to continue.
-    static var guideExplanationRestartMac: String {
-        Localization.string(
-            "guide.explanation.restart_mac",
-            table: "Onboarding",
-            defaultValue:
-                "Save your work, then click “Restart Mac…” in the bottom-right corner. After restarting, reopen FaceNow to check setup again."
-        )
-    }
-
-    /// Explains a setup condition and the action needed to continue.
     static var guideExplanationNotInstalled: String {
         Localization.string(
             "guide.explanation.not_installed",
@@ -169,7 +311,7 @@ enum OnboardingStrings {
             "guide.explanation.version_mismatch",
             table: "Onboarding",
             defaultValue:
-                "The installed Virtual Camera does not match this version of FaceNow. It needs to be updated before video calling apps can use it."
+                "The installed Virtual Camera belongs to a different FaceNow build. Reinstall it to remove the previous extension and install the version included with this app."
         )
     }
 
@@ -332,15 +474,6 @@ enum OnboardingStrings {
     }
 
     /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeRestartMac: String {
-        Localization.string(
-            "notice.restart_mac",
-            table: "Onboarding",
-            defaultValue: "Restart Mac…"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
     static var noticeFaceNowNeedsAccessToYourCamera: String {
         Localization.string(
             "notice.facenow_needs_access_to_your_camera",
@@ -418,15 +551,6 @@ enum OnboardingStrings {
             "notice.allow_the_facenow_camera_extension_in_system_settings",
             table: "Onboarding",
             defaultValue: "Allow the FaceNow camera extension in System Settings."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeRestartYourMacToFinishSettingUpVirtualCamera: String {
-        Localization.string(
-            "notice.restart_your_mac_to_finish_setting_up_virtual_camera",
-            table: "Onboarding",
-            defaultValue: "Restart your Mac to finish setting up Virtual Camera."
         )
     }
 
@@ -860,7 +984,7 @@ enum OnboardingStrings {
         Localization.string(
             "guide.use_facenow_in_video_calls",
             table: "Onboarding",
-            defaultValue: "Use FaceNow In Video Calls"
+            defaultValue: "Bring Your Look To Video Calls"
         )
     }
 
@@ -1426,6 +1550,103 @@ enum OnboardingStrings {
             "landing.virtual_camera_unavailable",
             table: "Onboarding",
             defaultValue: "Virtual Camera is unavailable."
+        )
+    }
+
+    /// Third-step video-call guidance, shared with the module String Catalog.
+    static var videoCallsSubtitle: String {
+        Localization.string(
+            "guide.video_calls.subtitle",
+            table: "Onboarding",
+            defaultValue: "Choose FaceNow as your camera to bring your new look into the conversation."
+        )
+    }
+
+    /// Third-step video-call guidance, shared with the module String Catalog.
+    static var videoCallsSelectTitle: String {
+        Localization.string(
+            "guide.video_calls.select_title",
+            table: "Onboarding",
+            defaultValue: "Select FaceNow As Your Camera"
+        )
+    }
+
+    /// Third-step video-call guidance, shared with the module String Catalog.
+    static var videoCallsKeepRunningTitle: String {
+        Localization.string(
+            "guide.video_calls.keep_running_title",
+            table: "Onboarding",
+            defaultValue: "Keep FaceNow Running"
+        )
+    }
+
+    /// Third-step video-call guidance, shared with the module String Catalog.
+    static var videoCallsKeepRunningDetail: String {
+        Localization.string(
+            "guide.video_calls.keep_running_detail",
+            table: "Onboarding",
+            defaultValue:
+                "Turn on video in your call and keep FaceNow open while you talk. If the camera is missing, reopen your video calling app."
+        )
+    }
+
+    /// Complete message; preserve the camera or application name placeholder.
+    static func videoCallsChooseCamera(
+        camera: String
+    ) -> String {
+        Localization.format(
+            "guide.video_calls.choose_camera",
+            table: "Onboarding",
+            defaultValue: "In your video calling app, open the camera menu and choose “%@”.",
+            arguments: [camera]
+        )
+    }
+
+    /// Complete message; preserve the camera or application name placeholder.
+    static func videoCallsLarkCaption(
+        camera: String
+    ) -> String {
+        Localization.format(
+            "guide.video_calls.lark_caption",
+            table: "Onboarding",
+            defaultValue: "Open the camera menu beside the video button and select “%@”.",
+            arguments: [camera]
+        )
+    }
+
+    /// Complete message; preserve the camera or application name placeholder.
+    static func videoCallsTencentCaption(
+        camera: String
+    ) -> String {
+        Localization.format(
+            "guide.video_calls.tencent_caption",
+            table: "Onboarding",
+            defaultValue: "Click the arrow next to the video button and choose “%@” as your camera.",
+            arguments: [camera]
+        )
+    }
+
+    /// Complete message; preserve the camera or application name placeholder.
+    static func videoCallsWeChatCaption(
+        camera: String
+    ) -> String {
+        Localization.format(
+            "guide.video_calls.wechat_caption",
+            table: "Onboarding",
+            defaultValue: "During a video call, open the camera menu and select “%@”.",
+            arguments: [camera]
+        )
+    }
+
+    /// Complete message; preserve the camera or application name placeholder.
+    static func videoCallsShowExample(
+        app: String
+    ) -> String {
+        Localization.format(
+            "guide.video_calls.show_example",
+            table: "Onboarding",
+            defaultValue: "Show %@ camera example",
+            arguments: [app]
         )
     }
 

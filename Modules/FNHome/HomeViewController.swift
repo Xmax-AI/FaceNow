@@ -47,7 +47,8 @@ final class HomeViewController: NSViewController {
     /// Allows application installation only after capture, generation, and native camera work stop.
     var canInstallApplicationUpdate: Bool {
         !isShuttingDown && !generationRepo.settingsLocked && !generationRepo.isClosing
-            && !virtualCameraRepo.isBusy && !virtualCameraRepo.isRequestingCameraAccess
+            && !virtualCameraRepo.isBusy && !virtualCameraRepo.hasPendingSystemRequest
+            && !virtualCameraRepo.isRequestingCameraAccess
             && virtualCameraRepo.operation == nil && cameraStartTask == nil && cameraNoticeTask == nil
     }
 
@@ -465,6 +466,7 @@ final class HomeViewController: NSViewController {
         case .openSettings(.cameraPrivacy):
             onboardingModel.openCameraSettings()
         case .openSettings(.cameraExtensions):
+            virtualCameraRepo.recordRecoveryNavigation(relaunch: false)
             virtualCameraRepo.openSettings()
         case .chooseCamera:
             landing.showCameraPicker()
@@ -472,11 +474,8 @@ final class HomeViewController: NSViewController {
             showOnboarding(at: .camera)
         case .revealApplication:
             NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL])
-        case .requestSystemRestart:
-            do { try ApplicationLifecycleActions.showSystemRestartConfirmation() } catch {
-                generationRepo.showSetupError(error.localizedDescription)
-            }
         case .restartApplication:
+            virtualCameraRepo.recordRecoveryNavigation(relaunch: true)
             await generationRepo.close()
             guard !Task.isCancelled, !isShuttingDown, !viewModel.needsLogin else { return }
             do {
@@ -485,7 +484,10 @@ final class HomeViewController: NSViewController {
             } catch {
                 generationRepo.showSetupError(HomeStrings.homeCouldnTRestartFaceNowQuitAndReopenTheApp)
             }
-        case .requestCameraAccess, .installVirtualCamera, .updateVirtualCamera, .retry, .checkAgain:
+        case .copyErrorDetails:
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(virtualCameraRepo.setupDiagnostic, forType: .string)
+        case .requestCameraAccess, .installVirtualCamera, .reinstallVirtualCamera, .retry, .checkAgain:
             break
         }
     }

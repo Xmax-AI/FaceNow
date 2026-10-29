@@ -154,10 +154,10 @@ final class OnboardingRepository: ObservableObject {
     let serviceNotice = OnboardingStrings.contentWeAccessYourCameraInAccordanceWithOurTerms
 
     /// The product's terms of use.
-    let termsURL = URL(string: "https://platform.xmaxsi.com/docs/resources/terms")!
+    let termsURL = URL(string: "https://platform.xmaxai.com/docs/resources/terms")!
 
     /// The product's privacy policy.
-    let privacyURL = URL(string: "https://platform.xmaxsi.com/docs/resources/privacy")!
+    let privacyURL = URL(string: "https://platform.xmaxai.com/docs/resources/privacy")!
 
     /// The ownership line displayed below the stage.
     let copyright = OnboardingStrings.contentCopyright2026XMAXAIPTELTDAllRightsReserved

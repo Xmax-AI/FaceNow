@@ -139,6 +139,8 @@
 		A277866F2B934066ABC69700 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDCBE0144F64CB9B1C528B9 /* AboutViewController.swift */; };
 		0DED128F63A7483BAB0A3B3D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33181E771D7849B6961719E0 /* AboutView.swift */; };
 		761CFD83E5C8439992D1268C /* AboutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9077E937E14964A9AC931A /* AboutViewModel.swift */; };
+		05E232EA82534CD6A3F74B3A /* VideoCallGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4472C395F34A648AA1A4A1 /* VideoCallGuide.swift */; };
+		96CC2A65CC1948339EEC1373 /* VideoCallsGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613298B9B1AD47799D527CD0 /* VideoCallsGuideView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -307,6 +309,8 @@
 		1EDCBE0144F64CB9B1C528B9 /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		33181E771D7849B6961719E0 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		3E9077E937E14964A9AC931A /* AboutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewModel.swift; sourceTree = "<group>"; };
+		2E4472C395F34A648AA1A4A1 /* VideoCallGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCallGuide.swift; sourceTree = "<group>"; };
+		613298B9B1AD47799D527CD0 /* VideoCallsGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCallsGuideView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -666,6 +670,7 @@
 			isa = PBXGroup;
 			children = (
 				E895840BB4E8450BBD734FCC /* CameraStatusBannerView.swift */,
+				613298B9B1AD47799D527CD0 /* VideoCallsGuideView.swift */,
 				E8A45BF51BCA018341C737F3 /* OnboardingGuideView.swift */,
 				987BF99E0F34E27DF750400B /* OnboardingCheckerboardView.swift */,
 				9AE5B1AE96D14F96B2CB8318 /* VirtualCameraStatusView.swift */,
@@ -853,6 +858,7 @@
 			isa = PBXGroup;
 			children = (
 				1BF937DDFB58473798EEE6F4 /* CameraNoticePresentation.swift */,
+				2E4472C395F34A648AA1A4A1 /* VideoCallGuide.swift */,
 				939D309B1594426986A86AB3 /* OnboardingStrings.swift */,
 			);
 			path = Model;
@@ -976,7 +982,7 @@
 				E38FFAE3C81C6C0F7882FCD7 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				06E5DCD8336A673EB16B1BDF /* XCRemoteSwiftPackageReference "HandyJSON" */,
 				263A870DB8070B0234127A40 /* XCRemoteSwiftPackageReference "Moya" */,
-				C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK" */,
+				C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */,
 				6A46DE71A0B66FA2AA3E2C9C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 3591BDEBAE5C7EAD0E628879 /* Products */;
@@ -1054,6 +1060,7 @@
 				0BC691ECFA9F40078A486E0A /* CameraStatusViewModel.swift in Sources */,
 				087CBB224E4A4D81A74E387D /* CameraNoticePresentation.swift in Sources */,
 				060D9928F0C74649BB3193FE /* CameraOperation.swift in Sources */,
+				96CC2A65CC1948339EEC1373 /* VideoCallsGuideView.swift in Sources */,
 				34314E09BC40C7D8668595A3 /* OnboardingGuideView.swift in Sources */,
 				375154E1E8F3A7D11904167D /* OnboardingFlowViewModel.swift in Sources */,
 				704A8FCED2ABDDB31F8F0101 /* OnboardingViewController.swift in Sources */,
@@ -1140,6 +1147,7 @@
 				31D96D691D494DB1B159139B /* HomeStrings.swift in Sources */,
 				D5889E16D7D446AFBA0013D9 /* CameraStrings.swift in Sources */,
 				709B5B7249454976ACF3DBCA /* AccountStrings.swift in Sources */,
+				05E232EA82534CD6A3F74B3A /* VideoCallGuide.swift in Sources */,
 				5BBA49D9EC30404795226EBA /* OnboardingStrings.swift in Sources */,
 				66286A8358CC4C81AA49BCB9 /* GenerationStrings.swift in Sources */,
 				593A1307130D48B68C8F97F4 /* Localization.swift in Sources */,
@@ -1471,6 +1479,13 @@ ED10A6000000000000000001 /* main.swift in Sources */, ED10A6000000000000000003 /
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../XmaxSDK;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		ECB495059AE2A7C034601986 /* XCRemoteSwiftPackageReference "Sparkle" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/sparkle-project/Sparkle"; requirement = {kind = exactVersion; version = 2.10.1; }; };
 		6A46DE71A0B66FA2AA3E2C9C /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
@@ -1480,11 +1495,6 @@ ED10A6000000000000000001 /* main.swift in Sources */, ED10A6000000000000000003 /
 				kind = exactVersion;
 				version = 8.10.0;
 			};
-		};
-		C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Xmax-AI/XmaxSDK-MacOS.git";
-			requirement = {kind = exactVersion; version = 1.1.0; };
 		};
 		263A870DB8070B0234127A40 /* XCRemoteSwiftPackageReference "Moya" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/Moya/Moya.git"; requirement = {kind = exactVersion; version = 15.0.3; }; };
 		06E5DCD8336A673EB16B1BDF /* XCRemoteSwiftPackageReference "HandyJSON" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/Miles-Matheson/HandyJSON.git"; requirement = {kind = revision; revision = de8a7126d2270da55cea3cb45dadffcfd002dbbe; }; };
@@ -1501,7 +1511,7 @@ ED10A6000000000000000001 /* main.swift in Sources */, ED10A6000000000000000003 /
 		};
 		DD026C4A2E5517ABACE1429F /* XmaxSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK" */;
+			package = C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */;
 			productName = XmaxSDK;
 		};
 		0AD50D1B9F74A5D240504FB5 /* Moya */ = {isa = XCSwiftPackageProductDependency; package = 263A870DB8070B0234127A40 /* XCRemoteSwiftPackageReference "Moya" */; productName = Moya; };

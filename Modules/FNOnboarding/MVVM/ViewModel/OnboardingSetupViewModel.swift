@@ -27,14 +27,11 @@ final class OnboardingSetupViewModel {
 
     /// The explicit activation action shown for the current installation state.
     var installTitle: String {
-        virtualCameraRepo.isEnabled
-            ? OnboardingStrings.update
-            : virtualCameraRepo.isAwaitingApproval
-                ? OnboardingStrings.setupAwaitingApproval : OnboardingStrings.guideInstallEnable
+        virtualCameraRepo.isAwaitingApproval ? OnboardingStrings.setupAwaitingApproval : OnboardingStrings.install
     }
 
     /// Whether an installed extension exposes the removal action.
-    var showsRemove: Bool { virtualCameraRepo.isEnabled }
+    var showsRemove: Bool { virtualCameraRepo.isInstalled }
 
     /// Whether discovery or a system operation needs indeterminate progress.
     var isWaiting: Bool {
@@ -48,7 +45,9 @@ final class OnboardingSetupViewModel {
     /// Preserves generation's settings lock while installation or queries are running.
     func canInstall(
         settingsLocked: Bool
-    ) -> Bool { !settingsLocked && !virtualCameraRepo.isBusy && !virtualCameraRepo.isRefreshing }
+    ) -> Bool {
+        !settingsLocked && (virtualCameraRepo.canPerform(.install) || virtualCameraRepo.canPerform(.reinstall))
+    }
 
     /// Requires a usable device and an idle generation lifecycle before diagnostic output.
     func canTestVideo(

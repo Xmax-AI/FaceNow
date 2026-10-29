@@ -1,6 +1,210 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "notice.setup_authorization_required": {
+      "comment": "Explains native administrator authorization for camera setup.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administrator authorization is required to continue camera setup. Approve the macOS dialog, or review the extension in System Settings."
+          }
+        }
+      }
+    },
+    "action.reinstall": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall"
+          }
+        }
+      }
+    },
+    "notice.reinstalling": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstalling…"
+          }
+        }
+      }
+    },
+    "action.copy_error_details": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Error Details"
+          }
+        }
+      }
+    },
+    "guide.reinstall_virtual_camera": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall Virtual Camera"
+          }
+        }
+      }
+    },
+    "notice.reinstall_virtual_camera": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall Virtual Camera to use this version of FaceNow."
+          }
+        }
+      }
+    },
+    "notice.reinstalling_virtual_camera": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removing the previous camera extension before installing the new version…"
+          }
+        }
+      }
+    },
+    "notice.manual_removal": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceNow couldn’t remove the previous camera extension automatically. Remove it in System Settings to continue."
+          }
+        }
+      }
+    },
+    "notice.setup_approval_required": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is waiting for approval or another camera extension request. Review Camera Extensions in System Settings."
+          }
+        }
+      }
+    },
+    "notice.invalid_camera_bundle": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera extension couldn’t be validated. Install a trusted copy of FaceNow or contact support."
+          }
+        }
+      }
+    },
+    "notice.camera_blocked_by_policy": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS or your organization’s policy blocked the camera extension. Contact your administrator or FaceNow support."
+          }
+        }
+      }
+    },
+    "notice.camera_recovery_exhausted": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera is still unavailable after recovery. Copy the error details and contact support."
+          }
+        }
+      }
+    },
+    "notice.setup_interrupted": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera setup was cancelled or interrupted. Continue when you are ready."
+          }
+        }
+      }
+    },
+    "notice.setup_failed_with_details": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera setup couldn’t be completed. Copy the error details and contact support."
+          }
+        }
+      }
+    },
+    "guide.explanation.reinstall": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Install” in the bottom-right corner. FaceNow will replace the previous camera extension and check that Virtual Camera is available."
+          }
+        }
+      }
+    },
+    "guide.explanation.manual_removal": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Open System Settings” in the bottom-right corner and remove the previous FaceNow camera extension. Follow any macOS request to restart, then reopen FaceNow. Setup will continue after removal is confirmed."
+          }
+        }
+      }
+    },
+    "guide.explanation.contact_support": {
+      "comment": "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Copy Error Details” in the bottom-right corner and include the details when contacting FaceNow support. Repeating the same installation request will not resolve a signature, policy, or unclassified system error."
+          }
+        }
+      }
+    },
     "notice.virtual_camera_not_published": {
       "comment": "Recovery guidance when the enabled virtual camera device is not published.",
       "extractionState": "manual",
@@ -37,30 +241,6 @@
         }
       }
     },
-    "guide.recovery.restart_mac_if_needed": {
-      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart Your Mac If Needed"
-          }
-        }
-      }
-    },
-    "guide.recovery.restart_mac_after_toggle": {
-      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "If Virtual Camera is still unavailable after turning it off and back on, save your work and restart your Mac from the Apple menu. Then reopen FaceNow to check setup again."
-          }
-        }
-      }
-    },
     "guide.explanation.publication_recovery": {
       "comment": "Recovery guidance when the enabled virtual camera device is not published.",
       "extractionState": "manual",
@@ -68,7 +248,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Click “Open System Settings” in the bottom-right corner. Under General → Login Items & Extensions → Camera Extensions, turn FaceNow off, then back on. Return to FaceNow to check the connection automatically.\n\nIf the camera is still unavailable, save your work and restart your Mac from the Apple menu. Then reopen FaceNow."
+            "value": "Click “Open System Settings” in the bottom-right corner. Under General → Login Items & Extensions → Camera Extensions, turn FaceNow off, then back on. Return to FaceNow to check the connection automatically."
           }
         }
       }
@@ -169,18 +349,6 @@
         }
       }
     },
-    "guide.explanation.restart_mac": {
-      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Save your work, then click “Restart Mac…” in the bottom-right corner. After restarting, reopen FaceNow to check setup again."
-          }
-        }
-      }
-    },
     "guide.explanation.not_installed": {
       "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
       "extractionState": "manual",
@@ -200,7 +368,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The installed Virtual Camera does not match this version of FaceNow. It needs to be updated before video calling apps can use it."
+            "value": "The installed Virtual Camera belongs to a different FaceNow build. Reinstall it to remove the previous extension and install the version included with this app."
           }
         }
       }
@@ -932,7 +1100,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use FaceNow In Video Calls"
+            "value": "Bring Your Look To Video Calls"
           }
         }
       }
@@ -1381,30 +1549,6 @@
         }
       }
     },
-    "notice.restart_mac": {
-      "comment": "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart Mac…"
-          }
-        }
-      }
-    },
-    "notice.restart_your_mac_to_finish_setting_up_virtual_camera": {
-      "comment": "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart your Mac to finish setting up Virtual Camera."
-          }
-        }
-      }
-    },
     "notice.show_in_finder": {
       "comment": "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
       "extractionState": "manual",
@@ -1701,6 +1845,126 @@
           "stringUnit": {
             "state": "translated",
             "value": "Virtual Camera is unavailable."
+          }
+        }
+      }
+    },
+    "guide.video_calls.subtitle": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose FaceNow as your camera to bring your new look into the conversation."
+          }
+        }
+      }
+    },
+    "guide.video_calls.select_title": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select FaceNow As Your Camera"
+          }
+        }
+      }
+    },
+    "guide.video_calls.keep_running_title": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep FaceNow Running"
+          }
+        }
+      }
+    },
+    "guide.video_calls.keep_running_detail": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on video in your call and keep FaceNow open while you talk. If the camera is missing, reopen your video calling app."
+          }
+        }
+      }
+    },
+    "guide.video_calls.choose_camera": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In your video calling app, open the camera menu and choose “%@”."
+          }
+        }
+      }
+    },
+    "guide.video_calls.lark_caption": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the camera menu beside the video button and select “%@”."
+          }
+        }
+      }
+    },
+    "guide.video_calls.tencent_caption": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click the arrow next to the video button and choose “%@” as your camera."
+          }
+        }
+      }
+    },
+    "guide.video_calls.wechat_caption": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "During a video call, open the camera menu and select “%@”."
+          }
+        }
+      }
+    },
+    "guide.video_calls.show_example": {
+      "comment": "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show %@ camera example"
+          }
+        }
+      }
+    },
+    "notice.installation_incomplete": {
+      "comment": "Explains incomplete virtual-camera setup with Install as the recovery action.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera setup is incomplete. Install it again to continue."
           }
         }
       }

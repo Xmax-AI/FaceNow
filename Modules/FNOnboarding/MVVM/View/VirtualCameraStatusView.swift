@@ -34,7 +34,7 @@ final class VirtualCameraStatusView: Canvas {
         return view
     }()
 
-    /// Composes an actionable capsule with the same leading icon and insets as Stop Session.
+    /// Composes an actionable capsule using the same surface and insets as Stop Session.
     init() {
         super.init()
         addSubview(capsule)
@@ -60,7 +60,12 @@ final class VirtualCameraStatusView: Canvas {
         guard displayedState != state else { return }
         displayedState = state
         let available = state == .available
+        let previousWidth = capsule.preferredWidth
         capsule.style = available ? .success : .destructive
+        capsule.icon = available ? nil : .stop
+        capsule.trailingPadding =
+            available ? ToolbarControlMetrics.leadingPadding : ToolbarControlMetrics.trailingPadding
+        if capsule.preferredWidth != previousWidth { invalidateIntrinsicContentSize() }
         toolTip = state.helpText
         capsule.toolTip = state.helpText
         capsule.setAccessibilityValue(state.helpText)

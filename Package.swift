@@ -50,7 +50,7 @@ let package = Package(
             name: "FNOnboarding",
             dependencies: ["Storage", "Factory", "Localization"],
             path: "Modules/FNOnboarding",
-            exclude: ["MVVM/View", "MVVM/ViewModel", "MVVM/Model/CameraNoticePresentation.swift", "Resources", "OnboardingViewController.swift"]
+            exclude: ["MVVM/View", "MVVM/ViewModel", "MVVM/Model/CameraNoticePresentation.swift", "MVVM/Model/VideoCallGuide.swift", "Resources", "OnboardingViewController.swift"]
         ),
         .target(
             name: "FNVirtualCameraCore",

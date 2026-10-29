@@ -66,6 +66,30 @@ final class OnboardingFlowViewModel: ObservableObject {
         virtualCameraRepo.readiness(for: .virtualOutput) == .unavailable(.devicePublicationTimedOut)
     }
 
+    /// Identifies only the illustrations relevant to the current preparation action.
+    enum VirtualCameraGuidePage: Equatable {
+        case explanation
+        case permissionPrompt
+        case settings
+        case recoverySettings
+    }
+
+    /// Ready, waiting, and non-settings states have one explanation and no image pagination.
+    var virtualCameraGuidePages: [VirtualCameraGuidePage] {
+        guard let notice = cameraNotice, !notice.isLoading else { return [.explanation] }
+        switch notice.action {
+        case .installVirtualCamera, .reinstallVirtualCamera:
+            return [.explanation, .permissionPrompt, .settings]
+        case .openSettings(.cameraExtensions):
+            if virtualCameraRepo.needsManualRemoval { return [.explanation] }
+            return needsVirtualCameraRecovery
+                ? [.explanation, .recoverySettings]
+                : [.explanation, .settings]
+        default:
+            return [.explanation]
+        }
+    }
+
     /// The output stage reflects extension readiness independently of physical camera access.
     var virtualCameraReady: Bool { virtualCameraRepo.readiness(for: .virtualOutput).isReady }
 
@@ -131,10 +155,37 @@ final class OnboardingFlowViewModel: ObservableObject {
     var primaryEnabled: Bool { primaryPresentation.isEnabled && !primaryPresentation.isLoading }
     var primaryLoading: Bool { primaryPresentation.isLoading }
 
+    /// Offers deferral only while the current device requirement remains incomplete.
+    var showsSetupLater: Bool {
+        switch onboardingRepo.step {
+        case .camera: !cameraReady
+        case .virtualCamera: !virtualCameraReady
+        case .videoCalls: false
+        }
+    }
+
     /// A numbered instruction rendered by the guide without interpreting repository flags.
     struct Instruction {
         let title: String
         let detail: String
+    }
+
+    /// Explains the shared workflow without making the user pick an application inside setup.
+    var videoCallInstructions: [Instruction] {
+        [
+            .init(
+                title: OnboardingStrings.guideStartYourCamera,
+                detail: OnboardingStrings.guideReturnToFaceNowClickStartCameraAndChooseYour
+            ),
+            .init(
+                title: OnboardingStrings.videoCallsSelectTitle,
+                detail: OnboardingStrings.videoCallsChooseCamera(camera: VirtualCameraConfiguration.deviceName)
+            ),
+            .init(
+                title: OnboardingStrings.videoCallsKeepRunningTitle,
+                detail: OnboardingStrings.videoCallsKeepRunningDetail
+            ),
+        ]
     }
 
     /// Keeps supporting instructions aligned with the exact command shown in the footer.
@@ -212,25 +263,28 @@ final class OnboardingFlowViewModel: ObservableObject {
             .init(title: OnboardingStrings.guideEnableFaceNow, detail: enableInstruction),
         ]
         switch notice.action {
-        case .installVirtualCamera, .updateVirtualCamera:
+        case .installVirtualCamera, .reinstallVirtualCamera:
             return [
                 .init(
-                    title: notice.action == .installVirtualCamera
-                        ? OnboardingStrings.guideInstallVirtualCamera : OnboardingStrings.guideUpdateVirtualCamera,
+                    title: OnboardingStrings.guideInstallVirtualCamera,
                     detail: OnboardingStrings.clickPrimaryButton(notice.buttonTitle)
                 )
             ] + settingsInstructions
         case .openSettings(.cameraExtensions):
+            if virtualCameraRepo.needsManualRemoval {
+                return [
+                    .init(
+                        title: OnboardingStrings.noticeOpenSystemSettings,
+                        detail: OnboardingStrings.guideExplanationManualRemoval
+                    )
+                ]
+            }
             if needsVirtualCameraRecovery {
                 return [
                     settingsInstructions[0],
                     .init(
                         title: OnboardingStrings.guideRestartVirtualCamera,
                         detail: OnboardingStrings.guideToggleVirtualCamera
-                    ),
-                    .init(
-                        title: OnboardingStrings.guideRestartMacIfNeeded,
-                        detail: OnboardingStrings.guideRestartMacAfterToggle
                     ),
                 ]
             }
@@ -257,13 +311,19 @@ final class OnboardingFlowViewModel: ObservableObject {
                 : OnboardingStrings.guideExplanationWaiting
         } else {
             switch notice.action {
-            case .installVirtualCamera, .updateVirtualCamera:
+            case .installVirtualCamera:
                 nextStep = OnboardingStrings.guideExplanationInstall(action: notice.buttonTitle)
+            case .reinstallVirtualCamera:
+                nextStep = OnboardingStrings.guideExplanationReinstall
             case .openSettings(.cameraExtensions):
-                nextStep =
-                    needsVirtualCameraRecovery
-                    ? OnboardingStrings.guideExplanationPublicationRecovery
-                    : OnboardingStrings.guideExplanationEnableExtension
+                if virtualCameraRepo.needsManualRemoval {
+                    nextStep = OnboardingStrings.guideExplanationManualRemoval
+                } else {
+                    nextStep =
+                        needsVirtualCameraRecovery
+                        ? OnboardingStrings.guideExplanationPublicationRecovery
+                        : OnboardingStrings.guideExplanationEnableExtension
+                }
             case .openSettings(.cameraPrivacy), .showHelp(.restrictedCameraAccess):
                 nextStep =
                     isCameraRestricted
@@ -281,20 +341,28 @@ final class OnboardingFlowViewModel: ObservableObject {
                 nextStep = OnboardingStrings.guideExplanationMoveApplication
             case .restartApplication:
                 nextStep = OnboardingStrings.guideExplanationRestartApplication
-            case .requestSystemRestart:
-                nextStep = OnboardingStrings.guideExplanationRestartMac
+            case .copyErrorDetails:
+                nextStep = OnboardingStrings.guideExplanationContactSupport
             }
         }
         let reason: String
         switch (notice.action, virtualCameraRepo.readiness(for: preparationScope)) {
         case (.installVirtualCamera, .unavailable(.virtualCameraNotInstalled)):
             reason = OnboardingStrings.guideExplanationNotInstalled
-        case (.updateVirtualCamera, .unavailable(.versionMismatch)):
+        case (.reinstallVirtualCamera, .unavailable(.versionMismatch)):
             reason = OnboardingStrings.guideExplanationVersionMismatch
         default:
             reason = notice.message
         }
-        return reason + "\n\n" + nextStep
+        let diagnostics: String
+        if notice.action == .copyErrorDetails, let failure = virtualCameraRepo.preparationFailure,
+            let domain = failure.errorDomain, let code = failure.errorCode
+        {
+            diagnostics = "\n\n\(domain) (\(code))"
+        } else {
+            diagnostics = ""
+        }
+        return reason + "\n\n" + nextStep + diagnostics
     }
 
     /// Reads current permission and shared device state without installing or opening capture.

@@ -50,8 +50,8 @@ enum CameraNoticeAction: Equatable {
     /// Installs the bundled camera extension.
     case installVirtualCamera
 
-    /// Updates an existing extension.
-    case updateVirtualCamera
+    /// Removes an obsolete extension before installing the bundled version.
+    case reinstallVirtualCamera
 
     /// Repeats the exact failed or incomplete operation.
     case retry(CameraOperation)
@@ -68,8 +68,8 @@ enum CameraNoticeAction: Equatable {
     /// Requests orderly application cleanup and relaunch.
     case restartApplication
 
-    /// Opens the native system restart confirmation.
-    case requestSystemRestart
+    /// Copies structured setup details for a failure that cannot be solved by repeating a request.
+    case copyErrorDetails
 
     /// The shared label corresponding to the command's actual effect.
     var title: String {
@@ -78,13 +78,13 @@ enum CameraNoticeAction: Equatable {
         case .openSettings: OnboardingStrings.noticeOpenSystemSettings
         case .chooseCamera: OnboardingStrings.noticeChooseCamera
         case .installVirtualCamera: OnboardingStrings.install
-        case .updateVirtualCamera: OnboardingStrings.update
+        case .reinstallVirtualCamera: OnboardingStrings.install
         case .checkAgain: OnboardingStrings.noticeCheckAgain
         case .retry: OnboardingStrings.retry
         case .showHelp: OnboardingStrings.noticeViewHelp
         case .revealApplication: OnboardingStrings.noticeShowInFinder
         case .restartApplication: OnboardingStrings.noticeRestartFaceNow
-        case .requestSystemRestart: OnboardingStrings.noticeRestartMac
+        case .copyErrorDetails: OnboardingStrings.copyErrorDetails
         }
     }
 
@@ -93,7 +93,7 @@ enum CameraNoticeAction: Equatable {
         switch self {
         case .requestCameraAccess: .requestAccess
         case .installVirtualCamera: .install
-        case .updateVirtualCamera: .update
+        case .reinstallVirtualCamera: .reinstall
         case .retry(let operation), .checkAgain(let operation): operation
         default: nil
         }
@@ -132,7 +132,7 @@ struct CameraNoticePresentation: Equatable {
         if let operation, operation.origin == .user {
             switch readiness {
             case .permissionRequired(.denied), .permissionRequired(.restricted),
-                .unavailable(.approvalRequired), .unavailable(.restartRequired), .unavailable(.installationLocation):
+                .unavailable(.approvalRequired), .unavailable(.installationIncomplete), .unavailable(.installationLocation):
                 break
             default:
                 return progress(operation.kind)
@@ -140,9 +140,11 @@ struct CameraNoticePresentation: Equatable {
         }
         if let failure {
             switch readiness {
-            case .ready, .checking, .unavailable(.operationFailed):
+            case .ready, .checking, .unavailable(.operationFailed), .unavailable(.versionMismatch),
+                .unavailable(.virtualCameraNotInstalled), .unavailable(.virtualCameraDisabled),
+                .unavailable(.devicePublicationTimedOut):
                 var result = failed(failure)
-                result.isEnabled = !actionsLocked
+                result.isEnabled = !actionsLocked || result.action.operation == nil
                 return result
             default:
                 break
@@ -188,18 +190,18 @@ struct CameraNoticePresentation: Equatable {
                 )
             case .versionMismatch:
                 result = Self(
-                    message: OnboardingStrings.noticeUpdateVirtualCameraToUseThisVersionOfFaceNow,
-                    action: .updateVirtualCamera
+                    message: OnboardingStrings.noticeReinstallVirtualCamera,
+                    action: .reinstallVirtualCamera
                 )
             case .approvalRequired:
                 result = Self(
                     message: OnboardingStrings.noticeAllowTheFaceNowCameraExtensionInSystemSettings,
                     action: .openSettings(.cameraExtensions)
                 )
-            case .restartRequired:
+            case .installationIncomplete:
                 result = Self(
-                    message: OnboardingStrings.noticeRestartYourMacToFinishSettingUpVirtualCamera,
-                    action: .requestSystemRestart
+                    message: OnboardingStrings.noticeInstallationIncomplete,
+                    action: .installVirtualCamera
                 )
             case .devicePublicationTimedOut:
                 result = Self(
@@ -220,7 +222,7 @@ struct CameraNoticePresentation: Equatable {
                 result = failed(failure)
             case .activationRequired:
                 guard surface == .onboarding else { return nil }
-                result = Self(message: OnboardingStrings.activateCamera, action: .updateVirtualCamera)
+                result = Self(message: OnboardingStrings.activateCamera, action: .reinstallVirtualCamera)
             }
         }
         if actionsLocked, result.action.operation != nil || result.action == .chooseCamera {
@@ -242,9 +244,9 @@ struct CameraNoticePresentation: Equatable {
         case .install:
             title = OnboardingStrings.noticeInstalling
             message = OnboardingStrings.noticeInstallingVirtualCamera
-        case .update:
-            title = OnboardingStrings.noticeUpdating
-            message = OnboardingStrings.noticeUpdatingVirtualCamera
+        case .reinstall:
+            title = OnboardingStrings.reinstalling
+            message = OnboardingStrings.noticeReinstallingVirtualCamera
         case .remove:
             title = OnboardingStrings.noticeRemoving
             message = OnboardingStrings.noticeRemovingVirtualCamera
@@ -265,22 +267,44 @@ struct CameraNoticePresentation: Equatable {
     private static func failed(
         _ failure: CameraOperationFailure
     ) -> Self {
-        if failure.kind == .missingExtensionRecord {
+        switch failure.kind {
+        case .missingExtensionRecord:
+            return Self(message: OnboardingStrings.noticeManualRemoval, action: .openSettings(.cameraExtensions))
+        case .authorization:
+            let action: CameraNoticeAction =
+                failure.operation == .install
+                ? .installVirtualCamera : .openSettings(.cameraExtensions)
+            return Self(message: OnboardingStrings.noticeSetupAuthorizationRequired, action: action)
+        case .pendingRequest:
             return Self(
-                message: OnboardingStrings.noticeVirtualCameraCouldnTBeRemovedAutomaticallyRemoveIt,
+                message: OnboardingStrings.noticeSetupApprovalRequired,
                 action: .openSettings(.cameraExtensions)
             )
+        case .invalidLocation:
+            return Self(
+                message: OnboardingStrings.noticeMoveFaceNowToApplicationsToSetUpVirtualCamera,
+                action: .revealApplication
+            )
+        case .invalidBundle:
+            return Self(message: OnboardingStrings.noticeInvalidCameraBundle, action: .copyErrorDetails)
+        case .systemPolicy:
+            return Self(message: OnboardingStrings.noticeCameraBlockedByPolicy, action: .copyErrorDetails)
+        case .recoveryExhausted:
+            return Self(message: OnboardingStrings.noticeCameraRecoveryExhausted, action: .copyErrorDetails)
+        case .cancelled, .interrupted:
+            let action: CameraNoticeAction
+            switch failure.operation {
+            case .install: action = .installVirtualCamera
+            case .reinstall: action = .reinstallVirtualCamera
+            case .remove: action = .openSettings(.cameraExtensions)
+            default: action = .checkAgain(failure.operation)
+            }
+            return Self(message: OnboardingStrings.noticeSetupInterrupted, action: action)
+        case .system:
+            if failure.operation == .remove {
+                return Self(message: OnboardingStrings.noticeManualRemoval, action: .openSettings(.cameraExtensions))
+            }
+            return Self(message: OnboardingStrings.noticeSetupFailedWithDetails, action: .copyErrorDetails)
         }
-        let message: String
-        switch failure.operation {
-        case .install: message = OnboardingStrings.noticeCouldnTInstallVirtualCameraTryAgain
-        case .update: message = OnboardingStrings.noticeCouldnTUpdateVirtualCameraTryAgain
-        case .remove: message = OnboardingStrings.noticeCouldnTRemoveVirtualCameraTryAgain
-        case .discoverOutput: message = OnboardingStrings.noticeCouldnTConnectToVirtualCameraTryAgain
-        case .discoverInput: message = OnboardingStrings.noticeCouldnTCheckAvailableCamerasTryAgain
-        case .checkStatus: message = OnboardingStrings.noticeCouldnTCheckVirtualCameraStatus
-        case .requestAccess: message = OnboardingStrings.noticeCouldnTRequestCameraAccessTryAgain
-        }
-        return Self(message: message, action: .retry(failure.operation))
     }
 }

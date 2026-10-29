@@ -32,6 +32,7 @@ final class HomeCameraPickerView: Canvas {
             chevron: true
         )
         view.font = Typography.font(size: 13)
+        view.leadingPadding = 16
         view.foregroundColor = .white.withAlphaComponent(0.85)
         view.hoverBackgroundColor = .white.withAlphaComponent(0.08)
         view.cornerRadius = 16
