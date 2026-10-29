@@ -25,8 +25,8 @@ final class VirtualCameraStatusView: Canvas {
     private lazy var capsule: ToolbarButton = {
         let view = ToolbarButton(
             OnboardingStrings.virtualCamera,
-            icon: .stop,
             style: .destructive,
+            chevron: true,
             weight: .semibold
         )
         view.setAccessibilityLabel(OnboardingStrings.virtualCamera)
@@ -60,12 +60,7 @@ final class VirtualCameraStatusView: Canvas {
         guard displayedState != state else { return }
         displayedState = state
         let available = state == .available
-        let previousWidth = capsule.preferredWidth
         capsule.style = available ? .success : .destructive
-        capsule.icon = available ? nil : .stop
-        capsule.trailingPadding =
-            available ? ToolbarControlMetrics.leadingPadding : ToolbarControlMetrics.trailingPadding
-        if capsule.preferredWidth != previousWidth { invalidateIntrinsicContentSize() }
         toolTip = state.helpText
         capsule.toolTip = state.helpText
         capsule.setAccessibilityValue(state.helpText)

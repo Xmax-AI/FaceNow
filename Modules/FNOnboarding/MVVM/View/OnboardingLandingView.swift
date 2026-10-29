@@ -91,6 +91,11 @@ final class OnboardingLandingView: Canvas {
         view.drawsBackground = false
         view.textContainerInset = .zero
         view.textContainer?.lineFragmentPadding = 0
+        #if OVERSEA
+            let underlineStyle = NSUnderlineStyle.single.rawValue
+        #else
+            let underlineStyle = 0
+        #endif
         view.linkTextAttributes = [
             .foregroundColor: NSColor(
                 srgbRed: 0.765,
@@ -98,7 +103,7 @@ final class OnboardingLandingView: Canvas {
                 blue: 0.8,
                 alpha: 1
             ),
-            .underlineStyle: NSUnderlineStyle.single.rawValue,
+            .underlineStyle: underlineStyle,
             .cursor: NSCursor.pointingHand,
         ]
         return view
