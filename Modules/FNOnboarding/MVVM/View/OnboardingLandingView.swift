@@ -324,7 +324,7 @@ final class OnboardingLandingView: Canvas {
             weight: .semibold
         )
         startButton.leadingPadding = min(40, max(25, width * 0.0075 + 18))
-        startButton.trailingPadding = startButton.leadingPadding
+        startButton.trailingPadding = startButton.leadingPadding + 1
         let buttonHeight =
             max(
                 20,

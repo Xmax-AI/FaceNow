@@ -17,6 +17,9 @@ import Kingfisher
 @MainActor
 final class HomeFooterView: Canvas {
 
+    /// Opens the company and product information modal in the home coordinator.
+    var onShowAbout: (() -> Void)?
+
     /// The shared visible spacing between the version and adjacent footer destinations.
     private static let itemSpacing: CGFloat = 40
 
@@ -107,6 +110,16 @@ final class HomeFooterView: Canvas {
         return view
     }()
 
+    /// Presents About Us after an explicit click, without launching an external destination.
+    private lazy var about: Button = {
+        let view = Button(
+            HomeStrings.aboutUs,
+            style: .plain
+        )
+        view.onClick = { [weak self] in self?.onShowAbout?() }
+        return view
+    }()
+
     /// The public version label before the footer links, using the native system font.
     private lazy var version: NSTextField = {
         let view = makeLabel(
@@ -127,7 +140,7 @@ final class HomeFooterView: Canvas {
     /// Creates the footer links without opening external destinations.
     init() {
         super.init()
-        [wechat, social, website, contact, platform, troubleshooting, version].forEach(addSubview)
+        [wechat, social, website, contact, platform, troubleshooting, version, about].forEach(addSubview)
         configureLayout()
     }
 
@@ -151,9 +164,14 @@ final class HomeFooterView: Canvas {
             make.width.equalTo(platform.preferredWidth)
             make.height.equalTo(26)
         }
-        contact.snp.makeConstraints { make in
+        about.snp.makeConstraints { make in
             make.trailing.equalTo(platform.snp.leading).offset(-Self.itemSpacing)
             make.top.height.equalTo(platform)
+            make.width.equalTo(about.preferredWidth)
+        }
+        contact.snp.makeConstraints { make in
+            make.trailing.equalTo(about.snp.leading).offset(-Self.itemSpacing)
+            make.top.height.equalTo(about)
             make.width.equalTo(contact.preferredWidth)
         }
         troubleshooting.snp.makeConstraints { make in

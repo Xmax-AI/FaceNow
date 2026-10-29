@@ -295,31 +295,15 @@ final class OnboardingGuideView: Canvas {
     ) {
         isDismissing = !visible
         if isDismissing { window?.makeFirstResponder(self) }
-        ControlMotion.set(
-            Float(visible ? 1 : 0),
-            for: "opacity",
-            on: backdrop.layer,
+        ControlMotion.setModalVisible(
+            visible,
+            backdrop: backdrop,
+            card: card,
             in: self
-        )
-        ControlMotion.set(
-            Float(visible ? 1 : 0),
-            for: "opacity",
-            on: card.layer,
-            in: self
-        )
-        // Resolve the initial lower position before animating AppKit-owned view geometry.
-        layoutSubtreeIfNeeded()
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = ControlMotion.isAnimated(in: self) ? ControlMotion.duration : 0
-            context.timingFunction =
-                visible
-                ? CAMediaTimingFunction(controlPoints: 0.16, 1, 0.3, 1)
-                : CAMediaTimingFunction(name: .easeInEaseOut)
-            context.allowsImplicitAnimation = true
+        ) {
             card.snp.updateConstraints { make in
                 make.centerY.equalToSuperview().offset(visible ? 0 : 24)
             }
-            layoutSubtreeIfNeeded()
         }
     }
 
@@ -355,13 +339,11 @@ final class OnboardingGuideView: Canvas {
             subtitle.stringValue = OnboardingStrings.guideChooseFaceNowAsYourCameraInYourVideoCalling
             updateCallInstructions()
         }
-        let instruction = model.preparationInstructions.first
         illustration.update(
             step: repo.step,
             app: selectedApp,
-            preparationTitle: instruction?.title ?? model.primaryTitle,
-            primaryTitle: model.primaryTitle,
-            preparationDetail: instruction?.detail ?? ""
+            explanation: model.preparationExplanation,
+            needsRecovery: model.needsVirtualCameraRecovery
         )
         let controls: [NSControl] =
             ([closeButton, appPicker]
@@ -704,96 +686,19 @@ private final class OnboardingIllustrationView: Canvas {
         return view
     }()
 
-    /// The mock system surface inside the neutral illustration panel.
-    private lazy var surface: Canvas = {
-        let view = Canvas(color: .white, radius: 16)
-        view.layer?.borderWidth = 1
-        view.layer?.borderColor = Palette.border.cgColor
+    /// Explains the current state when the guide has no corresponding screenshot.
+    private lazy var explanation: OnboardingExplanationView = {
+        let view = OnboardingExplanationView()
         return view
     }()
 
-    /// The stage's application or settings title.
-    private lazy var title: NSTextField = {
-        let view = wrappingLabel(size: 15, weight: .semibold)
-        view.alignment = .center
-        return view
-    }()
-
-    /// The symbolic context for the illustrated action.
-    private lazy var symbol: NSImageView = {
-        let view = NSImageView()
-        view.contentTintColor = Palette.accent
-        view.imageScaling = .scaleProportionallyUpOrDown
-        view.setAccessibilityElement(false)
-        return view
-    }()
-
-    /// The neutral unselected option or permission explanation.
-    private lazy var detail: NSTextField = {
-        let view = wrappingLabel(size: 13, color: Palette.secondary)
-        view.alignment = .center
-        return view
-    }()
-
-    /// The highlighted settings action or real virtual-camera menu entry.
-    private lazy var highlight: Canvas = {
-        let view = Canvas(color: Palette.accent.withAlphaComponent(0.07), radius: 10)
-        view.layer?.borderWidth = 1.5
-        view.layer?.borderColor = Palette.accent.cgColor
-        return view
-    }()
-
-    /// The explanatory action shown inside the highlighted illustration row.
-    private lazy var action: NSTextField = {
-        let view = wrappingLabel(size: 13, color: Palette.accent, weight: .semibold)
-        view.alignment = .center
-        return view
-    }()
-
-    /// The lower caption distinguishes the illustration from live system controls.
-    private lazy var caption: NSTextField = {
-        let view = wrappingLabel(size: 11, color: Palette.secondary)
-        view.alignment = .center
-        return view
-    }()
-
-    /// Composes explanatory diagrams and a dedicated virtual-camera screenshot walkthrough.
+    /// Composes supplied screenshots and a text fallback without simulated controls.
     init() {
         super.init(color: Palette.surface, radius: 18)
-        [surface, caption, screenshots, cameraScreenshot].forEach(addSubview)
+        [explanation, screenshots, cameraScreenshot].forEach(addSubview)
         screenshots.snp.makeConstraints { make in make.edges.equalToSuperview().inset(16) }
         cameraScreenshot.snp.makeConstraints { make in make.edges.equalToSuperview().inset(24) }
-        [title, symbol, detail, highlight].forEach(surface.addSubview)
-        highlight.addSubview(action)
-        surface.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(24)
-            make.centerY.equalToSuperview().offset(-12)
-            make.height.equalTo(266)
-        }
-        title.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview().inset(20)
-        }
-        symbol.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(title.snp.bottom).offset(20)
-            make.size.equalTo(58)
-        }
-        detail.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(18)
-            make.top.equalTo(symbol.snp.bottom).offset(16)
-        }
-        highlight.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview().inset(16)
-            make.height.equalTo(60)
-        }
-        action.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(10)
-            make.centerY.equalToSuperview()
-        }
-        caption.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.top.equalTo(surface.snp.bottom).offset(16)
-        }
+        explanation.snp.makeConstraints { make in make.edges.equalToSuperview() }
     }
 
     /// Storyboard decoding is unsupported for this programmatic illustration.
@@ -801,27 +706,27 @@ private final class OnboardingIllustrationView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Updates only meeting-app copy when its native selector changes.
+    /// Updates the explanation when the user selects a different video calling app.
     func updateVideoCallApp(
         _ app: String
     ) {
-        title.stringValue = OnboardingStrings.videoSettingsTitle(app: app)
+        explanation.update(
+            OnboardingStrings.guideExplanationVideoCalls(
+                app: app,
+                camera: VirtualCameraConfiguration.deviceName
+            )
+        )
     }
 
-    /// Highlights the correct action while keeping all actual system actions in the dialog footer.
+    /// Keeps screenshot content stable while deriving text from the current preparation state.
     func update(
         step: OnboardingRepository.Step,
         app: String,
-        preparationTitle: String,
-        primaryTitle: String,
-        preparationDetail: String
+        explanation: String,
+        needsRecovery: Bool
     ) {
         if step == .virtualCamera {
-            screenshots.update(
-                heading: preparationTitle,
-                actionTitle: primaryTitle,
-                detail: preparationDetail
-            )
+            screenshots.update(explanation: explanation, needsRecovery: needsRecovery)
         }
         let showsScreenshots: Bool
         if #available(macOS 15, *) {
@@ -831,36 +736,12 @@ private final class OnboardingIllustrationView: Canvas {
         }
         screenshots.isHidden = !showsScreenshots
         cameraScreenshot.isHidden = step != .camera
-        surface.isHidden = showsScreenshots || step == .camera
-        caption.isHidden = showsScreenshots || step == .camera
-        let symbolName: String
-        switch step {
-        case .camera:
-            title.stringValue = OnboardingStrings.guideFaceNowWouldLikeToAccessTheCamera
-            symbolName = "camera.fill"
-            detail.stringValue = OnboardingStrings.guideFaceNowUsesYourCameraForRealTimeEffects
-            action.stringValue = OnboardingStrings.guideChooseAllow
-            caption.stringValue = OnboardingStrings.guideCameraPermissionMacOSDialogIllustration
-        case .virtualCamera:
-            title.stringValue = OnboardingStrings.guideSystemSettings
-            symbolName = "gearshape.fill"
-            if #available(macOS 15, *) {
-                detail.stringValue = OnboardingStrings.guideGeneralLoginItemsExtensionsNCameraExtensions
-            } else {
-                detail.stringValue = OnboardingStrings.guidePrivacySecurityNAllowTheFaceNowSystemExtension
-            }
-            action.stringValue = OnboardingStrings.guideEnableFaceNowDone
-            caption.stringValue = OnboardingStrings.guideReturnToFaceNowReadinessIsCheckedAutomatically
-        case .videoCalls:
+        self.explanation.isHidden = showsScreenshots || step == .camera
+        if step == .videoCalls {
             updateVideoCallApp(app)
-            symbolName = "video.fill"
-            detail.stringValue = OnboardingStrings.guideCameraNChooseYourVideoInput
-            action.stringValue = OnboardingStrings.selectedCameraIllustration(
-                name: VirtualCameraConfiguration.deviceName
-            )
-            caption.stringValue = OnboardingStrings.guideCameraMenuIllustrationTheLayoutVariesByApp
+        } else {
+            self.explanation.update(explanation)
         }
-        symbol.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
     }
 }
 
@@ -873,6 +754,12 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
 
     /// The visible walkthrough image, independent of preparation state.
     private var selectedPage = 0
+
+    /// Replaces the initial permission prompt with toggle and restart guidance after publication fails.
+    private var needsRecovery = false
+
+    /// Preserves the state explanation while the user browses the recovery pages.
+    private var currentExplanation = ""
 
     /// Keeps the three image selectors centered beneath their caption.
     private lazy var pagination: NSStackView = {
@@ -937,9 +824,9 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         return view
     }()
 
-    /// Illustrates the initial footer action before the system permission dialog appears.
-    private lazy var installation: OnboardingInstallIllustrationView = {
-        let view = OnboardingInstallIllustrationView()
+    /// Explains the current installation or connection state without a placeholder diagram.
+    private lazy var explanation: OnboardingExplanationView = {
+        let view = OnboardingExplanationView()
         return view
     }()
 
@@ -973,7 +860,7 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
     /// Composes the three walkthrough pages without altering system permission or installation state.
     init() {
         super.init()
-        [installation, promptImage, settingsImage, caption, pagination].forEach(addSubview)
+        [explanation, promptImage, settingsImage, caption, pagination].forEach(addSubview)
         ([previousPage] + pageDots + [nextPage]).forEach(pagination.addArrangedSubview)
         [previousPage, nextPage].forEach { button in
             button.snp.makeConstraints { make in make.size.equalTo(28) }
@@ -989,7 +876,7 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(pagination.snp.top).offset(-12)
         }
-        [installation, promptImage, settingsImage].forEach { image in
+        [explanation, promptImage, settingsImage].forEach { image in
             image.snp.makeConstraints { make in
                 make.leading.trailing.top.equalToSuperview()
                 make.bottom.equalTo(caption.snp.top).offset(-12)
@@ -1003,18 +890,26 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Retains the current action's instruction while the user browses the system screenshots.
-    private var preparationDetail = OnboardingStrings.clickPrimaryButton(OnboardingStrings.install)
-
-    /// Reflects the same derived instruction and primary button as the guide footer.
+    /// Refreshes the reason and resolution while preserving the currently selected screenshot page.
     func update(
-        heading: String,
-        actionTitle: String,
-        detail: String
+        explanation: String,
+        needsRecovery: Bool
     ) {
-        installation.update(heading: heading, actionTitle: actionTitle)
-        preparationDetail = detail
-        if selectedPage == 0 { caption.stringValue = detail }
+        currentExplanation = explanation
+        let modeChanged = self.needsRecovery != needsRecovery
+        self.needsRecovery = needsRecovery
+        let titles =
+            needsRecovery
+            ? [
+                OnboardingStrings.virtualCamera, OnboardingStrings.guideRestartVirtualCamera,
+                OnboardingStrings.guideRestartMacIfNeeded,
+            ]
+            : [
+                OnboardingStrings.virtualCamera, OnboardingStrings.noticeOpenSystemSettings,
+                OnboardingStrings.guideEnableFaceNow,
+            ]
+        for (dot, title) in zip(pageDots, titles) { dot.setAccessibilityLabel(title) }
+        selectPage(modeChanged ? 0 : selectedPage)
     }
 
     /// Switches the displayed screenshot and its matching action caption.
@@ -1027,97 +922,65 @@ private final class OnboardingVirtualCameraScreenshotsView: Canvas {
             dot.foregroundColor = index == page ? Palette.accent : Palette.secondary.withAlphaComponent(0.35)
             dot.setAccessibilityValue(index == page ? 1 : 0)
         }
-        installation.isHidden = page != 0
-        promptImage.isHidden = page != 1
-        settingsImage.isHidden = page != 2
+        explanation.isHidden = page != 0 && !(needsRecovery && page == 2)
+        caption.isHidden = page == 0 || (needsRecovery && page == 2)
+        promptImage.isHidden = needsRecovery || page != 1
+        settingsImage.isHidden = page != (needsRecovery ? 1 : 2)
+        if needsRecovery {
+            explanation.update(page == 2 ? OnboardingStrings.guideRestartMacAfterToggle : currentExplanation)
+            caption.stringValue = page == 1 ? OnboardingStrings.guideToggleVirtualCamera : ""
+            return
+        }
+        explanation.update(currentExplanation)
         switch page {
-        case 0: caption.stringValue = preparationDetail
+        case 0: caption.stringValue = ""
         case 1: caption.stringValue = OnboardingStrings.guideClickOpenSystemSettingsInTheMacOSDialog
         default: caption.stringValue = OnboardingStrings.guideTurnOnTheSwitchNextToFaceNowThenClick
         }
     }
 }
 
-/// Illustrates the first setup action while the other two pages show actual macOS screenshots.
+/// Presents a readable state explanation and resolution without decorative controls.
 @MainActor
-private final class OnboardingInstallIllustrationView: Canvas {
+private final class OnboardingExplanationView: Canvas {
 
-    /// The centered white setup illustration inside the screenshot panel.
-    private lazy var surface: Canvas = {
-        let view = Canvas(color: .white, radius: 16)
-        view.layer?.borderWidth = 1
-        view.layer?.borderColor = Palette.border.cgColor
+    /// The state-specific paragraph uses the same typography as other guide descriptions.
+    private lazy var text: NSTextField = {
+        let view = wrappingLabel(size: 15, color: Palette.secondary)
+        view.alignment = .left
         return view
     }()
 
-    /// The native virtual-camera symbol above the installation action.
-    private lazy var symbol: NSImageView = {
-        let view = NSImageView()
-        view.image = NSImage(systemSymbolName: "video.fill", accessibilityDescription: nil)
-        view.contentTintColor = Palette.accent
-        view.imageScaling = .scaleProportionallyUpOrDown
-        view.setAccessibilityElement(false)
-        return view
-    }()
-
-    /// The heading matching the first timeline instruction.
-    private lazy var title: NSTextField = {
-        let view = wrappingLabel(size: 15, weight: .semibold)
-        view.stringValue = OnboardingStrings.guideInstallVirtualCamera
-        view.alignment = .center
-        return view
-    }()
-
-    /// The decorative primary action; actual installation remains in the dialog footer.
-    private lazy var action: Canvas = {
-        let view = Canvas(color: Palette.accent, radius: 12)
-        return view
-    }()
-
-    /// The exact button name used by the real installation action.
-    private lazy var actionTitle: NSTextField = {
-        let view = makeLabel(OnboardingStrings.install, size: 14, color: .white, weight: .semibold)
-        return view
-    }()
-
-    /// Composes a noninteractive preview without duplicating an installation control.
+    /// Centers the explanation vertically while preserving comfortable margins for wrapped copy.
     init() {
         super.init()
-        addSubview(surface)
-        [symbol, title, action].forEach(surface.addSubview)
-        action.addSubview(actionTitle)
-        surface.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.width.equalToSuperview().offset(-32).priority(490)
-            make.width.lessThanOrEqualTo(360)
-            make.height.equalTo(220)
+        addSubview(text)
+        text.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(32)
+            make.centerY.equalToSuperview()
+            make.top.greaterThanOrEqualToSuperview().offset(24)
+            make.bottom.lessThanOrEqualToSuperview().inset(24)
         }
-        symbol.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(28)
-            make.size.equalTo(52)
-        }
-        title.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(20)
-            make.top.equalTo(symbol.snp.bottom).offset(16)
-        }
-        action.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview().inset(24)
-            make.height.equalTo(42)
-        }
-        actionTitle.snp.makeConstraints { make in make.center.equalToSuperview() }
     }
 
-    /// Renders the current instruction without keeping an independent installation decision.
+    /// Updates complete paragraphs only when the presented state actually changes.
     func update(
-        heading: String,
-        actionTitle: String
+        _ explanation: String
     ) {
-        title.stringValue = heading
-        self.actionTitle.stringValue = actionTitle
+        guard text.stringValue != explanation else { return }
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineSpacing = 5
+        text.attributedStringValue = NSAttributedString(
+            string: explanation,
+            attributes: [
+                .font: Typography.font(size: 15),
+                .foregroundColor: Palette.secondary,
+                .paragraphStyle: paragraph,
+            ]
+        )
     }
 
-    /// Storyboard decoding is unsupported for this programmatic illustration.
+    /// Storyboard decoding is unsupported for this programmatic explanation.
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }

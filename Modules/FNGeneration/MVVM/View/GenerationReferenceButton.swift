@@ -61,6 +61,9 @@ final class GenerationReferenceButton: NSButton {
     /// Whether the pointer is currently inside the control.
     private var hovered = false
 
+    /// Keeps pointer feedback exclusive across preset grids and the free-prompt reference.
+    private static weak var hoveredReference: GenerationReferenceButton?
+
     /// The current visible-bounds tracking area.
     private var hoverArea: NSTrackingArea?
 
@@ -122,7 +125,10 @@ final class GenerationReferenceButton: NSButton {
                 || self.reference?.uploadState != reference?.uploadState
                 || self.reference?.uploadProgress != reference?.uploadProgress
                 || self.reference?.uploadError != reference?.uploadError || isEnabled != canSelect
-        else { return }
+        else {
+            synchronizeHover()
+            return
+        }
         if !configured || self.reference?.id != reference?.id { resetAppearance() }
         configured = true
         self.reference = reference
@@ -157,7 +163,7 @@ final class GenerationReferenceButton: NSButton {
         if let hoverArea { removeTrackingArea(hoverArea) }
         let area = NSTrackingArea(
             rect: .zero,
-            options: [.mouseEnteredAndExited, .activeInActiveApp, .inVisibleRect],
+            options: [.mouseEnteredAndExited, .mouseMoved, .activeInActiveApp, .inVisibleRect],
             owner: self
         )
         addTrackingArea(area)
@@ -172,35 +178,65 @@ final class GenerationReferenceButton: NSButton {
         synchronizeHover()
     }
 
+    /// Rechecks the actual target while the pointer moves between reused collection items.
+    override func mouseMoved(
+        with event: NSEvent
+    ) {
+        synchronizeHover()
+    }
+
     /// Clears hover presentation when the pointer leaves the control.
     override func mouseExited(
         with event: NSEvent
     ) {
-        hovered = false
+        setHovered(false)
+    }
+
+    /// Clears the previous reference even if native tracking omitted its exit event.
+    private func setHovered(
+        _ value: Bool
+    ) {
+        if value {
+            if let previous = Self.hoveredReference, previous !== self {
+                previous.setHovered(false)
+            }
+            Self.hoveredReference = self
+        } else if Self.hoveredReference === self {
+            Self.hoveredReference = nil
+        }
+        guard hovered != value else { return }
+        hovered = value
         needsDisplay = true
     }
 
-    /// Reconciles the outline after pointer tracking, availability, or window ownership changes.
+    /// Reconciles pointer position, clipping, and covering views instead of trusting tracking history.
     private func synchronizeHover() {
-        let inside: Bool
-        if let window, window.isVisible, NSApp.isActive, isEnabled, !isHiddenOrHasHiddenAncestor {
-            inside = visibleRect.contains(
-                convert(
-                    window.mouseLocationOutsideOfEventStream,
-                    from: nil
-                )
-            )
-        } else {
-            inside = false
+        guard let window, window.isVisible, NSApp.isActive, isEnabled, !isHiddenOrHasHiddenAncestor,
+            let content = window.contentView
+        else {
+            setHovered(false)
+            return
         }
-        guard hovered != inside else { return }
-        hovered = inside
-        needsDisplay = true
+        let location = window.mouseLocationOutsideOfEventStream
+        guard visibleRect.contains(convert(location, from: nil)) else {
+            setHovered(false)
+            return
+        }
+        let point = content.superview?.convert(location, from: nil) ?? location
+        let target = content.hitTest(point)
+        setHovered(target === self || target?.isDescendant(of: self) == true)
+    }
+
+    /// Drops pointer ownership and old color transitions before the collection reuses this item.
+    func resetHoverForReuse() {
+        setHovered(false)
+        resetAppearance()
     }
 
     /// Prevents retained reference rows from carrying hover into a different window.
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        setHovered(false)
         resetAppearance()
         synchronizeHover()
     }
@@ -208,7 +244,7 @@ final class GenerationReferenceButton: NSButton {
     /// Clears pointer feedback while the reference's page is hidden.
     override func viewDidHide() {
         super.viewDidHide()
-        hovered = false
+        setHovered(false)
         resetAppearance()
     }
 
@@ -321,6 +357,7 @@ final class GenerationReferenceButton: NSButton {
     /// Updates the existing thumbnail border and upload or retry overlay before drawing.
     override func viewWillDraw() {
         super.viewWillDraw()
+        synchronizeHover()
         let border =
             (selected
             ? Palette.accent

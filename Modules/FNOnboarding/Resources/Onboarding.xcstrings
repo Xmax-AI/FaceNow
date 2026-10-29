@@ -1,6 +1,246 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "notice.virtual_camera_not_published": {
+      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera is enabled, but macOS has not made the camera available."
+          }
+        }
+      }
+    },
+    "guide.recovery.restart_virtual_camera": {
+      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Virtual Camera"
+          }
+        }
+      }
+    },
+    "guide.recovery.toggle_virtual_camera": {
+      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Camera Extensions, turn the switch next to FaceNow off, then back on. Return to FaceNow to check the connection automatically."
+          }
+        }
+      }
+    },
+    "guide.recovery.restart_mac_if_needed": {
+      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Your Mac If Needed"
+          }
+        }
+      }
+    },
+    "guide.recovery.restart_mac_after_toggle": {
+      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Virtual Camera is still unavailable after turning it off and back on, save your work and restart your Mac from the Apple menu. Then reopen FaceNow to check setup again."
+          }
+        }
+      }
+    },
+    "guide.explanation.publication_recovery": {
+      "comment": "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Open System Settings” in the bottom-right corner. Under General → Login Items & Extensions → Camera Extensions, turn FaceNow off, then back on. Return to FaceNow to check the connection automatically.\n\nIf the camera is still unavailable, save your work and restart your Mac from the Apple menu. Then reopen FaceNow."
+          }
+        }
+      }
+    },
+    "guide.explanation.check_again": {
+      "comment": "Explains how to repeat discovery without reinstalling the virtual camera.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Check Again” in the bottom-right corner to recheck the camera. FaceNow will update this page with the result."
+          }
+        }
+      }
+    },
+    "guide.explanation.checking": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceNow is checking whether Virtual Camera is installed, enabled, and available to video calling apps.\n\nPlease wait. This page will update automatically when the check finishes."
+          }
+        }
+      }
+    },
+    "guide.explanation.waiting": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please wait for macOS to finish. If a permission dialog appears, follow its instructions. FaceNow will check the result automatically."
+          }
+        }
+      }
+    },
+    "guide.explanation.enable_extension": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Open System Settings” in the bottom-right corner, then enable the FaceNow camera extension. Return to FaceNow when you are done."
+          }
+        }
+      }
+    },
+    "guide.explanation.request_access": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Allow Camera Access” in the bottom-right corner, then choose Allow in the macOS permission dialog."
+          }
+        }
+      }
+    },
+    "guide.explanation.connect_camera": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure your camera is connected and available, then check again using the button in the bottom-right corner."
+          }
+        }
+      }
+    },
+    "guide.explanation.move_application": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Show in Finder” to locate FaceNow. Move it to your Applications folder, then reopen it and try again."
+          }
+        }
+      }
+    },
+    "guide.explanation.restart_application": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “Restart FaceNow” in the bottom-right corner to reopen the app and refresh its camera connection."
+          }
+        }
+      }
+    },
+    "guide.explanation.restart_mac": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save your work, then click “Restart Mac…” in the bottom-right corner. After restarting, reopen FaceNow to check setup again."
+          }
+        }
+      }
+    },
+    "guide.explanation.not_installed": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera has not been installed on this Mac. It sends your FaceNow look to video calling apps as a camera input."
+          }
+        }
+      }
+    },
+    "guide.explanation.version_mismatch": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The installed Virtual Camera does not match this version of FaceNow. It needs to be updated before video calling apps can use it."
+          }
+        }
+      }
+    },
+    "guide.explanation.install": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “%1$@” in the bottom-right corner to let macOS install and enable Virtual Camera. If macOS asks for approval, follow the system dialog."
+          }
+        }
+      }
+    },
+    "guide.explanation.retry": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click “%1$@” in the bottom-right corner to retry the operation. FaceNow will update this page with the result or the next required step."
+          }
+        }
+      }
+    },
+    "guide.explanation.video_calls": {
+      "comment": "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In %1$@, open the camera settings and choose “%2$@” as your video input.\n\nThis lets the app receive your FaceNow look instead of the original camera feed. If the camera is missing from the list, reopen the video calling app after enabling Virtual Camera."
+          }
+        }
+      }
+    },
     "guide.previous_image": {
       "comment": "Accessibility label for onboarding screenshot navigation.",
       "extractionState": "manual",

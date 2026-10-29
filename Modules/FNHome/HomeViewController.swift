@@ -72,6 +72,9 @@ final class HomeViewController: NSViewController {
     /// The currently mounted modal preparation guide.
     private var onboardingPage: OnboardingViewController?
 
+    /// The company and model information modal, mutually exclusive with onboarding.
+    private var aboutPage: AboutViewController?
+
     /// Limits automatic presentation to one attempt per authenticated visit to home.
     private var onboardingAutoPresented = false
 
@@ -165,6 +168,7 @@ final class HomeViewController: NSViewController {
     /// The home-page product links and follow popover.
     private lazy var footer: HomeFooterView = {
         let view = HomeFooterView()
+        view.onShowAbout = { [weak self] in self?.showAbout() }
         return view
     }()
 
@@ -284,6 +288,7 @@ final class HomeViewController: NSViewController {
         virtualCameraRepo.cancelPendingOperations()
         cameraStartTask?.cancel()
         dismissOnboarding(animated: false)
+        dismissAbout(animated: false)
         accountRestore?.cancel()
         accountRestore = nil
         accountRefresh?.cancel()
@@ -315,7 +320,8 @@ final class HomeViewController: NSViewController {
 
     /// Routes the explicit Start action after checking camera permission independently of virtual output.
     private func startCamera() {
-        guard loginPage == nil, cameraStartTask == nil, cameraNoticeTask == nil, !isShuttingDown else { return }
+        guard loginPage == nil, aboutPage == nil, cameraStartTask == nil, cameraNoticeTask == nil, !isShuttingDown
+        else { return }
         virtualCameraRepo.synchronizeReadiness()
         guard viewModel.canStart else {
             generationRepo.showSetupError(viewModel.startUnavailableMessage)
@@ -329,7 +335,7 @@ final class HomeViewController: NSViewController {
                 self.scheduleRender()
             }
             guard !Task.isCancelled, !self.isShuttingDown, !self.viewModel.needsLogin,
-                self.onboardingPage == nil
+                self.onboardingPage == nil, self.aboutPage == nil
             else { return }
             await self.viewModel.startCamera(requestedAt: requestedAt)
         }
@@ -414,7 +420,7 @@ final class HomeViewController: NSViewController {
             return
         }
         guard userRepo.hasVerifiedSession, view.window != nil, !generationRepo.sessionActive,
-            !onboardingAutoPresented
+            aboutPage == nil, !onboardingAutoPresented
         else { return }
         onboardingAutoPresented = true
         guard !onboardingModel.onboardingRepo.hasShownGuide else { return }
@@ -424,7 +430,8 @@ final class HomeViewController: NSViewController {
             self.onboardingPresentationTask = nil
             guard !self.isShuttingDown, self.userRepo.hasVerifiedSession, !self.viewModel.needsLogin,
                 self.loginPage == nil, self.view.window != nil, !self.generationRepo.settingsLocked,
-                self.onboardingPage == nil, !self.onboardingModel.onboardingRepo.hasShownGuide
+                self.onboardingPage == nil, self.aboutPage == nil,
+                !self.onboardingModel.onboardingRepo.hasShownGuide
             else { return }
             self.showOnboarding(dismissesOnBackdropClick: false)
         }
@@ -435,7 +442,7 @@ final class HomeViewController: NSViewController {
         _ action: CameraNoticeAction
     ) {
         guard !isShuttingDown, !viewModel.needsLogin, !generationRepo.sessionActive,
-            cameraNoticeTask == nil, onboardingPage == nil
+            cameraNoticeTask == nil, onboardingPage == nil, aboutPage == nil
         else { return }
         onboardingPresentationTask?.cancel()
         onboardingPresentationTask = nil
@@ -483,12 +490,56 @@ final class HomeViewController: NSViewController {
         }
     }
 
+    /// Opens static product information without starting capture or sharing preparation progress.
+    private func showAbout() {
+        guard !isShuttingDown, !viewModel.needsLogin, !generationRepo.sessionActive,
+            cameraStartTask == nil, cameraNoticeTask == nil, view.window != nil
+        else { return }
+        onboardingPresentationTask?.cancel()
+        onboardingPresentationTask = nil
+        onboardingAutoPresented = true
+        dismissOnboarding(animated: false)
+        landing.setServiceNoticeInteractionEnabled(false)
+        landing.closeCameraPicker()
+        userView.closePopover()
+        footer.closePopover()
+        if let page = aboutPage {
+            page.present()
+            return
+        }
+        let page = AboutViewController()
+        page.onDismiss = { [weak self] in self?.dismissAbout() }
+        aboutPage = page
+        addChild(page)
+        root.addSubview(page.view)
+        page.view.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        root.layoutSubtreeIfNeeded()
+        page.present()
+    }
+
+    /// Removes About Us after its shared modal exit or immediately for account and app lifecycle changes.
+    private func dismissAbout(
+        animated: Bool = true
+    ) {
+        guard let page = aboutPage else { return }
+        page.dismiss(animated: animated) { [weak self, weak page] in
+            guard let self, let page, self.aboutPage === page else { return }
+            page.shutdown()
+            page.view.removeFromSuperview()
+            page.removeFromParent()
+            self.aboutPage = nil
+            self.landing.setServiceNoticeInteractionEnabled(self.onboardingPage == nil)
+            self.view.window?.makeFirstResponder(nil)
+        }
+    }
+
     /// Mounts the guide at the relevant preparation step above the existing home content.
     private func showOnboarding(
         at step: OnboardingRepository.Step? = nil,
         dismissesOnBackdropClick: Bool = true
     ) {
         guard !isShuttingDown, !viewModel.needsLogin, view.window != nil else { return }
+        dismissAbout(animated: false)
         onboardingPresentationTask?.cancel()
         onboardingPresentationTask = nil
         onboardingAutoPresented = true
@@ -563,6 +614,7 @@ final class HomeViewController: NSViewController {
         guard isViewLoaded, !isShuttingDown else { return }
         let needsLogin = viewModel.needsLogin
         if needsLogin, loginPage == nil {
+            dismissAbout(animated: false)
             cameraNoticeTask?.cancel()
             dismissSignInToast()
             userView.closePopover()
@@ -609,6 +661,7 @@ final class HomeViewController: NSViewController {
 
     /// Stops billable generation and virtual output before invalidating account credentials.
     private func signOut() {
+        dismissAbout(animated: false)
         dismissOnboarding()
         cameraStartTask?.cancel()
         Task { [weak self] in

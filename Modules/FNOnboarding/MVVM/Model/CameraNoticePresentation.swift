@@ -203,8 +203,8 @@ struct CameraNoticePresentation: Equatable {
                 )
             case .devicePublicationTimedOut:
                 result = Self(
-                    message: OnboardingStrings.noticeVirtualCameraIsnTReadyYetCheckAgain,
-                    action: .checkAgain(.discoverOutput)
+                    message: OnboardingStrings.noticeVirtualCameraNotPublished,
+                    action: .openSettings(.cameraExtensions)
                 )
             case .reopenApplication:
                 result = Self(

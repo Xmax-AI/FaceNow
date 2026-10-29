@@ -22,9 +22,10 @@ final class GenerationReferenceItem: NSCollectionViewItem {
     /// Installs the reusable reference button as the item view.
     override func loadView() { view = button }
 
-    /// Cancels pending thumbnail work and removes the previous selection action.
+    /// Clears hover, cancels pending thumbnail work, and removes the previous selection action.
     override func prepareForReuse() {
         super.prepareForReuse()
+        button.resetHoverForReuse()
         button.thumbnail.cancel()
         button.onClick = nil
     }

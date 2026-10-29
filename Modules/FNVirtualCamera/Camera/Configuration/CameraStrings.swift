@@ -111,7 +111,7 @@ enum CameraStrings {
         Localization.string(
             "status.virtual_camera_did_not_become_available_in_time_check",
             table: "Camera",
-            defaultValue: "Virtual Camera did not become available in time. Check again in setup."
+            defaultValue: "Virtual Camera is enabled but unavailable. Turn FaceNow off and back on in Camera Extensions, then return to FaceNow."
         )
     }
 

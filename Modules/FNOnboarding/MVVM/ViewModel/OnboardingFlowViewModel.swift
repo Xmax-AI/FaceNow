@@ -61,6 +61,11 @@ final class OnboardingFlowViewModel: ObservableObject {
     /// The camera stage does not depend on installation of the virtual output.
     var cameraReady: Bool { virtualCameraRepo.readiness(for: .cameraInput).isReady }
 
+    /// Distinguishes a publication timeout from an extension that merely needs initial approval.
+    var needsVirtualCameraRecovery: Bool {
+        virtualCameraRepo.readiness(for: .virtualOutput) == .unavailable(.devicePublicationTimedOut)
+    }
+
     /// The output stage reflects extension readiness independently of physical camera access.
     var virtualCameraReady: Bool { virtualCameraRepo.readiness(for: .virtualOutput).isReady }
 
@@ -216,10 +221,80 @@ final class OnboardingFlowViewModel: ObservableObject {
                 )
             ] + settingsInstructions
         case .openSettings(.cameraExtensions):
+            if needsVirtualCameraRecovery {
+                return [
+                    settingsInstructions[0],
+                    .init(
+                        title: OnboardingStrings.guideRestartVirtualCamera,
+                        detail: OnboardingStrings.guideToggleVirtualCamera
+                    ),
+                    .init(
+                        title: OnboardingStrings.guideRestartMacIfNeeded,
+                        detail: OnboardingStrings.guideRestartMacAfterToggle
+                    ),
+                ]
+            }
             return settingsInstructions
         default:
             return [.init(title: notice.buttonTitle, detail: notice.message)]
         }
+    }
+
+    /// Explains the current facts and next action wherever no setup screenshot is available.
+    var preparationExplanation: String {
+        guard let notice = cameraNotice else {
+            if virtualCameraRepo.readiness(for: preparationScope).isReady {
+                return onboardingRepo.step == .camera
+                    ? OnboardingStrings.cameraStepReady : OnboardingStrings.virtualCameraStepReady
+            }
+            return OnboardingStrings.guideExplanationChecking
+        }
+        let nextStep: String
+        if notice.isLoading {
+            nextStep =
+                notice.action == .retry(.requestAccess)
+                ? OnboardingStrings.guideChooseAllowInTheMacOSPermissionDialog
+                : OnboardingStrings.guideExplanationWaiting
+        } else {
+            switch notice.action {
+            case .installVirtualCamera, .updateVirtualCamera:
+                nextStep = OnboardingStrings.guideExplanationInstall(action: notice.buttonTitle)
+            case .openSettings(.cameraExtensions):
+                nextStep =
+                    needsVirtualCameraRecovery
+                    ? OnboardingStrings.guideExplanationPublicationRecovery
+                    : OnboardingStrings.guideExplanationEnableExtension
+            case .openSettings(.cameraPrivacy), .showHelp(.restrictedCameraAccess):
+                nextStep =
+                    isCameraRestricted
+                    ? OnboardingStrings.guideIfThisMacIsManagedAskYourAdministratorTo
+                    : OnboardingStrings.guideTurnOnTheSwitchNextToFaceNowUnderPrivacy
+            case .requestCameraAccess:
+                nextStep = OnboardingStrings.guideExplanationRequestAccess
+            case .chooseCamera, .checkAgain(.discoverInput):
+                nextStep = OnboardingStrings.guideExplanationConnectCamera
+            case .retry:
+                nextStep = OnboardingStrings.guideExplanationRetry(action: notice.buttonTitle)
+            case .checkAgain:
+                nextStep = OnboardingStrings.guideExplanationCheckAgain
+            case .revealApplication:
+                nextStep = OnboardingStrings.guideExplanationMoveApplication
+            case .restartApplication:
+                nextStep = OnboardingStrings.guideExplanationRestartApplication
+            case .requestSystemRestart:
+                nextStep = OnboardingStrings.guideExplanationRestartMac
+            }
+        }
+        let reason: String
+        switch (notice.action, virtualCameraRepo.readiness(for: preparationScope)) {
+        case (.installVirtualCamera, .unavailable(.virtualCameraNotInstalled)):
+            reason = OnboardingStrings.guideExplanationNotInstalled
+        case (.updateVirtualCamera, .unavailable(.versionMismatch)):
+            reason = OnboardingStrings.guideExplanationVersionMismatch
+        default:
+            reason = notice.message
+        }
+        return reason + "\n\n" + nextStep
     }
 
     /// Reads current permission and shared device state without installing or opening capture.

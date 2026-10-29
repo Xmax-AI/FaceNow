@@ -144,6 +144,222 @@
           }
         }
       }
+    },
+    "about.title": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About Us"
+          }
+        }
+      }
+    },
+    "about.close": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close About Us"
+          }
+        }
+      }
+    },
+    "about.model_title": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meet Xmax X2.1"
+          }
+        }
+      }
+    },
+    "about.model_introduction": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xmax X2.1 is a world-leading general-purpose model for real-time interaction and video editing. A single model supports character swapping, virtual try-on, free-form editing, touch interaction, and interactions between virtual elements and the physical world. It generates 1080P video with approximately 200 ms of end-to-end latency and runs on consumer-grade GPUs, reducing reliance on costly data center GPUs. At approximately $0.001667 per second (about $6 per hour), X2.1 delivers these capabilities at a fraction of the cost of comparable solutions, making large-scale commercial deployment economically viable."
+          }
+        }
+      }
+    },
+    "about.advantages_title": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Built for real-world interaction"
+          }
+        }
+      }
+    },
+    "about.latency.title": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Latency"
+          }
+        }
+      }
+    },
+    "about.latency.metric": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~200 ms"
+          }
+        }
+      }
+    },
+    "about.latency.detail": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End-to-end latency is measured in hundreds of milliseconds, ensuring that updates to generation conditions and interaction controls are reflected instantly."
+          }
+        }
+      }
+    },
+    "about.cost.title": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cost Efficiency"
+          }
+        }
+      }
+    },
+    "about.cost.metric": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~$6 / hour"
+          }
+        }
+      }
+    },
+    "about.cost.detail": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runs on consumer-grade GPUs, with costs several to tens of times lower than alternative solutions."
+          }
+        }
+      }
+    },
+    "about.fidelity.title": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Fidelity"
+          }
+        }
+      }
+    },
+    "about.fidelity.metric": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1080P (24FPS)"
+          }
+        }
+      }
+    },
+    "about.fidelity.detail": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real-time 1080P output preserves fine details and textures, with greater fidelity to the characters, clothing, and style in your reference images."
+          }
+        }
+      }
+    },
+    "about.partnership_title": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beyond Video Calls"
+          }
+        }
+      }
+    },
+    "about.partnership_detail": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceNow brings your new look into video meetings, live streams, and more through a virtual camera. The same technology also powers other commercial experiences, including virtual try-on and interactive applications. If you are exploring a business use case, contact us to discuss a solution together. We can help you shape the experience and provide technical support."
+          }
+        }
+      }
+    },
+    "about.contact_us": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact Us"
+          }
+        }
+      }
+    },
+    "about.contact_detail": {
+      "comment": "About Us modal. Product claims and pricing are supplied by the product owner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let’s build your next real-time experience."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

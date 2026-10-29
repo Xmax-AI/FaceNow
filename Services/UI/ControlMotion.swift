@@ -36,6 +36,34 @@ enum ControlMotion {
         }
     }
 
+    /// Shares onboarding's backdrop fade, decelerating entrance, and reversible vertical exit.
+    static func setModalVisible(
+        _ visible: Bool,
+        backdrop: NSView,
+        card: NSView,
+        in host: NSView,
+        layoutChanges: () -> Void
+    ) {
+        for surface in [backdrop, card] {
+            set(
+                Float(visible ? 1 : 0),
+                for: "opacity",
+                on: surface.layer,
+                in: host
+            )
+        }
+        host.layoutSubtreeIfNeeded()
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = isAnimated(in: host) ? duration : 0
+            context.timingFunction = visible
+                ? CAMediaTimingFunction(controlPoints: 0.16, 1, 0.3, 1)
+                : CAMediaTimingFunction(name: .easeInEaseOut)
+            context.allowsImplicitAnimation = true
+            layoutChanges()
+            host.layoutSubtreeIfNeeded()
+        }
+    }
+
     /// Gives rejected input a brief horizontal shake without changing its constrained geometry.
     static func shake(
         _ view: NSView

@@ -136,6 +136,9 @@
 		03D7E9F275CA49AAB9F1C611 /* Camera.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 768A7C5543BA47F9967814CF /* Camera.xcstrings */; };
 		80E559205DD74B419D5253BC /* VirtualCameraStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE5B1AE96D14F96B2CB8318 /* VirtualCameraStatusView.swift */; };
 		7B40BF71B83B42AD86AE3C58 /* HomeCameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45C0924FF47468CAC16A675 /* HomeCameraPickerView.swift */; };
+		A277866F2B934066ABC69700 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDCBE0144F64CB9B1C528B9 /* AboutViewController.swift */; };
+		0DED128F63A7483BAB0A3B3D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33181E771D7849B6961719E0 /* AboutView.swift */; };
+		761CFD83E5C8439992D1268C /* AboutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9077E937E14964A9AC931A /* AboutViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -301,6 +304,9 @@
 		768A7C5543BA47F9967814CF /* Camera.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Camera.xcstrings; sourceTree = "<group>"; };
 		9AE5B1AE96D14F96B2CB8318 /* VirtualCameraStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCameraStatusView.swift; sourceTree = "<group>"; };
 		C45C0924FF47468CAC16A675 /* HomeCameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCameraPickerView.swift; sourceTree = "<group>"; };
+		1EDCBE0144F64CB9B1C528B9 /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
+		33181E771D7849B6961719E0 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		3E9077E937E14964A9AC931A /* AboutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -453,6 +459,7 @@
 			children = (
 				8C3126EA2CDE4C1EB3CF30D7 /* Resources */,
 				44CB932DFDCFD83254A82335 /* HomeRepository.swift */,
+				1EDCBE0144F64CB9B1C528B9 /* AboutViewController.swift */,
 				514DED5EAE346D143F942D77 /* HomeViewController.swift */,
 				17C4E8F37F6E2D7B166B4A71 /* MVVM */,
 			);
@@ -612,6 +619,7 @@
 			children = (
 				C45C0924FF47468CAC16A675 /* HomeCameraPickerView.swift */,
 				C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */,
+				33181E771D7849B6961719E0 /* AboutView.swift */,
 				E6DF3DE892E7D9E93FDC6E2E /* HomeFooterView.swift */,
 			);
 			path = View;
@@ -804,6 +812,7 @@
 		0696FB4ABB1F3C60D0D453A6 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				3E9077E937E14964A9AC931A /* AboutViewModel.swift */,
 				547F224791C8B782CD96C133 /* HomeViewModel.swift */,
 			);
 			path = ViewModel;
@@ -1057,6 +1066,7 @@
 
 				B277F3BF08033840EE799C5E /* OnboardingSetupViewModel.swift in Sources */,
 
+				761CFD83E5C8439992D1268C /* AboutViewModel.swift in Sources */,
 				F09AA32C1ABB14280CA850C2 /* HomeViewModel.swift in Sources */,
 
 				7EDAAE42C3E3166B399DB4E0 /* GenerationThumbnailView.swift in Sources */,
@@ -1105,7 +1115,9 @@
 				7B40BF71B83B42AD86AE3C58 /* HomeCameraPickerView.swift in Sources */,
 				5B770C916864127B5715935A /* HomeCameraControlsView.swift in Sources */,
 				7DD3892CF0363949D2DC1D72 /* ToastView.swift in Sources */,
+				0DED128F63A7483BAB0A3B3D /* AboutView.swift in Sources */,
 				46806423B5CCB6CE2636238C /* HomeFooterView.swift in Sources */,
+				A277866F2B934066ABC69700 /* AboutViewController.swift in Sources */,
 				F9F6B1F8886585EF47432290 /* HomeViewController.swift in Sources */,
 				94C5E5C5E77B7A9C9ACBFB3A /* OnboardingCheckerboardView.swift in Sources */,
 				80E559205DD74B419D5253BC /* VirtualCameraStatusView.swift in Sources */,
