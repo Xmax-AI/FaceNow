@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://turing.captcha.qcloud.com; frame-src https:; connect-src https:; img-src https: data:; style-src 'unsafe-inline' https:;">
+<style>html,body{margin:0;width:100%;height:100%;background:white;overflow:hidden;font:14px system-ui}</style>
+</head><body><script>
+window.startChallenge = options => {
+  if (window.challengeStarted) return;
+  window.challengeStarted = true;
+  const post = result => window.chrome.webview.postMessage({...result, nonce: options.nonce});
+  const script = document.createElement('script');
+  script.src = 'https://turing.captcha.qcloud.com/TJCaptcha.js';
+  script.onerror = () => post({ret: -1});
+  script.onload = () => {
+    try {
+      window.challenge = new TencentCaptcha(options.appId, post, {
+        type: 'popup', userLanguage: 'en', bizState: options.businessState
+      });
+      window.challenge.show();
+    } catch (_) { post({ret: -1}); }
+  };
+  document.head.appendChild(script);
+};
+</script></body></html>

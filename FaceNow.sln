@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceNow.Core", "src\FaceNow.Core\FaceNow.Core.csproj", "{42F2C167-A07D-5DDA-9BCD-BC8DAD3741A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceNow.Windows", "src\FaceNow.Windows\FaceNow.Windows.csproj", "{AE893BB5-5A00-5412-ABE0-370A64A1D227}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceNow.App", "src\FaceNow.App\FaceNow.App.csproj", "{AE648A33-AAC9-582C-AC0A-61D5964607E2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42F2C167-A07D-5DDA-9BCD-BC8DAD3741A3}.Debug|x64.ActiveCfg = Debug|x64
+		{42F2C167-A07D-5DDA-9BCD-BC8DAD3741A3}.Debug|x64.Build.0 = Debug|x64
+		{42F2C167-A07D-5DDA-9BCD-BC8DAD3741A3}.Release|x64.ActiveCfg = Release|x64
+		{42F2C167-A07D-5DDA-9BCD-BC8DAD3741A3}.Release|x64.Build.0 = Release|x64
+		{AE893BB5-5A00-5412-ABE0-370A64A1D227}.Debug|x64.ActiveCfg = Debug|x64
+		{AE893BB5-5A00-5412-ABE0-370A64A1D227}.Debug|x64.Build.0 = Debug|x64
+		{AE893BB5-5A00-5412-ABE0-370A64A1D227}.Release|x64.ActiveCfg = Release|x64
+		{AE893BB5-5A00-5412-ABE0-370A64A1D227}.Release|x64.Build.0 = Release|x64
+		{AE648A33-AAC9-582C-AC0A-61D5964607E2}.Debug|x64.ActiveCfg = Debug|x64
+		{AE648A33-AAC9-582C-AC0A-61D5964607E2}.Debug|x64.Build.0 = Debug|x64
+		{AE648A33-AAC9-582C-AC0A-61D5964607E2}.Release|x64.ActiveCfg = Release|x64
+		{AE648A33-AAC9-582C-AC0A-61D5964607E2}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+EndGlobal

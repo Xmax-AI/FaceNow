@@ -1,0 +1,14 @@
+.build/
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+.DS_Store
+
+# Local environment configuration; keep shared examples versioned.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template

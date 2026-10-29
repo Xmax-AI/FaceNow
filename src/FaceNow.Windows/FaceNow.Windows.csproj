@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0-windows</TargetFramework><AllowUnsafeBlocks>true</AllowUnsafeBlocks></PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="FaceNow" />
+    <ProjectReference Include="../FaceNow.Core/FaceNow.Core.csproj" />
+    <ProjectReference Include="$(XmaxSdkRoot)/Sources/XmaxSDK.Net/XmaxSDK.Net.csproj" />
+    <EmbeddedResource Include="$(XmaxSdkRoot)/Examples/XLab/assets/presets.json" LogicalName="FaceNow.presets.json" />
+  </ItemGroup>
+</Project>
