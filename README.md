@@ -10,7 +10,7 @@ Windows/
 
 已接入 SDK 摄像头、显式启动/停止生成、参考图选择、上传流程、自由提示词、统计和凭据保存。Windows 11 虚拟摄像头已实现注册、SDK 远端视频回调接入和 720p 跨进程输出，停止或断流时切回占位。真实云端到会议的完整链路、会议兼容、录制和托盘仍待验收或实现。已提供自包含 EXE 安装器。关闭窗口停止并释放 AI 会话；卸载应用时移除当前用户的虚拟摄像头设备。
 
-首页右上角保留 Use in other apps 入口，面板只显示 Setup needed（需要设置）、Ready to use（已设置好）和 Unavailable（暂不可用）。不可用时在正文解释原因和下一步，检查与安装仅显示短暂进度；生成页面不显示此入口。首次使用才显示 Set up camera（Windows UAC 提权仅用于安装组件）；检查与权限设置收在帮助中。设备是否可用仍依据 symbolic link 枚举确认。默认使用 X2.1，采集与生成基准为 1920×1080，启用动态画质调档。虚拟摄像头输出固定为 1920×1080，同尺寸 BGRA 帧按行直接复制；回传尺寸变化时等比铺满、居中裁剪，不拉伸或补黑边；空闲时为与 macOS 一致的纯色灰底（RGB 241/243/244，#F1F3F4）。SDK 回调已接入，传帧通道以本地合成帧验证，真实云端生成未在本次运行。Windows 注册流程见 [原生组件注册说明](native/Registration.md)。
+首页右上角保留 Virtual Camera 入口，面板只显示 Setup needed（需要设置）、Ready to use（已设置好）和 Unavailable（暂不可用）。不可用时在正文解释原因和下一步，检查与安装仅显示短暂进度；生成页面不显示此入口。首次使用才显示 Set up camera（Windows UAC 提权仅用于安装组件）；检查与权限设置收在帮助中。设备是否可用仍依据 symbolic link 枚举确认。默认使用 X2.1，采集与生成基准为 1920×1080，启用动态画质调档。虚拟摄像头输出固定为 1920×1080，同尺寸 BGRA 帧按行直接复制；回传尺寸变化时等比铺满、居中裁剪，不拉伸或补黑边；空闲时为与 macOS 一致的纯色灰底（RGB 241/243/244，#F1F3F4）。SDK 回调已接入，传帧通道以本地合成帧验证，真实云端生成未在本次运行。Windows 注册流程见 [原生组件注册说明](native/Registration.md)。
 
 ## 运行
 
@@ -80,7 +80,7 @@ bash scripts/run.sh -NoBuild
 3. 会话页切换 Character Swap、Virtual Try-On、Style Transfer、Free Prompt。切换分类不自动生成；选择参考图或提交提示词才更新条件。
 4. Upload 支持选择本地参考图；Free Prompt 支持上传、移除参考图与提示词提交。服务上传和真实生成需要后续使用有效 Key 验收。
 5. 顶部可控制统计显示，Stop Session 返回首页并关闭会话。FaceNow 不采集麦克风，会议软件中的麦克风由用户独立选择。
-6. 打开 Use in other apps，首次使用按提示 Set up camera。点击 Start Camera 后，在会议或直播软件中选择 FaceNow - Xmax Virtual Camera。生成开始后自动传输远端视频，Stop Session 后切回占位；生成期间安装成功也会接入已有会话。此流程已实现，真实云端与会议客户端尚需完整验收。
+6. 打开 Virtual Camera，首次使用按提示 Set up camera。点击 Start Camera 后，在会议或直播软件中选择 FaceNow - Xmax Virtual Camera。生成开始后自动传输远端视频，Stop Session 后切回占位；生成期间安装成功也会接入已有会话。此流程已实现，真实云端与会议客户端尚需完整验收。
 
 `-Preview` 中 Start 按钮显示 Preview UI，点击只切换页面，不创建摄像头或生成会话；仍可通过 HTTPS 加载缩略图。`-PreviewCameraSetup` 打开可交互的首次摄像头设置演示：Setup needed → 权限步骤模拟 → Setting up camera… → Ready to use，支持取消与 Restart setup preview。此模式不启动真实安装、不读写 API Key、不改动摄像头注册，权限步骤明确标为模拟，不是 Windows UAC 弹窗。`-PreviewLogin` 使用内存中的模拟账户，可用模拟 Key `uk-facenow-isolated-preview` 查看登录后的首页，界面明确显示模拟说明。`XMAX_API_KEY` 仍供显式 SDK 冒烟诊断使用，普通启动的账户流程不使用它绕过身份验证或覆盖账户选择。真实生成使用国内服务，可能按服务规则计费；默认验收不执行真实生成。
 

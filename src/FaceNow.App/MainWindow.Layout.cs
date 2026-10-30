@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using FaceNow.Windows.Studio.ViewModels;
 using FaceNow.App.Controls;
+using FaceNow.App.User;
 
 namespace FaceNow.App;
 
@@ -14,14 +15,14 @@ public sealed partial class MainWindow
 {
     private void BuildUi()
     {
-        cameraButton.ExtraChevron = true; cameraButton.Padding = new(11, 0, 11, 0); cameraButton.FontFamily = new("Microsoft YaHei UI");
-        homeVirtualCamera.FontFamily = cameraButton.FontFamily;
+        cameraButton.ExtraChevron = true; cameraButton.Padding = new(16, 0, 14, 0); cameraButton.FontFamily = LoginTypography.Font;
+        homeVirtualCamera.FontFamily = new("Microsoft YaHei UI");
         scroller.Content = page; root.Children.Add(scroller);
         foreach (var element in new UIElement[] { header, landing, workspace, footer, previewFooter }) page.Children.Add(element);
         previewFooter.TextAlignment = TextAlignment.Center;
         var branding = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         branding.Children.Add(brand); branding.Children.Add(previewBadge); header.Children.Add(branding);
-        foreach (var button in new[] { cameraButton, modelButton, keyButton, homeVirtualCamera }) homeControls.Children.Add(button);
+        foreach (var button in new[] { modelButton, keyButton, homeVirtualCamera }) homeControls.Children.Add(button);
         header.Children.Add(homeControls); header.Children.Add(sessionControls);
         foreach (var element in new UIElement[] { statisticsButton, elapsed, stopButton }) sessionControls.Children.Add(element);
         homeVirtualCamera.Click += (_, _) => OpenVirtualCameraSettings(homeVirtualCamera);
@@ -32,12 +33,20 @@ public sealed partial class MainWindow
         statisticsButton.Click += (_, _) => Model.StatisticsVisible = !Model.StatisticsVisible;
         stopButton.Click += async (_, _) => { try { await Model.StopAsync(); } catch (Exception error) { Model.ReportError(error); } };
         StartButton.Click += (_, _) => Model.StartCommand.Execute(null);
-        title.HorizontalAlignment = HorizontalAlignment.Center; landing.Children.Add(title);
+        title.HorizontalAlignment = HorizontalAlignment.Center; title.TextAlignment = TextAlignment.Center;
+        title.FontFamily = LoginTypography.Font; title.FontWeight = Microsoft.UI.Text.FontWeights.Medium; title.CharacterSpacing = -30;
+        landing.Children.Add(title);
         landingStage.Children.Add(new CheckerboardSurface());
-        var actions = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-        actions.Children.Add(StartButton); landingStage.Children.Add(actions);
+        // Balance the picker with an equal spacer so Start Camera stays at the canvas center.
+        var actions = new Grid { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        actions.RowDefinitions.Add(new() { Height = new(44) }); actions.RowDefinitions.Add(new() { Height = GridLength.Auto });
+        actions.RowDefinitions.Add(new() { Height = new(44) });
+        Grid.SetRow(StartButton, 1); actions.Children.Add(StartButton);
+        cameraButton.HorizontalAlignment = HorizontalAlignment.Center; cameraButton.VerticalAlignment = VerticalAlignment.Center;
+        cameraButton.Margin = new(0, 12, 0, 0); Grid.SetRow(cameraButton, 2); actions.Children.Add(cameraButton);
+        landingStage.Children.Add(actions);
         terms.TextAlignment = TextAlignment.Center; terms.TextWrapping = TextWrapping.Wrap; terms.HorizontalAlignment = HorizontalAlignment.Center; terms.VerticalAlignment = VerticalAlignment.Bottom; terms.Margin = new(20, 0, 20, 28);
-        terms.Inlines.Add(new Run { Text = "By clicking Start, you agree to our " });
+        terms.Inlines.Add(new Run { Text = "We access your camera in accordance with our " });
         terms.Inlines.Add(LinkInline("Terms of Use", "https://platform.xmaxsi.com/docs/resources/terms", "#C3C6CC"));
         terms.Inlines.Add(new Run { Text = " and " }); terms.Inlines.Add(LinkInline("Privacy Policy", "https://platform.xmaxsi.com/docs/resources/privacy", "#C3C6CC")); terms.Inlines.Add(new Run { Text = "." });
         landingStage.Children.Add(terms); landing.Children.Add(landingStage);
@@ -67,11 +76,7 @@ public sealed partial class MainWindow
         submit.Click += (_, _) => Model.SubmitPromptCommand.Execute(null); ToolTipService.SetToolTip(submit, "Submit prompt"); freeActions.Children.Add(submit);
         promptContent.Children.Add(freeActions); freePromptBox.Child = promptContent; referenceArea.Children.Add(freePromptBox);
         BuildFooter();
-        var toastRow = new Grid(); toastRow.ColumnDefinitions.Add(new() { Width = new(18) }); toastRow.ColumnDefinitions.Add(new()); toastRow.ColumnDefinitions.Add(new() { Width = new(24) });
-        toastRow.Children.Add(new Glyph { Kind = "warning", Width = 18, Height = 18, Foreground = Theme.Brush("#E5484D") });
-        errorText.TextWrapping = TextWrapping.Wrap; errorText.Margin = new(14, 0, 14, 0); Grid.SetColumn(errorText, 1); toastRow.Children.Add(errorText);
-        var dismiss = new Pill { Glyph = "close", Width = 24, Height = 24, MinWidth = 24, Padding = new(0) }; dismiss.Click += (_, _) => Model.ClearError(); Grid.SetColumn(dismiss, 2); toastRow.Children.Add(dismiss);
-        toast.Child = toastRow; root.Children.Add(toast);
+        root.Children.Add(toast);
     }
     private void ConfigureVideo(Grid panel, UIElement video, TextBlock placeholder, StackPanel metrics, bool result)
     {
@@ -124,8 +129,15 @@ public sealed partial class MainWindow
             ToolTipService.SetToolTip(link, name); AutomationProperties.SetName(link, name); socials.Children.Add(link);
         }
         footer.Children.Add(socials);
-        var links = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 24, HorizontalAlignment = HorizontalAlignment.Right };
-        foreach (var (text, url) in new[] { ("Contact Us", "mailto:contact@xmax.ai"), ("GitHub", "https://github.com/Xmax-AI"), ("API Platform", "https://platform.xmaxsi.com/") }) links.Children.Add(Theme.Link(text, () => OpenLink(url)));
+        var links = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 40, HorizontalAlignment = HorizontalAlignment.Right };
+        var version = Theme.Text("V" + PublicAppVersion, 13, "#6B7380"); version.FontFamily = new("Segoe UI"); links.Children.Add(version);
+        foreach (var (text, url) in new[] { ("TroubleShooting", "https://xmaxai.com/facenow/guide"), ("Feedback", "mailto:contact@xmaxai.com"),
+            ("About Us", ""), ("API Platform", "https://platform.xmaxsi.com/") })
+        {
+            var link = Theme.Link(text, () => { if (url.Length == 0) _ = ShowAboutAsync(); else OpenLink(url); });
+            if (link.Content is TextBlock label) label.FontFamily = LoginTypography.Font;
+            AutomationProperties.SetName(link, text); links.Children.Add(link);
+        }
         footer.Children.Add(links);
     }
     private static Hyperlink LinkInline(string text, string url, string color)

@@ -7,6 +7,41 @@ using FaceNow.Windows.Network;
 
 var tests = new (string Name, Func<Task> Run)[]
 {
+    ("Known zero credits block startup without requesting balance or invalidating the key", async () =>
+    {
+        var api = new FakeApi { BalanceOverride = () => Task.FromResult(0d) };
+        using var user = new UserRepository(api, new MemoryStorage());
+        await user.SignInWithKeyAsync("uk-test"); await user.RefreshCreditsAsync();
+        int requests = api.BalanceRequests;
+        var error = await Throws<AccountException>(() => { user.EnsureSufficientCredits(); return Task.CompletedTask; });
+        Check(user.HasInsufficientCredits && error.Code == CreditPolicy.InsufficientCode
+            && error.Message == CreditPolicy.InsufficientMessage && !error.IsUnauthorized);
+        Check(api.BalanceRequests == requests && user.HasVerifiedSession && user.GetVerifiedGenerationKey() == "uk-test");
+    }),
+    ("Unknown and positive low balances permit startup using only in-memory state", async () =>
+    {
+        var api = new FakeApi(); using var user = new UserRepository(api, new MemoryStorage());
+        await user.SignInWithKeyAsync("uk-test");
+        user.EnsureSufficientCredits(); Check(!user.HasInsufficientCredits && api.BalanceRequests == 0);
+        foreach (double balance in new[] { .000001, 299d, 300d, 869589d })
+        {
+            api.BalanceOverride = () => Task.FromResult(balance); await user.RefreshCreditsAsync();
+            int requests = api.BalanceRequests; user.EnsureSufficientCredits();
+            Check(!user.HasInsufficientCredits && api.BalanceRequests == requests);
+        }
+        Check(CreditPolicy.IsInsufficient(-1));
+    }),
+    ("Balance refresh releases the startup gate after recharge; transient failures retain it", async () =>
+    {
+        var api = new FakeApi { BalanceOverride = () => Task.FromResult(0d) };
+        using var user = new UserRepository(api, new MemoryStorage());
+        await user.SignInWithKeyAsync("uk-test"); await user.RefreshCreditsAsync();
+        api.BalanceOverride = () => Task.FromException<double>(new IOException("offline"));
+        await Throws<IOException>(() => user.RefreshCreditsAsync()); Check(user.HasInsufficientCredits);
+        api.BalanceOverride = () => Task.FromResult(1d); await user.RefreshCreditsAsync();
+        user.EnsureSufficientCredits(); Check(!user.HasInsufficientCredits);
+        await user.SignOutAsync(); Check(user.RemainingCredits is null && !user.HasInsufficientCredits);
+    }),
     ("Account card masks key identity and formats server credits without exposing credentials", async () =>
     {
         var api = new FakeApi { BalanceOverride = () => Task.FromResult(869589.1234567) };
@@ -290,7 +325,7 @@ sealed class FakeApi : IAccountApi
     public Func<Task<AccountProfile>>? ProfileOverride;
     public Func<Task<double>>? BalanceOverride;
     public Action? OnLogout;
-    public int Creates, Logouts, CodeRequests, LoginRequests;
+    public int Creates, Logouts, CodeRequests, LoginRequests, BalanceRequests;
     public string? LastProfileCredential;
     public Task<LoginConfiguration> GetConfigurationAsync(CancellationToken token) => Task.FromResult(Fixtures.Configuration());
     public Task SendCodeAsync(LoginMethod method, string account, CaptchaProof proof, CancellationToken token) { CodeRequests++; return Task.CompletedTask; }
@@ -300,7 +335,8 @@ sealed class FakeApi : IAccountApi
     public Task<IReadOnlyList<ApiKeyRecord>> GetKeysAsync(string credential, CancellationToken token) => Task.FromResult(Keys);
     public Task<ApiKeyRecord> CreateKeyAsync(string credential, string name, CancellationToken token)
     { Creates++; return Task.FromResult(Fixtures.Key("created", "uk-created")); }
-    public Task<double> GetBalanceAsync(string credential, CancellationToken token) => BalanceOverride?.Invoke() ?? Task.FromResult(123d);
+    public Task<double> GetBalanceAsync(string credential, CancellationToken token)
+    { BalanceRequests++; return BalanceOverride?.Invoke() ?? Task.FromResult(123d); }
     public Task LogoutAsync(string credential, CancellationToken token) { Logouts++; OnLogout?.Invoke(); return Task.CompletedTask; }
 }
 sealed class MemoryStorage : IAccountStorage

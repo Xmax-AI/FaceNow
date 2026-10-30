@@ -12,24 +12,28 @@ public sealed partial class MainWindow
     private readonly UserRepository? accountRepository;
     private LoginView? loginView;
     private readonly AccountAvatarButton accountButton = new();
-    private readonly Pill homeCredits = new() { Text = "—", Glyph = "bolt", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
-    private readonly Pill sessionCredits = new() { Text = "—", Glyph = "bolt", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
+    private readonly Pill homeCredits = new() { Text = "—", Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
+    private readonly Pill sessionCredits = new() { Text = "—", Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
     private bool studioInitialized, studioInitializing, accountStopping, lastVerified;
+    private readonly DispatcherTimer creditsRefreshTimer = new() { Interval = TimeSpan.FromSeconds(5) };
     private void BuildAccountUi()
     {
         if (accountRepository is null) return;
         loginView = new(accountRepository, root, Model.IsPreview);
         loginView.RequestError = message => { if (message is null) Model.ClearError(); else Model.ReportError(new AccountException(message)); };
+        loginView.SignedIn = ShowSignInToast;
         root.Children.Insert(root.Children.Count - 1, loginView);
         homeControls.Children.Add(homeCredits);
         homeControls.Children.Add(accountButton);
         sessionControls.Children.Insert(1, sessionCredits);
         accountButton.Click += async (_, _) => await OpenAccountAsync();
         root.SizeChanged += (_, _) => { if (accountPopup?.IsOpen == true) ClosePopups(); };
-        homeCredits.Click += (_, _) => OpenLink("https://platform.xmax.ai/credits");
-        sessionCredits.Click += (_, _) => OpenLink("https://platform.xmax.ai/credits");
+        homeCredits.Click += (_, _) => OpenLink("https://platform.xmaxai.com/credits");
+        sessionCredits.Click += (_, _) => OpenLink("https://platform.xmaxai.com/credits");
         accountRepository.Changed += AccountChanged;
         Model.AuthenticationRejected += RevalidateGenerationAccount;
+        Model.CreditsRequired += ShowCreditsWarning;
+        creditsRefreshTimer.Tick += RefreshCreditsTick;
         RefreshAccountUi();
     }
     private async Task InitializeAccountAsync()
@@ -81,6 +85,7 @@ public sealed partial class MainWindow
     {
         if (accountRepository is null || loginView is null || closing) return;
         bool home = accountRepository.CanAccessHome;
+        if (!home) DismissSignInToast();
         loginView.SetPresented(!home);
         loginView.Refresh();
         scroller.Visibility = home ? Visibility.Visible : Visibility.Collapsed;
@@ -104,10 +109,13 @@ public sealed partial class MainWindow
         StartButton.IsEnabled = Model.CanEdit && accountRepository.HasVerifiedSession && studioInitialized && !accountStopping;
         if (home && !accountRepository.HasVerifiedSession) StartButton.Text = "Verifying account…";
         homeCredits.IsEnabled = sessionCredits.IsEnabled = accountRepository.HasVerifiedSession;
+        if (accountRepository.HasVerifiedSession) creditsRefreshTimer.Start();
+        else creditsRefreshTimer.Stop();
     }
+    private async void RefreshCreditsTick(object? sender, object e) => await RefreshCreditsQuietlyAsync();
     private async Task RefreshCreditsQuietlyAsync()
     {
-        if (accountRepository is null) return;
+        if (accountRepository is null || closing || closed) return;
         try { await accountRepository.RefreshCreditsAsync(); }
         catch (Exception) { /* A temporary billing failure keeps the last confirmed balance. */ }
     }
@@ -139,7 +147,7 @@ public sealed partial class MainWindow
             catch (Exception error) { Model.ReportError(error); }
         };
         stack.Children.Add(create);
-        stack.Children.Add(Theme.Link("Usage ↗", () => OpenLink("https://platform.xmax.ai/usage")));
+        stack.Children.Add(Theme.Link("Usage ↗", () => OpenLink("https://platform.xmaxai.com/usage")));
         stack.Children.Add(Theme.Link("Manage API keys ↗", () => OpenLink("https://platform.xmaxsi.com/api-keys")));
         var signOut = new Pill { Text = "Sign out", Destructive = true, HorizontalAlignment = HorizontalAlignment.Stretch };
         signOut.Click += async (_, _) => await SignOutAccountAsync(); stack.Children.Add(signOut);
@@ -179,8 +187,11 @@ public sealed partial class MainWindow
     }
     private void DisposeAccountUi()
     {
+        creditsRefreshTimer.Stop();
+        creditsRefreshTimer.Tick -= RefreshCreditsTick;
         loginView?.Dispose();
         Model.AuthenticationRejected -= RevalidateGenerationAccount;
+        Model.CreditsRequired -= ShowCreditsWarning;
         if (accountRepository is not null) { accountRepository.Changed -= AccountChanged; accountRepository.Dispose(); }
     }
 }

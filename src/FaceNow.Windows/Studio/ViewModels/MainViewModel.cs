@@ -148,11 +148,13 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     public async Task GenerateAsync()
     {
         if (generationAccess is not null) ApiKey = generationAccess.GetVerifiedGenerationKey();
+        EnsureCreditsForStart();
         if (string.IsNullOrWhiteSpace(ApiKey)) throw new InvalidOperationException("实时生成需要 Xmax API Key；摄像头预览可以单独使用。");
         if (string.IsNullOrWhiteSpace(Prompt)) throw new InvalidOperationException("请输入生成提示词。");
         await EnsureSessionAsync();
         if (generationAccess is not null && generationAccess.GetVerifiedGenerationKey() != ApiKey)
             throw new OperationCanceledException("The active account credential changed.");
+        EnsureCreditsForStart();
         var currentSession = session ?? throw new OperationCanceledException();
         int current = revision;
         Status = State == RealtimeState.Generating ? "正在更新生成条件…" : "正在连接服务并等待首张结果帧…";

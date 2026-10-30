@@ -1,12 +1,70 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Foundation;
+using Windows.Media.Playback;
 
 namespace FaceNow.App.User;
 
 internal sealed partial class LoginView
 {
+    internal async Task VerifyCodeLoginAsync(int method)
+    {
+        if (!preview || user.HasVerifiedSession) throw new InvalidOperationException("Code login verification requires a signed-out preview account.");
+        methods.SelectedIndex = method; await Task.Delay(30);
+        account.Text = method == 0 ? "13800000000" : "preview@example.com";
+        code.Text = "123456"; await Task.Delay(30);
+        await RunAsync(true);
+        if (!user.HasVerifiedSession) throw new InvalidOperationException("Preview code login failed.");
+    }
+
+    internal async Task VerifyVideoPlaybackAsync()
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(15);
+        var initial = player.PlaybackSession.Position;
+        while (DateTime.UtcNow < deadline)
+        {
+            if (videoFailure is not null) throw new InvalidOperationException("Login video failed: " + videoFailure);
+            if (media.IsLoaded && media.Visibility == Visibility.Visible && player.PlaybackSession.NaturalVideoWidth > 0
+                && player.PlaybackSession.Position > initial + TimeSpan.FromMilliseconds(300)) return;
+            await Task.Delay(100);
+        }
+        throw new InvalidOperationException($"Login video did not advance: animations={LoginMotion.Enabled}, visible={media.Visibility}, loaded={media.IsLoaded}, state={player.PlaybackSession.PlaybackState}, position={player.PlaybackSession.Position}, source={player.Source is not null}.");
+    }
+
+    private async Task VerifyVideoLifecycleAsync()
+    {
+        await VerifyVideoPlaybackAsync();
+        if (!player.IsMuted || !player.IsLoopingEnabled) throw new InvalidOperationException("Login video must remain muted and looping.");
+        SetPresented(false);
+        await Task.Delay(200);
+        var paused = player.PlaybackSession.Position;
+        await Task.Delay(350);
+        if (player.PlaybackSession.PlaybackState != MediaPlaybackState.Paused
+            || (player.PlaybackSession.Position - paused).Duration() > TimeSpan.FromMilliseconds(100))
+            throw new InvalidOperationException("Hidden login video did not pause.");
+        SetPresented(true);
+        await VerifyVideoPlaybackAsync();
+
+        var duration = player.PlaybackSession.NaturalDuration;
+        if (!player.PlaybackSession.CanSeek || duration < TimeSpan.FromSeconds(1))
+            throw new InvalidOperationException("Login video duration or seek support is missing.");
+        player.PlaybackSession.Position = duration - TimeSpan.FromMilliseconds(500);
+        bool reachedEnd = false;
+        var deadline = DateTime.UtcNow.AddSeconds(5);
+        while (DateTime.UtcNow < deadline)
+        {
+            if (videoFailure is not null) throw new InvalidOperationException("Login video failed: " + videoFailure);
+            var position = player.PlaybackSession.Position;
+            reachedEnd |= position >= duration - TimeSpan.FromMilliseconds(750);
+            if (reachedEnd && position < duration / 2
+                && player.PlaybackSession.PlaybackState == MediaPlaybackState.Playing) return;
+            await Task.Delay(30);
+        }
+        throw new InvalidOperationException("Login video did not loop after reaching its end.");
+    }
+
     internal FrameworkElement PhoneInputCaptureTarget => accountInput;
+    internal object AccountTextLineMetrics() => accountInput.TextLineMetrics();
     internal FrameworkElement CodeInputCaptureTarget => codeInput;
     internal async Task PrepareLayoutCaptureAsync(int mode, string state = "idle")
     {
@@ -30,6 +88,15 @@ internal sealed partial class LoginView
         if (state == "typing")
         {
             account.Text = "1520314"; await Task.Delay(60);
+            account.Focus(FocusState.Programmatic);
+            account.SelectionStart = account.Text.Length;
+        }
+        if (state is "alignment-empty" or "alignment-text")
+        {
+            string expected = state == "alignment-text" ? account.PlaceholderText : "";
+            model.SetAccount(expected); Render(); await Task.Delay(60);
+            if (account.Text != expected || model.Account != expected)
+                throw new InvalidOperationException("The native placeholder comparison did not reach its requested text state.");
             account.Focus(FocusState.Programmatic);
             account.SelectionStart = account.Text.Length;
         }

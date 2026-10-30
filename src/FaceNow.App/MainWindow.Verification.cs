@@ -72,12 +72,23 @@ public sealed partial class MainWindow
                 await loginView!.VerifyFormAsync();
                 Check(scroller.Visibility == Visibility.Visible && loginView.Visibility == Visibility.Collapsed, "Validated login did not open home.");
                 Check(Model.Session is null && Model.Cameras.Count == 0, "Login preview accessed a real camera or generation session.");
+                await VerifySignInToastAsync();
                 await OpenAccountAsync();
                 Check(popups.Any(popup => popup.IsOpen), "Account menu did not open.");
                 if (Environment.GetEnvironmentVariable("FACENOW_CAPTURE_ACCOUNT_UI") == "1") await VerifyAccountCardStyleAsync();
                 await SignOutAccountAsync();
                 Check(loginView.Visibility == Visibility.Visible && scroller.Visibility == Visibility.Collapsed && Model.ApiKey.Length == 0,
                     "Sign-out did not clear studio access and restore login.");
+                await loginView.VerifyVideoPlaybackAsync();
+                foreach (int method in new[] { 0, 1 })
+                {
+                    await loginView.VerifyCodeLoginAsync(method);
+                    Check(toast.Message == SignedInMessage && toast.NotificationStyle == FaceNow.App.Controls.ToastStyle.Success,
+                        "Verification-code login did not show its success notification.");
+                    await SignOutAccountAsync();
+                    Check(toast.Message is null && loginView.Visibility == Visibility.Visible,
+                        "Signing out left a success notification over the login form.");
+                }
             }
             else if (mode == "--smoke-test-camera-setup") await VerifyCameraSetupPreviewAsync();
             else if (mode == "--smoke-test-ui")

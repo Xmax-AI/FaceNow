@@ -11,20 +11,22 @@ public sealed partial class MainWindow
 {
     private Popup? virtualCameraPopup;
     private Action? refreshCameraUsage;
-    private const string CameraUsageLabel = "Use in other apps";
+    private bool cameraStatusRefreshing;
+    private const string CameraUsageLabel = "Virtual Camera";
     private const string FaceNowCameraName = "FaceNow - Xmax Virtual Camera";
 
     private sealed record CameraUsage(string Title, string Description, string Color, string? Setup = null, bool Ready = false);
     private static CameraUsage DescribeCameraUsage(CameraOutputStatus status, bool canInstall) => status.Registration switch
     {
-        CameraRegistrationState.Unsupported => new("Unavailable", "This feature requires Windows 11. Use FaceNow on a Windows 11 computer to continue.", "#D97706"),
-        CameraRegistrationState.ComponentMissing => new("Unavailable", "The camera feature is missing from this copy of FaceNow. Reinstall the full app, then try again.", "#D97706"),
+        CameraRegistrationState.Unsupported => new("Unavailable", "This feature requires Windows 11. Use FaceNow on a Windows 11 computer to continue.", "#DC2626"),
+        CameraRegistrationState.ComponentMissing => new("Unavailable", "The camera feature is missing from this copy of FaceNow. Reinstall the full app, then try again.", "#DC2626"),
         _ when !canInstall && (status.State == CameraOutputState.Faulted || status.Registration == CameraRegistrationState.NotRegistered)
-            => new("Unavailable", "Your AI video is still using the camera. Stop your AI video, then set up the camera again.", "#D97706"),
-        _ when status.State == CameraOutputState.Faulted => new("Setup needed", "Your camera needs to be set up again before FaceNow can be used in other apps.", "#2F46E2", "Set up camera"),
-        CameraRegistrationState.NotRegistered => new("Setup needed", "Set up once to add FaceNow to the camera list in your meeting or streaming app.", "#2F46E2", "Set up camera"),
-        CameraRegistrationState.Registered => new("Ready to use", "Start Camera in FaceNow, then choose this camera in your meeting or streaming app.", "#16A34A", Ready: true),
-        _ => new("", "Checking camera availability…", "#6B7380")
+            => new("Unavailable", "Your AI video is still using the camera. Stop your AI video, then set up the camera again.", "#DC2626"),
+        _ when status.State == CameraOutputState.Faulted => new("Setup needed", "Your camera needs to be set up again before FaceNow can be used in other apps.", "#DC2626", "Set up camera"),
+        CameraRegistrationState.NotRegistered => new("Setup needed", "Set up once to add FaceNow to the camera list in your meeting or streaming app.", "#DC2626", "Set up camera"),
+        CameraRegistrationState.Registered when status.State is CameraOutputState.Stopped or CameraOutputState.Running
+            => new("Ready to use", "Start Camera in FaceNow, then choose this camera in your meeting or streaming app.", "#15803D", Ready: true),
+        _ => new("Checking", "Checking camera availability…", "#DC2626")
     };
 
     private void RefreshVirtualCameraUi()
@@ -32,7 +34,8 @@ public sealed partial class MainWindow
         var status = CameraUsageStatus;
         var usage = DescribeCameraUsage(status, CanSetUpCamera);
         var button = homeVirtualCamera;
-        button.Text = IsCameraSetupBusy ? "Setting up camera…" : CameraUsageLabel;
+        button.Text = CameraUsageLabel;
+        button.Available = usage.Ready && !IsCameraSetupBusy;
         button.IsEnabled = !IsCameraSetupBusy;
         button.Accent = false;
         button.Secondary = false;
@@ -44,6 +47,16 @@ public sealed partial class MainWindow
         AutomationProperties.SetName(button, CameraUsageLabel);
         AutomationProperties.SetHelpText(button, helpText);
         if (virtualCameraPopup?.IsOpen == true) refreshCameraUsage?.Invoke();
+    }
+
+    private async Task SynchronizeVirtualCameraStatusAsync()
+    {
+        if (!initialized || closing || closed || Model.Active || Model.IsPreview || cameraSetupPreview
+            || virtualCameraOutput.IsBusy || cameraStatusRefreshing) return;
+        cameraStatusRefreshing = true;
+        try { await virtualCameraOutput.RefreshAsync(); }
+        catch (Exception error) { if (!closing && !closed) Model.ReportError(error); }
+        finally { cameraStatusRefreshing = false; if (!closing && !closed) RefreshVirtualCameraUi(); }
     }
 
     private void OpenVirtualCameraSettings(FrameworkElement anchor)
@@ -63,6 +76,7 @@ public sealed partial class MainWindow
         };
         refreshCameraUsage();
         virtualCameraPopup = OpenPopup(anchor, host, 360, 20);
+        _ = SynchronizeVirtualCameraStatusAsync();
     }
 
     private StackPanel BuildCameraUsagePanel(CameraOutputStatus status, bool canInstall, FrameworkElement anchor)

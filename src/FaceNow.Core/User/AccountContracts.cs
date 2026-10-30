@@ -26,4 +26,5 @@ public interface IGenerationAccess
 {
     bool HasVerifiedSession { get; }
     string GetVerifiedGenerationKey();
+    void EnsureSufficientCredits();
 }

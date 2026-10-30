@@ -29,6 +29,12 @@ public sealed partial class MainWindow
                 records.Add(new { name = $"code-{state}-{name}", metrics = loginView.VerifyLayoutBounds() });
                 await SaveScreenshotAsync($"login-code-{state}-{name}", loginView.CodeInputCaptureTarget, 2);
             }
+            foreach (var state in new[] { "alignment-empty", "alignment-text" })
+            {
+                await loginView.PrepareLayoutCaptureAsync(1, state);
+                records.Add(new { name = $"email-{state}-{name}", metrics = loginView.AccountTextLineMetrics() });
+                await SaveNativeLoginScreenshotAsync($"native-email-{state}-{name}", loginView.PhoneInputCaptureTarget);
+            }
         }
         ResizeWindow(1360, 890); await Task.Delay(250); root.UpdateLayout();
         foreach (var (mode, state, name) in new[] { (0, "focused", "phone-focus"), (0, "typing", "phone-typing"), (0, "enabled", "phone-ready"),

@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage;
 using Windows.System;
 
 namespace FaceNow.App.User;
@@ -36,12 +37,16 @@ internal sealed partial class LoginView : UserControl, IDisposable
     private readonly TextBlock status = LoginTypography.Text("", 10, "#9CA3AF");
     private readonly MediaPlayer player = new() { IsLoopingEnabled = true, IsMuted = true };
     private readonly MediaPlayerElement media = new() { AreTransportControlsEnabled = false, Stretch = Stretch.UniformToFill };
+    private MediaSource? videoSource;
     private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer timer;
     private readonly Dictionary<LoginMethod, (string Value, string Message)> rejectedCodes = [];
     private string? rejectedKey, lastNotice;
+    private string? videoFailure;
+    private bool videoLoading;
     private bool updating, presented, configurationLoaded, configurationFailed, disposed, submittingLogin, sendingCode, captureMode;
     private double layoutScale = 1;
     internal Action<string?>? RequestError { get; set; }
+    internal Action? SignedIn { get; set; }
 
     public LoginView(UserRepository user, Grid overlayHost, bool preview = false)
     {
@@ -57,8 +62,12 @@ internal sealed partial class LoginView : UserControl, IDisposable
             Stretch = Stretch.UniformToFill, AlignmentX = AlignmentX.Center, AlignmentY = AlignmentY.Center
         } });
         media.SetMediaPlayer(player); showcase.Children.Add(media);
-        player.Source = MediaSource.CreateFromUri(new("ms-appx:///Assets/Login/FaceNowLogin.mp4"));
-        player.MediaFailed += (_, _) => DispatcherQueue.TryEnqueue(() => { if (!disposed) media.Visibility = Visibility.Collapsed; });
+        player.MediaOpened += (_, _) => DispatcherQueue.TryEnqueue(UpdateVideoPlayback);
+        player.MediaFailed += (_, args) => DispatcherQueue.TryEnqueue(() =>
+        {
+            videoFailure = $"{args.Error}: {args.ErrorMessage} ({args.ExtendedErrorCode?.HResult:X8})";
+            if (!disposed) media.Visibility = Visibility.Collapsed;
+        });
         showcase.Children.Add(new Border { Background = new LinearGradientBrush
         {
             StartPoint = new(0, 0), EndPoint = new(0, 1), GradientStops = {
@@ -129,7 +138,8 @@ internal sealed partial class LoginView : UserControl, IDisposable
         key.KeyDown += async (_, args) => { if (args.Key == VirtualKey.Enter && model.CanSubmit) { args.Handled = true; await RunAsync(true); } };
         timer = DispatcherQueue.CreateTimer(); timer.Interval = TimeSpan.FromSeconds(1); timer.Tick += (_, _) => Render();
         SizeChanged += (_, _) => ApplyLayout();
-        Loaded += (_, _) => { if (presented && !captureMode) account.Focus(FocusState.Programmatic); };
+        Loaded += (_, _) => { UpdateVideoPlayback(); if (presented && !captureMode) account.Focus(FocusState.Programmatic); };
+        Unloaded += (_, _) => { if (!disposed) player.Pause(); };
         ApplyLayout(); Render();
     }
 
@@ -173,8 +183,41 @@ internal sealed partial class LoginView : UserControl, IDisposable
         if (presented == value || disposed) return;
         presented = value;
         Visibility = value ? Visibility.Visible : Visibility.Collapsed;
-        if (value) { if (LoginMotion.Enabled && !captureMode) player.Play(); media.Visibility = LoginMotion.Enabled && !captureMode ? Visibility.Visible : Visibility.Collapsed; scenarios.SetPlaying(!captureMode); timer.Start(); if (!configurationLoaded) _ = LoadConfigurationAsync(); }
-        else { player.Pause(); scenarios.SetPlaying(false); timer.Stop(); model.ClearSecrets(); rejectedKey = null; rejectedCodes.Clear(); key.Password = ""; Render(); }
+        UpdateVideoPlayback();
+        if (value) { scenarios.SetPlaying(!captureMode); timer.Start(); if (!configurationLoaded) _ = LoadConfigurationAsync(); }
+        else { scenarios.SetPlaying(false); timer.Stop(); model.ClearSecrets(); rejectedKey = null; rejectedCodes.Clear(); key.Password = ""; Render(); }
+    }
+
+    private void UpdateVideoPlayback()
+    {
+        if (disposed) return;
+        // Video playback is independent of the system setting for control animations.
+        bool play = presented && IsLoaded && !captureMode && videoFailure is null;
+        media.Visibility = play ? Visibility.Visible : Visibility.Collapsed;
+        if (!play) { player.Pause(); return; }
+        if (videoSource is not null) player.Play();
+        else if (!videoLoading) _ = LoadVideoAsync();
+    }
+
+    private async Task LoadVideoAsync()
+    {
+        videoLoading = true;
+        try
+        {
+            // This is an unpackaged desktop app: MediaSource cannot resolve ms-appx assets.
+            var file = await StorageFile.GetFileFromPathAsync(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Login", "FaceNowLogin.mp4"));
+            if (disposed) return;
+            videoSource = MediaSource.CreateFromStorageFile(file);
+            player.Source = videoSource;
+            UpdateVideoPlayback();
+        }
+        catch (Exception error)
+        {
+            if (disposed) return;
+            videoFailure = $"{error.GetType().Name}: {error.Message} ({error.HResult:X8})";
+            media.Visibility = Visibility.Collapsed;
+        }
+        finally { videoLoading = false; }
     }
     private async Task LoadConfigurationAsync()
     {
@@ -218,6 +261,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
                     code.Focus(FocusState.Programmatic);
                 }
             }
+            if (login && !disposed && user.HasVerifiedSession) SignedIn?.Invoke();
         }
         catch (OperationCanceledException) { }
         catch (Exception failure)
@@ -276,12 +320,13 @@ internal sealed partial class LoginView : UserControl, IDisposable
         if (disposed) return;
         disposed = true; lifetime.Cancel(); lifetime.Dispose(); timer.Stop(); scenarios.SetPlaying(false);
         // Detach the XAML player before closing its WinRT object; unloading must not call a closed player.
-        player.Pause(); media.SetMediaPlayer(null); player.Source = null; Content = null; player.Dispose();
+        player.Pause(); media.SetMediaPlayer(null); player.Source = null; videoSource?.Dispose(); videoSource = null; Content = null; player.Dispose();
     }
 
     internal async Task VerifyFormAsync()
     {
         if (!preview) throw new InvalidOperationException("Form verification requires an isolated preview account.");
+        await VerifyVideoLifecycleAsync();
         if (!configurationLoaded) await LoadConfigurationAsync();
         if (!configurationLoaded || user.CanAccessHome) throw new InvalidOperationException("Login preview did not initialize signed out.");
         methods.SelectedIndex = 0; await Task.Delay(50);

@@ -27,11 +27,15 @@ internal sealed class Glyph : Grid
         ["arrow"] = "M4,12 L20,12 M14,6 L20,12 L14,18",
         ["close"] = "M6,6 L18,18 M18,6 L6,18",
         ["warning"] = "M12,7 L12,13 M12,16 L12,17",
+        ["warningTriangle"] = "F0 M10.3,3.2 Q12,0.3 13.7,3.2 L23,19.3 Q24.5,22 21.4,22 L2.6,22 Q-0.5,22 1,19.3 Z M11,7 L13,7 L13,14 L11,14 Z M11,17 L13,17 L13,19 L11,19 Z",
         // Match the macOS RealtimeWebIcon paths; social logos are filled, not stroked.
         ["globe"] = "M2,12 L22,12 M12,2 C17.3,7 17.3,17 12,22 C6.7,17 6.7,7 12,2",
         ["socialX"] = "F0 M18.244,2.25 L21.552,2.25 L14.325,10.51 L22.827,21.75 L16.17,21.75 L10.956,14.933 L4.99,21.75 L1.68,21.75 L9.41,12.915 L1.254,2.25 L8.08,2.25 L12.793,8.481 Z M17.083,19.77 L18.916,19.77 L6.95,4.126 L5.117,4.126 Z",
         ["wechat"] = "F0 M9.3,4 C5.6,4 2.6,6.6 2.6,9.9 C2.6,11.8 3.6,13.4 5.2,14.5 L4.5,16.7 L6.9,15.5 C7.6,15.7 8.4,15.8 9.3,15.8 L9.8,15.8 C9.7,15.4 9.6,14.9 9.6,14.5 C9.6,11.4 12.5,8.9 16,8.9 L16.3,8.9 C15.7,6.2 12.8,4 9.3,4 Z M8.2,8.1 A0.9,0.9 0 1 0 6.4,8.1 A0.9,0.9 0 1 0 8.2,8.1 Z M12.6,8.1 A0.9,0.9 0 1 0 10.8,8.1 A0.9,0.9 0 1 0 12.6,8.1 Z M15.8,9.9 C12.7,9.9 10.2,11.9 10.2,14.5 C10.2,17 12.7,19.1 15.8,19.1 C16.4,19.1 17.1,19 17.7,18.8 L19.7,19.8 L19.2,18 C20.5,17.2 21.4,15.9 21.4,14.5 C21.4,12 18.9,9.9 15.8,9.9 Z M15,13.2 A0.8,0.8 0 1 0 13.4,13.2 A0.8,0.8 0 1 0 15,13.2 Z M18.2,13.2 A0.8,0.8 0 1 0 16.6,13.2 A0.8,0.8 0 1 0 18.2,13.2 Z",
         ["bolt"] = "M13,2 L5,14 L11,14 L10,22 L19,9 L13,9 Z",
+        ["boltFilled"] = "M13,2 L5,14 L11,14 L10,22 L19,9 L13,9 Z",
+        ["money"] = "M15.5,7.5 C14,5.5 8,5.5 8,9 C8,13 16,10 16,15 C16,18.5 10,18.5 8,16.5 M12,4 L12,20",
+        ["sparkles"] = "M12,2 L14.6,8.4 L21,11 L14.6,13.6 L12,20 L9.4,13.6 L3,11 L9.4,8.4 Z M20,1 L21,3 L23,4 L21,5 L20,7 L19,5 L17,4 L19,3 Z M3,17 L4,19 L6,20 L4,21 L3,23 L2,21 L0,20 L2,19 Z",
         ["person"] = "M12,12 C14.5,12 16.5,10 16.5,7.5 C16.5,5 14.5,3 12,3 C9.5,3 7.5,5 7.5,7.5 C7.5,10 9.5,12 12,12 Z M4,21 C4,16.5 7.5,14 12,14 C16.5,14 20,16.5 20,21 Z",
         ["privacy"] = "M8,13 L8,5 C8,3 10,3 10,5 L10,11 M10,5 L10,3.5 C10,1.5 12,1.5 12,3.5 L12,11 M12,4.5 C12,2.5 14,2.5 14,4.5 L14,11 M14,6.5 C14,4.5 16,4.5 16,6.5 L16,13 L18,10.5 C19.5,8.5 22,10.5 20.5,12.5 L17,19 C15,23 8,23 6,19 L3,13 C2,11 4.5,9.5 6,12 L8,15",
         ["document"] = "M4,2 L14,2 L20,8 L20,22 L4,22 Z M14,2 L14,8 L20,8 M8,12 L16,12 M8,16 L16,16",
@@ -43,7 +47,7 @@ internal sealed class Glyph : Grid
     {
         canvas.Children.Clear();
         if (Foreground is null) return;
-        if (Kind is "key" or "warning" or "globe" or "record")
+        if (Kind is "key" or "warning" or "globe" or "record" or "money")
         {
             double radius = Kind == "key" ? 5.5 : Kind == "warning" ? 9 : Kind == "record" ? 8 : 10;
             var circle = new Ellipse { Width = radius * 2, Height = radius * 2, Stroke = Foreground, StrokeThickness = 1.8, Fill = Kind == "record" ? Foreground : null };
@@ -57,7 +61,7 @@ internal sealed class Glyph : Grid
         else if (Paths.TryGetValue(Kind, out string? data))
         {
             var path = (Microsoft.UI.Xaml.Shapes.Path)XamlReader.Load($"<Path xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' Data='{data}'/>");
-            if (Kind is "wechat" or "socialX" or "person")
+            if (Kind is "wechat" or "socialX" or "person" or "boltFilled" or "sparkles" or "warningTriangle")
             {
                 path.Fill = Foreground;
                 if (Kind == "wechat") path.RenderTransform = new MatrixTransform { Matrix = new(1.15, 0, 0, 1.15, -1.8, -1.8) };

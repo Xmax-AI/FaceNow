@@ -29,11 +29,11 @@ public sealed partial class MainWindow : Window
     private readonly StackPanel sessionControls = new() { Orientation = Orientation.Horizontal, Spacing = 12, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel landing = new();
     private readonly Grid landingStage = new() { HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly TextBlock title = Theme.Text("Be Different Everyday with FaceNow", 31.6);
+    private readonly TextBlock title = Theme.Text("Bringing Your New Look into Video Calls", 31.6);
     private readonly TextBlock terms = Theme.Text("", 13, "#9CA3AF");
     private readonly StackPanel workspace = new();
     private readonly Grid localPanel = new() { Background = Theme.Brush("#000000") }, remotePanel = new() { Background = Theme.Brush("#000000") };
-    internal readonly XmaxRealtimeVideoView LocalView = new() { ContentMode = VideoContentMode.Fill }, RemoteView = new();
+    internal readonly XmaxRealtimeVideoView LocalView = new() { ContentMode = VideoContentMode.Fill }, RemoteView = new() { ContentMode = VideoContentMode.Fill };
     private readonly TextBlock localPlaceholder = Theme.Text("", 14, "#B3FFFFFF"), resultPlaceholder = Theme.Text("", 14, "#B3FFFFFF");
     private readonly StackPanel localStatistics = new(), remoteStatistics = new();
     private readonly Grid referenceArea = new() { Height = 190 };
@@ -52,19 +52,18 @@ public sealed partial class MainWindow : Window
     private readonly Pill previewBadge = new() { Text = "UI Preview · camera off", Accent = true, Margin = new(16, 0, 0, 0), IsHitTestVisible = false };
     internal readonly Pill StartButton = new() { Text = "Start Camera", Glyph = "camera", Primary = true, Height = 52, FontSize = 16, HorizontalAlignment = HorizontalAlignment.Center,
         OpacityTransition = new ScalarTransition { Duration = TimeSpan.FromMilliseconds(300) } };
-    private readonly Pill cameraButton = new() { Text = "Select Camera", Glyph = "camera", MaxWidth = 218, FontSize = 12 };
+    private readonly Pill cameraButton = new() { Text = "Select Camera", MaxWidth = 280, LabelMaxWidth = 220,
+        FontSize = 13, Height = 32, Translucent = true };
     private readonly Pill modelButton = new() { Text = "X2.1", Glyph = "chevron", TrailingGlyph = true, Padding = new(18, 0, 12, 0), ContentSpacing = 6, Visibility = Visibility.Collapsed };
     private readonly Pill keyButton = new() { Glyph = "key", LabelVerticalOffset = 2.75 };
     private readonly WindowsVirtualCamera virtualCameraOutput = new();
-    private readonly Pill homeVirtualCamera = new() { Glyph = "camera", ExtraChevron = true, FontSize = 12, LabelMaxWidth = 220 };
+    private readonly Pill homeVirtualCamera = new() { Glyph = "camera", ExtraChevron = true, FontSize = 12, LabelMaxWidth = 220, Padding = new(15, 0, 12, 0) };
     private readonly Pill statisticsButton = new() { Glyph = "statistics", Secondary = true };
     private readonly Pill elapsed = new() { Passive = true, MinWidth = 72, IsHitTestVisible = false };
     private readonly Pill stopButton = new() { Text = "Stop Session", Glyph = "stop", Destructive = true };
     private readonly Pill freeUpload = new() { Glyph = "plus", Width = 44, Height = 44, Padding = new(0), Margin = new(0, 0, 10, 0) };
     private readonly Pill submit = new() { Glyph = "arrow", Primary = true, Width = 44, Height = 44, Padding = new(0) };
-    private readonly Border toast = new() { MaxWidth = 600, CornerRadius = new(14), BorderBrush = Theme.Brush("#14111318"), BorderThickness = new(1), Background = Theme.Brush("#F5FFFFFF"), Padding = new(14), VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Center, Margin = new(28, 90, 28, 0) };
-    private readonly TextBlock errorText = Theme.Text("", 14);
-    private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer toastTimer;
+    private readonly ToastView toast = new();
     private readonly ApiKeyStore? apiKeyStore;
     private bool initialized, previousActive, closing, closed, settingApiKey, layoutPending;
 
@@ -89,10 +88,13 @@ public sealed partial class MainWindow : Window
             previewFooter.Text = "Camera setup simulation · no installation, camera access or system changes";
         }
         Content = root;
-        toastTimer = DispatcherQueue.CreateTimer(); toastTimer.Interval = TimeSpan.FromSeconds(6);
-        toastTimer.Tick += (_, _) => { toastTimer.Stop(); Model.ClearError(); };
+        toast.Dismissed += ToastDismissed;
         Model.PropertyChanged += ModelChanged;
         virtualCameraOutput.StatusChanged += () => DispatcherQueue.TryEnqueue(() => { if (!closed) RefreshVirtualCameraUi(); });
+        Activated += async (_, args) =>
+        {
+            if (args.WindowActivationState != WindowActivationState.Deactivated) await SynchronizeVirtualCameraStatusAsync();
+        };
         Model.ApiKeyRequired += OpenKey;
         Model.CameraRequired += OpenCameras;
         LocalView.PlaybackFailed += Model.ReportError; RemoteView.PlaybackFailed += Model.ReportError;
@@ -123,7 +125,7 @@ public sealed partial class MainWindow : Window
             if (closed) return;
             args.Cancel = true;
             if (closing) return;
-            closing = true; ClosePopups(); root.IsHitTestVisible = false; toastTimer.Stop();
+            closing = true; DisposeAboutView(); ClosePopups(); root.IsHitTestVisible = false; toast.Shutdown();
             DisposeAccountUi();
             try { try { await Model.DisposeAsync(); } finally { await virtualCameraOutput.DisposeAsync(); } }
             catch (Exception error) { Model.ReportError(error); }
@@ -146,7 +148,6 @@ public sealed partial class MainWindow : Window
     private void ModelChanged(object? sender, PropertyChangedEventArgs args)
     {
         RefreshUi();
-        if (args.PropertyName == nameof(Model.Error)) { toastTimer.Stop(); if (Model.Error.Length > 0) toastTimer.Start(); }
     }
     private void RefreshUi()
     {
@@ -156,8 +157,9 @@ public sealed partial class MainWindow : Window
         previewBadge.Visibility = Model.IsPreview ? Visibility.Visible : Visibility.Collapsed;
         previewFooter.Visibility = Model.IsPreview ? Visibility.Visible : Visibility.Collapsed;
         RefreshVirtualCameraUi();
-        cameraButton.Visibility = Model.IsPreview ? Visibility.Collapsed : Visibility.Visible;
+        cameraButton.Visibility = Model.Active ? Visibility.Collapsed : Visibility.Visible;
         cameraButton.Text = Model.SelectedCamera?.Name ?? "Select Camera";
+        ToolTipService.SetToolTip(cameraButton, cameraButton.Text);
         keyButton.Text = Model.KeyLabel;
         cameraButton.IsEnabled = modelButton.IsEnabled = keyButton.IsEnabled = StartButton.IsEnabled = Model.CanEdit;
         if (cameraSetupPreview) StartButton.IsEnabled = false;
@@ -165,7 +167,7 @@ public sealed partial class MainWindow : Window
         statisticsButton.Accent = Model.StatisticsVisible; elapsed.Text = Model.Elapsed;
         localPlaceholder.Text = Model.LocalPlaceholder; resultPlaceholder.Text = Model.ResultPlaceholder;
         localStatistics.Visibility = remoteStatistics.Visibility = Model.StatisticsVisible ? Visibility.Visible : Visibility.Collapsed;
-        localPlaceholder.Margin = resultPlaceholder.Margin = Model.StatisticsVisible ? new(280, 0, 24, 0) : new(24, 0, 24, 0);
+        localPlaceholder.Margin = resultPlaceholder.Margin = new(24, 0, 24, 0);
         foreach (var (mode, viewer) in referenceScrollers) viewer.Visibility = mode == Model.SelectedMode ? Visibility.Visible : Visibility.Collapsed;
         foreach (var (mode, tab) in tabs)
         {
@@ -180,10 +182,11 @@ public sealed partial class MainWindow : Window
         freeReferenceUploadOverlay.SetUploading(Model.FreeReference?.IsUploading == true, Model.FreeReference?.UploadProgress);
         freeReferenceStatus.Text = Model.FreeReference?.HasError == true ? "Retry" : "";
         submit.IsEnabled = Model.SubmitPromptCommand.CanExecute(null);
-        errorText.Text = Model.Error; toast.Visibility = Model.Error.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        UpdateToast();
         foreach (var tile in ReferenceTiles.Values) tile.IsEnabled = Model.CanEdit && !tile.Item.IsUploading;
         if (changed)
         {
+            if (Model.Active) DisposeAboutView();
             previousActive = Model.Active; ClosePopups(); scroller.ChangeView(null, 0, null, true);
             if (root.IsLoaded)
             { ArrangePage(); PageEntry.Reveal(Model.Active ? workspace : landing); if (!Model.Active) PageEntry.Reveal(footer); }

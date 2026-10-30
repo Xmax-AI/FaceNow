@@ -19,23 +19,16 @@ internal static class LoginTypography
     internal static TextBlock Text(string text = "", double size = 13, string color = "#111318")
     { var label = Theme.Text(text, size, color); label.FontFamily = Font; return label; }
 
-    private static readonly ConditionalWeakTable<TextBlock, TranslateTransform> placeholderOffsets = new();
-    internal static void CenterVisibleText(TextBlock label)
+    private static readonly ConditionalWeakTable<TextBlock, TranslateTransform> prefixOffsets = new();
+    internal static void CenterCountryCode(TextBlock label)
     {
-        if (placeholderOffsets.TryGetValue(label, out _)) return;
-        var offset = new TranslateTransform(); placeholderOffsets.Add(label, offset);
+        if (prefixOffsets.TryGetValue(label, out _)) return;
+        var offset = new TranslateTransform(); prefixOffsets.Add(label, offset);
         label.Padding = new(0); label.VerticalAlignment = VerticalAlignment.Center; label.RenderTransform = offset;
         void Position()
         {
-            // Visible glyph bounds from the bundled DM Sans (1000 units/em), including descenders.
-            double inkMidpoint = label.Text switch
-            {
-                "Enter your phone number" => .25,
-                "Enter verification code" => .3565,
-                "Enter your email address" or "Enter your active Xmax API key" => .2525,
-                _ => .35
-            };
-            offset.Y = label.ActualHeight / 2 - label.BaselineOffset + label.FontSize * inkMidpoint;
+            // Optical centering is only for the separate +86 label, never an editor placeholder.
+            offset.Y = label.ActualHeight / 2 - label.BaselineOffset + label.FontSize * .35;
         }
         label.SizeChanged += (_, _) => Position();
         label.RegisterPropertyChangedCallback(TextBlock.TextProperty, (_, _) => Position());
@@ -275,7 +268,7 @@ internal sealed class LoginInput : UserControl
         surface.Background = background; surface.BorderBrush = outline; surface.BorderThickness = new(1);
         body.ColumnDefinitions.Add(prefixColumn); body.ColumnDefinitions.Add(new()); body.ColumnDefinitions.Add(actionColumn);
         prefix.HorizontalAlignment = HorizontalAlignment.Center; prefix.IsHitTestVisible = false;
-        LoginTypography.CenterVisibleText(prefix);
+        LoginTypography.CenterCountryCode(prefix);
         prefixRegion.Children.Add(prefix); prefixDivider.HorizontalAlignment = HorizontalAlignment.Right;
         prefixRegion.Children.Add(prefixDivider); body.Children.Add(prefixRegion);
         Grid.SetColumn(editor, 1); body.Children.Add(editor);
@@ -311,7 +304,7 @@ internal sealed class LoginInput : UserControl
         scale = value; Height = 54 * scale; surface.CornerRadius = new(12 * scale);
         editor.FontSize = prefix.FontSize = 15 * scale;
         // Include the native caret's full height and balance the cap/digit ink within its line box.
-        // Placeholder glyphs have their own optical centering, independent of the native editor padding.
+        // Placeholder and input text share a line center, independent of the visible glyphs.
         editor.Height = Math.Ceiling(26 * scale);
         editor.Padding = new(0, 2 * scale, 0, 0);
         prefixColumn.Width = new(showPrefix ? 64 * scale : 0);
@@ -327,6 +320,24 @@ internal sealed class LoginInput : UserControl
     {
         CenterNativeTextLine(editor, ref editorViewport);
     }
+    internal object TextLineMetrics()
+    {
+        var views = new List<object>();
+        void Visit(DependencyObject parent)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is FrameworkElement element && (element.Name is "ContentElement" or "PlaceholderTextContentPresenter" || element.GetType().Name.Contains("TextBoxView")))
+                    views.Add(new { element.Name, type = element.GetType().Name, y = element.TransformToVisual(editor).TransformPoint(new()).Y,
+                        height = element.ActualHeight, baseline = (element as TextBlock)?.BaselineOffset, element.Margin,
+                        padding = (element as TextBlock)?.Padding });
+                Visit(child);
+            }
+        }
+        Visit(editor);
+        return new { height = editor.ActualHeight, editor.Padding, views };
+    }
     private static void CenterNativeTextLine(Control control, ref ScrollViewer? viewport)
     {
         // The default template stretches the editing viewport to the clear-button row.
@@ -338,7 +349,12 @@ internal sealed class LoginInput : UserControl
             {
                 var child = VisualTreeHelper.GetChild(root, i);
                 if (child is TextBlock { Name: "PlaceholderTextContentPresenter" } placeholder)
-                    LoginTypography.CenterVisibleText(placeholder);
+                {
+                    // Center the full font line, just like the native editing viewport.
+                    // Per-string ink offsets or template top padding give it a different baseline.
+                    placeholder.Padding = new(0);
+                    placeholder.VerticalAlignment = VerticalAlignment.Center;
+                }
                 if (child is ScrollViewer { Name: "ContentElement" } content) result = content;
                 if (FindContent(child) is { } nested) result ??= nested;
             }

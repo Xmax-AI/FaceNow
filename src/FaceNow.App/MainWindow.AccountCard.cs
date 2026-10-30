@@ -19,8 +19,8 @@ public sealed partial class MainWindow
         ClosePopups();
         var card = new AccountCard();
         void Link(string url) { ClosePopups(); OpenLink(url); }
-        card.Recharge = () => Link("https://platform.xmax.ai/credits");
-        card.Usage = () => Link("https://platform.xmax.ai/usage");
+        card.Recharge = () => Link("https://platform.xmaxai.com/credits");
+        card.Usage = () => Link("https://platform.xmaxai.com/usage");
         card.Privacy = () => Link("https://platform.xmaxsi.com/docs/resources/privacy");
         card.Agreement = () => Link("https://platform.xmaxsi.com/docs/resources/terms");
         card.SignOut = async () => await SignOutAccountAsync();

@@ -1,6 +1,7 @@
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using FaceNow.Core.User;
 using FaceNow.Windows.Studio.Platform;
 using FaceNow.Windows.Studio.Services;
 using Xmax.SDK;
@@ -9,7 +10,7 @@ namespace FaceNow.Windows.Studio.ViewModels;
 
 internal sealed partial class MainViewModel
 {
-    private bool active, statisticsVisible = true, remoteReady, preview;
+    private bool active, statisticsVisible, remoteReady, preview;
     private string selectedMode = "charx";
     private long intent;
     private DateTimeOffset? startedAt;
@@ -62,6 +63,7 @@ internal sealed partial class MainViewModel
     public AsyncCommand SubmitPromptCommand { get; private set; } = null!;
     public event Action? ApiKeyRequired;
     public event Action? CameraRequired;
+    public event Action? CreditsRequired;
     private void InitializePresentation()
     {
         foreach (string mode in new[] { "charx", "clothx", "vibex" }) References(mode).Add(new() { IsUpload = true, Mode = mode, Name = "Upload" });
@@ -82,6 +84,7 @@ internal sealed partial class MainViewModel
         if (IsPreview) { Active = true; MarkSelected(CharacterReferences.First(item => !item.IsUpload)); return; }
         if (string.IsNullOrWhiteSpace(ApiKey)) { RequireKey(); return; }
         if (SelectedCamera is null) { RequireCamera(); return; }
+        EnsureCreditsForStart();
         var first = CharacterReferences.First(item => !item.IsUpload);
         SelectedMode = "charx";
         MarkSelected(first);
@@ -90,6 +93,15 @@ internal sealed partial class MainViewModel
         try { await GenerateAsync(); }
         catch { await StopAsync(); throw; }
         finally { Prompt = freePrompt; Changed(nameof(Prompt)); }
+    }
+    private void EnsureCreditsForStart()
+    {
+        try { generationAccess?.EnsureSufficientCredits(); }
+        catch (AccountException error) when (error.Code == CreditPolicy.InsufficientCode)
+        {
+            CreditsRequired?.Invoke();
+            throw;
+        }
     }
     private void RequireKey()
     { Error = generationAccess is not null ? "Choose or create an API key in your account menu before starting."

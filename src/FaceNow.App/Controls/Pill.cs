@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using FaceNow.App.User;
 
 namespace FaceNow.App.Controls;
 
@@ -29,6 +30,12 @@ internal sealed class Pill : Button
     internal bool Passive { get; set; }
     internal bool TrailingGlyph { get; set; }
     internal bool ExtraChevron { get; set; }
+    internal bool Translucent { get; set; }
+    internal bool? Available { get; set; }
+    private readonly SolidColorBrush translucentSurface = Theme.Brush("#47000000");
+    private readonly SolidColorBrush availabilityForeground = Theme.Brush("#DC2626");
+    private readonly SolidColorBrush availabilityBorder = Theme.Brush("#47DC2626");
+    private readonly SolidColorBrush availabilitySurface = Theme.Brush("#FDF2F2");
     internal double LabelMaxWidth { get; set; } = 150;
     public Pill()
     {
@@ -50,22 +57,34 @@ internal sealed class Pill : Button
     private static void Changed(DependencyObject sender, DependencyPropertyChangedEventArgs args) => ((Pill)sender).Refresh();
     internal void Refresh()
     {
-        string color = Primary ? "#FFFFFF" : Destructive ? "#DC2626" : Accent ? "#2F46E2" : Passive ? "#6B7380" : Secondary && !hot ? "#8B919D" : "#111318";
-        Foreground = Theme.Brush(color); label.Foreground = Foreground; icon.Foreground = Foreground;
+        string color = Translucent ? "#D9FFFFFF" : Primary ? "#FFFFFF" : Destructive ? "#DC2626" : Accent ? "#2F46E2" : Passive ? "#6B7380" : Secondary && !hot ? "#8B919D" : "#111318";
+        Foreground = Available.HasValue ? availabilityForeground : Theme.Brush(color); label.Foreground = Foreground; icon.Foreground = Foreground;
         chevron.Foreground = Foreground; chevron.Visibility = ExtraChevron ? Visibility.Visible : Visibility.Collapsed;
         icon.Kind = Glyph; icon.Visibility = Glyph.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
         label.Text = Text; label.Visibility = Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
         label.RenderTransform = new TranslateTransform { Y = LabelVerticalOffset };
-        label.FontFamily = FontFamily; label.FontSize = FontSize; label.FontWeight = Primary || Destructive ? Microsoft.UI.Text.FontWeights.SemiBold : FontWeight;
+        label.FontFamily = FontFamily; label.FontSize = FontSize; label.FontWeight = Available.HasValue || Primary || Destructive ? Microsoft.UI.Text.FontWeights.SemiBold : FontWeight;
         label.TextTrimming = TextTrimming.CharacterEllipsis; label.MaxWidth = ExtraChevron ? LabelMaxWidth : double.PositiveInfinity;
-        body.Spacing = Text.Length > 0 && Glyph.Length > 0 ? ContentSpacing : 0;
+        body.Spacing = Translucent && ExtraChevron ? 8 : Text.Length > 0 && Glyph.Length > 0 ? ContentSpacing : 0;
         if (TrailingGlyph && body.Children[0] == icon) { body.Children.Remove(icon); body.Children.Add(icon); }
         icon.Width = icon.Height = Primary ? 20 : 16;
         BorderThickness = new(1); CornerRadius = new(Height / 2);
-        BorderBrush = Theme.Brush(Primary ? "#00FFFFFF" : Destructive ? "#F1BABA" : Accent ? "#D7DDFB" : focused ? "#2F46E2" : hot ? "#C9CED6" : "#E2E5EA");
-        Background = Primary || Accent || Destructive ? Theme.Brush(Primary ? (focused ? "#2438C4" : "#2F46E2") : Accent ? "#EEF1FF" : "#FDF2F2") : new LinearGradientBrush
+        BorderBrush = Available.HasValue ? availabilityBorder : Theme.Brush(Translucent ? "#29FFFFFF" : Primary ? "#00FFFFFF" : Destructive ? "#F1BABA" : Accent ? "#D7DDFB" : focused ? "#2F46E2" : hot ? "#C9CED6" : "#E2E5EA");
+        Background = Available.HasValue ? availabilitySurface : Translucent ? translucentSurface : Primary || Accent || Destructive ? Theme.Brush(Primary ? (focused ? "#2438C4" : "#2F46E2") : Accent ? "#EEF1FF" : "#FDF2F2") : new LinearGradientBrush
         { StartPoint = new(0, 0), EndPoint = new(0, 1), GradientStops = { new() { Color = Microsoft.UI.Colors.White }, new() { Color = Theme.Brush("#F3F4F6").Color, Offset = 1 } } };
-        Opacity = !IsEnabled ? .5 : pressed ? .85 : 1;
+        if (Available is { } ready)
+        {
+            LoginMotion.Color(this, availabilityForeground, ready ? "#15803D" : "#DC2626");
+            LoginMotion.Color(this, availabilityBorder, ready ? hot || focused ? "#8015803D" : "#4715803D" : hot || focused ? "#80DC2626" : "#47DC2626");
+            LoginMotion.Color(this, availabilitySurface, ready ? hot ? "#DCFCE7" : "#F0FDF4" : hot ? "#FDE8E8" : "#FDF2F2");
+            LoginMotion.Opacity(this, !IsEnabled ? .5 : pressed ? .85 : 1);
+        }
+        else if (Translucent)
+        {
+            LoginMotion.Color(this, translucentSurface, hot ? "#563C3C3C" : "#47000000");
+            LoginMotion.Opacity(this, !IsEnabled ? .5 : pressed ? .85 : 1);
+        }
+        else Opacity = !IsEnabled ? .5 : pressed ? .85 : 1;
         if (Text.Length > 0 && string.IsNullOrEmpty(AutomationProperties.GetName(this))) AutomationProperties.SetName(this, Text);
     }
 }

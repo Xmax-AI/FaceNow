@@ -20,6 +20,7 @@ public sealed class UserRepository(IAccountApi api, IAccountStorage storage) : I
     public bool HasVerifiedSession => State == SessionState.Verified && Profile is not null;
     public bool CanAccessHome => State != SessionState.SignedOut && credential is not null;
     public double? RemainingCredits { get; private set; }
+    public bool HasInsufficientCredits => CreditPolicy.IsInsufficient(RemainingCredits);
     public string? Notice { get; private set; }
     public string DisplayName => Profile?.DisplayName ?? "Account";
     public string? SessionApiKeySuffix => credential is { Kind: CredentialKind.ApiKey, Value.Length: > 4 }
@@ -166,6 +167,13 @@ public sealed class UserRepository(IAccountApi api, IAccountStorage storage) : I
         if (!HasVerifiedSession) throw new AccountException("Please wait for your account to be verified, or sign in again.");
         return Keys.FirstOrDefault(item => item.Uid == SelectedKeyUid && item.IsActiveFor(Profile!.Identity))?.ApiKey
             ?? throw new AccountException("Choose or create an API key in API key settings before starting.");
+    }
+
+    /// <summary>Checks cached balance only; camera startup must not request billing data.</summary>
+    public void EnsureSufficientCredits()
+    {
+        if (HasInsufficientCredits)
+            throw new AccountException(CreditPolicy.InsufficientMessage, CreditPolicy.InsufficientCode);
     }
 
     public void SelectKey(string uid)
