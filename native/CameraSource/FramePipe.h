@@ -9,6 +9,7 @@ class FramePipe {
     wil::unique_hfile pipe;
     wil::unique_handle event{CreateEventW(nullptr, TRUE, FALSE, nullptr)};
     std::wstring name;
+    std::wstring symbolicLink;
     std::vector<BYTE> pixels;
     ULONGLONG retryAt = 0;
     FaceNowFrames::Header header{};
@@ -29,11 +30,18 @@ class FramePipe {
         UINT32 characters = 0;
         HRESULT result = sourceAttributes ? sourceAttributes->GetAllocatedString(
             MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, &link, &characters) : E_POINTER;
-        if (FAILED(result)) { Record(L"name-missing", static_cast<DWORD>(result)); return; }
+        if (FAILED(result)) {
+            pipe.reset(); name.clear(); symbolicLink.clear();
+            Record(L"name-missing", static_cast<DWORD>(result)); return;
+        }
+        if (symbolicLink == link.get() && (pipe || GetTickCount64() < retryAt)) return;
         auto next = FaceNowFrames::PipeName(link.get());
         if (next.empty()) { Record(L"name-hash", GetLastError()); return; }
-        if (next != name) { pipe.reset(); name = std::move(next); retryAt = 0; }
-        Record(L"name-ready", ERROR_SUCCESS);
+        symbolicLink = link.get();
+        if (next != name) {
+            pipe.reset(); name = std::move(next); retryAt = 0;
+            Record(L"name-ready", ERROR_SUCCESS);
+        }
     }
 
     bool Transfer(void* data, DWORD size, bool write, ULONGLONG deadline) {
@@ -69,8 +77,9 @@ public:
     bool Draw(BYTE* output, DWORD length, LONG pitch, UINT width, UINT height) {
         outputPitch = pitch; outputWidth = width; outputHeight = height;
         if (!describedBuffer) { SourceDiagnostic(L"buffer", ERROR_SUCCESS, pitch, width, height, name); describedBuffer = true; }
-        // The pipeline can populate source attributes after activation/start.
-        if (name.empty()) ResolveName();
+        // Frame Server may replace an existing activation link after Initialize.
+        // Keep reading the shared attributes; a nonempty early link is not final.
+        ResolveName();
         if (name.empty() || !event) return false;
         if (!output || !FaceNowFrames::BgraLayoutFits(width, height, pitch, length)) { Record(L"buffer-invalid", ERROR_INVALID_PARAMETER); return false; }
         auto fail = [&] { pipe.reset(); retryAt = GetTickCount64() + 250; return false; };

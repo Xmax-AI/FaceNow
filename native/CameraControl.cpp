@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include "Identity.h"
+#include "FrameProtocol.h"
 
 using Microsoft::WRL::ComPtr;
 namespace fs = std::filesystem;
@@ -231,6 +232,11 @@ int wmain(int argc, wchar_t** argv) {
         else if (command == L"--self-test" || command == L"--verify") Verify(command == L"--self-test", argc > 2 ? fs::path(argv[2]) : fs::path());
         // Offline integration test: instantiate only the sibling DLL, with no device registration.
         else if (command == L"--self-test-relay" && argc == 4) Verify(true, fs::path(argv[3]), argv[2]);
+        else if (command == L"--self-test-relay-capture" && argc == 4) {
+            auto capture = FaceNowFrames::DeviceInterfaceLink(argv[2], FaceNowFrames::CaptureCategory);
+            if (_wcsicmp(capture.c_str(), argv[2]) == 0) throw Failure{MF_E_NOT_FOUND,"resolve DirectShow camera interface"};
+            Verify(true, fs::path(argv[3]), capture);
+        }
         else throw Failure{E_INVALIDARG,"unknown camera command"};
     } catch (const Failure& error) {
         std::cerr << "{\"error\":\"" << error.operation << "\",\"hresult\":\"0x" << std::hex << (unsigned long)error.code << "\"}\n"; result = 1;

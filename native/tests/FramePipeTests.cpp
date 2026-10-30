@@ -34,7 +34,7 @@ static bool Transfer(HANDLE pipe, void* data, DWORD size, bool writing) {
     return true;
 }
 
-static void Verify(bool bottomUp, bool lateAttributes, UINT sourceWidth, UINT sourceHeight) {
+static void Verify(bool bottomUp, bool lateAttributes, UINT sourceWidth, UINT sourceHeight, bool replacedAttributes = false) {
     static unsigned test = 0;
     std::wstring link = L"FaceNow-test-" + std::to_wstring(GetCurrentProcessId()) + L"-" + std::to_wstring(++test);
     auto name = FaceNowFrames::PipeName(link);
@@ -69,9 +69,10 @@ static void Verify(bool bottomUp, bool lateAttributes, UINT sourceWidth, UINT so
     struct Join { std::thread& value; ~Join() { if (value.joinable()) value.join(); } } join{worker};
     wil::com_ptr_nothrow<IMFAttributes> attributes;
     Check(SUCCEEDED(MFCreateAttributes(&attributes, 1)), "Could not create source attributes.");
-    if (!lateAttributes) attributes->SetString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, link.c_str());
+    if (!lateAttributes) attributes->SetString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK,
+        replacedAttributes ? (link + L"-activation").c_str() : link.c_str());
     FramePipe frames; frames.Configure(attributes.get());
-    if (lateAttributes) attributes->SetString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, link.c_str());
+    if (lateAttributes || replacedAttributes) attributes->SetString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, link.c_str());
     constexpr UINT width = 1920, height = 1080, pitch = width + 4;
     std::vector<uint32_t> pixels(size_t(pitch) * height + 8, 0xdeadbeef);
     auto scanline0 = pixels.data() + (bottomUp ? size_t(height - 1) * pitch : 0);
@@ -91,7 +92,7 @@ static void Verify(bool bottomUp, bool lateAttributes, UINT sourceWidth, UINT so
     }
     for (size_t i = size_t(pitch) * height; i < pixels.size(); ++i) Check(pixels[i] == 0xdeadbeef, "Output overrun.");
     std::cout << "PASS real pipe " << sourceWidth << 'x' << sourceHeight << (bottomUp ? " bottom-up" : " top-down")
-        << (lateAttributes ? " late attributes" : " initial attributes") << '\n';
+        << (replacedAttributes ? " replaced activation attributes" : lateAttributes ? " late attributes" : " initial attributes") << '\n';
 }
 
 int main() {
@@ -103,6 +104,8 @@ int main() {
         Verify(true, false, 1920, 1080);
         Verify(true, false, 1728, 972);
         Verify(false, true, 1728, 972);
+        Verify(false, false, 1920, 1080, true);
+        Verify(true, false, 1728, 972, true);
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; result = 1; }
     CoUninitialize(); return result;
 }

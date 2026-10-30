@@ -19,13 +19,13 @@ foreach ($arch in $Architectures) {
     $commands = @(
         "@call `"$devcmd`" -no_logo -arch=$arch -host_arch=x64",
         "@cd /d `"$out`"",
-        "cl $flags $includes /LD $($files -join ' ') /link /DEF:`"$source/VirtualCameraMediaSource.def`" /OUT:FaceNow.CameraSource.dll mf.lib mfplat.lib mfuuid.lib mfsensorgroup.lib windowsapp.lib ole32.lib advapi32.lib crypt32.lib",
+        "cl $flags $includes /LD $($files -join ' ') /link /DEF:`"$source/VirtualCameraMediaSource.def`" /OUT:FaceNow.CameraSource.dll mf.lib mfplat.lib mfuuid.lib mfsensorgroup.lib windowsapp.lib ole32.lib advapi32.lib crypt32.lib cfgmgr32.lib",
         '@if errorlevel 1 exit /b 1',
-        "cl $flags /I`"$repo/native`" `"$repo/native/CameraControl.cpp`" /link /OUT:FaceNow.CameraControl.exe mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib ole32.lib advapi32.lib shell32.lib crypt32.lib",
+        "cl $flags /I`"$repo/native`" `"$repo/native/CameraControl.cpp`" /link /OUT:FaceNow.CameraControl.exe mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib ole32.lib advapi32.lib shell32.lib crypt32.lib cfgmgr32.lib",
         '@if errorlevel 1 exit /b 1',
         "cl $flags `"$repo/native/tests/CenterFillTests.cpp`" /link /OUT:FaceNow.FrameScalingTests.exe",
         '@if errorlevel 1 exit /b 1',
-        "cl $flags $includes `"$repo/native/tests/FramePipeTests.cpp`" /link /OUT:FaceNow.FramePipeTests.exe mfplat.lib mfuuid.lib ole32.lib advapi32.lib crypt32.lib",
+        "cl $flags $includes `"$repo/native/tests/FramePipeTests.cpp`" /link /OUT:FaceNow.FramePipeTests.exe mfplat.lib mfuuid.lib ole32.lib advapi32.lib crypt32.lib cfgmgr32.lib",
         '@if errorlevel 1 exit /b 1'
     )
     $batch = Join-Path $out 'build.cmd'

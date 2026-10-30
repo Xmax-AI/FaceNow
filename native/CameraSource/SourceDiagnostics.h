@@ -9,7 +9,7 @@ inline void SourceDiagnostic(const wchar_t* stage, DWORD code, LONG pitch, UINT 
     const std::wstring& pipeName) {
     wchar_t message[512]{};
     const auto endpoint = pipeName.size() >= 16 ? pipeName.substr(pipeName.size() - 16) : L"none";
-    swprintf_s(message, L"FaceNow source build=20261029.1 pid=%lu stage=%s code=0x%08lX pitch=%ld size=%ux%u endpoint=%s",
+    swprintf_s(message, L"FaceNow source build=20261030.2 pid=%lu stage=%s code=0x%08lX pitch=%ld size=%ux%u endpoint=%s",
         GetCurrentProcessId(), stage, code, pitch, width, height, endpoint.c_str());
     OutputDebugStringW(message);
     if (auto log = RegisterEventSourceW(nullptr, L"FaceNow.CameraSource")) {
