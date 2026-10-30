@@ -656,13 +656,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Click “Open System Settings” in the bottom-right corner, then enable the FaceNow camera extension. Return to FaceNow when you are done."
+            "value" : "Click “Open System Settings” in the bottom-right corner, turn on the switch next to FaceNow, then click “Done”. Return to FaceNow to check the connection automatically."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点击右下角的“打开系统设置”，启用 FaceNow 相机扩展，完成后返回 FaceNow。"
+            "value" : "点击右下角的“打开系统设置”，打开 FaceNow 旁的开关，然后点击“完成”。返回 FaceNow 后会自动检查连接。"
           }
         }
       }
@@ -692,13 +692,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Click “Open System Settings” in the bottom-right corner and remove the previous FaceNow camera extension. Follow any macOS request to restart, then reopen FaceNow. Setup will continue after removal is confirmed."
+            "value" : "Click “Open System Settings” in the bottom-right corner. In Camera Extensions, remove the previous FaceNow extension, then return to FaceNow. Installation will continue automatically once removal is confirmed."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点击右下角的“打开系统设置”，移除旧的 FaceNow 相机扩展。如 macOS 要求重新启动，请按系统提示操作，然后重新打开 FaceNow。确认移除后，设置将继续。"
+            "value" : "点击右下角的“打开系统设置”，在“相机扩展”中移除旧的 FaceNow 扩展，然后返回 FaceNow。确认移除后，安装流程会自动继续。"
           }
         }
       }
@@ -746,13 +746,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Click “Open System Settings” in the bottom-right corner. Under General → Login Items & Extensions → Camera Extensions, turn FaceNow off, then back on. Return to FaceNow to check the connection automatically."
+            "value" : "Click “Open System Settings” in the bottom-right corner. In Camera Extensions, turn the switch next to FaceNow off, then back on. Return to FaceNow to check the connection automatically."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点击右下角的“打开系统设置”。在“通用 → 登录项与扩展 → 相机扩展”中，将 FaceNow 关闭后重新开启。返回 FaceNow 后会自动检查连接。"
+            "value" : "点击右下角的“打开系统设置”，在“相机扩展”中将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。"
           }
         }
       }
@@ -1430,13 +1430,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Turn on the switch next to FaceNow under Login Items & Extensions → Camera Extensions, then click “Done”."
+            "value" : "In Camera Extensions, turn on the switch next to FaceNow, then click “Done”."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在“登录项与扩展 → 相机扩展”中，打开 FaceNow 旁的开关，然后点击“完成”。"
+            "value" : "在“相机扩展”中，打开 FaceNow 旁的开关，然后点击“完成”。"
           }
         }
       }

@@ -173,7 +173,7 @@ enum OnboardingStrings {
             "guide.explanation.manual_removal",
             table: "Onboarding",
             defaultValue:
-                "Click “Open System Settings” in the bottom-right corner and remove the previous FaceNow camera extension. Follow any macOS request to restart, then reopen FaceNow. Setup will continue after removal is confirmed."
+                "Click “Open System Settings” in the bottom-right corner. In Camera Extensions, remove the previous FaceNow extension, then return to FaceNow. Installation will continue automatically once removal is confirmed."
         )
     }
 
@@ -230,7 +230,7 @@ enum OnboardingStrings {
             "guide.explanation.publication_recovery",
             table: "Onboarding",
             defaultValue:
-                "Click “Open System Settings” in the bottom-right corner. Under General → Login Items & Extensions → Camera Extensions, turn FaceNow off, then back on. Return to FaceNow to check the connection automatically."
+                "Click “Open System Settings” in the bottom-right corner. In Camera Extensions, turn the switch next to FaceNow off, then back on. Return to FaceNow to check the connection automatically."
         )
     }
 
@@ -260,7 +260,7 @@ enum OnboardingStrings {
             "guide.explanation.enable_extension",
             table: "Onboarding",
             defaultValue:
-                "Click “Open System Settings” in the bottom-right corner, then enable the FaceNow camera extension. Return to FaceNow when you are done."
+                "Click “Open System Settings” in the bottom-right corner, turn on the switch next to FaceNow, then click “Done”. Return to FaceNow to check the connection automatically."
         )
     }
 
@@ -939,7 +939,7 @@ enum OnboardingStrings {
             "guide.turn_on_the_switch_next_to_facenow_under_login",
             table: "Onboarding",
             defaultValue:
-                "Turn on the switch next to FaceNow under Login Items & Extensions → Camera Extensions, then click “Done”."
+                "In Camera Extensions, turn on the switch next to FaceNow, then click “Done”."
         )
     }
 

@@ -317,6 +317,7 @@ final class OnboardingGuideView: Canvas {
         illustration.update(
             step: repo.step,
             explanation: model.preparationExplanation,
+            showsCameraPermissionPrompt: !model.needsCameraSettings,
             virtualCameraPages: model.virtualCameraGuidePages
         )
         let controls: [NSControl] =
@@ -673,6 +674,7 @@ private final class OnboardingIllustrationView: Canvas {
     func update(
         step: OnboardingRepository.Step,
         explanation: String,
+        showsCameraPermissionPrompt: Bool,
         virtualCameraPages: [OnboardingFlowViewModel.VirtualCameraGuidePage]
     ) {
         if step == .virtualCamera {
@@ -685,9 +687,10 @@ private final class OnboardingIllustrationView: Canvas {
             showsScreenshots = false
         }
         screenshots.isHidden = !showsScreenshots
-        cameraScreenshot.isHidden = step != .camera
+        let showsCameraScreenshot = step == .camera && showsCameraPermissionPrompt
+        cameraScreenshot.isHidden = !showsCameraScreenshot
         videoCalls.isHidden = step != .videoCalls
-        self.explanation.isHidden = showsScreenshots || step == .camera || step == .videoCalls
+        self.explanation.isHidden = showsScreenshots || showsCameraScreenshot || step == .videoCalls
         if step != .videoCalls { self.explanation.update(explanation) }
     }
 }

@@ -643,10 +643,20 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         }
     }
 
-    /// Opens the system extension settings without changing system preferences.
+    /// Targets Camera Extensions directly, with a fallback for unavailable settings destinations.
     func openSettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
-            NSWorkspace.shared.open(url)
+        let destinations: [String]
+        if #available(macOS 15, *) {
+            destinations = [
+                "x-apple.systempreferences:com.apple.ExtensionsPreferences?extensionPointIdentifier=com.apple.system_extension.cmio.extension-point",
+                "x-apple.systempreferences:com.apple.LoginItems-Settings.extension?ExtensionItems",
+                "x-apple.systempreferences:com.apple.LoginItems-Settings.extension",
+            ]
+        } else {
+            destinations = ["x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension"]
+        }
+        for destination in destinations {
+            if let url = URL(string: destination), NSWorkspace.shared.open(url) { return }
         }
     }
 
