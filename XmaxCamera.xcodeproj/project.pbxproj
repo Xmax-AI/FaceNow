@@ -320,8 +320,8 @@
 		019CEB76A617A3B3A3234E61 /* Embed System Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Library/SystemExtensions";
-			dstSubfolderSpec = 16;
+			dstPath = "Contents/Library/SystemExtensions";
+			dstSubfolderSpec = 1;
 			files = (
 				CABF1B783A4A98E73102C97A /* com.xmax.meeting.camera.extension.systemextension in Embed System Extensions */,
 			);
@@ -331,8 +331,8 @@
 		3FB13E0ECA11B9D27830E2E8 /* Embed System Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Library/SystemExtensions";
-			dstSubfolderSpec = 16;
+			dstPath = "Contents/Library/SystemExtensions";
+			dstSubfolderSpec = 1;
 			files = (
 				0D7D2C3F6ECC4774D07145ED /* com.xmax.meeting.camera.extension.systemextension in Embed System Extensions */,
 			);
@@ -342,8 +342,8 @@
 		C700762CA62801C7BDCBAAF0 /* Embed Camera Probe */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Helpers";
-			dstSubfolderSpec = 16;
+			dstPath = "Contents/Helpers";
+			dstSubfolderSpec = 1;
 			files = (
 				6A0285D8BC45130E5FFEB6D8 /* FaceNowCameraProbe in Embed Camera Probe */,
 			);
@@ -353,8 +353,8 @@
 		ED10A600000000000000000A /* Embed Camera Probe */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Helpers";
-			dstSubfolderSpec = 16;
+			dstPath = "Contents/Helpers";
+			dstSubfolderSpec = 1;
 			files = (
 				ED10A6000000000000000005 /* FaceNowCameraProbe in Embed Camera Probe */,
 			);
@@ -1415,7 +1415,7 @@
 			files = ();
 			inputPaths = (
 				"$(SRCROOT)/Scripts/embed-video-beauty-service.py",
-				"$(BUILT_PRODUCTS_DIR)/XmaxVideoBeautyWorker.xpc",
+				"$(FACENOW_SHARED_PRODUCTS_DIR)/XmaxVideoBeautyWorker.xpc",
 			);
 			name = "Embed Video Beauty Service";
 			outputPaths = (
@@ -1432,7 +1432,7 @@
 			files = ();
 			inputPaths = (
 				"$(SRCROOT)/Scripts/embed-video-beauty-service.py",
-				"$(BUILT_PRODUCTS_DIR)/XmaxVideoBeautyWorker.xpc",
+				"$(FACENOW_SHARED_PRODUCTS_DIR)/XmaxVideoBeautyWorker.xpc",
 			);
 			name = "Embed Video Beauty Service";
 			outputPaths = (
@@ -1734,6 +1734,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 78AA1498C22C85A2313F4FE0 /* Oversea.xcconfig */;
 			buildSettings = {
+				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
+				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
@@ -1930,6 +1932,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 78AA1498C22C85A2313F4FE0 /* Oversea.xcconfig */;
 			buildSettings = {
+				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
+				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
@@ -1953,6 +1957,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
 			buildSettings = {
+				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
+				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
@@ -1988,6 +1994,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
 			buildSettings = {
+				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
+				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;

@@ -18,7 +18,7 @@ def entitlements(bundle):
 
 
 def main():
-    source = Path(os.environ["BUILT_PRODUCTS_DIR"]) / "XmaxVideoBeautyWorker.xpc"
+    source = Path(os.environ["FACENOW_SHARED_PRODUCTS_DIR"]) / "XmaxVideoBeautyWorker.xpc"
     destination = (
         Path(os.environ["TARGET_BUILD_DIR"])
         / os.environ["CONTENTS_FOLDER_PATH"]

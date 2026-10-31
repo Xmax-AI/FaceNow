@@ -13,6 +13,8 @@ CODE_SIGN_STYLE = Automatic
 ENABLE_HARDENED_RUNTIME = YES
 ENABLE_APP_SANDBOX = YES
 REGISTER_APP_GROUPS = YES
+// Keep shared helpers in the standard product directory while app targets use separate subdirectories.
+FACENOW_SHARED_PRODUCTS_DIR = $(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
 // Updates stay stopped until a real HTTPS appcast and public signing key are provided.
 FACENOW_UPDATE_FEED_URL =
 FACENOW_UPDATE_PUBLIC_KEY =
