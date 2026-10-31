@@ -273,6 +273,8 @@
 		ED10B7000000000000000015 /* XmaxVideoBeautyWorkerSupport in Frameworks */ = {isa = PBXBuildFile; productRef = ED10B7000000000000000014 /* XmaxVideoBeautyWorkerSupport */; };
 		ED10B7000000000000000016 /* XmaxVideoBeautyWorker in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = ED10B7000000000000000006 /* XmaxVideoBeautyWorker */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 
+		AE0CA6010000000000000001 /* VirtualCameraWatermark.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0CA6010000000000000003 /* VirtualCameraWatermark.swift */; };
+		AE0CA6010000000000000002 /* VirtualCameraWatermark.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0CA6010000000000000003 /* VirtualCameraWatermark.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -500,6 +502,7 @@
 		ED10B7000000000000000007 /* XmaxVideoBeautyWorker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XmaxVideoBeautyWorker.entitlements; sourceTree = "<group>"; };
 
 		ED10B700000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AE0CA6010000000000000003 /* VirtualCameraWatermark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCameraWatermark.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -571,6 +574,7 @@
 			isa = PBXGroup;
 			children = (
 				75FF43036B661880E70D8F27 /* VirtualCameraOutput.swift */,
+				AE0CA6010000000000000003 /* VirtualCameraWatermark.swift */,
 			);
 			path = Output;
 			sourceTree = "<group>";
@@ -1516,6 +1520,7 @@
 				A2C6F984DD00088DACC2F292 /* UserAPIKeyView.swift in Sources */,
 				A359A2FC562FED3D20368B48 /* VirtualCameraRepository.swift in Sources */,
 				2E8270A051EAEEC64FA48DB0 /* VirtualCameraOutput.swift in Sources */,
+				AE0CA6010000000000000001 /* VirtualCameraWatermark.swift in Sources */,
 				73FBAF4EC46EE76E95FAB9CA /* Button.swift in Sources */,
 				A4FB50B71B60E2DE39CEE943 /* ToolbarButton.swift in Sources */,
 				985208647479F2B1F2A53E79 /* TabSwitcher.swift in Sources */,
@@ -1645,6 +1650,7 @@
 				0B0EA34AE7D986BD7A75F08A /* UserAPIKeyView.swift in Sources */,
 				99B6573E67E21FA86FBDC3A3 /* VirtualCameraRepository.swift in Sources */,
 				6242D52E5ADEF6CCA9A58154 /* VirtualCameraOutput.swift in Sources */,
+				AE0CA6010000000000000002 /* VirtualCameraWatermark.swift in Sources */,
 				280E048362BC11092E9213D7 /* Button.swift in Sources */,
 				1D307D5046E34A578638988E /* ToolbarButton.swift in Sources */,
 				BA487AD8B5D24B8DA417D410 /* TabSwitcher.swift in Sources */,

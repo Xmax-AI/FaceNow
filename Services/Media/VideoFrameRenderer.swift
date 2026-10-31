@@ -37,11 +37,16 @@ final class VideoFrameRenderer {
     /// The neutral offline canvas cached for this output format.
     private let waitingImage: CIImage
 
-    /// Creates a reusable NV12 renderer or reports a CoreVideo allocation failure.
+    /// The caller-supplied artwork cached in output pixel coordinates, applied only to video input.
+    private let overlay: CIImage?
+
+    /// Creates a reusable renderer with optional output-coordinate artwork and a bounded buffer pool.
     init(
-        format: VideoFormat
+        format: VideoFormat,
+        overlay: CGImage? = nil
     ) throws {
         self.format = format
+        self.overlay = overlay.map { CIImage(cgImage: $0) }
         bounds = CGRect(
             x: 0,
             y: 0,
@@ -89,12 +94,13 @@ final class VideoFrameRenderer {
         waitingImage = Self.makeWaitingImage(bounds: bounds)
     }
 
-    /// Reuses compatible SDK buffers; otherwise converts the complete frame without cropping or padding.
+    /// Reuses compatible buffers only without artwork; otherwise normalizes and composites into owned output.
     /// Format matching includes color, aperture and aspect-ratio metadata without modifying the input.
     func normalize(
         _ pixelBuffer: CVPixelBuffer
     ) throws -> CVPixelBuffer {
-        if CVPixelBufferGetWidth(pixelBuffer) == format.width,
+        if overlay == nil,
+            CVPixelBufferGetWidth(pixelBuffer) == format.width,
             CVPixelBufferGetHeight(pixelBuffer) == format.height,
             CVPixelBufferGetPixelFormatType(pixelBuffer) == format.pixelFormat,
             CVPixelBufferGetPlaneCount(pixelBuffer) == 2,
@@ -113,7 +119,7 @@ final class VideoFrameRenderer {
                 y: bounds.height / image.extent.height
             )
         )
-        return try render(resized)
+        return try render(overlay?.composited(over: resized) ?? resized)
     }
 
     /// Returns a blank light-gray offline frame when generated video is unavailable.

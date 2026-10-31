@@ -11,6 +11,7 @@
 @preconcurrency import CoreMediaIO
 @preconcurrency import AVFoundation
 import Foundation
+import CoreGraphics
 import os
 
 /// Produces fixed-rate camera frames without queuing work on the SDK callback thread.
@@ -88,8 +89,10 @@ final class VirtualCameraOutput: @unchecked Sendable {
     private let startState = OSAllocatedUnfairLock(initialState: StartState())
 
     /// Waits for a usable sink and rejects late discovery results after stop or a newer start.
+    /// The caller supplies the localized video badge; diagnostic color bars omit product artwork.
     func start(
-        testPattern: Bool
+        testPattern: Bool,
+        generationCaption: String
     ) async throws {
         let requestID = UUID()
         startState.withLock { state in
@@ -133,7 +136,20 @@ final class VirtualCameraOutput: @unchecked Sendable {
                             }
                             do {
                                 self.stopOnWorker()
-                                let renderer = try VideoFrameRenderer(format: VirtualCameraConfiguration.videoFormat)
+                                let format = VirtualCameraConfiguration.videoFormat
+                                let overlay: CGImage?
+                                if testPattern {
+                                    overlay = nil
+                                } else {
+                                    overlay = try VirtualCameraWatermark.makeImage(
+                                        format: format,
+                                        generationCaption: generationCaption
+                                    )
+                                }
+                                let renderer = try VideoFrameRenderer(
+                                    format: format,
+                                    overlay: overlay
+                                )
                                 self.renderer = renderer
                                 self.waitingBuffer = try renderer.waiting()
                                 let device = sink.device
@@ -190,6 +206,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
             } catch is CancellationError {
                 throw CancellationError()
             } catch let error as RendererError {
+                throw error
+            } catch let error as VirtualCameraWatermark.RenderingError {
                 throw error
             } catch {
                 // The device may be published before its sink accepts a producer connection.

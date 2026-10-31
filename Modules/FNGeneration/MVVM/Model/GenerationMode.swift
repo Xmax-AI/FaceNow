@@ -22,6 +22,9 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
     /// Applies the visual style of a reference image.
     case vibex
 
+    /// Adds a summoned subject while preserving the existing video subjects.
+    case dimx
+
     /// Uses the user's free-form prompt and optional uploaded reference.
     case free
 
@@ -34,16 +37,34 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
         case .charx: GenerationStrings.modeCharacterSwap
         case .clothx: GenerationStrings.modeVirtualTryOn
         case .vibex: GenerationStrings.modeStyleTransfer
+        case .dimx: GenerationStrings.modeSummon
         case .free: GenerationStrings.modeFreePrompt
         }
     }
 
-    /// The default generation prompt, or a per-reference override when present.
+    /// The regional default prompt used when an uploaded reference has no preset override.
     var prompt: String {
         switch self {
-        case .charx: "视频中角色替换成参考图中角色"
-        case .clothx: "视频中人物衣服替换成参考图中衣服"
-        case .vibex: "视频风格变为参考图指定的风格"
+        case .charx:
+            Self.regionalPrompt(
+                chinese: "视频中角色替换成参考图中角色",
+                english: "Become the character in the reference image"
+            )
+        case .clothx:
+            Self.regionalPrompt(
+                chinese: "视频中人物衣服替换成参考图中衣服",
+                english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+            )
+        case .vibex:
+            Self.regionalPrompt(
+                chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景",
+                english: "The reference character performs the motions from the video."
+            )
+        case .dimx:
+            Self.regionalPrompt(
+                chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图角色召唤到视频人物的肩膀上或者手上",
+                english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the reference character onto the shoulder or hand of the person in the video."
+            )
         case .free: ""
         }
     }
@@ -51,439 +72,502 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
     /// Whether the selected mode requests the clothing workflow's face restoration.
     var faceRestoration: Bool { self == .clothx }
 
-    /// The built-in versioned references offered for this mode.
+    /// Matches api-platform-web develop 3e7b9233's X2.1 image references and workbook order.
     var presets: [GenerationReference] {
         switch self {
         case .charx:
             [
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetClassicalGirl,
-                    image: "removed-preset-1.png",
-                    reference: "charx_real_image1.png"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset1,
+                    reference: "removed-preset-1.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetClassicalBoy,
-                    image: "charx_image2.jpeg",
-                    reference: "charx_real_image2.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxCandyGirl,
+                    reference: "charx_image21.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetModernGirl,
-                    image: "charx_image3.png",
-                    reference: "charx_real_image3.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxCuteGirl,
+                    reference: "charx_image2.jpeg",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetModernBoy,
-                    image: "charx_image4.png",
-                    reference: "charx_real_image4.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxSuitedGuy,
+                    reference: "charx_image22.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBlondeGirl,
-                    image: "charx_image5.png",
-                    reference: "charx_real_image5.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxShortHairedCoolGirl,
+                    reference: "charx_image23.jpeg",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetCurlyHairedBoy,
-                    image: "charx_image6.png",
-                    reference: "charx_real_image6.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxDreamyGirl,
+                    reference: "charx_image24.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetAnimeBoy,
-                    image: "charx_image7.png",
-                    reference: "charx_real_image7.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxAnimeGirl,
+                    reference: "charx_image25.jpeg",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetAnimeGirl,
-                    image: "charx_image8.png",
-                    reference: "charx_real_image8.png"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset2,
+                    reference: "removed-preset-4.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.removedLegacyPreset,
-                    image: "removed-preset-6.png",
-                    reference: "removed-legacy-preset.png"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset8,
+                    reference: "removed-preset-5.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBronzeFigure,
-                    image: "removed-preset-2.png",
-                    reference: "charx_real_image10.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset3,
+                    reference: "removed-preset-6.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.removedLegacyPreset,
-                    image: "removed-preset-3.png",
-                    reference: "removed-legacy-preset.png"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset4,
+                    reference: "removed-preset-2.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.removedLegacyPreset,
-                    image: "removed-legacy-preset.png",
-                    reference: "removed-preset-7.png"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset5,
+                    reference: "removed-preset-3.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.preset3DKangaroo,
-                    image: "charx_image13.jpg",
-                    reference: "charx_real_image13.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset6,
+                    reference: "removed-preset-7.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetMechaGirl,
-                    image: "charx_image14.png",
-                    reference: "charx_real_image14.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxCorporateCow,
+                    reference: "charx_image13.jpeg",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.removedLegacyPreset,
-                    image: "removed-legacy-preset.png",
-                    reference: "removed-preset-8.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxMechaGirl,
+                    reference: "charx_image14.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetSpecialOps,
-                    image: "charx_image16.jpeg",
-                    reference: "charx_real_image16.png"
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset7,
+                    reference: "removed-preset-8.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetHumanoidRobot,
-                    image: "charx_image17.png",
-                    reference: "charx_real_image17.jpg"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxHumanoidRobot,
+                    reference: "charx_image16.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetChillCapybara,
-                    image: "charx_image18.jpeg",
-                    reference: "charx_real_image18.jpg"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxSpecialOps,
+                    reference: "charx_real_image17.jpeg",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
                 .preset(
                     .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetGentlePanda,
-                    image: "charx_image19.png",
-                    reference: "charx_real_image19.png"
-                ),
-                .preset(
-                    .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetCuteHamster,
-                    image: "charx_image20.png",
-                    reference: "charx_real_image20.jpg"
-                ),
-                .preset(
-                    .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetIllustratedGirl,
-                    image: "charx_image21.png",
-                    reference: "charx_real_image21.png"
-                ),
-                .preset(
-                    .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetCartoonBoy,
-                    image: "charx_image22.jpeg",
-                    reference: "charx_real_image22.jpeg"
-                ),
-                .preset(
-                    .charx,
-                    version: "20260909",
-                    name: GenerationStrings.removedLegacyPreset,
-                    image: "removed-legacy-preset.png",
-                    reference: "removed-legacy-preset.png"
-                ),
-                .preset(
-                    .charx,
-                    version: "20260909",
-                    name: GenerationStrings.presetCorporateCow,
-                    image: "charx_image24.jpeg",
-                    reference: "charx_real_image24.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.presetCharxCuteHamster,
+                    reference: "charx_image18.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中角色替换成参考图中角色",
+                        english: "Become the character in the reference image"
+                    )
                 ),
             ]
         case .clothx:
             [
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetGildedGoddess,
-                    image: "clothx_image1.png",
-                    reference: "clothx_real_image1.jpg"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxPinkAcademy,
+                    reference: "clothx_image1.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中人物衣服替换成参考图中衣服",
+                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetMonochromeVanguard,
-                    image: "clothx_image2.png",
-                    reference: "clothx_real_image2.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxBlackCollarAcademy,
+                    reference: "clothx_image2.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中人物衣服替换成参考图中衣服",
+                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetSilverFantasyRobe,
-                    image: "clothx_image3.png",
-                    reference: "clothx_real_image3.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxMonochromeVanguard,
+                    reference: "clothx_real_image3.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中人物衣服替换成参考图中衣服",
+                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetNavySailorOutfit,
-                    image: "clothx_image4.png",
-                    reference: "clothx_real_image4.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxVintageBrown,
+                    reference: "clothx_real_image4.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中人物衣服替换成参考图中衣服",
+                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetLongCoatSet,
-                    image: "clothx_image5.png",
-                    reference: "clothx_real_image5.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxSilverFantasyRobe,
+                    reference: "clothx_image5.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中人物衣服替换成参考图中衣服",
+                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetPinkAcademy,
-                    image: "clothx_image6.png",
-                    reference: "clothx_real_image6.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxTopReplacement,
+                    reference: "clothx_image6.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "将参考图的上衣穿到视频人物身上，其他保持不变",
+                        english: "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBronzeWarriorArmor,
-                    image: "clothx_image7.png",
-                    reference: "clothx_real_image7.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxTopReplacement2,
+                    reference: "clothx_image7.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "将参考图的上衣穿到视频人物身上，其他保持不变",
+                        english: "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetVintageBrown,
-                    image: "clothx_image8.png",
-                    reference: "clothx_real_image8.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxBottomsReplacement2,
+                    reference: "clothx_image8.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "将参考图的下装穿到视频人物身上，其他保持不变",
+                        english: "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBlackCollarAcademy,
-                    image: "clothx_image9.png",
-                    reference: "clothx_real_image9.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxBottomsReplacement,
+                    reference: "clothx_real_image9.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "将参考图的下装穿到视频人物身上，其他保持不变",
+                        english: "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBluePlaidAcademy,
-                    image: "clothx_image10.png",
-                    reference: "clothx_real_image10.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxNavySailorOutfit,
+                    reference: "clothx_real_image10.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "视频中人物衣服替换成参考图中衣服",
+                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBlackPinafore,
-                    image: "clothx_image11.png",
-                    reference: "clothx_real_image11.jpeg"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxBaseballCap,
+                    reference: "clothx_image11.jpeg",
+                    prompt: Self.regionalPrompt(
+                        chinese: "将参考图棒球帽应用到视频角色身上",
+                        english: "Apply the cap from the reference image to the video character."
+                    )
                 ),
                 .preset(
                     .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetCoffeeCardigan,
-                    image: "clothx_image12.png",
-                    reference: "clothx_real_image12.jpeg"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetLilacSlipDress,
-                    image: "clothx_image13.png",
-                    reference: "clothx_real_image13.jpeg"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetMagentaTechwear,
-                    image: "clothx_image14.png",
-                    reference: "clothx_real_image14.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetLuxurySuit,
-                    image: "clothx_image15.png",
-                    reference: "clothx_real_image15.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetNavyOfficewear,
-                    image: "clothx_image16.png",
-                    reference: "clothx_real_image16.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBurgundyStripes,
-                    image: "clothx_image17.png",
-                    reference: "clothx_real_image17.jpeg"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetLightBlueSportswear,
-                    image: "clothx_image18.png",
-                    reference: "clothx_real_image18.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetSilverCasualwear,
-                    image: "clothx_image19.png",
-                    reference: "clothx_real_image19.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBritishBrownPlaid,
-                    image: "clothx_image20.png",
-                    reference: "clothx_real_image20.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBlueAndWhiteRetro,
-                    image: "clothx_image21.png",
-                    reference: "clothx_real_image21.jpeg"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetAllDenimOutfit,
-                    image: "clothx_image22.png",
-                    reference: "clothx_real_image22.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetGrayEveningwear,
-                    image: "clothx_image23.png",
-                    reference: "clothx_real_image23.png"
-                ),
-                .preset(
-                    .clothx,
-                    version: "20260909",
-                    name: GenerationStrings.presetBlackClassicalRobe,
-                    image: "clothx_image24.png",
-                    reference: "clothx_real_image24.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetClothxSunglasses,
+                    reference: "clothx_image12.jpeg",
+                    prompt: Self.regionalPrompt(
+                        chinese: "将参考图眼镜应用到视频角色身上",
+                        english: "Apply the glasses from the reference image to the video character."
+                    )
                 ),
             ]
         case .vibex:
             [
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetAmericanCartoon,
-                    image: "vibex_image1.jpg",
-                    reference: "vibex_real_image1.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibexAmericanCartoon,
+                    reference: "vibex_real_image1.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
                 ),
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.preset3DCartoon,
-                    image: "vibex_image2.jpg",
-                    reference: "vibex_real_image2.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibexPhotorealisticPortrait,
+                    reference: "vibex_real_image2.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
                 ),
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetSchoolAnime,
-                    image: "vibex_image3.jpg",
-                    reference: "vibex_real_image3.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibexHellMeme,
+                    reference: "vibex_real_image3.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
                 ),
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetUrbanAnime,
-                    image: "vibex_image4.jpg",
-                    reference: "vibex_real_image4.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibexSentaiTokusatsu,
+                    reference: "vibex_real_image4.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
                 ),
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetJapaneseAnime,
-                    image: "vibex_image5.jpg",
-                    reference: "vibex_real_image5.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibexRealisticAnimals,
+                    reference: "vibex_real_image5.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
                 ),
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetRealisticAnimals,
-                    image: "vibex_image9.png",
-                    reference: "vibex_real_image9.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibex3dCartoon,
+                    reference: "vibex_real_image6.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
                 ),
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetDesignerToy,
-                    image: "vibex_image10.png",
-                    reference: "vibex_real_image10.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibexDesignerToy,
+                    reference: "vibex_real_image7.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
                 ),
                 .preset(
                     .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetAnthropomorphic,
-                    image: "vibex_image15.jpeg",
-                    reference: "vibex_real_image15.png"
+                    version: "20261030",
+                    name: GenerationStrings.presetVibexSurrealism,
+                    reference: "vibex_real_image8.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+                        english: "The reference character performs the motions from the video."
+                    )
+                ),
+            ]
+        case .dimx:
+            [
+                .promptPreset(
+                    .dimx,
+                    id: "dimx-little-dog",
+                    name: GenerationStrings.presetDimxLittleDog,
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤一只小狗到人的肩膀上",
+                        english: "Summon a small dog onto the person's shoulder."
+                    )
+                ),
+                .promptPreset(
+                    .dimx,
+                    id: "dimx-little-mouse",
+                    name: GenerationStrings.presetDimxLittleMouse,
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤一只小老鼠到人物肩膀上",
+                        english: "Summon a little mouse onto the person's shoulder."
+                    )
                 ),
                 .preset(
-                    .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetSurrealism,
-                    image: "vibex_image17.png",
-                    reference: "vibex_real_image17.png"
+                    .dimx,
+                    version: "20261030",
+                    name: GenerationStrings.presetDimxPenguinPlushie,
+                    reference: "dimx_image3.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                    )
                 ),
                 .preset(
-                    .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetDisneyStyle,
-                    image: "vibex_image18.png",
-                    reference: "vibex_real_image18.png"
+                    .dimx,
+                    version: "20261030",
+                    name: GenerationStrings.presetDimxFluffyBunny,
+                    reference: "dimx_image4.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                    )
                 ),
                 .preset(
-                    .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetCelShading,
-                    image: "vibex_image19.png",
-                    reference: "vibex_real_image19.png"
+                    .dimx,
+                    version: "20261030",
+                    name: GenerationStrings.presetDimxCreamKitten,
+                    reference: "dimx_image5.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                    )
                 ),
                 .preset(
-                    .vibex,
-                    version: "20260911",
-                    name: GenerationStrings.presetJapaneseAnimation,
-                    image: "vibex_image21.png",
-                    reference: "vibex_real_image21.png"
+                    .dimx,
+                    version: "20261030",
+                    name: GenerationStrings.removedPreset9,
+                    reference: "removed-preset-9.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                    )
+                ),
+                .preset(
+                    .dimx,
+                    version: "20261030",
+                    name: GenerationStrings.presetDimxCowPlushie,
+                    reference: "dimx_image7.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                    )
+                ),
+                .preset(
+                    .dimx,
+                    version: "20261030",
+                    name: GenerationStrings.presetDimxHelloKitty,
+                    reference: "dimx_image8.png",
+                    prompt: Self.regionalPrompt(
+                        chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                    )
                 ),
             ]
         case .free: []
         }
+    }
+
+    /// Mirrors Playground's regional built-in prompts; user-authored prompts bypass this selection.
+    private static func regionalPrompt(
+        chinese: String,
+        english: String
+    ) -> String {
+        #if OVERSEA
+            return english
+        #else
+            return chinese
+        #endif
     }
 }

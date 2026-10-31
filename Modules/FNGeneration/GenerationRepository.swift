@@ -117,8 +117,8 @@ final class GenerationRepository: ObservableObject {
         redness: 0
     )
 
-    /// The saved result beauty preference, enabled by default for new installations.
-    @Published private(set) var beautyEnabled = true
+    /// The saved result beauty preference, disabled by default for new installations.
+    @Published private(set) var beautyEnabled = false
 
     /// The editable strengths shared by result preview and virtual-camera output.
     @Published private(set) var beautyOptions = GenerationRepository.defaultBeautyOptions
@@ -209,7 +209,7 @@ final class GenerationRepository: ObservableObject {
         self.uploadImage = uploadImage
         if let user { self.userRepo = user }
         let defaults = UserDefaults.standard
-        beautyEnabled = defaults.object(forKey: "generation.beauty.enabled") as? Bool ?? true
+        beautyEnabled = defaults.object(forKey: "generation.beauty.enabled") as? Bool ?? false
         let saved = defaults.dictionary(forKey: "generation.beauty.options") ?? [:]
         func strength(_ key: String, fallback: Float) -> Float {
             guard let value = saved[key] as? NSNumber, value.floatValue.isFinite else { return fallback }
@@ -280,7 +280,10 @@ final class GenerationRepository: ObservableObject {
         await cleanup?.value
         guard lifecycleID == operation else { return }
         do {
-            try await output.start(testPattern: true)
+            try await output.start(
+                testPattern: true,
+                generationCaption: GenerationStrings.controlsResult
+            )
             guard lifecycleID == operation else { return }
             testPatternActive = true
             isBusy = false
@@ -481,7 +484,10 @@ final class GenerationRepository: ObservableObject {
             let startedAt = ContinuousClock.now
             do {
                 try Task.checkCancellation()
-                try await output.start(testPattern: false)
+                try await output.start(
+                    testPattern: false,
+                    generationCaption: GenerationStrings.controlsResult
+                )
                 try Task.checkCancellation()
                 guard let self, self.lifecycleID == operation else { return }
                 output.frames.reset(producer: operation)
@@ -527,7 +533,7 @@ final class GenerationRepository: ObservableObject {
             id: freeReference?.id ?? UUID().uuidString,
             mode: .free,
             name: "",
-            thumbnailURL: freeReference?.thumbnailURL ?? URL(fileURLWithPath: "/"),
+            thumbnailURL: freeReference?.thumbnailURL,
             referencePath: freeReference?.referencePath ?? "",
             prompt: prompt
         )

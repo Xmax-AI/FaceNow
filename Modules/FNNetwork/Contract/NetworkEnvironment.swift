@@ -36,6 +36,14 @@ public enum NetworkEnvironment: String, CaseIterable, Equatable, Sendable {
         }
     }
 
+    /// The media CDN used by the matching Playground deployment.
+    public var assetBaseURL: URL {
+        switch self {
+        case .china: URL(string: "https://cdn.22duck.cn")!
+        case .global: URL(string: "https://cdn.xmax.ai")!
+        }
+    }
+
     /// The public website opened by the regional application.
     public var websiteURL: URL {
         switch self {

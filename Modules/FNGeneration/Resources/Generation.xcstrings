@@ -410,7 +410,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "AI 生成"
+            "value": "AI生成"
           }
         }
       }
@@ -721,6 +721,24 @@
         }
       }
     },
+    "mode.summon": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Summon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟召唤"
+          }
+        }
+      }
+    },
     "mode.virtual_try_on": {
       "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
       "extractionState": "manual",
@@ -739,62 +757,26 @@
         }
       }
     },
-    "preset.3d_cartoon": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_3d_cow": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "3D Cartoon"
+            "value": "removed preset 2"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "3D 卡通"
+            "value": "removed preset 4"
           }
         }
       }
     },
-    "preset.3d_cow": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3D 奶牛"
-          }
-        }
-      }
-    },
-    "preset.3d_kangaroo": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3D Kangaroo"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3D 袋鼠"
-          }
-        }
-      }
-    },
-    "preset.3d_milk_frog": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_3d_milk_frog": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -806,85 +788,31 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "removed preset"
+            "value": "removed preset 3"
           }
         }
       }
     },
-    "preset.alien_kitty": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_alien_kitty": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "removed preset"
+            "value": "removed preset 5"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "removed preset"
+            "value": "removed preset 13"
           }
         }
       }
     },
-    "preset.all_denim_outfit": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All-Denim Outfit"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "牛仔套装"
-          }
-        }
-      }
-    },
-    "preset.american_cartoon": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "American Cartoon"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "美式卡通"
-          }
-        }
-      }
-    },
-    "preset.anime_boy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Anime Boy"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "动漫男生"
-          }
-        }
-      }
-    },
-    "preset.anime_girl": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_anime_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -896,211 +824,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "动漫女生"
+            "value": "动漫少女"
           }
         }
       }
     },
-    "preset.anthropomorphic": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Anthropomorphic"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "拟人角色"
-          }
-        }
-      }
-    },
-    "preset.black_classical_robe": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Black Classical Robe"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "黑色古典长袍"
-          }
-        }
-      }
-    },
-    "preset.black_collar_academy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Black-Collar Academy"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "黑领学院风"
-          }
-        }
-      }
-    },
-    "preset.black_pinafore": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Black Pinafore"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "黑色背带裙"
-          }
-        }
-      }
-    },
-    "preset.blonde_girl": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blonde Girl"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "金发女孩"
-          }
-        }
-      }
-    },
-    "preset.blue_and_white_retro": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blue and White Retro"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "蓝白复古风"
-          }
-        }
-      }
-    },
-    "preset.blue_plaid_academy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blue Plaid Academy"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "蓝格学院风"
-          }
-        }
-      }
-    },
-    "preset.british_brown_plaid": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "British Brown Plaid"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "英伦棕格"
-          }
-        }
-      }
-    },
-    "preset.bronze_figure": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bronze Figure"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "青铜人像"
-          }
-        }
-      }
-    },
-    "preset.bronze_warrior_armor": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bronze Warrior Armor"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "青铜战甲"
-          }
-        }
-      }
-    },
-    "preset.burgundy_stripes": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Burgundy Stripes"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "酒红条纹"
-          }
-        }
-      }
-    },
-    "preset.business_milk_frog": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_business_milk_frog": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1112,265 +842,121 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "removed preset"
+            "value": "removed preset 12"
           }
         }
       }
     },
-    "preset.cartoon_boy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_candy_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cartoon Boy"
+            "value": "Candy Girl"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "卡通男孩"
+            "value": "糖果少女"
           }
         }
       }
     },
-    "preset.cel_shading": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_corporate_cow": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cel Shading"
+            "value": "Chosen Workhorse"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "赛璐璐风格"
+            "value": "天选牛马"
           }
         }
       }
     },
-    "preset.chill_capybara": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_cute_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chill Capybara"
+            "value": "Cute Girl"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "悠闲水豚"
+            "value": "大眼萌妹"
           }
         }
       }
     },
-    "preset.classical_boy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_cute_hamster": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Classical Boy"
+            "value": "Adorable Hamster"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "古风少年"
+            "value": "呆萌仓鼠"
           }
         }
       }
     },
-    "preset.classical_girl": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_dreamy_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Classical Girl"
+            "value": "Dreamy Girl"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "古风少女"
+            "value": "唯美少女"
           }
         }
       }
     },
-    "preset.coffee_cardigan": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_elon_musk": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Coffee Cardigan"
+            "value": "removed preset 7"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "咖色针织开衫"
+            "value": "removed preset 17"
           }
         }
       }
     },
-    "preset.corporate_cow": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Corporate Cow"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "职场奶牛"
-          }
-        }
-      }
-    },
-    "preset.curly_haired_boy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Curly-Haired Boy"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "卷发男生"
-          }
-        }
-      }
-    },
-    "preset.cute_hamster": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cute Hamster"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可爱仓鼠"
-          }
-        }
-      }
-    },
-    "preset.designer_toy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Designer Toy"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "潮流玩偶"
-          }
-        }
-      }
-    },
-    "preset.disney_style": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disney Style"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disney 风格"
-          }
-        }
-      }
-    },
-    "preset.gentle_panda": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gentle Panda"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "温柔熊猫"
-          }
-        }
-      }
-    },
-    "preset.gilded_goddess": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gilded Goddess"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "鎏金女神"
-          }
-        }
-      }
-    },
-    "preset.gray_eveningwear": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gray Eveningwear"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "灰色晚礼服"
-          }
-        }
-      }
-    },
-    "preset.humanoid_robot": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_humanoid_robot": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1382,157 +968,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "人形机器人"
+            "value": "人形机器"
           }
         }
       }
     },
-    "preset.illustrated_girl": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Illustrated Girl"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "插画少女"
-          }
-        }
-      }
-    },
-    "preset.japanese_animation": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Japanese Animation"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "日式动画"
-          }
-        }
-      }
-    },
-    "preset.japanese_anime": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Japanese Anime"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "日式动漫"
-          }
-        }
-      }
-    },
-    "preset.light_blue_sportswear": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Light Blue Sportswear"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "浅蓝运动装"
-          }
-        }
-      }
-    },
-    "preset.lilac_slip_dress": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lilac Slip Dress"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "淡紫吊带裙"
-          }
-        }
-      }
-    },
-    "preset.long_coat_set": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Long Coat Set"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "长款大衣套装"
-          }
-        }
-      }
-    },
-    "preset.luxury_suit": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Luxury Suit"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "奢华西装"
-          }
-        }
-      }
-    },
-    "preset.magenta_techwear": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Magenta Techwear"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "品红科技风"
-          }
-        }
-      }
-    },
-    "preset.mecha_girl": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_mecha_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1549,8 +991,8 @@
         }
       }
     },
-    "preset.mecha_warrior": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_mecha_warrior": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1567,80 +1009,188 @@
         }
       }
     },
-    "preset.modern_boy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_short_haired_cool_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modern Boy"
+            "value": "Short-Haired Cool Girl"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "现代男生"
+            "value": "短发酷姐"
           }
         }
       }
     },
-    "preset.modern_girl": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_special_ops": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modern Girl"
+            "value": "Special Forces Soldier"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "现代女生"
+            "value": "特战士兵"
           }
         }
       }
     },
-    "preset.monochrome_vanguard": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_suited_guy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monochrome Vanguard"
+            "value": "Suited Guy"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "黑白先锋风"
+            "value": "西装青年"
           }
         }
       }
     },
-    "preset.navy_officewear": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_tech_duck": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Navy Officewear"
+            "value": "removed preset 10"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "藏蓝通勤装"
+            "value": "removed preset 18"
           }
         }
       }
     },
-    "preset.navy_sailor_outfit": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.charx_trendy_boy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 11"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 16"
+          }
+        }
+      }
+    },
+    "preset.clothx_baseball_cap": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baseball Cap"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棒球帽"
+          }
+        }
+      }
+    },
+    "preset.clothx_black_collar_academy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black-Collared Preppy Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑领学院装"
+          }
+        }
+      }
+    },
+    "preset.clothx_bottoms_replacement": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottoms Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换下装"
+          }
+        }
+      }
+    },
+    "preset.clothx_bottoms_replacement_2": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottoms Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换下装"
+          }
+        }
+      }
+    },
+    "preset.clothx_monochrome_vanguard": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black-and-White Avant-Garde Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑白先锋装"
+          }
+        }
+      }
+    },
+    "preset.clothx_navy_sailor_outfit": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1652,37 +1202,361 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "藏蓝水手服"
+            "value": "藏青水手装"
           }
         }
       }
     },
-    "preset.pink_academy": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.clothx_pink_academy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pink Academy"
+            "value": "Pink Preppy Outfit"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "粉色学院风"
+            "value": "粉色学院装"
           }
         }
       }
     },
-    "preset.realistic_animals": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.clothx_silver_fantasy_robe": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Realistic Animals"
+            "value": "Silver-White Xianxia Robe"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银白仙侠袍"
+          }
+        }
+      }
+    },
+    "preset.clothx_sunglasses": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunglasses"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "墨镜"
+          }
+        }
+      }
+    },
+    "preset.clothx_top_replacement": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换上衣"
+          }
+        }
+      }
+    },
+    "preset.clothx_top_replacement_2": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换上衣"
+          }
+        }
+      }
+    },
+    "preset.clothx_vintage_brown": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brown Artsy Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棕色文艺装"
+          }
+        }
+      }
+    },
+    "preset.dimx_cow_plushie": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cow Doll"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "奶牛玩偶"
+          }
+        }
+      }
+    },
+    "preset.dimx_cream_kitten": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cream-White Bunny"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "奶白小兔"
+          }
+        }
+      }
+    },
+    "preset.dimx_fluffy_bunny": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Little Rabbit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小兔在肩"
+          }
+        }
+      }
+    },
+    "preset.dimx_hello_kitty": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello Kitty"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hello Kitty"
+          }
+        }
+      }
+    },
+    "preset.dimx_little_dog": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Little Dog"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小狗在肩"
+          }
+        }
+      }
+    },
+    "preset.dimx_little_mouse": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Little Mouse"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小鼠在肩"
+          }
+        }
+      }
+    },
+    "preset.dimx_nailoong": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 9"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 14"
+          }
+        }
+      }
+    },
+    "preset.dimx_penguin_plushie": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Penguin Doll"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "企鹅玩偶"
+          }
+        }
+      }
+    },
+    "preset.vibex_3d_cartoon": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D Cartoon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D卡通"
+          }
+        }
+      }
+    },
+    "preset.vibex_american_cartoon": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calf on Grass"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "草地小牛"
+          }
+        }
+      }
+    },
+    "preset.vibex_designer_toy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Designer Toy Figurines"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "潮玩人偶"
+          }
+        }
+      }
+    },
+    "preset.vibex_hell_meme": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark Humor Meme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地狱梗图"
+          }
+        }
+      }
+    },
+    "preset.vibex_photorealistic_portrait": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photorealistic Portrait"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写实人象"
+          }
+        }
+      }
+    },
+    "preset.vibex_realistic_animals": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photorealistic Animals"
           }
         },
         "zh-Hans": {
@@ -1693,80 +1567,26 @@
         }
       }
     },
-    "preset.school_anime": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.vibex_sentai_tokusatsu": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "School Anime"
+            "value": "Sentai Tokusatsu"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "校园动漫"
+            "value": "战队特摄"
           }
         }
       }
     },
-    "preset.silver_casualwear": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Silver Casualwear"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "银色休闲装"
-          }
-        }
-      }
-    },
-    "preset.silver_fantasy_robe": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Silver Fantasy Robe"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "银色奇幻长袍"
-          }
-        }
-      }
-    },
-    "preset.special_ops": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Special Ops"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "特种作战"
-          }
-        }
-      }
-    },
-    "preset.surrealism": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+    "preset.vibex_surrealism": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1778,43 +1598,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "超现实主义"
-          }
-        }
-      }
-    },
-    "preset.urban_anime": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Urban Anime"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "都市动漫"
-          }
-        }
-      }
-    },
-    "preset.vintage_brown": {
-      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vintage Brown"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "复古棕色"
+            "value": "超现实风"
           }
         }
       }

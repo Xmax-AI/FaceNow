@@ -10,12 +10,25 @@
 
 import AppKit
 import Kingfisher
+import SnapKit
 
 /// Crops cached thumbnails to fill their circle without stretching the source image.
 final class GenerationThumbnailView: NSImageView {
 
     /// The image identity used to avoid restarting an unchanged thumbnail request.
     private var sourceID: String?
+
+    /// Gives prompt-only presets a readable title without making an image request.
+    private lazy var promptLabel: NSTextField = {
+        let view = NSTextField(wrappingLabelWithString: "")
+        view.font = .systemFont(ofSize: 10)
+        view.textColor = Palette.secondary
+        view.alignment = .center
+        view.maximumNumberOfLines = 3
+        view.lineBreakMode = .byTruncatingTail
+        view.isHidden = true
+        return view
+    }()
 
     /// Whether layout coordinates start at the top-left corner.
     override var isFlipped: Bool { true }
@@ -31,6 +44,13 @@ final class GenerationThumbnailView: NSImageView {
         wantsLayer = true
         layer?.masksToBounds = true
         setAccessibilityElement(false)
+        addSubview(promptLabel)
+        promptLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(8)
+            make.centerY.equalToSuperview()
+            make.top.greaterThanOrEqualToSuperview().inset(8)
+            make.bottom.lessThanOrEqualToSuperview().inset(8)
+        }
     }
 
     /// Storyboard decoding is unsupported for this programmatic component.
@@ -46,6 +66,8 @@ final class GenerationThumbnailView: NSImageView {
         kf.cancelDownloadTask()
         sourceID = reference?.id
         image = nil
+        promptLabel.isHidden = reference == nil || reference?.thumbnailURL != nil || reference?.thumbnailData != nil
+        promptLabel.stringValue = reference?.name ?? ""
         guard let reference else { return }
         let source: Source
         var options: KingfisherOptionsInfo = [
@@ -69,8 +91,8 @@ final class GenerationThumbnailView: NSImageView {
                     )
                 ),
             ]
-        } else if reference.thumbnailURL.isFileURL {
-            source = .provider(LocalFileImageDataProvider(fileURL: reference.thumbnailURL))
+        } else if let url = reference.thumbnailURL, url.isFileURL {
+            source = .provider(LocalFileImageDataProvider(fileURL: url))
             options.append(
                 .processor(
                     DownsamplingImageProcessor(
@@ -81,8 +103,10 @@ final class GenerationThumbnailView: NSImageView {
                     )
                 )
             )
+        } else if let url = reference.thumbnailURL {
+            source = .network(KF.ImageResource(downloadURL: url))
         } else {
-            source = .network(KF.ImageResource(downloadURL: reference.thumbnailURL))
+            return
         }
         // Remote URLs already request COS thumbnails; downloading the full image is unnecessary.
         kf.setImage(
@@ -110,6 +134,7 @@ final class GenerationThumbnailView: NSImageView {
         Palette.surface.setFill()
         bounds.fill()
         guard let image, image.size.width > 0, image.size.height > 0 else {
+            guard promptLabel.isHidden else { return }
             let symbol = NSImage(
                 systemSymbolName: "photo",
                 accessibilityDescription: nil

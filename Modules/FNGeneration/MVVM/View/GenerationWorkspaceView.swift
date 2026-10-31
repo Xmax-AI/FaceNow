@@ -332,7 +332,7 @@ final class GenerationWorkspaceView: Canvas {
             make.height.equalTo(localPanel)
         }
         beautyOverlay.snp.makeConstraints { make in
-            make.bottom.trailing.equalToSuperview().inset(12)
+            make.trailing.bottom.equalTo(resultPanel).inset(12)
             make.width.equalTo(beautyOverlay.preferredWidth).priority(490)
             make.width.lessThanOrEqualTo(resultPanel.snp.width).offset(-24)
             make.height.lessThanOrEqualTo(resultPanel.snp.height).offset(-24).priority(490)

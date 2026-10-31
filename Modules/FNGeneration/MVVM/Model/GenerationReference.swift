@@ -9,6 +9,9 @@
 //
 
 import Foundation
+#if canImport(FNNetwork)
+    import FNNetwork
+#endif
 
 /// Presets and uploaded reference images share the selection and generation flow.
 struct GenerationReference: Identifiable, Sendable {
@@ -23,7 +26,7 @@ struct GenerationReference: Identifiable, Sendable {
     let name: String
 
     /// The preview image URL, independently of the generation reference URL.
-    let thumbnailURL: URL
+    let thumbnailURL: URL?
 
     /// The original image location sent to generation after upload or preset selection.
     var referencePath: String
@@ -56,23 +59,41 @@ struct GenerationReference: Identifiable, Sendable {
         case error
     }
 
-    /// COS serves 160px WebP thumbnails; generation still uses the original Web reference URLs.
+    /// Keeps prompt-only presets selectable without inventing an image URL or an upload state.
+    static func promptPreset(
+        _ mode: GenerationMode,
+        id: String,
+        name: String,
+        prompt: String
+    ) -> Self {
+        Self(
+            id: "preset:\(id)",
+            mode: mode,
+            name: name,
+            thumbnailURL: nil,
+            referencePath: "",
+            prompt: prompt
+        )
+    }
+
+    /// Uses the same Playground image for the optimized thumbnail and original generation reference.
     static func preset(
         _ mode: GenerationMode,
         version: String,
         name: String,
-        image: String,
-        reference: String
+        reference: String,
+        prompt: String
     ) -> Self {
-        let base = "https://cdn.22duck.cn/images/source/\(mode.rawValue)"
-        let thumbnail = "\(base)/\(image)?presetVersion=\(version)&imageMogr2/thumbnail/160x160/format/webp/quality/80"
-        let path = "\(base)/\(reference)?presetVersion=\(version)"
+        let base = NetworkEnvironment.current.assetBaseURL.absoluteString
+        let path = "\(base)/images/playground/\(mode.rawValue)/\(reference)?v=32&presetVersion=\(version)"
+        let thumbnail = "\(path)&imageMogr2/thumbnail/160x160/format/webp/quality/80"
         return Self(
             id: path,
             mode: mode,
             name: name,
             thumbnailURL: URL(string: thumbnail)!,
-            referencePath: path
+            referencePath: path,
+            prompt: prompt
         )
     }
 }

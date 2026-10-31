@@ -43,7 +43,7 @@ let package = Package(
         ),
         .target(
             name: "FNGenerationModels",
-            dependencies: ["Localization"],
+            dependencies: ["Localization", "FNNetwork"],
             path: "Modules/FNGeneration/MVVM/Model"
         ),
         .target(
@@ -56,7 +56,7 @@ let package = Package(
             name: "FNVirtualCameraCore",
             dependencies: ["CameraCore", "Localization"],
             path: "Modules/FNVirtualCamera/Camera",
-            exclude: ["Output"]
+            exclude: ["Output/VirtualCameraOutput.swift"]
         ),
         .testTarget(
             name: "CameraCoreTests",

@@ -169,543 +169,435 @@ enum GenerationStrings {
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetClassicalGirl: String {
+    /// The mode for adding a subject to the live scene.
+    static var modeSummon: String {
         Localization.string(
-            "preset.classical_girl",
+            "mode.summon",
             table: "Generation",
-            defaultValue: "Classical Girl"
+            defaultValue: "Virtual Summon"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetClassicalBoy: String {
+    /// The localized name of a Playground X2.1 summon preset.
+    static var presetDimxLittleDog: String {
         Localization.string(
-            "preset.classical_boy",
+            "preset.dimx_little_dog",
             table: "Generation",
-            defaultValue: "Classical Boy"
+            defaultValue: "Little Dog"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetModernGirl: String {
+    /// The localized name of a Playground X2.1 summon preset.
+    static var presetDimxLittleMouse: String {
         Localization.string(
-            "preset.modern_girl",
+            "preset.dimx_little_mouse",
             table: "Generation",
-            defaultValue: "Modern Girl"
+            defaultValue: "Little Mouse"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetModernBoy: String {
+    /// The localized name of a Playground X2.1 summon preset.
+    static var presetDimxPenguinPlushie: String {
         Localization.string(
-            "preset.modern_boy",
+            "preset.dimx_penguin_plushie",
             table: "Generation",
-            defaultValue: "Modern Boy"
+            defaultValue: "Penguin Doll"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBlondeGirl: String {
+    /// The localized name of a Playground X2.1 summon preset.
+    static var presetDimxFluffyBunny: String {
         Localization.string(
-            "preset.blonde_girl",
+            "preset.dimx_fluffy_bunny",
             table: "Generation",
-            defaultValue: "Blonde Girl"
+            defaultValue: "Little Rabbit"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetCurlyHairedBoy: String {
+    /// The localized name of a Playground X2.1 summon preset.
+    static var presetDimxCreamKitten: String {
         Localization.string(
-            "preset.curly_haired_boy",
+            "preset.dimx_cream_kitten",
             table: "Generation",
-            defaultValue: "Curly-Haired Boy"
+            defaultValue: "Cream-White Bunny"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetAnimeBoy: String {
+    /// The localized name of a Playground X2.1 summon preset.
+    static var removedPreset9: String {
         Localization.string(
-            "preset.anime_boy",
+            "preset.dimx_nailoong",
             table: "Generation",
-            defaultValue: "Anime Boy"
+            defaultValue: "removed preset 9"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetAnimeGirl: String {
+    /// The localized name of a Playground X2.1 summon preset.
+    static var presetDimxCowPlushie: String {
         Localization.string(
-            "preset.anime_girl",
+            "preset.dimx_cow_plushie",
+            table: "Generation",
+            defaultValue: "Cow Doll"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 summon preset.
+    static var presetDimxHelloKitty: String {
+        Localization.string(
+            "preset.dimx_hello_kitty",
+            table: "Generation",
+            defaultValue: "Hello Kitty"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset1: String {
+        Localization.string(
+            "preset.charx_elon_musk",
+            table: "Generation",
+            defaultValue: "removed preset 7"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxCandyGirl: String {
+        Localization.string(
+            "preset.charx_candy_girl",
+            table: "Generation",
+            defaultValue: "Candy Girl"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxCuteGirl: String {
+        Localization.string(
+            "preset.charx_cute_girl",
+            table: "Generation",
+            defaultValue: "Cute Girl"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxSuitedGuy: String {
+        Localization.string(
+            "preset.charx_suited_guy",
+            table: "Generation",
+            defaultValue: "Suited Guy"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxShortHairedCoolGirl: String {
+        Localization.string(
+            "preset.charx_short_haired_cool_girl",
+            table: "Generation",
+            defaultValue: "Short-Haired Cool Girl"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxDreamyGirl: String {
+        Localization.string(
+            "preset.charx_dreamy_girl",
+            table: "Generation",
+            defaultValue: "Dreamy Girl"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxAnimeGirl: String {
+        Localization.string(
+            "preset.charx_anime_girl",
             table: "Generation",
             defaultValue: "Anime Girl"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var removedLegacyPreset: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset2: String {
         Localization.string(
-            "preset.alien_kitty",
+            "preset.charx_trendy_boy",
             table: "Generation",
-            defaultValue: "removed preset"
+            defaultValue: "removed preset 11"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBronzeFigure: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset8: String {
         Localization.string(
-            "preset.bronze_figure",
+            "preset.charx_tech_duck",
             table: "Generation",
-            defaultValue: "Bronze Figure"
+            defaultValue: "removed preset 10"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var removedLegacyPreset: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset3: String {
         Localization.string(
-            "preset.3d_cow",
+            "preset.charx_alien_kitty",
             table: "Generation",
-            defaultValue: "removed preset"
+            defaultValue: "removed preset 5"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var removedLegacyPreset: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset4: String {
         Localization.string(
-            "preset.3d_milk_frog",
+            "preset.charx_3d_cow",
             table: "Generation",
-            defaultValue: "removed preset 1"
+            defaultValue: "removed preset 2"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var preset3DKangaroo: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset5: String {
         Localization.string(
-            "preset.3d_kangaroo",
-            table: "Generation",
-            defaultValue: "3D Kangaroo"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetMechaGirl: String {
-        Localization.string(
-            "preset.mecha_girl",
-            table: "Generation",
-            defaultValue: "Mecha Girl"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var removedLegacyPreset: String {
-        Localization.string(
-            "preset.mecha_warrior",
-            table: "Generation",
-            defaultValue: "removed preset 8"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetSpecialOps: String {
-        Localization.string(
-            "preset.special_ops",
-            table: "Generation",
-            defaultValue: "Special Ops"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetHumanoidRobot: String {
-        Localization.string(
-            "preset.humanoid_robot",
-            table: "Generation",
-            defaultValue: "Humanoid Robot"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetChillCapybara: String {
-        Localization.string(
-            "preset.chill_capybara",
-            table: "Generation",
-            defaultValue: "Chill Capybara"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetGentlePanda: String {
-        Localization.string(
-            "preset.gentle_panda",
-            table: "Generation",
-            defaultValue: "Gentle Panda"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetCuteHamster: String {
-        Localization.string(
-            "preset.cute_hamster",
-            table: "Generation",
-            defaultValue: "Cute Hamster"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetIllustratedGirl: String {
-        Localization.string(
-            "preset.illustrated_girl",
-            table: "Generation",
-            defaultValue: "Illustrated Girl"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetCartoonBoy: String {
-        Localization.string(
-            "preset.cartoon_boy",
-            table: "Generation",
-            defaultValue: "Cartoon Boy"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var removedLegacyPreset: String {
-        Localization.string(
-            "preset.business_milk_frog",
+            "preset.charx_business_milk_frog",
             table: "Generation",
             defaultValue: "removed preset 6"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetCorporateCow: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset6: String {
         Localization.string(
-            "preset.corporate_cow",
+            "preset.charx_3d_milk_frog",
             table: "Generation",
-            defaultValue: "Corporate Cow"
+            defaultValue: "removed preset 1"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetGildedGoddess: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxCorporateCow: String {
         Localization.string(
-            "preset.gilded_goddess",
+            "preset.charx_corporate_cow",
             table: "Generation",
-            defaultValue: "Gilded Goddess"
+            defaultValue: "Chosen Workhorse"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetMonochromeVanguard: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxMechaGirl: String {
         Localization.string(
-            "preset.monochrome_vanguard",
+            "preset.charx_mecha_girl",
             table: "Generation",
-            defaultValue: "Monochrome Vanguard"
+            defaultValue: "Mecha Girl"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetSilverFantasyRobe: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var removedPreset7: String {
         Localization.string(
-            "preset.silver_fantasy_robe",
+            "preset.charx_mecha_warrior",
             table: "Generation",
-            defaultValue: "Silver Fantasy Robe"
+            defaultValue: "removed preset 8"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetNavySailorOutfit: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxHumanoidRobot: String {
         Localization.string(
-            "preset.navy_sailor_outfit",
+            "preset.charx_humanoid_robot",
+            table: "Generation",
+            defaultValue: "Humanoid Robot"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxSpecialOps: String {
+        Localization.string(
+            "preset.charx_special_ops",
+            table: "Generation",
+            defaultValue: "Special Forces Soldier"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetCharxCuteHamster: String {
+        Localization.string(
+            "preset.charx_cute_hamster",
+            table: "Generation",
+            defaultValue: "Adorable Hamster"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxPinkAcademy: String {
+        Localization.string(
+            "preset.clothx_pink_academy",
+            table: "Generation",
+            defaultValue: "Pink Preppy Outfit"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxBlackCollarAcademy: String {
+        Localization.string(
+            "preset.clothx_black_collar_academy",
+            table: "Generation",
+            defaultValue: "Black-Collared Preppy Outfit"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxMonochromeVanguard: String {
+        Localization.string(
+            "preset.clothx_monochrome_vanguard",
+            table: "Generation",
+            defaultValue: "Black-and-White Avant-Garde Outfit"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxVintageBrown: String {
+        Localization.string(
+            "preset.clothx_vintage_brown",
+            table: "Generation",
+            defaultValue: "Brown Artsy Outfit"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxSilverFantasyRobe: String {
+        Localization.string(
+            "preset.clothx_silver_fantasy_robe",
+            table: "Generation",
+            defaultValue: "Silver-White Xianxia Robe"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxTopReplacement: String {
+        Localization.string(
+            "preset.clothx_top_replacement",
+            table: "Generation",
+            defaultValue: "Top Replacement"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxTopReplacement2: String {
+        Localization.string(
+            "preset.clothx_top_replacement_2",
+            table: "Generation",
+            defaultValue: "Top Replacement"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxBottomsReplacement2: String {
+        Localization.string(
+            "preset.clothx_bottoms_replacement_2",
+            table: "Generation",
+            defaultValue: "Bottoms Replacement"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxBottomsReplacement: String {
+        Localization.string(
+            "preset.clothx_bottoms_replacement",
+            table: "Generation",
+            defaultValue: "Bottoms Replacement"
+        )
+    }
+
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxNavySailorOutfit: String {
+        Localization.string(
+            "preset.clothx_navy_sailor_outfit",
             table: "Generation",
             defaultValue: "Navy Sailor Outfit"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetLongCoatSet: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxBaseballCap: String {
         Localization.string(
-            "preset.long_coat_set",
+            "preset.clothx_baseball_cap",
             table: "Generation",
-            defaultValue: "Long Coat Set"
+            defaultValue: "Baseball Cap"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetPinkAcademy: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetClothxSunglasses: String {
         Localization.string(
-            "preset.pink_academy",
+            "preset.clothx_sunglasses",
             table: "Generation",
-            defaultValue: "Pink Academy"
+            defaultValue: "Sunglasses"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBronzeWarriorArmor: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibexAmericanCartoon: String {
         Localization.string(
-            "preset.bronze_warrior_armor",
+            "preset.vibex_american_cartoon",
             table: "Generation",
-            defaultValue: "Bronze Warrior Armor"
+            defaultValue: "Calf on Grass"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetVintageBrown: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibexPhotorealisticPortrait: String {
         Localization.string(
-            "preset.vintage_brown",
+            "preset.vibex_photorealistic_portrait",
             table: "Generation",
-            defaultValue: "Vintage Brown"
+            defaultValue: "Photorealistic Portrait"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBlackCollarAcademy: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibexHellMeme: String {
         Localization.string(
-            "preset.black_collar_academy",
+            "preset.vibex_hell_meme",
             table: "Generation",
-            defaultValue: "Black-Collar Academy"
+            defaultValue: "Dark Humor Meme"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBluePlaidAcademy: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibexSentaiTokusatsu: String {
         Localization.string(
-            "preset.blue_plaid_academy",
+            "preset.vibex_sentai_tokusatsu",
             table: "Generation",
-            defaultValue: "Blue Plaid Academy"
+            defaultValue: "Sentai Tokusatsu"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBlackPinafore: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibexRealisticAnimals: String {
         Localization.string(
-            "preset.black_pinafore",
+            "preset.vibex_realistic_animals",
             table: "Generation",
-            defaultValue: "Black Pinafore"
+            defaultValue: "Photorealistic Animals"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetCoffeeCardigan: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibex3dCartoon: String {
         Localization.string(
-            "preset.coffee_cardigan",
-            table: "Generation",
-            defaultValue: "Coffee Cardigan"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetLilacSlipDress: String {
-        Localization.string(
-            "preset.lilac_slip_dress",
-            table: "Generation",
-            defaultValue: "Lilac Slip Dress"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetMagentaTechwear: String {
-        Localization.string(
-            "preset.magenta_techwear",
-            table: "Generation",
-            defaultValue: "Magenta Techwear"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetLuxurySuit: String {
-        Localization.string(
-            "preset.luxury_suit",
-            table: "Generation",
-            defaultValue: "Luxury Suit"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetNavyOfficewear: String {
-        Localization.string(
-            "preset.navy_officewear",
-            table: "Generation",
-            defaultValue: "Navy Officewear"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBurgundyStripes: String {
-        Localization.string(
-            "preset.burgundy_stripes",
-            table: "Generation",
-            defaultValue: "Burgundy Stripes"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetLightBlueSportswear: String {
-        Localization.string(
-            "preset.light_blue_sportswear",
-            table: "Generation",
-            defaultValue: "Light Blue Sportswear"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetSilverCasualwear: String {
-        Localization.string(
-            "preset.silver_casualwear",
-            table: "Generation",
-            defaultValue: "Silver Casualwear"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBritishBrownPlaid: String {
-        Localization.string(
-            "preset.british_brown_plaid",
-            table: "Generation",
-            defaultValue: "British Brown Plaid"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBlueAndWhiteRetro: String {
-        Localization.string(
-            "preset.blue_and_white_retro",
-            table: "Generation",
-            defaultValue: "Blue and White Retro"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetAllDenimOutfit: String {
-        Localization.string(
-            "preset.all_denim_outfit",
-            table: "Generation",
-            defaultValue: "All-Denim Outfit"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetGrayEveningwear: String {
-        Localization.string(
-            "preset.gray_eveningwear",
-            table: "Generation",
-            defaultValue: "Gray Eveningwear"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetBlackClassicalRobe: String {
-        Localization.string(
-            "preset.black_classical_robe",
-            table: "Generation",
-            defaultValue: "Black Classical Robe"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetAmericanCartoon: String {
-        Localization.string(
-            "preset.american_cartoon",
-            table: "Generation",
-            defaultValue: "American Cartoon"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var preset3DCartoon: String {
-        Localization.string(
-            "preset.3d_cartoon",
+            "preset.vibex_3d_cartoon",
             table: "Generation",
             defaultValue: "3D Cartoon"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetSchoolAnime: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibexDesignerToy: String {
         Localization.string(
-            "preset.school_anime",
+            "preset.vibex_designer_toy",
             table: "Generation",
-            defaultValue: "School Anime"
+            defaultValue: "Designer Toy Figurines"
         )
     }
 
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetUrbanAnime: String {
+    /// The localized name of a Playground X2.1 reference image.
+    static var presetVibexSurrealism: String {
         Localization.string(
-            "preset.urban_anime",
-            table: "Generation",
-            defaultValue: "Urban Anime"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetJapaneseAnime: String {
-        Localization.string(
-            "preset.japanese_anime",
-            table: "Generation",
-            defaultValue: "Japanese Anime"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetRealisticAnimals: String {
-        Localization.string(
-            "preset.realistic_animals",
-            table: "Generation",
-            defaultValue: "Realistic Animals"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetDesignerToy: String {
-        Localization.string(
-            "preset.designer_toy",
-            table: "Generation",
-            defaultValue: "Designer Toy"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetAnthropomorphic: String {
-        Localization.string(
-            "preset.anthropomorphic",
-            table: "Generation",
-            defaultValue: "Anthropomorphic"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetSurrealism: String {
-        Localization.string(
-            "preset.surrealism",
+            "preset.vibex_surrealism",
             table: "Generation",
             defaultValue: "Surrealism"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetDisneyStyle: String {
-        Localization.string(
-            "preset.disney_style",
-            table: "Generation",
-            defaultValue: "Disney Style"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetCelShading: String {
-        Localization.string(
-            "preset.cel_shading",
-            table: "Generation",
-            defaultValue: "Cel Shading"
-        )
-    }
-
-    /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
-    static var presetJapaneseAnimation: String {
-        Localization.string(
-            "preset.japanese_animation",
-            table: "Generation",
-            defaultValue: "Japanese Animation"
         )
     }
 

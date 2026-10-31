@@ -79,16 +79,6 @@ final class GenerationVideoPanel: Canvas {
         return view
     }()
 
-    /// Mirrors the complete watermark horizontally at the result's upper-right corner.
-    private lazy var rightWatermark: MirroredWatermarkLabel = {
-        let view = MirroredWatermarkLabel(labelWithString: "✦ FaceNow")
-        view.font = .systemFont(ofSize: 13, weight: .semibold)
-        view.textColor = .white.withAlphaComponent(0.8)
-        view.lineBreakMode = .byTruncatingTail
-        view.isHidden = !showsWatermark
-        return view
-    }()
-
     /// The persistent overlays for the panel's metric groups.
     private var panels: [GenerationStatisticsPanel] = []
 
@@ -116,7 +106,6 @@ final class GenerationVideoPanel: Canvas {
         addSubview(captionBackground)
         captionBackground.addSubview(caption)
         addSubview(leftWatermark)
-        addSubview(rightWatermark)
         setAccessibilityLabel(title)
         configureLayout()
     }
@@ -166,10 +155,6 @@ final class GenerationVideoPanel: Canvas {
             make.top.equalToSuperview().offset(12)
             make.leading.equalToSuperview().inset(16)
         }
-        rightWatermark.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(12)
-            make.trailing.equalToSuperview().inset(16)
-        }
         var previous: GenerationStatisticsPanel?
         for panel in panels {
             panel.snp.makeConstraints { make in
@@ -187,25 +172,4 @@ final class GenerationVideoPanel: Canvas {
             previous = panel
         }
     }
-}
-
-/// Reflects the complete native label drawing while keeping its layout and text value intact.
-private final class MirroredWatermarkLabel: NSTextField {
-
-    /// Mirrors glyphs around the label's horizontal center without reversing the string.
-    override func draw(
-        _ dirtyRect: NSRect
-    ) {
-        guard let context = NSGraphicsContext.current?.cgContext else { return }
-        context.saveGState()
-        context.translateBy(x: bounds.minX + bounds.maxX, y: 0)
-        context.scaleBy(x: -1, y: 1)
-        super.draw(dirtyRect)
-        context.restoreGState()
-    }
-
-    /// Lets decorative watermark clicks reach the video beneath it.
-    override func hitTest(
-        _ point: NSPoint
-    ) -> NSView? { nil }
 }
