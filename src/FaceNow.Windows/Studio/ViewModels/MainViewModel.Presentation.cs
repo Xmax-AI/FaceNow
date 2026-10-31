@@ -27,7 +27,7 @@ internal sealed partial class MainViewModel
     public string ResultPlaceholder => IsPreview ? "UI Preview\nGeneration is disabled" : RemoteReady ? "" : State == RealtimeState.Connected ? "Generating…" : "Select a reference to generate…";
     public string LocalTitle => IsPreview ? "Local" : string.IsNullOrEmpty(SelectedCamera?.Name) ? "Local" : "Local · " + SelectedCamera.Name;
     public string KeyLabel => ApiKey.Length == 0 ? "" : "****************";
-    public string StartLabel => Busy ? "Starting…" : IsPreview ? "Preview UI" : "Start Camera";
+    public string StartLabel => IsClosing ? "Stopping…" : Busy ? "Starting…" : IsPreview ? "Preview UI" : "Start Camera";
     public string StopLabel => IsPreview ? "Exit Preview" : "Stop Session";
     public string Elapsed => IsPreview ? "Preview" : (DateTimeOffset.UtcNow - (startedAt ?? DateTimeOffset.UtcNow)).ToString(@"mm\:ss");
     public bool StatisticsVisible { get => statisticsVisible; set { statisticsVisible = value; Changed(); } }
@@ -81,6 +81,7 @@ internal sealed partial class MainViewModel
     }
     public async Task StartLandingAsync()
     {
+        if (IsClosing) return;
         if (IsPreview) { Active = true; MarkSelected(CharacterReferences.First(item => !item.IsUpload)); return; }
         if (string.IsNullOrWhiteSpace(ApiKey)) { RequireKey(); return; }
         if (SelectedCamera is null) { RequireCamera(); return; }
@@ -91,7 +92,6 @@ internal sealed partial class MainViewModel
         string freePrompt = Prompt;
         Prompt = ModePrompt("charx"); ReferenceImage = first.ReferenceUrl; FaceRestoration = false;
         try { await GenerateAsync(); }
-        catch { await StopAsync(); throw; }
         finally { Prompt = freePrompt; Changed(nameof(Prompt)); }
     }
     private void EnsureCreditsForStart()
@@ -158,7 +158,10 @@ internal sealed partial class MainViewModel
                 else { await EnsureCameraOutputAsync(current, pending.Revision); await current.StartAsync(pending.Context, microphone: false); }
                 if (pending.Revision == revision) { State = RealtimeState.Generating; RemoteReady = true; }
             }
-            catch (Exception failure) when (pending.Revision == revision && pending.Intent == intent) { ReportError(failure); }
+            catch (Exception failure) when (pending.Revision == revision)
+            {
+                if (pending.Intent == intent || IsCreditFailure(failure)) HandleGenerationFailure(failure);
+            }
             catch (Exception) when (pending.Revision != revision || pending.Intent != intent) { }
         }
     }
@@ -203,7 +206,11 @@ internal sealed partial class MainViewModel
             if (current == revision && mode == SelectedMode && (mode != "free" || FreeReference == item)) await SelectReferenceAsync(item);
         }
         catch (OperationCanceledException) { item.IsUploading = false; item.HasError = true; item.Error = "Upload canceled — click to retry."; }
-        catch (Exception failure) { item.IsUploading = false; item.HasError = true; item.Error = failure.Message; ReportError(failure); }
+        catch (Exception failure)
+        {
+            item.IsUploading = false; item.HasError = true; item.Error = failure.Message;
+            if (current == revision) ReportError(failure);
+        }
         finally { uploadCancellations.Remove(item); cancellation.Dispose(); }
     }
     public void RemoveFreeReference()

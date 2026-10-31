@@ -19,11 +19,13 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private readonly IVirtualCameraOutput? cameraOutput;
     private readonly IGenerationAccess? generationAccess;
     private RemoteCameraPump? cameraPump;
+    private Task? outputStartup;
     internal XmaxRealtime? Session => session;
     private CancellationTokenSource? operationCancellation;
     private int revision;
     private int foregroundOperations;
-    private bool busy;
+    private bool closingSession;
+    private Task cleanup = Task.CompletedTask;
     private readonly long[] lastStatisticsLog = new long[2];
     private string status = "准备就绪 · 摄像头预览不需要 API Key", error = "", metrics = "等待视频统计";
     private CameraDevice? camera;
@@ -47,7 +49,10 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         set { camera = value; if (value is not null && !IsPreview) CameraSelectionStore.Save(value.Id); Changed(); Changed(nameof(LocalTitle)); }
     }
     public VideoFormat SelectedFormat { get => format; set { format = value; Changed(); } }
-    public bool Busy { get => busy; private set { busy = value; Changed(); Changed(nameof(CanEdit)); Changed(nameof(StartLabel)); RefreshCommands(); } }
+    public bool Busy => foregroundOperations > 0 || IsClosing;
+    public bool IsClosing => closingSession;
+    private void RefreshBusy()
+    { Changed(nameof(Busy)); Changed(nameof(IsClosing)); Changed(nameof(CanEdit)); Changed(nameof(StartLabel)); RefreshCommands(); }
     public string Status { get => status; private set { status = value; Changed(); } }
     public string Error { get => error; private set { error = value; Changed(); } }
     public string Metrics { get => metrics; private set { metrics = value; Changed(); } }
@@ -71,7 +76,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         RefreshCommand = new(() => GuardAsync(RefreshCamerasAsync), () => !Busy);
         PreviewCommand = new(() => GuardAsync(PreviewAsync), () => !Busy && Cameras.Count > 0);
         GenerateCommand = new(() => GuardAsync(GenerateAsync), () => !Busy && Cameras.Count > 0);
-        StopCommand = new(() => GuardAsync(StopAsync), () => session is not null);
+        StopCommand = new(() => GuardAsync(StopAsync), () => session is not null && !IsClosing);
         InitializePresentation();
     }
     public async Task InitializeAsync()
@@ -107,6 +112,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     }
     private async Task EnsureSessionAsync()
     {
+        if (IsClosing) throw new OperationCanceledException("Session cleanup is in progress.");
         if (generationAccess is not null) ApiKey = generationAccess.GetVerifiedGenerationKey();
         if (SelectedCamera is null) { RequireCamera(); throw new InvalidOperationException("Select a camera before starting. Choose your physical camera for live video."); }
         if (session is not null && sessionKey == ApiKey &&
@@ -120,7 +126,8 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         sessionKey = ApiKey; sessionCamera = SelectedCamera.Id; sessionFormat = SelectedFormat;
         LocalVideo = next.LocalVideo; RemoteVideo = next.RemoteVideo;
         foreach (var row in TimingRows.Concat(UplinkRows).Concat(UplinkNetworkRows).Concat(DownlinkRows).Concat(DownlinkNetworkRows)) row.Value = "—";
-        next.EventReceived += item => dispatcher.InvokeAsync(() => { if (current == revision) Receive(item); });
+        var receive = CreateSessionEventHandler();
+        next.EventReceived += item => dispatcher.InvokeAsync(() => receive(item));
         next.CallbackFaulted += failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportError(failure); });
         RefreshCommands();
         Status = "正在准备摄像头…";
@@ -147,59 +154,45 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     }
     public async Task GenerateAsync()
     {
+        if (IsClosing) return;
         if (generationAccess is not null) ApiKey = generationAccess.GetVerifiedGenerationKey();
         EnsureCreditsForStart();
         if (string.IsNullOrWhiteSpace(ApiKey)) throw new InvalidOperationException("实时生成需要 Xmax API Key；摄像头预览可以单独使用。");
         if (string.IsNullOrWhiteSpace(Prompt)) throw new InvalidOperationException("请输入生成提示词。");
+        var selectedReference = AllReferences.FirstOrDefault(item => item.IsSelected);
         await EnsureSessionAsync();
-        if (generationAccess is not null && generationAccess.GetVerifiedGenerationKey() != ApiKey)
-            throw new OperationCanceledException("The active account credential changed.");
-        EnsureCreditsForStart();
         var currentSession = session ?? throw new OperationCanceledException();
         int current = revision;
+        if (selectedReference is not null) MarkSelected(selectedReference);
         Status = State == RealtimeState.Generating ? "正在更新生成条件…" : "正在连接服务并等待首张结果帧…";
         var generation = new CancellationTokenSource();
         operationCancellation = generation;
         var generationToken = generation.Token;
         try
         {
+            if (generationAccess is not null && generationAccess.GetVerifiedGenerationKey() != ApiKey)
+                throw new OperationCanceledException("The active account credential changed.");
+            EnsureCreditsForStart();
             await currentSession.StartAsync(new(Prompt, string.IsNullOrWhiteSpace(ReferenceImage) ? null : ReferenceImage,
                 FaceRestoration), microphone: false, cancellationToken: generationToken);
             if (current == revision) { State = RealtimeState.Generating; Status = "实时生成中"; Active = true; RemoteReady = true; BeginElapsed(); }
             // System camera setup is optional; it must never prevent RTC or Result playback.
             if (current == revision) await EnsureCameraOutputAsync(currentSession, current);
         }
+        catch (Exception) when (current != revision) { /* A terminal callback or explicit stop already owns cleanup and the error. */ }
+        catch (Exception failure)
+        {
+            HandleGenerationFailure(failure, endsSession: true);
+            await cleanup;
+        }
         finally { if (current == revision) { operationCancellation?.Dispose(); operationCancellation = null; } }
     }
-    public async Task StopAsync()
+    private Task EnsureCameraOutputAsync(XmaxRealtime target, int current)
     {
-        Active = false;
-        RemoteReady = false;
-        pendingConditions = null;
-        ++intent;
-        elapsedTimer.Stop();
-        foreach (var upload in uploadCancellations.Values.ToArray()) upload.Cancel();
-        ++revision;
-        var previous = session;
-        session = null;
-        var previousPump = cameraPump; cameraPump = null;
-        var cancellation = operationCancellation;
-        operationCancellation = null;
-        try
-        {
-            if (previousPump is not null) await previousPump.DisposeAsync();
-            else if (cameraOutput is not null) await cameraOutput.StopAsync();
-        }
-        catch (Exception failure) { ReportError(failure); } // SDK teardown must still release the camera.
-        if (cancellation is not null) await cancellation.CancelAsync();
-        LocalVideo = RemoteVideo = null;
-        State = RealtimeState.Idle;
-        Status = previous is null ? "准备就绪" : "正在关闭会话…";
-        RefreshCommands();
-        try { if (previous is not null) await previous.DisposeAsync(); }
-        finally { cancellation?.Dispose(); Status = "会话已关闭"; }
+        if (outputStartup is { IsCompleted: false }) return outputStartup;
+        return outputStartup = StartCameraOutputAsync(target, current);
     }
-    private async Task EnsureCameraOutputAsync(XmaxRealtime target, int current)
+    private async Task StartCameraOutputAsync(XmaxRealtime target, int current)
     {
         if (cameraPump is { IsStopped: false } || cameraOutput?.Status.Registration != CameraRegistrationState.Registered) return;
         if (cameraPump is { } stoppedPump) { cameraPump = null; await stoppedPump.DisposeAsync(); }
@@ -238,6 +231,12 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     }
     private void Receive(RealtimeEvent item)
     {
+        if (item.Type is RealtimeEventType.State or RealtimeEventType.Error && item.Reason == 2)
+        {
+            CameraDiagnostics.Write($"RTC terminal error code={item.Code} API={item.ApiCode} HTTP={item.HttpStatus}");
+            ReceiveTerminalFailure(item);
+            return;
+        }
         UpdateMetricRows(item);
         if (item.Type == RealtimeEventType.State)
         {
@@ -254,9 +253,8 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         }
         else if (item.Type == RealtimeEventType.Error)
         {
-            CameraDiagnostics.Write($"RTC error code={item.Code} HTTP={item.HttpStatus}");
-            Error = $"{item.Message} ({item.Code}, HTTP {item.HttpStatus})";
-            if (generationAccess is not null && (item.HttpStatus is 401 or 403 || item.Code == 46002)) AuthenticationRejected?.Invoke();
+            CameraDiagnostics.Write($"RTC error code={item.Code} API={item.ApiCode} HTTP={item.HttpStatus}");
+            HandleGenerationFailure(EventFailure(item));
         }
         else if (item.Type == RealtimeEventType.Statistics && item.Width > 0 && item.Height > 0)
         {
@@ -275,20 +273,17 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private static string Available(int value) => value >= 0 ? value.ToString() : "—";
     private async Task GuardAsync(Func<Task> operation)
     {
-        Busy = ++foregroundOperations > 0;
+        ++foregroundOperations; RefreshBusy();
         Error = "";
         try { await operation(); }
-        catch (OperationCanceledException) { Status = "操作已取消"; }
+        catch (OperationCanceledException) { if (Error.Length == 0 && !IsClosing) Status = "操作已取消"; }
         catch (Exception failure) { ReportError(failure); }
-        finally { Busy = --foregroundOperations > 0; }
+        finally { --foregroundOperations; RefreshBusy(); }
     }
     public void ReportError(Exception failure)
     {
         CameraDiagnostics.Error("Playback or generation failed", failure);
-        Error = failure is XmaxException sdk
-            ? $"{sdk.Message} (SDK {sdk.Result}, API {sdk.ApiCode}, HTTP {sdk.HttpStatus})" : failure.Message;
-        if (generationAccess is not null && failure is XmaxException { } rejected && (rejected.HttpStatus is 401 or 403 || rejected.ApiCode == 46002))
-            AuthenticationRejected?.Invoke();
+        HandleGenerationFailure(failure);
     }
     private void RefreshCommands()
     { RefreshCommand.Refresh(); PreviewCommand.Refresh(); GenerateCommand.Refresh(); StopCommand.Refresh(); StartCommand?.Refresh(); SubmitPromptCommand?.Refresh(); }

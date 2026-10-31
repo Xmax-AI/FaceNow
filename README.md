@@ -29,6 +29,8 @@ Windows/
 ./scripts/run.ps1 -PreviewLogin
 # 账户逻辑、隔离凭据跨进程检查与原生登录流程
 ./scripts/verify-accounts.ps1
+# 生成失败、积分耗尽与清理并发回归（模拟事件，不调用原生 SDK 或云服务）
+./scripts/test-generation.ps1
 # 按 macOS 尺寸规则检查登录布局并生成各窗口/输入状态截图
 ./scripts/verify-login-layout.ps1
 # 编译并验证界面、帧显示、缺 Key 拦截和隔离的凭据恢复
