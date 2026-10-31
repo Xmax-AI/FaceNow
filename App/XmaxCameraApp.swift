@@ -11,7 +11,7 @@
 import AppKit
 import Darwin
 import os
-import XmaxSDK
+@_spi(Diagnostics) import XmaxSDK
 
 /// Native AppKit application lifecycle, window ownership, and standard editing menus.
 @main
@@ -43,6 +43,20 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
 
     /// Handles diagnostics before initializing the native application and its business components.
     static func main() {
+        if CommandLine.arguments.contains("--verify-video-beauty") {
+            Task {
+                do {
+                    let data = try await RealtimeVideoBeautyDiagnostics.verify()
+                    FileHandle.standardOutput.write(data)
+                    FileHandle.standardOutput.write(Data("\n".utf8))
+                    exit(EXIT_SUCCESS)
+                } catch {
+                    FileHandle.standardError.write(Data("Beauty verification failed: \(error.localizedDescription)\n".utf8))
+                    exit(EXIT_FAILURE)
+                }
+            }
+            dispatchMain()
+        }
         if VirtualCameraDiagnostics.handleCommandLine(sdkVersion: XmaxSDKInfo.version) { return }
         let application = NSApplication.shared
         let delegate = XmaxCameraApp()

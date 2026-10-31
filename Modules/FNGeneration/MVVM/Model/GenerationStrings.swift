@@ -16,6 +16,96 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum GenerationStrings {
 
+    /// Closes the result overlay without changing the active beauty effect.
+    static var beautyClose: String {
+        Localization.string(
+            "beauty.close",
+            table: "Generation",
+            defaultValue: "Close beauty controls"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beauty: String {
+        Localization.string(
+            "controls.beauty",
+            table: "Generation",
+            defaultValue: "Beauty"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautyDescription: String {
+        Localization.string(
+            "beauty.description",
+            table: "Generation",
+            defaultValue: "Applies to generated results"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautySmoothness: String {
+        Localization.string(
+            "beauty.smoothness",
+            table: "Generation",
+            defaultValue: "Smoothing"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautyLightening: String {
+        Localization.string(
+            "beauty.lightening",
+            table: "Generation",
+            defaultValue: "Brightening"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautySharpness: String {
+        Localization.string(
+            "beauty.sharpness",
+            table: "Generation",
+            defaultValue: "Sharpening"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautyRedness: String {
+        Localization.string(
+            "beauty.redness",
+            table: "Generation",
+            defaultValue: "Rosiness"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautyReset: String {
+        Localization.string(
+            "beauty.reset",
+            table: "Generation",
+            defaultValue: "Reset to default"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautyApplying: String {
+        Localization.string(
+            "beauty.applying",
+            table: "Generation",
+            defaultValue: "Applying…"
+        )
+    }
+
+    /// Result beauty control or recoverable effect status.
+    static var beautyUnavailable: String {
+        Localization.string(
+            "beauty.unavailable",
+            table: "Generation",
+            defaultValue: "Beauty is unavailable and has been turned off. Generation will continue."
+        )
+    }
+
     /// Displayed text in Modules/FNGeneration/GenerationRepository.swift.
     static var errorThePreviousSessionIsStillStoppingPleaseTryAgain: String {
         Localization.string(
@@ -1286,6 +1376,5 @@ enum GenerationStrings {
     static var qualityDown: String {
         Localization.string("statistics.qualityDown", table: "Generation", defaultValue: "Down")
     }
-
 
 }

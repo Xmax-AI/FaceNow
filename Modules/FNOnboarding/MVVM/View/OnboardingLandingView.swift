@@ -70,6 +70,7 @@ final class OnboardingLandingView: Canvas {
         )
         view.iconSize = 20
         view.iconSpacing = 10
+        view.centersTitleVisually = true
         view.disabledOpacity = 1
         view.loadingOpacity = 0.65
         view.onClick = { [weak self] in self?.onStart?() }
@@ -329,7 +330,7 @@ final class OnboardingLandingView: Canvas {
             weight: .semibold
         )
         startButton.leadingPadding = min(40, max(25, width * 0.0075 + 18))
-        startButton.trailingPadding = startButton.leadingPadding + 1
+        startButton.trailingPadding = startButton.leadingPadding
         let buttonHeight =
             max(
                 20,

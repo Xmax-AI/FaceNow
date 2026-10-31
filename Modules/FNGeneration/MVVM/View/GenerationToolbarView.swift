@@ -19,11 +19,17 @@ final class GenerationToolbarView: Canvas {
     /// Requests parent layout only when a control's measured width changes.
     var onWidthChange: (() -> Void)?
 
+    /// Requests the workspace-owned result overlay without retaining a separate popover.
+    var onToggleBeauty: (() -> Void)?
+
     /// Lets the header place statistics at the start of the generation controls.
     var statisticsControl: NSView { statisticsButton }
 
-    /// Lets the header place interpolation before the separately owned credit capsule.
+    /// Lets the header place interpolation before beauty and the credit capsule.
     var interpolationControl: ToolbarButton { interpolationButton }
+
+    /// Lets the header place beauty immediately before the separately owned credit capsule.
+    var beautyControl: ToolbarButton { beautyButton }
 
     /// The generation state and commands represented by this toolbar.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
@@ -53,6 +59,20 @@ final class GenerationToolbarView: Canvas {
         view.onClick = { [weak self] in
             Task { [weak self] in await self?.generationRepo.toggleInterpolation() }
         }
+        return view
+    }()
+
+    /// Opens result beauty controls without changing generation or camera input.
+    private lazy var beautyButton: ToolbarButton = {
+        let view = ToolbarButton(
+            GenerationStrings.beauty,
+            style: .interpolation,
+            chevron: true
+        )
+        view.symbolName = "sparkles"
+        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
+        view.setAccessibilityLabel(GenerationStrings.beauty)
+        view.onClick = { [weak self] in self?.onToggleBeauty?() }
         return view
     }()
 
@@ -134,6 +154,10 @@ final class GenerationToolbarView: Canvas {
 
     /// Applies the latest generation state without replacing controls.
     func update() {
+        beautyButton.selected = generationRepo.beautyEnabled
+        beautyButton.isEnabled = generationRepo.sessionActive && !generationRepo.isClosing
+        beautyButton.toolTip = GenerationStrings.beautyDescription
+        beautyButton.setAccessibilityValue(generationRepo.beautyEnabled ? GenerationStrings.on : GenerationStrings.off)
         statisticsButton.selected = generationRepo.statisticsVisible
         statisticsButton.toolTip =
             generationRepo.statisticsVisible

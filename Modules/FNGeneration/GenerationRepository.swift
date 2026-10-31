@@ -109,6 +109,32 @@ final class GenerationRepository: ObservableObject {
     /// The remote playback volume in the range zero through one.
     @Published private(set) var remoteAudioVolume: Float = 0
 
+    /// The app's default result strengths, also used by the reset action.
+    static let defaultBeautyOptions = RealtimeVideoBeautyOptions(
+        smoothness: 0.5,
+        lightening: 0.5,
+        sharpness: 0,
+        redness: 0
+    )
+
+    /// The saved result beauty preference, enabled by default for new installations.
+    @Published private(set) var beautyEnabled = true
+
+    /// The editable strengths shared by result preview and virtual-camera output.
+    @Published private(set) var beautyOptions = GenerationRepository.defaultBeautyOptions
+
+    /// Whether the latest requested settings are being applied to the SDK.
+    @Published private(set) var beautyApplying = false
+
+    /// Coalesces continuous slider changes before submitting configuration.
+    private var beautyDebounce: Task<Void, Never>?
+
+    /// Serializes SDK updates while retaining only the latest desired settings.
+    private var beautyApplication: Task<Void, Never>?
+
+    /// Rejects superseded configuration results within the same session.
+    private var beautyRevision: UInt64 = 0
+
     // MARK: - Dependencies
 
     /// The virtual-output owner consuming processed generated frames.
@@ -182,6 +208,19 @@ final class GenerationRepository: ObservableObject {
         self.makeManager = makeManager
         self.uploadImage = uploadImage
         if let user { self.userRepo = user }
+        let defaults = UserDefaults.standard
+        beautyEnabled = defaults.object(forKey: "generation.beauty.enabled") as? Bool ?? true
+        let saved = defaults.dictionary(forKey: "generation.beauty.options") ?? [:]
+        func strength(_ key: String, fallback: Float) -> Float {
+            guard let value = saved[key] as? NSNumber, value.floatValue.isFinite else { return fallback }
+            return min(1, max(0, value.floatValue))
+        }
+        beautyOptions = RealtimeVideoBeautyOptions(
+            smoothness: strength("smoothness", fallback: Self.defaultBeautyOptions.smoothness),
+            lightening: strength("lightening", fallback: Self.defaultBeautyOptions.lightening),
+            sharpness: strength("sharpness", fallback: Self.defaultBeautyOptions.sharpness),
+            redness: strength("redness", fallback: Self.defaultBeautyOptions.redness)
+        )
         deviceObservation = deviceMonitor.changes.sink { [weak self] in self?.refreshCameras() }
         refreshCameras()
     }
@@ -391,6 +430,13 @@ final class GenerationRepository: ObservableObject {
             }
             localStream = stream
             sessionActive = true
+            await manager.setRemoteVideoBeautyErrorListener { [weak self] error in
+                guard let self, self.lifecycleID == operation else { return }
+                self.disableBeautyAfterFailure(error)
+            }
+            guard lifecycleID == operation else { return }
+            await applyPendingBeauty()
+            guard lifecycleID == operation else { return }
             try await manager.setRemoteAudioVolume(remoteAudioVolume)
             guard lifecycleID == operation else { return }
             pendingInitialReference = reference
@@ -704,6 +750,99 @@ final class GenerationRepository: ObservableObject {
         interpolationSwitching = false
     }
 
+    /// Enables result beauty using the saved strengths, or restores original-frame output.
+    func setBeautyEnabled(
+        _ enabled: Bool
+    ) {
+        guard !isClosing, beautyEnabled != enabled else { return }
+        beautyEnabled = enabled
+        saveBeautyPreferences()
+        scheduleBeautyApplication()
+    }
+
+    /// Stores slider values immediately and coalesces updates independently of generation commands.
+    func setBeautyOptions(
+        _ options: RealtimeVideoBeautyOptions
+    ) {
+        guard !isClosing, options != beautyOptions, (try? options.validate()) != nil else { return }
+        beautyOptions = options
+        saveBeautyPreferences()
+        if beautyEnabled { scheduleBeautyApplication() }
+    }
+
+    /// Persists edition-local settings without saving any video or credentials.
+    private func saveBeautyPreferences() {
+        UserDefaults.standard.set(beautyEnabled, forKey: "generation.beauty.enabled")
+        UserDefaults.standard.set(
+            [
+                "smoothness": beautyOptions.smoothness,
+                "lightening": beautyOptions.lightening,
+                "sharpness": beautyOptions.sharpness,
+                "redness": beautyOptions.redness,
+            ],
+            forKey: "generation.beauty.options"
+        )
+    }
+
+    /// Waits briefly for slider input to settle without interrupting an in-flight SDK operation.
+    private func scheduleBeautyApplication() {
+        beautyRevision &+= 1
+        beautyDebounce?.cancel()
+        guard sessionActive, !isClosing else { return }
+        let operation = lifecycleID
+        beautyDebounce = Task { [weak self] in
+            do { try await Task.sleep(for: .milliseconds(120)) } catch { return }
+            guard let self, self.lifecycleID == operation, !Task.isCancelled else { return }
+            await self.applyPendingBeauty()
+        }
+    }
+
+    /// Applies initial settings before generation and drains later changes using the latest values.
+    private func applyPendingBeauty() async {
+        if let beautyApplication {
+            await beautyApplication.value
+            return
+        }
+        guard let manager, sessionActive, !isClosing else { return }
+        let operation = lifecycleID
+        beautyApplying = true
+        let task = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                if self.lifecycleID == operation {
+                    self.beautyApplying = false
+                    self.beautyApplication = nil
+                }
+            }
+            while self.lifecycleID == operation, !Task.isCancelled {
+                let revision = self.beautyRevision
+                let options = self.beautyEnabled ? self.beautyOptions : nil
+                do {
+                    try await manager.setRemoteVideoBeauty(options)
+                } catch {
+                    guard self.lifecycleID == operation, !Task.isCancelled else { return }
+                    if revision == self.beautyRevision {
+                        self.disableBeautyAfterFailure(error)
+                    }
+                }
+                guard revision != self.beautyRevision else { return }
+            }
+        }
+        beautyApplication = task
+        await task.value
+    }
+
+    /// Reports a recoverable effect failure while retaining camera, generation, and output.
+    private func disableBeautyAfterFailure(
+        _ error: any Error
+    ) {
+        beautyEnabled = false
+        beautyRevision &+= 1
+        saveBeautyPreferences()
+        errorMessage = GenerationStrings.beautyUnavailable
+        startupLogger.error("Result beauty disabled: \(error.localizedDescription, privacy: .public)")
+    }
+
     /// Applies remote playback volume without letting a late operation overwrite a new session.
     func setRemoteAudioVolume(
         _ volume: Float
@@ -723,10 +862,12 @@ final class GenerationRepository: ObservableObject {
     ) {
         let sdkError = error as? XmaxError
         let isPlatformFailure = sdkError?.code == .apiError || sdkError?.code == .sessionError
-        let insufficientCredits = isPlatformFailure && GenerationFailure.isInsufficientCredits(
-            apiCode: sdkError?.apiCode,
-            message: error.localizedDescription
-        )
+        let insufficientCredits =
+            isPlatformFailure
+            && GenerationFailure.isInsufficientCredits(
+                apiCode: sdkError?.apiCode,
+                message: error.localizedDescription
+            )
         if endsSession || insufficientCredits { resetSession() }
         errorMessage = insufficientCredits ? AccountStrings.insufficientCredits : error.localizedDescription
     }
@@ -754,6 +895,13 @@ final class GenerationRepository: ObservableObject {
         let closingManager = manager
         let closingClient = client
         let closingOutputStartup = outputStartup
+        let closingBeautyApplication = beautyApplication
+        beautyDebounce?.cancel()
+        beautyDebounce = nil
+        beautyApplication?.cancel()
+        beautyApplication = nil
+        beautyApplying = false
+        beautyRevision &+= 1
         closingOutputStartup?.cancel()
         outputStartup = nil
         output.frames.reset(producer: nil)
@@ -783,6 +931,7 @@ final class GenerationRepository: ObservableObject {
             try? await closingManager?.setRemoteMediaFrameListener(nil)
             await closingManager?.setStateListener(nil)
             await closingManager?.close()
+            await closingBeautyApplication?.value
             await outputStop
             withExtendedLifetime(closingClient) {}
             guard self.lifecycleID == operation else { return }

@@ -10,6 +10,7 @@
 
 import AppKit
 import SnapKit
+import CoreText
 
 /// Native buttons retain their identity, loading animation, keyboard focus, and target action.
 class Button: NSButton {
@@ -62,6 +63,9 @@ class Button: NSButton {
 
     /// Centers standalone system symbols by their visible bounds rather than asymmetric transparent margins.
     var centersSymbolVisually = false { didSet { needsDisplay = true } }
+
+    /// Centers the title's visible glyphs vertically, including fonts used for fallback characters.
+    var centersTitleVisually = false { didSet { needsDisplay = true } }
 
     /// Whether a disclosure chevron is drawn at the trailing edge.
     var chevron = false
@@ -529,6 +533,34 @@ class Button: NSButton {
         )
     }
 
+    /// Aligns visible title glyphs with the icon center instead of relying on a fallback font's line box.
+    private func drawVisuallyCenteredTitle(
+        in rect: NSRect,
+        color: NSColor
+    ) {
+        guard let context = NSGraphicsContext.current?.cgContext, rect.width > 0, !title.isEmpty else { return }
+        let attributes: [NSAttributedString.Key: Any] = [
+            NSAttributedString.Key(kCTFontAttributeName as String): font ?? Typography.font(size: 13),
+            NSAttributedString.Key(kCTForegroundColorAttributeName as String): color.cgColor,
+            NSAttributedString.Key(kCTKernAttributeName as String): tracking,
+        ]
+        var line = CTLineCreateWithAttributedString(NSAttributedString(string: title, attributes: attributes))
+        if CTLineGetTypographicBounds(line, nil, nil, nil) > Double(rect.width) {
+            let token = CTLineCreateWithAttributedString(NSAttributedString(string: "…", attributes: attributes))
+            guard let truncated = CTLineCreateTruncatedLine(line, Double(rect.width), .end, token) else { return }
+            line = truncated
+        }
+        let glyphBounds = CTLineGetImageBounds(line, nil)
+        guard !glyphBounds.isEmpty else { return }
+        context.saveGState()
+        context.translateBy(x: rect.minX, y: rect.midY)
+        context.scaleBy(x: 1, y: -1)
+        context.textMatrix = .identity
+        context.textPosition = CGPoint(x: 0, y: -glyphBounds.midY)
+        CTLineDraw(line, context)
+        context.restoreGState()
+    }
+
     /// Preserves symbol size while aligning its visible silhouette with the center of the icon slot.
     private static func visuallyCenteredSymbolRect(
         _ image: NSImage,
@@ -816,16 +848,23 @@ class Button: NSButton {
             .font: font ?? Typography.font(size: 13), .foregroundColor: visual.foreground, .paragraphStyle: paragraph,
             .kern: tracking,
         ]
-        let height = (title as NSString).size(withAttributes: attributes).height
-        (title as NSString).draw(
-            in: NSRect(
-                x: textRect.minX,
-                y: (bounds.height - height) / 2,
-                width: textRect.width,
-                height: height
-            ),
-            withAttributes: attributes
-        )
+        if centersTitleVisually {
+            drawVisuallyCenteredTitle(
+                in: textRect,
+                color: visual.foreground
+            )
+        } else {
+            let height = (title as NSString).size(withAttributes: attributes).height
+            (title as NSString).draw(
+                in: NSRect(
+                    x: textRect.minX,
+                    y: (bounds.height - height) / 2,
+                    width: textRect.width,
+                    height: height
+                ),
+                withAttributes: attributes
+            )
+        }
         if chevron {
             let arrow = NSBezierPath()
             let x =

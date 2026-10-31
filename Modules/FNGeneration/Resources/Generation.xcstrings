@@ -1,6 +1,168 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "beauty.applying": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applying…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在应用…"
+          }
+        }
+      }
+    },
+    "beauty.close": {
+      "comment": "Closes the result overlay without changing the active beauty effect.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close beauty controls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起美颜面板"
+          }
+        }
+      }
+    },
+    "beauty.description": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies to generated results"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用于生成结果"
+          }
+        }
+      }
+    },
+    "beauty.lightening": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brightening"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美白"
+          }
+        }
+      }
+    },
+    "beauty.redness": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rosiness"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "红润"
+          }
+        }
+      }
+    },
+    "beauty.reset": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset to default"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复默认"
+          }
+        }
+      }
+    },
+    "beauty.sharpness": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharpening"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锐化"
+          }
+        }
+      }
+    },
+    "beauty.smoothness": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smoothing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "磨皮"
+          }
+        }
+      }
+    },
+    "beauty.unavailable": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beauty is unavailable and has been turned off. Generation will continue."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美颜暂不可用，已关闭美颜，生成将继续。"
+          }
+        }
+      }
+    },
     "controls.2_frame_interpolation_is_on_click_to_turn_off": {
       "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
       "extractionState": "manual",
@@ -51,6 +213,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "调节远端播放音量"
+          }
+        }
+      }
+    },
+    "controls.beauty": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beauty"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美颜"
           }
         }
       }

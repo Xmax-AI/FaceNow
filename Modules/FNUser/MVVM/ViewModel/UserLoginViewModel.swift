@@ -22,7 +22,7 @@ final class UserLoginViewModel {
         #if OVERSEA
             return [.email]
         #else
-            return [.sms, .email]
+            return [.sms]
         #endif
     }()
 
