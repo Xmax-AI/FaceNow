@@ -19,7 +19,7 @@ internal sealed class Pill : Button
     private readonly Glyph icon = new() { Width = 16, Height = 16, VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock label = Theme.Text();
     private readonly Glyph chevron = new() { Kind = "chevron", Width = 12, Height = 12, VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
-    public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
+    public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, AppText.Get(value)); }
     public string Glyph { get => (string)GetValue(GlyphProperty); set => SetValue(GlyphProperty, value); }
     public bool Accent { get => (bool)GetValue(AccentProperty); set => SetValue(AccentProperty, value); }
     public double LabelVerticalOffset { get => (double)GetValue(LabelVerticalOffsetProperty); set => SetValue(LabelVerticalOffsetProperty, value); }

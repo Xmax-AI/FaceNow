@@ -28,7 +28,7 @@ public sealed partial class MainWindow
         homeVirtualCamera.Click += (_, _) => OpenVirtualCameraSettings(homeVirtualCamera);
         AutomationProperties.SetName(cameraButton, "Select Camera"); AutomationProperties.SetName(keyButton, "API Key");
         AutomationProperties.SetName(StartButton, "Start Camera"); AutomationProperties.SetName(statisticsButton, "Show / hide statistics");
-        ToolTipService.SetToolTip(statisticsButton, "Show / hide statistics"); ToolTipService.SetToolTip(keyButton, "API Key");
+        ToolTipService.SetToolTip(statisticsButton, AppText.Get("Show / hide statistics")); ToolTipService.SetToolTip(keyButton, AppText.Get("API Key"));
         cameraButton.Click += (_, _) => OpenCameras(); modelButton.Click += (_, _) => OpenModels(); keyButton.Click += (_, _) => OpenKey();
         statisticsButton.Click += (_, _) => Model.StatisticsVisible = !Model.StatisticsVisible;
         stopButton.Click += async (_, _) => { try { await Model.StopAsync(); } catch (Exception error) { Model.ReportError(error); } };
@@ -46,9 +46,9 @@ public sealed partial class MainWindow
         cameraButton.Margin = new(0, 12, 0, 0); Grid.SetRow(cameraButton, 2); actions.Children.Add(cameraButton);
         landingStage.Children.Add(actions);
         terms.TextAlignment = TextAlignment.Center; terms.TextWrapping = TextWrapping.Wrap; terms.HorizontalAlignment = HorizontalAlignment.Center; terms.VerticalAlignment = VerticalAlignment.Bottom; terms.Margin = new(20, 0, 20, 28);
-        terms.Inlines.Add(new Run { Text = "We access your camera in accordance with our " });
+        terms.Inlines.Add(new Run { Text = AppText.Get("We access your camera in accordance with our ") });
         terms.Inlines.Add(LinkInline("Terms of Use", "https://platform.xmaxsi.com/docs/resources/terms", "#C3C6CC"));
-        terms.Inlines.Add(new Run { Text = " and " }); terms.Inlines.Add(LinkInline("Privacy Policy", "https://platform.xmaxsi.com/docs/resources/privacy", "#C3C6CC")); terms.Inlines.Add(new Run { Text = "." });
+        terms.Inlines.Add(new Run { Text = AppText.Get(" and ") }); terms.Inlines.Add(LinkInline("Privacy Policy", "https://platform.xmaxsi.com/docs/resources/privacy", "#C3C6CC")); terms.Inlines.Add(new Run { Text = AppText.Get(".") });
         landingStage.Children.Add(terms); landing.Children.Add(landingStage);
         var copyright = Theme.Text("Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.", 13, "#6B7380"); copyright.HorizontalAlignment = HorizontalAlignment.Center; copyright.Margin = new(0, 16, 0, 0); landing.Children.Add(copyright);
         var videos = new Grid(); videos.ColumnDefinitions.Add(new()); videos.ColumnDefinitions.Add(new() { Width = new(24) }); videos.ColumnDefinitions.Add(new());
@@ -73,7 +73,7 @@ public sealed partial class MainWindow
         freeReferenceHost.Children.Add(freeButton); freeReferenceHost.Children.Add(freeReferenceUploadOverlay); freeReferenceHost.Children.Add(freeReferenceStatus);
         var remove = new Pill { Glyph = "close", Width = 18, Height = 18, MinWidth = 18, Padding = new(0), HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new(0, -4, -5, 0) };
         AutomationProperties.SetName(remove, "Remove reference"); remove.Click += (_, _) => Model.RemoveFreeReference(); freeReferenceHost.Children.Add(remove); freeActions.Children.Add(freeReferenceHost);
-        submit.Click += (_, _) => Model.SubmitPromptCommand.Execute(null); ToolTipService.SetToolTip(submit, "Submit prompt"); freeActions.Children.Add(submit);
+        submit.Click += (_, _) => Model.SubmitPromptCommand.Execute(null); ToolTipService.SetToolTip(submit, AppText.Get("Submit prompt")); freeActions.Children.Add(submit);
         promptContent.Children.Add(freeActions); freePromptBox.Child = promptContent; referenceArea.Children.Add(freePromptBox);
         BuildFooter();
         root.Children.Add(toast);
@@ -82,13 +82,13 @@ public sealed partial class MainWindow
     {
         RoundedClip.Attach(panel, 24); panel.Children.Add(video);
         placeholder.TextAlignment = TextAlignment.Center; placeholder.TextWrapping = TextWrapping.Wrap; placeholder.VerticalAlignment = VerticalAlignment.Center; panel.Children.Add(placeholder);
-        metrics.Margin = new(14); metrics.VerticalAlignment = VerticalAlignment.Top; metrics.HorizontalAlignment = HorizontalAlignment.Left;
+        metrics.Margin = result ? new(14, 40, 14, 14) : new(14); metrics.VerticalAlignment = VerticalAlignment.Top; metrics.HorizontalAlignment = HorizontalAlignment.Left;
         foreach (var rows in result ? new[] { Model.DownlinkRows, Model.DownlinkNetworkRows } : new[] { Model.TimingRows, Model.UplinkRows, Model.UplinkNetworkRows }) metrics.Children.Add(MetricBox(rows));
         panel.Children.Add(metrics);
-        var titleText = Theme.Text(result ? "Result" : "Local", 12, "#A6FFFFFF"); titleText.TextTrimming = TextTrimming.CharacterEllipsis;
+        var titleText = Theme.Text(result ? "AI Generation" : "Preview", 10, "#A6FFFFFF"); titleText.FontFamily = new("Segoe UI"); titleText.TextTrimming = TextTrimming.CharacterEllipsis;
         if (!result) { titleText.FontFamily = new("Microsoft YaHei UI"); Theme.Bind(titleText, TextBlock.TextProperty, nameof(Model.LocalTitle), Model); }
-        panel.Children.Add(new Border { Background = Theme.Brush("#59000000"), CornerRadius = new(8), Padding = new(8, 4, 8, 4), Margin = new(14, 0, 14, 12), VerticalAlignment = VerticalAlignment.Bottom, HorizontalAlignment = HorizontalAlignment.Left, Child = titleText });
-        if (result) { var watermark = Theme.Text("✦ Xmax", 13, "#CCFFFFFF"); watermark.HorizontalAlignment = HorizontalAlignment.Right; watermark.VerticalAlignment = VerticalAlignment.Top; watermark.Margin = new(16); watermark.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold; panel.Children.Add(watermark); }
+        panel.Children.Add(new Border { Background = Theme.Brush("#59000000"), CornerRadius = new(8), Padding = new(6, 3, 6, 3), Margin = result ? new(12) : new(14, 0, 14, 12), VerticalAlignment = result ? VerticalAlignment.Top : VerticalAlignment.Bottom, HorizontalAlignment = result ? HorizontalAlignment.Right : HorizontalAlignment.Left, Child = titleText });
+        if (result) { var watermark = Theme.Text(FaceNow.Core.Product.BrandDefinition.Watermark, 11, "#CCFFFFFF"); watermark.FontFamily = new("Segoe UI"); watermark.HorizontalAlignment = HorizontalAlignment.Left; watermark.VerticalAlignment = VerticalAlignment.Top; watermark.Margin = new(12); watermark.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold; panel.Children.Add(watermark); }
     }
     private static Border MetricBox(MetricRow[] rows)
     {
@@ -97,7 +97,7 @@ public sealed partial class MainWindow
         {
             var grid = new Grid { Height = 17 }; grid.ColumnDefinitions.Add(new()); grid.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
             grid.Children.Add(Theme.Text(row.Label, 11, "#E6FFFFFF"));
-            var value = Theme.Text("—", 11, "#E6FFFFFF"); value.FontFamily = new("Consolas"); Theme.Bind(value, TextBlock.TextProperty, nameof(row.Value), row); Grid.SetColumn(value, 1); grid.Children.Add(value);
+            var value = Theme.Text("—", 11, "#E6FFFFFF"); value.FontFamily = new("Segoe UI"); Theme.Bind(value, TextBlock.TextProperty, nameof(row.Value), row); Grid.SetColumn(value, 1); grid.Children.Add(value);
             if (row.Label == "Total startup") stack.Children.Add(new Border { BorderThickness = new(0, 1, 0, 0), BorderBrush = Theme.Brush("#30FFFFFF"), Padding = new(0, 6, 0, 0), Margin = new(0, 4, 0, 0), Child = grid });
             else stack.Children.Add(grid);
         }
@@ -141,5 +141,5 @@ public sealed partial class MainWindow
         footer.Children.Add(links);
     }
     private static Hyperlink LinkInline(string text, string url, string color)
-    { var link = new Hyperlink { NavigateUri = new(url), Foreground = Theme.Brush(color) }; link.Inlines.Add(new Run { Text = text }); return link; }
+    { var link = new Hyperlink { NavigateUri = new(FaceNow.Core.Product.ProductProfile.Current.ResolveLink(url)), Foreground = Theme.Brush(color) }; link.Inlines.Add(new Run { Text = AppText.Get(text) }); return link; }
 }

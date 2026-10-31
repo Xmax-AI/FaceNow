@@ -25,6 +25,8 @@ internal static class Theme
         </ControlTemplate>
         """);
     internal static TextBlock Text(string text = "", double size = 13, string color = "#111318") => new()
+    { Text = AppText.Get(text), FontFamily = Font, FontSize = size, Foreground = Brush(color), VerticalAlignment = VerticalAlignment.Center };
+    internal static TextBlock RawText(string text, double size = 13, string color = "#111318") => new()
     { Text = text, FontFamily = Font, FontSize = size, Foreground = Brush(color), VerticalAlignment = VerticalAlignment.Center };
     internal static void Bind(DependencyObject target, DependencyProperty property, string path, object? source = null, BindingMode mode = BindingMode.OneWay)
     {

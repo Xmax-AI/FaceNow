@@ -27,6 +27,10 @@ internal sealed class PreviewAccountStorage : IAccountStorage
 {
     private SessionCredential? credential;
     private CachedAccount? cache;
+    internal PreviewAccountStorage(bool savedSession = false)
+    {
+        if (savedSession) credential = new() { Kind = CredentialKind.ApiKey, Value = PreviewAccountApi.Key, SelectedKeyUid = "preview-key" };
+    }
     public SessionCredential? ReadCredential() => credential;
     public void SaveCredential(SessionCredential value) => credential = value;
     public void RemoveCredential() => credential = null;

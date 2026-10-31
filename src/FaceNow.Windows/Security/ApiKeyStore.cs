@@ -7,8 +7,9 @@ using System.Text;
 namespace FaceNow.Windows.Security;
 
 // Generic credentials belong to the signed-in Windows user and survive app restarts.
-public sealed class ApiKeyStore(string target = "XMAX.AI/FaceNow/ApiKey")
+public sealed class ApiKeyStore(string? target = null)
 {
+    private readonly string target = target ?? FaceNow.Core.Product.ProductProfile.Current.CredentialPrefix + "/ApiKey";
     private const uint Generic = 1, LocalMachine = 2;
     private const int NotFound = 1168;
 

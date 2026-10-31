@@ -62,6 +62,7 @@ internal sealed class ToastView : Grid
     internal void Update(string? value, ToastStyle style = ToastStyle.Error, bool announce = false)
     {
         if (stopped) return;
+        if (value is not null) value = AppText.Get(value);
         if (string.IsNullOrEmpty(value))
         {
             timer.Stop();

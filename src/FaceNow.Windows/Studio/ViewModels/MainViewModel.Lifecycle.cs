@@ -87,6 +87,7 @@ internal sealed partial class MainViewModel
         ++intent;
         var previous = session; session = null;
         var previousPump = cameraPump; cameraPump = null;
+        Changed(nameof(ResultVideoSource));
         var previousOutputStartup = outputStartup; outputStartup = null;
         var cancellation = operationCancellation; operationCancellation = null;
         var details = terminalDetailDelivery; terminalDetailDelivery = null;

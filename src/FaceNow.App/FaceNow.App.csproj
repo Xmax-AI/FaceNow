@@ -13,6 +13,8 @@
     <ApplicationIcon>../../assets/FaceNow.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="$(FaceNowMediaDirectory)/FaceNow.BeautyWorker.exe" Link="FaceNow.BeautyWorker.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('$(FaceNowMediaDirectory)/FaceNow.BeautyWorker.exe')" />
+    <Content Include="$(FaceNowMediaDirectory)/FaceNow.FrameEffects.dll" Link="FaceNow.FrameEffects.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('$(FaceNowMediaDirectory)/FaceNow.FrameEffects.dll')" />
     <Content Include="../../assets/FaceNow.png" Link="Assets/FaceNow.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../assets/Login/**/*" Link="Assets/Login/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../assets/FaceNow.ico" Link="Assets/FaceNow.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

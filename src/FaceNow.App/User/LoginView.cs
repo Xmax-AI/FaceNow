@@ -22,7 +22,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
     private readonly LoginMethodSelector methods = new();
     private readonly TextBox account = Input("Enter your phone number");
     private readonly TextBox code = Input("Enter verification code");
-    private readonly PasswordBox key = new() { PlaceholderText = "Enter your active Xmax API key" };
+    private readonly PasswordBox key = new() { PlaceholderText = AppText.Get("Enter your active Xmax API key") };
     private readonly LoginActionButton send = new("Get Code"), submit = new("Sign in");
     private readonly LoginInput accountInput, codeInput, keyInput;
     private readonly LoginScenarios scenarios = new();
@@ -99,11 +99,11 @@ internal sealed partial class LoginView : UserControl, IDisposable
         primaryHost.Children.Add(primaryShadow); primaryHost.Children.Add(submit);
         Grid.SetRow(primaryHost, 6); form.Children.Add(primaryHost);
         terms.TextAlignment = TextAlignment.Center; terms.TextWrapping = TextWrapping.Wrap; terms.Opacity = .75;
-        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = "By signing in, you are agreeing to the " });
+        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get("By signing in, you are agreeing to the ") });
         terms.Inlines.Add(LegalLink("Terms of Use", "terms"));
-        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = " and " });
+        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get(" and ") });
         terms.Inlines.Add(LegalLink("Privacy Policy", "privacy"));
-        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = "." });
+        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get(".") });
         Grid.SetRow(terms, 8); form.Children.Add(terms);
         form.VerticalAlignment = VerticalAlignment.Center; inputArea.Children.Add(form);
         Grid.SetRow(inputArea, 1); formContent.Children.Add(inputArea);
@@ -128,6 +128,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
         };
         key.PasswordChanged += (_, _) =>
         {
+            if (updating) return;
             model.ApiKey = key.Password; model.Error = null;
             if (rejectedKey != key.Password) rejectedKey = null;
             Render();
@@ -145,9 +146,9 @@ internal sealed partial class LoginView : UserControl, IDisposable
 
     private static Microsoft.UI.Xaml.Documents.Hyperlink LegalLink(string text, string slug) => new()
     {
-        NavigateUri = new($"https://platform.xmaxsi.com/docs/resources/{slug}"), Foreground = Theme.Brush("#2F46E2"),
+        NavigateUri = new(FaceNow.Core.Product.ProductProfile.Current.ResolveLink($"https://platform.xmaxsi.com/docs/resources/{slug}")), Foreground = Theme.Brush("#2F46E2"),
         TextDecorations = global::Windows.UI.Text.TextDecorations.None,
-        Inlines = { new Microsoft.UI.Xaml.Documents.Run { Text = text } }
+        Inlines = { new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get(text) } }
     };
 
     private void ApplyLayout()
@@ -185,7 +186,22 @@ internal sealed partial class LoginView : UserControl, IDisposable
         Visibility = value ? Visibility.Visible : Visibility.Collapsed;
         UpdateVideoPlayback();
         if (value) { scenarios.SetPlaying(!captureMode); timer.Start(); if (!configurationLoaded) _ = LoadConfigurationAsync(); }
-        else { scenarios.SetPlaying(false); timer.Stop(); model.ClearSecrets(); rejectedKey = null; rejectedCodes.Clear(); key.Password = ""; Render(); }
+        else
+        {
+            scenarios.SetPlaying(false); timer.Stop();
+            if (user.HasVerifiedSession) ResetAfterSignIn();
+            else { model.ClearSecrets(); rejectedKey = null; rejectedCodes.Clear(); key.Password = ""; Render(); }
+        }
+    }
+
+    private void ResetAfterSignIn()
+    {
+        model.ResetAfterSignIn(); rejectedKey = null; rejectedCodes.Clear();
+        submittingLogin = sendingCode = configurationFailed = false;
+        updating = true;
+        try { account.Text = code.Text = key.Password = ""; }
+        finally { updating = false; }
+        Render();
     }
 
     private void UpdateVideoPlayback()
@@ -227,8 +243,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
         {
             model.Configuration = await user.GetConfigurationAsync(lifetime.Token);
             configurationLoaded = true;
-            if (!model.Configuration.Supports(model.Method))
-            { model.Select(model.Configuration.EnableSmsLogin ? 0 : model.Configuration.EnableEmailLogin ? 1 : 2); }
+            if (!model.UsesApiKey && !model.Configuration.Supports(model.Method)) model.Select(2);
         }
         catch (OperationCanceledException) { }
         catch (Exception failure) { configurationFailed = true; ReportRequestError(failure.Message); }
@@ -261,7 +276,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
                     code.Focus(FocusState.Programmatic);
                 }
             }
-            if (login && !disposed && user.HasVerifiedSession) SignedIn?.Invoke();
+            if (login && !disposed && user.HasVerifiedSession) { ResetAfterSignIn(); SignedIn?.Invoke(); }
         }
         catch (OperationCanceledException) { }
         catch (Exception failure)
@@ -296,7 +311,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
             accountInput.Visibility = codeInput.Visibility = model.UsesApiKey ? Visibility.Collapsed : Visibility.Visible;
             keyInput.Visibility = model.UsesApiKey ? Visibility.Visible : Visibility.Collapsed;
             accountInput.SetPrefix(model.Method == LoginMethod.Sms);
-            account.PlaceholderText = model.Method == LoginMethod.Sms ? "Enter your phone number" : "Enter your email address";
+            account.PlaceholderText = AppText.Get(model.Method == LoginMethod.Sms ? "Enter your phone number" : "Enter your email address");
             AutomationProperties.SetName(account, model.Method == LoginMethod.Sms ? "Phone number" : "Email address");
             if (account.Text != model.Account) account.Text = model.Account;
             if (code.Text != model.Code) code.Text = model.Code;
@@ -305,16 +320,16 @@ internal sealed partial class LoginView : UserControl, IDisposable
             keyInput.SetInvalid(rejectedKey is not null ? "This API key is inactive or unavailable." : null);
             codeInput.SetInvalid(rejectedCodes.GetValueOrDefault(model.Method).Message);
             send.IsEnabled = !busy && model.CanSendCode;
-            send.Text = model.Cooldown > 0 ? $"Resend ({model.Cooldown}s)" : "Get Code";
+            send.Text = model.Cooldown > 0 ? AppText.Format("Resend ({0}s)", model.Cooldown) : "Get Code";
             send.SetLoading(sendingCode);
             submit.IsEnabled = !busy && (model.CanSubmit || configurationFailed && !model.UsesApiKey && model.ValidAccount && model.Code.Length == model.CodeLength);
             submit.SetLoading(submittingLogin);
-            status.Text = preview ? "Login preview · simulated account, no account requests" : "";
+            status.Text = preview ? AppText.Get("Login preview · simulated account, no account requests") : "";
             ApplyLayout();
         }
         finally { updating = false; }
     }
-    private static TextBox Input(string placeholder) => new() { PlaceholderText = placeholder, IsSpellCheckEnabled = false, IsTextPredictionEnabled = false };
+    private static TextBox Input(string placeholder) => new() { PlaceholderText = AppText.Get(placeholder), IsSpellCheckEnabled = false, IsTextPredictionEnabled = false };
     public void Dispose()
     {
         if (disposed) return;
@@ -329,17 +344,16 @@ internal sealed partial class LoginView : UserControl, IDisposable
         await VerifyVideoLifecycleAsync();
         if (!configurationLoaded) await LoadConfigurationAsync();
         if (!configurationLoaded || user.CanAccessHome) throw new InvalidOperationException("Login preview did not initialize signed out.");
-        methods.SelectedIndex = 0; await Task.Delay(50);
-        account.Text = "13800000000"; await Task.Delay(50);
+        methods.SelectedIndex = model.DefaultIndex; await Task.Delay(50);
+        string destination = model.Method == LoginMethod.Sms ? "13800000000" : "preview@example.com";
+        account.Text = destination; await Task.Delay(50);
         code.Text = "123456"; await Task.Delay(50);
         if (code.Text != "123456" || !submit.IsEnabled) throw new InvalidOperationException($"Phone input validation failed (account length {model.Account.Length}, code length {model.Code.Length}, busy {model.IsBusy}, ready {configurationLoaded}).");
         await RunAsync(false);
         if (send.IsEnabled || model.Cooldown <= 0) throw new InvalidOperationException("Resend cooldown failed.");
-        methods.SelectedIndex = 1; await Task.Delay(50);
-        account.Text = "preview@example.com"; await Task.Delay(50);
-        code.Text = "654321"; await Task.Delay(50);
-        methods.SelectedIndex = 0; await Task.Delay(50);
-        if (account.Text != "13800000000" || code.Text != "123456") throw new InvalidOperationException("Channel drafts were not restored.");
+        methods.SelectedIndex = 2; await Task.Delay(50);
+        methods.SelectedIndex = model.DefaultIndex; await Task.Delay(50);
+        if (account.Text != destination || code.Text != "123456") throw new InvalidOperationException("Channel drafts were not restored.");
         methods.SelectedIndex = 2; await Task.Delay(50);
         key.Password = "uk-missing"; await Task.Delay(50); await RunAsync(true);
         if (user.HasVerifiedSession || string.IsNullOrWhiteSpace(model.Error)) throw new InvalidOperationException("An invalid key bypassed login.");

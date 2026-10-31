@@ -193,15 +193,46 @@ var tests = new (string Name, Func<Task> Run)[]
     }),
     ("Form channel drafts, ASCII filtering and per-destination cooldowns", () =>
     {
-        long now = 1000; var model = new LoginViewModel(() => now) { Configuration = Configuration() };
+        long now = 1000; var model = new LoginViewModel(() => now, new(FaceNow.Core.Product.ProductEdition.Domestic)) { Configuration = Configuration() };
         model.SetAccount("13800000000"); model.SetCode("１a1234567"); Check(model.Code == "123456");
         model.RecordSent(LoginMethod.Sms, model.Account, 60); Check(model.Cooldown == 60 && !model.CanSendCode);
-        model.Select(1); model.SetAccount("user@example.com"); model.SetCode("654321"); Check(model.Cooldown == 0 && model.CanSubmit);
+        model.Select(2); model.ApiKey = "uk-test"; Check(model.CanSubmit);
         model.Select(0); Check(model.Account == "13800000000" && model.Code == "123456");
         now += 2001; Check(model.Cooldown == 58);
         model.SetAccount("13900000000"); Check(model.Code == "" && model.Cooldown == 0);
         model.Select(2); model.ApiKey = "uk-test"; Check(model.CanSubmit);
         model.IsBusy = true; Check(!model.CanSubmit); return Task.CompletedTask;
+    }),
+    ("Regional login forms expose only the local code channel and API key", () =>
+    {
+        foreach (var edition in new[] { FaceNow.Core.Product.ProductEdition.Domestic, FaceNow.Core.Product.ProductEdition.Overseas })
+        {
+            var model = new LoginViewModel(product: new(edition)) { Configuration = Configuration() };
+            bool overseas = edition == FaceNow.Core.Product.ProductEdition.Overseas;
+            Check(model.DefaultIndex == (overseas ? 1 : 0) && model.Method == (overseas ? LoginMethod.Email : LoginMethod.Sms));
+            Check(model.IsChannelVisible(model.DefaultIndex) && model.IsChannelVisible(2) && !model.IsChannelVisible(overseas ? 0 : 1));
+            model.Select(overseas ? 0 : 1); Check(model.Method == (overseas ? LoginMethod.Email : LoginMethod.Sms));
+            model.SetAccount(overseas ? "user@example.com" : "13800000000"); model.SetCode("123456"); Check(model.CanSubmit);
+            model.Select(2); model.ApiKey = "uk-test"; Check(model.CanSubmit);
+        }
+        return Task.CompletedTask;
+    }),
+    ("Successful login clears form drafts, credentials, errors and resend deadlines", () =>
+    {
+        foreach (var edition in new[] { FaceNow.Core.Product.ProductEdition.Domestic, FaceNow.Core.Product.ProductEdition.Overseas })
+        {
+            var model = new LoginViewModel(() => 1000, new(edition)) { Configuration = Configuration() };
+            string destination = model.Method == LoginMethod.Sms ? "13800000000" : "user@example.com";
+            model.SetAccount(destination); model.SetCode("123456"); model.RecordSent(model.Method, destination, 60);
+            model.Select(2); model.ApiKey = "uk-test"; model.Error = "Rejected attempt"; model.IsBusy = true;
+            model.ResetAfterSignIn();
+            Check(model.Account.Length == 0 && model.Code.Length == 0 && model.ApiKey.Length == 0 && model.Error is null && !model.UsesApiKey);
+            Check(model.Cooldown == 0 && model.IsBusy); // The request owns its final busy transition.
+            model.IsBusy = false; Check(!model.CanSubmit && !model.CanSendCode);
+            model.SetAccount(destination); Check(model.Cooldown == 0 && model.CanSendCode);
+            model.Select(2); model.Select(model.DefaultIndex); Check(model.Code.Length == 0 && model.Cooldown == 0);
+        }
+        return Task.CompletedTask;
     }),
     ("Required security proofs and invalid destinations never reach account endpoints", async () =>
     {
@@ -237,12 +268,12 @@ var tests = new (string Name, Func<Task> Run)[]
         var store = new MemoryStorage(); using var user = new UserRepository(api, store);
         await Throws<AccountException>(() => user.SignInWithKeyAsync("uk-test")); Check(!user.CanAccessHome && store.Credential is null);
     }),
-    ("HTTP contract uses the domestic origin, tenant and camel-case DTOs", async () =>
+    ("HTTP contract uses the edition origin, tenant and camel-case DTOs", async () =>
     {
         var handler = new RecordingHandler(); using var client = new HttpClient(handler); using var api = new AccountApi(client);
         handler.Response = Envelope("\"account-token\"");
         await api.LoginAsync(LoginMethod.Sms, "13800000000", "123456", new("ticket", "random"), default);
-        Check(handler.Uri?.ToString() == "https://cloud.xmax.22duck.cn/baas/api/user/login" && handler.Authorization is null);
+        Check(handler.Uri == new Uri(AccountContract.ServiceOrigin, "/baas/api/user/login") && handler.Authorization is null);
         using var body = JsonDocument.Parse(handler.Body!); var root = body.RootElement;
         Check(root.GetProperty("tenantName").GetString() == "open-platform" && root.GetProperty("loginMethod").GetString() == "sms"
             && root.GetProperty("credential").GetString() == "123456" && root.GetProperty("captchaTicket").GetString() == "ticket");

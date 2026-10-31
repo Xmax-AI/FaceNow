@@ -1,3 +1,4 @@
+using FaceNow.Core.Localization;
 using FaceNow.Core.User;
 using FaceNow.Core.VirtualCamera;
 using FaceNow.Windows.Studio.Platform;
@@ -24,15 +25,15 @@ var tests = new (string Name, Func<Task> Run)[]
         var model = ActiveModel(output, access); var receive = model.CreateSessionEventHandler();
         receive(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Session heartbeat timed out"));
         Check(!model.Active && model.IsClosing && model.Busy && !model.CanEdit);
-        Check(model.Error == "Session heartbeat timed out" && !model.StartCommand.CanExecute(null));
+        Check(model.Error == AppText.Get("Session heartbeat timed out") && !model.StartCommand.CanExecute(null));
         await model.StartLandingAsync(); await model.GenerateAsync();
         Check(!model.Active && access.KeyReads == 0 && access.CreditChecks == 0);
         receive(Event(RealtimeEventType.State, state: RealtimeState.Generating));
         receive(Event(RealtimeEventType.Error, code: -4, message: "Late unrelated error"));
-        Check(!model.Active && model.Error == "Session heartbeat timed out" && output.Stops == 1);
+        Check(!model.Active && model.Error == AppText.Get("Session heartbeat timed out") && output.Stops == 1);
         Task cleanup = model.StopAsync(); output.Gate.SetResult(); await cleanup;
         Check(!model.IsClosing && !model.Busy && model.State == RealtimeState.Idle && model.Session is null);
-        Check(model.LocalVideo is null && model.RemoteVideo is null && model.Error == "Session heartbeat timed out");
+        Check(model.LocalVideo is null && model.RemoteVideo is null && model.Error == AppText.Get("Session heartbeat timed out"));
         Check(model.StartCommand.CanExecute(null));
     }),
     ("Both insufficient-credit business codes close generation without rejecting authentication or refreshing balance", async () =>
@@ -58,17 +59,17 @@ var tests = new (string Name, Func<Task> Run)[]
     {
         var output = new FakeOutput(); var model = ActiveModel(output); var receive = model.CreateSessionEventHandler();
         receive(Event(RealtimeEventType.Error, code: -4, message: "Request timed out"));
-        Check(model.Active && output.Stops == 0 && model.Error == "Request timed out");
+        Check(model.Active && output.Stops == 0 && model.Error == AppText.Get("Request timed out"));
         model.ReportError(new XmaxException(-1, "Insufficient credits"));
-        Check(model.Active && output.Stops == 0 && model.Error == "Insufficient credits");
+        Check(model.Active && output.Stops == 0 && model.Error == AppText.Get("Insufficient credits"));
         return Task.CompletedTask;
     }),
     ("Cleanup faults cannot overwrite the initiating error or leave restart disabled", async () =>
     {
         var output = new FakeOutput { StopFailure = new IOException("Output teardown failed") }; var model = ActiveModel(output);
         model.CreateSessionEventHandler()(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Original session failure"));
-        Check(!model.Active && model.Error == "Original session failure" && !model.Busy && !model.IsClosing);
-        await model.StopAsync(); Check(model.Error == "Original session failure");
+        Check(!model.Active && model.Error == AppText.Get("Original session failure") && !model.Busy && !model.IsClosing);
+        await model.StopAsync(); Check(model.Error == AppText.Get("Original session failure"));
     }),
     ("Concurrent stops join a single cleanup and clear reference selection", async () =>
     {
@@ -89,7 +90,7 @@ var tests = new (string Name, Func<Task> Run)[]
         model.CreateSessionEventHandler()(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Session ended"));
         Check(!model.Active && model.IsClosing && output.Stops == 1 && !model.StartCommand.CanExecute(null));
         Task cleanup = model.StopAsync(); startup.SetException(new IOException("Late output startup failed"));
-        await cleanup; Check(!model.Busy && output.Stops == 2 && model.Error == "Session ended");
+        await cleanup; Check(!model.Busy && output.Stops == 2 && model.Error == AppText.Get("Session ended"));
     }),
     ("State failure receives only its correlated follow-up error text", async () =>
     {
@@ -97,10 +98,10 @@ var tests = new (string Name, Func<Task> Run)[]
         receive(Event(RealtimeEventType.State, reason: 2, code: -15, message: ""));
         Check(!model.Active && model.IsClosing && model.Error.Length > 0);
         receive(Event(RealtimeEventType.Error, code: -15, message: "Unrelated failure", session: "different-session"));
-        Check(model.Error != "Unrelated failure");
+        Check(model.Error != AppText.Get("Unrelated failure"));
         receive(Event(RealtimeEventType.Error, code: -15, message: "Heartbeat connection lost"));
-        Check(model.Error == "Heartbeat connection lost" && !model.Active && output.Stops == 1);
-        output.Gate.SetResult(); await model.StopAsync(); Check(model.Error == "Heartbeat connection lost");
+        Check(model.Error == AppText.Get("Heartbeat connection lost") && !model.Active && output.Stops == 1);
+        output.Gate.SetResult(); await model.StopAsync(); Check(model.Error == AppText.Get("Heartbeat connection lost"));
     }),
     ("Legacy credit exhaustion in the follow-up error is normalized after returning home", async () =>
     {
@@ -115,7 +116,7 @@ var tests = new (string Name, Func<Task> Run)[]
         var output = new FakeOutput { Gate = new() }; var model = ActiveModel(output); var receive = model.CreateSessionEventHandler();
         receive(Event(RealtimeEventType.State, reason: 2, code: -15, message: "")); model.ClearError();
         receive(Event(RealtimeEventType.Error, code: -15, message: "Late detail"));
-        Check(model.Error == ""); output.Gate.SetResult(); await model.StopAsync();
+        Check(model.Error == AppText.Get("")); output.Gate.SetResult(); await model.StopAsync();
     }),
     ("A missing follow-up error cannot block teardown indefinitely", async () =>
     {
@@ -131,9 +132,9 @@ var tests = new (string Name, Func<Task> Run)[]
         model.ConfigurePreview(true); model.ClearError();
         old(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Stale failure"));
         old(Event(RealtimeEventType.State, state: RealtimeState.Generating));
-        Check(model.Active && model.Error == "");
+        Check(model.Active && model.Error == AppText.Get(""));
         model.CreateSessionEventHandler()(Event(RealtimeEventType.Error, code: -4, message: "Current notice"));
-        Check(model.Active && model.Error == "Current notice");
+        Check(model.Active && model.Error == AppText.Get("Current notice"));
     }),
     ("Authentication uses the service ApiCode, never the SDK result field", () =>
     {

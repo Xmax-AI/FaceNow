@@ -113,7 +113,7 @@ internal sealed class AccountCard : UserControl
     }
     internal void Update(AccountPresentation value, bool canRecharge, bool canSignOut)
     {
-        avatar.SetInitials(value.AvatarText); title.Text = value.Title; credits.Text = "Credits: " + value.Credits;
+        avatar.SetInitials(value.AvatarText); title.Text = value.Title; credits.Text = AppText.Get("Credits: ") + value.Credits;
         ToolTipService.SetToolTip(title, value.Title); recharge.IsEnabled = canRecharge; signOut.IsEnabled = canSignOut;
     }
     private void MoveHighlight(int index)

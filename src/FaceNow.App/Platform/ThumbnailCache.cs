@@ -28,7 +28,7 @@ internal static class ThumbnailCache
             {
                 string url = source.Replace("/format/webp", "/format/png", StringComparison.Ordinal);
                 if (new Uri(url).Scheme != "https") throw new InvalidOperationException("Thumbnail URL must use HTTPS.");
-                string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xmax", "FaceNow", "Thumbnails");
+                string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xmax", FaceNow.Core.Product.ProductProfile.Current.Id, "Thumbnails");
                 string file = Path.Combine(directory, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(url))) + ".png");
                 if (File.Exists(file))
                 {

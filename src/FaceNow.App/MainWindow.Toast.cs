@@ -4,7 +4,7 @@ namespace FaceNow.App;
 
 public sealed partial class MainWindow
 {
-    private const string SignedInMessage = "Signed in successfully";
+    private static string SignedInMessage => AppText.Get("Signed in successfully");
     private bool signInToastVisible;
     private string? displayedToastError;
 

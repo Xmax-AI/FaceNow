@@ -6,6 +6,7 @@
 window.startChallenge = options => {
   if (window.challengeStarted) return;
   window.challengeStarted = true;
+  document.documentElement.lang = options.language === 'zh-cn' ? 'zh-CN' : 'en';
   const post = result => window.chrome.webview.postMessage({...result, nonce: options.nonce});
   const script = document.createElement('script');
   script.src = 'https://turing.captcha.qcloud.com/TJCaptcha.js';
@@ -13,7 +14,7 @@ window.startChallenge = options => {
   script.onload = () => {
     try {
       window.challenge = new TencentCaptcha(options.appId, post, {
-        type: 'popup', userLanguage: 'en', bizState: options.businessState
+        type: 'popup', userLanguage: options.language, bizState: options.businessState
       });
       window.challenge.show();
     } catch (_) { post({ret: -1}); }

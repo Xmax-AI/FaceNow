@@ -7,7 +7,7 @@ namespace FaceNow.Windows.Studio.Services;
 
 internal static class CameraSelectionStore
 {
-    private const string KeyPath = @"Software\XMAX.AI\FaceNow";
+    private static string KeyPath => FaceNow.Core.Product.ProductProfile.Current.RegistryPath;
     internal static string? Load()
     {
         try { using var key = Registry.CurrentUser.OpenSubKey(KeyPath); return key?.GetValue("CameraId") as string; }

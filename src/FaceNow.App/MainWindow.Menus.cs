@@ -40,7 +40,7 @@ public sealed partial class MainWindow
         {
             bool selected = Model.SelectedCamera?.Id == camera.Id;
             var row = new Grid(); row.ColumnDefinitions.Add(new()); row.ColumnDefinitions.Add(new() { Width = new(22) });
-            var text = Theme.Text(camera.Name, 12, selected ? "#2F46E2" : "#111318"); text.FontFamily = new("Microsoft YaHei UI"); text.TextTrimming = TextTrimming.CharacterEllipsis; row.Children.Add(text);
+            var text = Theme.RawText(camera.Name, 12, selected ? "#2F46E2" : "#111318"); text.FontFamily = new("Microsoft YaHei UI"); text.TextTrimming = TextTrimming.CharacterEllipsis; row.Children.Add(text);
             if (selected) { var check = Theme.Text("✓", 12, "#2F46E2"); check.FontFamily = new("Segoe UI Symbol"); check.HorizontalAlignment = HorizontalAlignment.Right; Grid.SetColumn(check, 1); row.Children.Add(check); }
             var button = new Button { Template = Theme.ButtonTemplate, Content = row, Height = 34, HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Stretch, Padding = new(8, 0, 8, 0), CornerRadius = new(8), BorderThickness = new(0), Background = Theme.Brush(selected ? "#EEF1FF" : "#00FFFFFF") };
             AutomationProperties.SetName(button, camera.Name);
@@ -60,7 +60,7 @@ public sealed partial class MainWindow
     {
         if (accountRepository is not null) { DispatcherQueue.TryEnqueue(async () => await OpenGenerationKeysAsync()); return; }
         var stack = new StackPanel { Spacing = 12 };
-        apiKeyInput = new TextBox { Text = Model.ApiKey, PlaceholderText = "API Key", IsSpellCheckEnabled = false, IsTextPredictionEnabled = false, FontFamily = Theme.Font, FontSize = 14, Padding = new(12, 9, 12, 9), Background = Theme.Brush("#F7F8FA"), Foreground = Theme.Brush("#111318"), BorderBrush = Theme.Brush("#E5E7EB"), BorderThickness = new(1), CornerRadius = new(10) };
+        apiKeyInput = new TextBox { Text = Model.ApiKey, PlaceholderText = AppText.Get("API Key"), IsSpellCheckEnabled = false, IsTextPredictionEnabled = false, FontFamily = Theme.Font, FontSize = 14, Padding = new(12, 9, 12, 9), Background = Theme.Brush("#F7F8FA"), Foreground = Theme.Brush("#111318"), BorderBrush = Theme.Brush("#E5E7EB"), BorderThickness = new(1), CornerRadius = new(10) };
         apiKeyInput.Resources["TextControlBorderThemeThicknessFocused"] = new Thickness(1);
         apiKeyInput.Resources["TextControlBorderBrushFocused"] = Theme.Brush("#2F46E2");
         apiKeyInput.Resources["TextControlBackgroundFocused"] = Theme.Brush("#F7F8FA");
@@ -81,7 +81,7 @@ public sealed partial class MainWindow
         apiKeyInput.KeyDown += (_, args) => { if (args.Key is VirtualKey.Enter or VirtualKey.Escape) { ClosePopups(); args.Handled = true; } };
         stack.Children.Add(apiKeyInput);
         var help = Theme.Text("", 12, "#6B7380"); help.Margin = new(2, 0, 2, 0);
-        help.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = "Get an API key from the " }); help.Inlines.Add(LinkInline("Xmax Open Platform", "https://platform.xmaxsi.com/api-keys", "#2F46E2")); help.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = "." }); stack.Children.Add(help);
+        help.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get("Get an API key from the ") }); help.Inlines.Add(LinkInline("Xmax Open Platform", "https://platform.xmaxsi.com/api-keys", "#2F46E2")); help.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get(".") }); stack.Children.Add(help);
         KeyPopup = OpenPopup(keyButton, stack, 316, 16);
         DispatcherQueue.TryEnqueue(() => apiKeyInput.Focus(FocusState.Programmatic));
     }

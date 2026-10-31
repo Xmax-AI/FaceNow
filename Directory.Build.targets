@@ -1,4 +1,7 @@
 <Project>
+  <Target Name="ValidateFaceNowEdition" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(FaceNowEdition)' != 'Domestic' and '$(FaceNowEdition)' != 'Overseas'" Text="FaceNowEdition must be Domestic or Overseas." />
+  </Target>
   <!-- FaceNow uses WinUI, composition and the runtime, but no local ML, AI, search or widgets APIs.
        Filter component payloads before WinAppSDK generates both files and WinRT registrations. -->
   <Target Name="FaceNowSelectRuntimeComponents" BeforeTargets="AddMicrosoftWindowsAppSDKPayloadFilesFromComponents"

@@ -113,18 +113,18 @@ internal static class LoginMotion
 internal sealed class LoginActionButton : Button
 {
     private readonly TextBlock label = LoginTypography.Text();
-    private readonly ProgressRing spinner = new() { Width = 18, Height = 18, Foreground = Theme.Brush("#FFFFFF"), Visibility = Visibility.Collapsed };
+    private readonly ActivitySpinner spinner = new() { Visibility = Visibility.Collapsed };
     private readonly SolidColorBrush surface = Theme.Brush("#2F46E2");
     private bool hovered, pressed, loading;
     private double scale = 1;
-    internal string Text { get => label.Text; set { if (label.Text != value) label.Text = value; } }
+    internal string Text { get => label.Text; set { if (label.Text != value) label.Text = AppText.Get(value); } }
     internal LoginActionButton(string text)
     {
         Template = Theme.ButtonTemplate; UseSystemFocusVisuals = true;
         Background = surface; BorderThickness = new(0); MinHeight = MinWidth = 0;
         HorizontalAlignment = HorizontalAlignment.Stretch;
         HorizontalContentAlignment = HorizontalAlignment.Stretch; VerticalContentAlignment = VerticalAlignment.Stretch;
-        label.Text = text; label.Foreground = Theme.Brush("#FFFFFF"); label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
+        label.Text = AppText.Get(text); label.Foreground = Theme.Brush("#FFFFFF"); label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
         label.TextAlignment = TextAlignment.Center;
         var content = new Grid(); content.Children.Add(label); content.Children.Add(spinner); Content = content;
         label.HorizontalAlignment = HorizontalAlignment.Center;
@@ -172,20 +172,23 @@ internal sealed class LoginMethodSelector : UserControl
     private readonly SolidColorBrush[] foregrounds = new SolidColorBrush[3];
     private readonly LoginShadow[] shadows = new LoginShadow[3];
     private readonly bool[] available = [true, true, true];
+    private readonly bool[] visible = [FaceNow.Core.Product.ProductProfile.Current.ShowsPhoneLogin, FaceNow.Core.Product.ProductProfile.Current.ShowsEmailLogin, true];
     private int selectedIndex, hoveredIndex = -1, pressedIndex = -1;
     internal event Action? SelectionChanged;
     internal int SelectedIndex
     {
         get => selectedIndex;
-        set { if (value is < 0 or > 2 || selectedIndex == value) return; selectedIndex = value; Refresh(); SelectionChanged?.Invoke(); }
+        set { if (value is < 0 or > 2 || !visible[value] || selectedIndex == value) return; selectedIndex = value; Refresh(); SelectionChanged?.Invoke(); }
     }
     internal LoginMethodSelector()
     {
         HorizontalContentAlignment = HorizontalAlignment.Stretch; VerticalContentAlignment = VerticalAlignment.Stretch;
+        selectedIndex = visible[0] ? 0 : 1;
         string[] titles = ["Phone", "Email", "API Key"];
         for (int i = 0; i < 3; i++)
         {
-            int index = i; track.ColumnDefinitions.Add(new());
+            int index = i, column = visible[i] ? track.ColumnDefinitions.Count : 0;
+            if (visible[i]) track.ColumnDefinitions.Add(new());
             foregrounds[i] = Theme.Brush("#6B7380"); surfaces[i] = Theme.Brush("#F2F2F3");
             labels[i] = LoginTypography.Text(titles[i], 15); labels[i].FontWeight = Microsoft.UI.Text.FontWeights.Medium;
             labels[i].Foreground = foregrounds[i]; labels[i].TextAlignment = TextAlignment.Center;
@@ -195,7 +198,8 @@ internal sealed class LoginMethodSelector : UserControl
                 HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
             AutomationProperties.SetName(button, titles[i]);
-            button.Click += (_, _) => { if (available[index]) SelectedIndex = index; };
+            button.Visibility = visible[i] ? Visibility.Visible : Visibility.Collapsed;
+            button.Click += (_, _) => { if (visible[index] && available[index]) SelectedIndex = index; };
             button.PointerEntered += (_, _) => { hoveredIndex = index; Refresh(); };
             button.PointerExited += (_, _) => { if (hoveredIndex == index) hoveredIndex = -1; pressedIndex = -1; Refresh(); };
             button.PointerPressed += (_, _) => { pressedIndex = index; Refresh(); };
@@ -205,13 +209,13 @@ internal sealed class LoginMethodSelector : UserControl
                 if (args.Key is not (global::Windows.System.VirtualKey.Left or global::Windows.System.VirtualKey.Right)) return;
                 int step = args.Key == global::Windows.System.VirtualKey.Left ? -1 : 1;
                 for (int next = index + step; next is >= 0 and < 3; next += step)
-                    if (available[next]) { SelectedIndex = next; buttons[next].Focus(FocusState.Keyboard); break; }
+                    if (visible[next] && available[next]) { SelectedIndex = next; buttons[next].Focus(FocusState.Keyboard); break; }
                 args.Handled = true;
             };
-            var shadowHost = new Grid { IsHitTestVisible = false };
-            shadows[i] = new(shadowHost, () => (float)button.CornerRadius.TopLeft, Microsoft.UI.Colors.Black, 4, 2, i == 0 ? .1f : 0);
-            Grid.SetColumn(shadowHost, i); track.Children.Add(shadowHost);
-            buttons[i] = button; Grid.SetColumn(button, i); track.Children.Add(button);
+            var shadowHost = new Grid { IsHitTestVisible = false, Visibility = button.Visibility };
+            shadows[i] = new(shadowHost, () => (float)button.CornerRadius.TopLeft, Microsoft.UI.Colors.Black, 4, 2, i == selectedIndex ? .1f : 0);
+            Grid.SetColumn(shadowHost, column); track.Children.Add(shadowHost);
+            buttons[i] = button; Grid.SetColumn(button, column); track.Children.Add(button);
             button.GotFocus += (_, _) =>
             {
                 button.BorderThickness = new(button.FocusState == FocusState.Keyboard ? 1 : 0);
@@ -234,7 +238,7 @@ internal sealed class LoginMethodSelector : UserControl
     {
         for (int i = 0; i < 3; i++)
         {
-            bool selected = i == selectedIndex, enabled = IsEnabled && available[i], hot = enabled && i == hoveredIndex;
+            bool selected = i == selectedIndex, enabled = IsEnabled && visible[i] && available[i], hot = enabled && i == hoveredIndex;
             buttons[i].IsEnabled = enabled;
             LoginMotion.Color(this, surfaces[i], i == pressedIndex && enabled ? selected ? "#FAFAFA" : "#F0F0F0" : selected ? "#FFFFFF" : hot ? "#FBFBFB" : "#F2F2F3");
             LoginMotion.Color(this, foregrounds[i], selected || hot ? "#111318" : "#6B7380");

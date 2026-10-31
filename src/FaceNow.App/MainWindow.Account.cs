@@ -12,8 +12,8 @@ public sealed partial class MainWindow
     private readonly UserRepository? accountRepository;
     private LoginView? loginView;
     private readonly AccountAvatarButton accountButton = new();
-    private readonly Pill homeCredits = new() { Text = "—", Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
-    private readonly Pill sessionCredits = new() { Text = "—", Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
+    private readonly Pill homeCredits = new() { Text = AppText.Get("—"), Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
+    private readonly Pill sessionCredits = new() { Text = AppText.Get("—"), Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
     private bool studioInitialized, studioInitializing, accountStopping, lastVerified;
     private readonly DispatcherTimer creditsRefreshTimer = new() { Interval = TimeSpan.FromSeconds(5) };
     private void BuildAccountUi()
@@ -107,7 +107,7 @@ public sealed partial class MainWindow
         AutomationProperties.SetName(sessionCredits, "Credits " + presentation.Credits);
         accountCard?.Update(presentation, accountRepository.CanAccessHome, !accountRepository.IsBusy && !accountStopping);
         StartButton.IsEnabled = Model.CanEdit && accountRepository.HasVerifiedSession && studioInitialized && !accountStopping;
-        if (home && !accountRepository.HasVerifiedSession) StartButton.Text = "Verifying account…";
+        if (home && !accountRepository.HasVerifiedSession) StartButton.Text = AppText.Get("Verifying account…");
         homeCredits.IsEnabled = sessionCredits.IsEnabled = accountRepository.HasVerifiedSession;
         if (accountRepository.HasVerifiedSession) creditsRefreshTimer.Start();
         else creditsRefreshTimer.Stop();
@@ -139,7 +139,7 @@ public sealed partial class MainWindow
         }
         if (accountRepository.Keys.Count == 0)
             stack.Children.Add(Theme.Text("No active API key. Create one to start generating.", 12, "#6B7380"));
-        var create = new Pill { Text = "Create FaceNow key", IsEnabled = !Model.Active && !Model.Busy && !accountRepository.IsBusy };
+        var create = new Pill { Text = AppText.Get("Create FaceNow key"), IsEnabled = !Model.Active && !Model.Busy && !accountRepository.IsBusy };
         create.Click += async (_, _) =>
         {
             ClosePopups();
@@ -149,7 +149,7 @@ public sealed partial class MainWindow
         stack.Children.Add(create);
         stack.Children.Add(Theme.Link("Usage ↗", () => OpenLink("https://platform.xmaxai.com/usage")));
         stack.Children.Add(Theme.Link("Manage API keys ↗", () => OpenLink("https://platform.xmaxsi.com/api-keys")));
-        var signOut = new Pill { Text = "Sign out", Destructive = true, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var signOut = new Pill { Text = AppText.Get("Sign out"), Destructive = true, HorizontalAlignment = HorizontalAlignment.Stretch };
         signOut.Click += async (_, _) => await SignOutAccountAsync(); stack.Children.Add(signOut);
         OpenPopup(accountButton, stack, 340, 18);
         await RefreshCreditsQuietlyAsync();

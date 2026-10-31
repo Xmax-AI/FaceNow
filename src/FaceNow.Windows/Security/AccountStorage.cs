@@ -7,10 +7,10 @@ public sealed class AccountStorage : IAccountStorage
 {
     private readonly ApiKeyStore credentialStore;
     private readonly string cachePath;
-    public AccountStorage(string target = "XMAX.AI/FaceNow/Account", string? cacheDirectory = null)
+    public AccountStorage(string? target = null, string? cacheDirectory = null)
     {
-        credentialStore = new(target);
-        cachePath = Path.Combine(cacheDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FaceNow"), "account-profile.json");
+        credentialStore = new(target ?? FaceNow.Core.Product.ProductProfile.Current.CredentialPrefix + "/Account");
+        cachePath = Path.Combine(cacheDirectory ?? FaceNow.Core.Product.ProductProfile.Current.DataDirectory, "account-profile.json");
     }
     public SessionCredential? ReadCredential()
     {

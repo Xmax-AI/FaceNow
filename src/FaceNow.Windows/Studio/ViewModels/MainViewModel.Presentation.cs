@@ -23,9 +23,9 @@ internal sealed partial class MainViewModel
     public bool IsPreview { get => preview; private set { preview = value; Changed(); Changed(nameof(StartLabel)); Changed(nameof(StopLabel)); Changed(nameof(Elapsed)); Changed(nameof(LocalPlaceholder)); } }
     public bool CanEdit => !Busy;
     public bool RemoteReady { get => remoteReady; private set { remoteReady = value; Changed(); Changed(nameof(ResultPlaceholder)); } }
-    public string LocalPlaceholder => IsPreview ? "UI Preview\nCamera is disabled" : "";
-    public string ResultPlaceholder => IsPreview ? "UI Preview\nGeneration is disabled" : RemoteReady ? "" : State == RealtimeState.Connected ? "Generating…" : "Select a reference to generate…";
-    public string LocalTitle => IsPreview ? "Local" : string.IsNullOrEmpty(SelectedCamera?.Name) ? "Local" : "Local · " + SelectedCamera.Name;
+    public string LocalPlaceholder => IsPreview ? AppText.Get("UI Preview\nCamera is disabled") : "";
+    public string ResultPlaceholder => AppText.Get(IsPreview ? "UI Preview\nGeneration is disabled" : RemoteReady ? "" : State == RealtimeState.Connected ? "Generating…" : "Select a reference to generate…");
+    public string LocalTitle => IsPreview || string.IsNullOrEmpty(SelectedCamera?.Name) ? AppText.Get("Local") : AppText.Get("Local · ") + SelectedCamera.Name;
     public string KeyLabel => ApiKey.Length == 0 ? "" : "****************";
     public string StartLabel => IsClosing ? "Stopping…" : Busy ? "Starting…" : IsPreview ? "Preview UI" : "Start Camera";
     public string StopLabel => IsPreview ? "Exit Preview" : "Stop Session";
@@ -66,7 +66,7 @@ internal sealed partial class MainViewModel
     public event Action? CreditsRequired;
     private void InitializePresentation()
     {
-        foreach (string mode in new[] { "charx", "clothx", "vibex" }) References(mode).Add(new() { IsUpload = true, Mode = mode, Name = "Upload" });
+        foreach (string mode in new[] { "charx", "clothx", "vibex" }) References(mode).Add(new() { IsUpload = true, Mode = mode, Name = AppText.Get("Upload") });
         foreach (var item in ReferenceCatalog.Load()) References(item.Mode).Add(item);
         StartCommand = new(() => GuardAsync(StartLandingAsync), () => !Busy);
         SubmitPromptCommand = new(() => GuardAsync(SubmitPromptAsync), CanSubmitPrompt);
@@ -118,7 +118,7 @@ internal sealed partial class MainViewModel
     private IEnumerable<ReferenceItem> AllReferences => CharacterReferences.Concat(ClothingReferences).Concat(StyleReferences).Concat(FreeReference is { } reference ? new[] { reference } : []);
     private void MarkSelected(ReferenceItem selected)
     { foreach (var item in AllReferences) item.IsSelected = item == selected; }
-    private static string ModePrompt(string mode) => mode switch { "charx" => "视频中角色替换成参考图中角色", "clothx" => "视频中人物衣服替换成参考图中衣服", _ => "视频风格变为参考图指定的风格" };
+    private static string ModePrompt(string mode) => FaceNow.Core.Product.GenerationPrompts.ForMode(mode);
     public async Task SelectReferenceAsync(ReferenceItem item)
     {
         if (item.IsUpload || item.IsUploading || !Active) return;

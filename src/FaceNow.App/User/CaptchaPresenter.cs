@@ -20,14 +20,14 @@ internal sealed class CaptchaPresenter(Grid host)
         var overlay = new Grid { Background = Theme.Brush("#D9FFFFFF") };
         var surface = new Grid { Width = 520, Height = 560, Background = Theme.Brush("#FFFFFF"), CornerRadius = new(24) };
         var web = new WebView2 { Margin = new(8, 54, 8, 8) };
-        var cancel = new Pill { Text = "Cancel", HorizontalAlignment = HorizontalAlignment.Right,
+        var cancel = new Pill { Text = AppText.Get("Cancel"), HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top, Margin = new(12) };
         cancel.Click += (_, _) => completion.TrySetCanceled();
         surface.Children.Add(web); surface.Children.Add(cancel); overlay.Children.Add(surface); host.Children.Add(overlay);
         string nonce = Guid.NewGuid().ToString("N");
         try
         {
-            string dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FaceNow", "WebView2");
+            string dataDirectory = Path.Combine(FaceNow.Core.Product.ProductProfile.Current.DataDirectory, "WebView2");
             var environment = await CoreWebView2Environment.CreateWithOptionsAsync("", dataDirectory, null);
             await web.EnsureCoreWebView2Async(environment);
             timeout.Token.ThrowIfCancellationRequested();
@@ -68,7 +68,7 @@ internal sealed class CaptchaPresenter(Grid host)
                 if (!args.IsSuccess) { completion.TrySetException(new AccountException("Security verification could not be loaded. Check your connection.")); return; }
                 try
                 {
-                    string options = JsonSerializer.Serialize(new { appId, businessState, nonce });
+                    string options = JsonSerializer.Serialize(new { appId, businessState, nonce, language = FaceNow.Core.Product.ProductProfile.Current.CaptchaLanguage });
                     await browser.ExecuteScriptAsync($"window.startChallenge({options});");
                 }
                 catch { completion.TrySetException(new AccountException("Security verification could not be started. Please try again.")); }

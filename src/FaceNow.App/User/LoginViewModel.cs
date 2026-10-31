@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using FaceNow.Core.User;
+using FaceNow.Core.Product;
 
 namespace FaceNow.App.User;
 
@@ -9,7 +10,15 @@ internal sealed class LoginViewModel
     private readonly Dictionary<LoginMethod, (string Account, string Code)> drafts = [];
     private readonly Dictionary<string, long> deadlines = [];
     private readonly Func<long> milliseconds;
-    public LoginViewModel(Func<long>? milliseconds = null) => this.milliseconds = milliseconds ?? (() => Environment.TickCount64);
+    private readonly ProductProfile product;
+    public LoginViewModel(Func<long>? milliseconds = null, ProductProfile? product = null)
+    {
+        this.milliseconds = milliseconds ?? (() => Environment.TickCount64);
+        this.product = product ?? ProductProfile.Current;
+        Method = DefaultIndex == 0 ? LoginMethod.Sms : LoginMethod.Email;
+    }
+    public int DefaultIndex => product.ShowsPhoneLogin ? 0 : 1;
+    public bool IsChannelVisible(int index) => index switch { 0 => product.ShowsPhoneLogin, 1 => product.ShowsEmailLogin, 2 => true, _ => false };
     public LoginConfiguration? Configuration { get; set; }
     public LoginMethod Method { get; private set; } = LoginMethod.Sms;
     public bool UsesApiKey { get; private set; }
@@ -23,13 +32,14 @@ internal sealed class LoginViewModel
         ? @"^1[3-9][0-9]{9}$" : @"^[^\s@]+@[^\s@]+\.[^\s@]+$", RegexOptions.CultureInvariant);
     public int Cooldown => deadlines.TryGetValue(DestinationKey(Method, Account), out long deadline)
         ? (int)Math.Max(0, Math.Ceiling((deadline - milliseconds()) / 1000d)) : 0;
-    public bool CanSendCode => !IsBusy && Configuration?.Supports(Method) == true && ValidAccount && Cooldown == 0;
+    public bool CanSendCode => !IsBusy && !UsesApiKey && IsChannelVisible(Method == LoginMethod.Sms ? 0 : 1) && Configuration?.Supports(Method) == true && ValidAccount && Cooldown == 0;
     public bool CanSubmit => !IsBusy && (UsesApiKey ? ApiKey.Trim().StartsWith("uk-", StringComparison.Ordinal) && ApiKey.Trim().Length > 3
-        : Configuration?.Supports(Method) == true && ValidAccount && Code.Length == CodeLength);
+        : IsChannelVisible(Method == LoginMethod.Sms ? 0 : 1) && Configuration?.Supports(Method) == true && ValidAccount && Code.Length == CodeLength);
     public void SetAccount(string value) { if (Account != value) { Account = value; Code = ""; Error = null; } }
     public void SetCode(string value) { Code = new(value.Where(c => c is >= '0' and <= '9').Take(CodeLength).ToArray()); Error = null; }
     public void Select(int index)
     {
+        if (!IsChannelVisible(index)) return;
         drafts[Method] = (Account, Code);
         UsesApiKey = index == 2;
         if (!UsesApiKey)
@@ -45,6 +55,14 @@ internal sealed class LoginViewModel
     {
         ApiKey = ""; Code = "";
         foreach (var method in drafts.Keys.ToArray()) drafts[method] = (drafts[method].Account, "");
+    }
+    public void ResetAfterSignIn()
+    {
+        drafts.Clear(); deadlines.Clear();
+        Account = Code = ApiKey = ""; Error = null;
+        Method = DefaultIndex == 0 ? LoginMethod.Sms : LoginMethod.Email;
+        UsesApiKey = Configuration?.Supports(Method) == false;
+        // The in-flight request still owns IsBusy until its finally block completes.
     }
     private static string DestinationKey(LoginMethod method, string account) => $"{method}:{account.Trim().ToLowerInvariant()}";
 }

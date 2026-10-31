@@ -74,7 +74,7 @@ public sealed class CachedAccount
 public static class AccountContract
 {
     public const string Tenant = "open-platform";
-    public static readonly Uri ServiceOrigin = new("https://cloud.xmax.22duck.cn");
+    public static Uri ServiceOrigin => FaceNow.Core.Product.ProductProfile.Current.ApiOrigin;
 }
 
 public sealed class AccountException(string message, int? code = null) : Exception(message)

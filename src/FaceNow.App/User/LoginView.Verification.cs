@@ -10,11 +10,50 @@ internal sealed partial class LoginView
     internal async Task VerifyCodeLoginAsync(int method)
     {
         if (!preview || user.HasVerifiedSession) throw new InvalidOperationException("Code login verification requires a signed-out preview account.");
+        if (!model.IsChannelVisible(method)) throw new InvalidOperationException("The requested code channel is hidden for this edition.");
+        if (!configurationLoaded) await LoadConfigurationAsync();
         methods.SelectedIndex = method; await Task.Delay(30);
-        account.Text = method == 0 ? "13800000000" : "preview@example.com";
-        code.Text = "123456"; await Task.Delay(30);
+        string destination = method == 0 ? "13800000000" : "preview@example.com";
+        account.Text = destination;
+        // TextChanged is queued; let the account draft settle before entering a code.
+        var deadline = DateTime.UtcNow.AddSeconds(3);
+        while (model.Account != destination && DateTime.UtcNow < deadline) await Task.Delay(10);
+        code.Text = "123456";
+        while (model.Code != "123456" && DateTime.UtcNow < deadline) await Task.Delay(10);
+        await RunAsync(false);
+        if (model.Cooldown <= 0) throw new InvalidOperationException("The code login fixture did not establish a resend countdown.");
         await RunAsync(true);
-        if (!user.HasVerifiedSession) throw new InvalidOperationException("Preview code login failed.");
+        if (!user.HasVerifiedSession) throw new InvalidOperationException($"Preview code login failed (ready={configurationLoaded}, presented={presented}, formBusy={model.IsBusy}, userBusy={user.IsBusy}, canSubmit={model.CanSubmit}, accountValid={model.ValidAccount}, codeLength={model.Code.Length}, apiKey={model.UsesApiKey}, error={model.Error}).");
+    }
+
+    internal async Task VerifyApiKeyLoginAsync()
+    {
+        if (!preview || user.HasVerifiedSession) throw new InvalidOperationException("API key verification requires a signed-out preview account.");
+        methods.SelectedIndex = 2;
+        key.Password = PreviewAccountApi.Key;
+        var deadline = DateTime.UtcNow.AddSeconds(3);
+        while (model.ApiKey != PreviewAccountApi.Key && DateTime.UtcNow < deadline) await Task.Delay(10);
+        await RunAsync(true);
+        if (!user.HasVerifiedSession) throw new InvalidOperationException("Preview API key login failed.");
+    }
+
+    internal void VerifyResetAndRegionalChannels()
+    {
+        if (model.Account.Length != 0 || model.Code.Length != 0 || model.ApiKey.Length != 0 || model.Cooldown != 0 || model.Error is not null
+            || account.Text.Length != 0 || code.Text.Length != 0 || key.Password.Length != 0 || rejectedKey is not null || rejectedCodes.Count != 0
+            || send.Text != AppText.Get("Get Code") || submittingLogin || sendingCode || model.UsesApiKey)
+            throw new InvalidOperationException("Successful login left form input, validation or countdown state behind.");
+        var names = new List<string>();
+        void Visit(DependencyObject parent)
+        {
+            if (parent is Button { Visibility: Visibility.Visible } button) names.Add(Microsoft.UI.Xaml.Automation.AutomationProperties.GetName(button));
+            for (int i = 0; i < Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent); ++i)
+                Visit(Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, i));
+        }
+        Visit(methods);
+        string primary = FaceNow.Core.Product.ProductProfile.Current.ShowsPhoneLogin ? "Phone" : "Email";
+        if (!names.SequenceEqual(new[] { primary, "API Key" }) || methods.SelectedIndex != model.DefaultIndex)
+            throw new InvalidOperationException("The login selector did not expose exactly the two regional channels or restore its default.");
     }
 
     internal async Task VerifyVideoPlaybackAsync()
@@ -69,6 +108,7 @@ internal sealed partial class LoginView
     internal async Task PrepareLayoutCaptureAsync(int mode, string state = "idle")
     {
         if (!preview) throw new InvalidOperationException("Layout capture requires an isolated preview account.");
+        if (!model.IsChannelVisible(mode)) throw new InvalidOperationException("Cannot capture a hidden regional login channel.");
         if (!configurationLoaded) await LoadConfigurationAsync();
         captureMode = true; player.Pause(); media.Visibility = Visibility.Collapsed;
         scenarios.SetPlaying(false); status.Visibility = Visibility.Collapsed;
@@ -87,7 +127,7 @@ internal sealed partial class LoginView
         }
         if (state == "typing")
         {
-            account.Text = "1520314"; await Task.Delay(60);
+            account.Text = mode == 1 ? "preview@exa" : "1520314"; await Task.Delay(60);
             account.Focus(FocusState.Programmatic);
             account.SelectionStart = account.Text.Length;
         }

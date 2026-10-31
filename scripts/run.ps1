@@ -1,5 +1,7 @@
 [CmdletBinding()]
 param(
+    [ValidateSet('Domestic','Overseas')][string]$Edition = 'Domestic',
+    [string]$MediaDirectory = 'C:\dev\FaceNow-media',
     [string]$NativeDirectory = 'C:\dev\XmaxSDK-build\Sources\XmaxSDK\RelWithDebInfo',
     [string]$BuildRoot = 'C:\dev\FaceNow-build',
     [string]$XmaxSdkRoot = '',
@@ -24,8 +26,12 @@ if (!(Test-Path "$XmaxSdkRoot/Sources/XmaxSDK.WinUI/XmaxSDK.WinUI.csproj")) { th
 if (!(Test-Path "$NativeDirectory/XmaxSDK.dll")) { throw 'Pass -NativeDirectory containing XmaxSDK.dll and matching dependencies.' }
 $env:DOTNET_ROOT = Split-Path $DotNet
 $build = $BuildRoot.Replace('\','/').TrimEnd('/') + '/'
+$stamp = Join-Path $BuildRoot '.facenow-edition'
+if ((Test-Path $stamp) -and (Get-Content $stamp -Raw).Trim() -ne $Edition) { throw 'Use a separate BuildRoot for each FaceNow edition.' }
+New-Item -ItemType Directory -Force $BuildRoot | Out-Null
+Set-Content $stamp $Edition
 if (!$NoBuild) {
-    & $DotNet build "$repo/src/FaceNow.App/FaceNow.App.csproj" -c Release '-p:Platform=x64' "-p:FaceNowBuildRoot=$build" "-p:XmaxDotNetBuildRoot=${build}sdk/" "-p:XmaxSdkRoot=$XmaxSdkRoot" "-p:XmaxNativeDir=$NativeDirectory"
+    & $DotNet build "$repo/src/FaceNow.App/FaceNow.App.csproj" -c Release '-p:Platform=x64' "-p:FaceNowBuildRoot=$build" "-p:XmaxDotNetBuildRoot=${build}sdk/" "-p:XmaxSdkRoot=$XmaxSdkRoot" "-p:XmaxNativeDir=$NativeDirectory" "-p:FaceNowEdition=$Edition" "-p:FaceNowMediaDirectory=$MediaDirectory"
     if ($LASTEXITCODE -ne 0) { throw 'FaceNow build failed.' }
 }
 $app = Join-Path $BuildRoot 'bin/FaceNow.App/x64/Release/net10.0-windows10.0.26100.0/win-x64/FaceNow.exe'

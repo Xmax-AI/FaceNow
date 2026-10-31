@@ -33,7 +33,7 @@ internal sealed class ReferenceTile : Button
         if (item.IsUpload) root.Children.Add(new Glyph { Kind = "plus", Width = 22, Height = 22, Foreground = Theme.Brush("#6B7380"), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
         state = Theme.Text("", 11, "#6B7380"); state.HorizontalAlignment = HorizontalAlignment.Center;
         root.Children.Add(state);
-        name = Theme.Text(item.Name, 11, "#6B7380"); name.TextAlignment = TextAlignment.Center; name.TextTrimming = TextTrimming.CharacterEllipsis; Grid.SetRow(name, 2); root.Children.Add(name);
+        name = Theme.RawText(item.Name, 11, "#6B7380"); name.TextAlignment = TextAlignment.Center; name.TextTrimming = TextTrimming.CharacterEllipsis; Grid.SetRow(name, 2); root.Children.Add(name);
         Content = root;
         Click += RetryThumbnail;
         item.PropertyChanged += (_, _) => Refresh();
@@ -60,8 +60,8 @@ internal sealed class ReferenceTile : Button
         name.Foreground = Theme.Brush(Item.IsSelected ? "#2F46E2" : "#6B7380");
         image.Source = Item.Thumbnail as ImageSource;
         uploadOverlay.SetUploading(Item.IsUploading, Item.UploadProgress);
-        state.Text = Item.IsUploading ? "" : Item.IsLoading ? "···" : Item.HasError ? "Retry" : "";
-        ToolTipService.SetToolTip(this, Item.HasError ? Item.Error : Item.Name);
+        state.Text = Item.IsUploading ? "" : Item.IsLoading ? "···" : Item.HasError ? AppText.Get("Retry") : "";
+        ToolTipService.SetToolTip(this, Item.HasError ? AppText.Get(Item.Error) : Item.Name);
         IsEnabled = !Item.IsUploading;
     }
 }

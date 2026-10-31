@@ -65,6 +65,7 @@ public sealed partial class MainWindow
         {
             await Task.Delay(650);
             if (mode == "--smoke-test-login-layout") await VerifyLoginLayoutAsync();
+            else if (mode is "--smoke-test-signout" or "--smoke-test-signout-cached") await VerifySignOutAsync();
             else if (mode == "--smoke-test-account")
             {
                 Check(loginView is { IsLoaded: true, Visibility: Visibility.Visible }, "Login page did not appear.");
@@ -80,7 +81,7 @@ public sealed partial class MainWindow
                 Check(loginView.Visibility == Visibility.Visible && scroller.Visibility == Visibility.Collapsed && Model.ApiKey.Length == 0,
                     "Sign-out did not clear studio access and restore login.");
                 await loginView.VerifyVideoPlaybackAsync();
-                foreach (int method in new[] { 0, 1 })
+                foreach (int method in new[] { FaceNow.Core.Product.ProductProfile.Current.ShowsPhoneLogin ? 0 : 1 })
                 {
                     await loginView.VerifyCodeLoginAsync(method);
                     Check(toast.Message == SignedInMessage && toast.NotificationStyle == FaceNow.App.Controls.ToastStyle.Success,
@@ -208,7 +209,7 @@ public sealed partial class MainWindow
                 Check(Model.Error.Length == 0, Model.Error);
                 await SaveScreenshotAsync("local-video", LocalView); if (mode == "--smoke-test-live") await SaveScreenshotAsync("remote-video", RemoteView);
             }
-            if (mode is not ("--smoke-test-account" or "--smoke-test-login-layout")) await SaveScreenshotAsync(mode.TrimStart('-'));
+            if (mode is not ("--smoke-test-account" or "--smoke-test-login-layout" or "--smoke-test-signout" or "--smoke-test-signout-cached")) await SaveScreenshotAsync(mode.TrimStart('-'));
             passed = true;
         }
         catch (Exception failure) { error = failure.ToString(); }

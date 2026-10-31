@@ -2,63 +2,87 @@ using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 using FaceNow.Core.VirtualCamera;
+using FaceNow.Core.Media;
+using FaceNow.Windows.Media;
 using Xmax.SDK;
 
 namespace FaceNow.Windows.VirtualCamera;
 
-/// <summary>Owns retained SDK packets; never consumes the preview's RemoteVideo mailbox.</summary>
+/// <summary>One bounded result pipeline processes beauty once and fans out owned frames to independent consumers.</summary>
 internal sealed class RemoteCameraPump : IAsyncDisposable
 {
-    private readonly IVirtualCameraOutput output;
-    private readonly Guid sessionId;
+    private readonly IVirtualCameraOutput? output;
+    private readonly Guid sessionId = Guid.NewGuid();
     private readonly Action<Exception> faulted;
+    private readonly CancellationTokenSource lifetime = new();
+    private readonly FrameCompositor compositor = new();
+    private readonly ResultEffectsProcessor processor;
     private readonly Channel<XmaxMediaFrame> frames = Channel.CreateBounded<XmaxMediaFrame>(new BoundedChannelOptions(1)
         { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true, SingleWriter = false }, frame => frame.Dispose());
     private readonly Task worker;
-    private int stopped;
-    private long receivedFrames;
+    private int stopped, outputEnabled;
+    internal ResultFrameSource Preview { get; } = new();
     internal bool IsStopped => Volatile.Read(ref stopped) != 0;
     internal Guid SessionId => sessionId;
-
-    private RemoteCameraPump(IVirtualCameraOutput output, Guid sessionId, Action<Exception> faulted)
-    { this.output = output; this.sessionId = sessionId; this.faulted = faulted; worker = Task.Run(ConsumeAsync); }
-
-    internal static async Task<RemoteCameraPump> StartAsync(XmaxRealtime realtime, IVirtualCameraOutput output, Action<Exception> faulted)
+    private RemoteCameraPump(IVirtualCameraOutput? output, Action<Exception> faulted, GenerationEffectsController? effects, Action<Exception>? beautyFailed)
+    { this.output = output; this.faulted = faulted; processor = new(effects, beautyFailed); worker = Task.Run(ConsumeAsync); }
+    internal static async Task<RemoteCameraPump> StartAsync(XmaxRealtime realtime, IVirtualCameraOutput? output, Action<Exception> faulted,
+        GenerationEffectsController? effects = null, Action<Exception>? beautyFailed = null, bool enableOutput = true)
     {
-        var identity = Guid.NewGuid();
-        await output.StartAsync(new(1920, 1080, 30, identity));
-        var pump = new RemoteCameraPump(output, identity, faulted);
-        try { await realtime.SetRemoteMediaListenerAsync(pump.Receive); return pump; }
+        var pump = new RemoteCameraPump(output, faulted, effects, beautyFailed);
+        try { await realtime.SetRemoteMediaListenerAsync(pump.Receive); if (enableOutput) await pump.EnableOutputAsync(); return pump; }
         catch { await pump.DisposeAsync(); throw; }
     }
-    private void Receive(XmaxMediaFrame packet)
+    internal async Task EnableOutputAsync()
     {
-        if (packet.Type == MediaType.Video && Interlocked.Increment(ref receivedFrames) == 1)
-            CameraDiagnostics.Write($"First SDK result frame received; {packet.VideoWidth}x{packet.VideoHeight}");
-        if (packet.Type != MediaType.Video || Volatile.Read(ref stopped) != 0 || !frames.Writer.TryWrite(packet)) packet.Dispose();
+        if (output is null || Volatile.Read(ref outputEnabled) != 0 || IsStopped) return;
+        await output.StartAsync(new(1920, 1080, 30, sessionId), lifetime.Token);
+        if (IsStopped) { await output.StopAsync(); return; }
+        Volatile.Write(ref outputEnabled, 1);
     }
+    internal async Task DisableOutputAsync()
+    { Interlocked.Exchange(ref outputEnabled, 0); if (output is not null) await output.StopAsync(); }
+    private void Receive(XmaxMediaFrame packet)
+    { if (packet.Type != MediaType.Video || IsStopped || !frames.Writer.TryWrite(packet)) packet.Dispose(); }
     private async Task ConsumeAsync()
     {
         try
         {
-            await foreach (var packet in frames.Reader.ReadAllAsync())
+            await foreach (var packet in frames.Reader.ReadAllAsync(lifetime.Token))
             using (packet)
             {
-                if (Volatile.Read(ref stopped) != 0) continue;
+                if (IsStopped) continue;
                 int width = checked((int)packet.VideoWidth), height = checked((int)packet.VideoHeight);
-                long timestamp = packet.PresentationTime.Seconds is { } seconds && double.IsFinite(seconds)
-                    ? checked((long)(seconds * 1_000_000)) : 0;
-                packet.ReadBgra((pointer, stride, size) => SubmitBgra(output, pointer, size, width, height, stride, timestamp, sessionId));
+                long timestamp = packet.PresentationTime.Seconds is { } seconds && double.IsFinite(seconds) ? checked((long)(seconds * 1_000_000)) : 0;
+                using var raw = new ResultFrame(width, height, timestamp, sessionId);
+                packet.ReadBgra((pointer, stride, size) => CopyPixels(raw, pointer, stride, size));
+                using var result = await processor.ProcessAsync(raw, lifetime.Token);
+                if (result is null || IsStopped) continue;
+                Preview.Publish(result);
+                if (Volatile.Read(ref outputEnabled) != 0 && output is not null)
+                {
+                    try
+                    {
+                        using var canvas = compositor.Compose(result);
+                        output.TrySubmit(new(canvas.Pixels, canvas.Width, canvas.Height, canvas.Stride, canvas.TimestampMicroseconds, sessionId));
+                    }
+                    catch (Exception failure) { await DisableOutputAsync(); if (!IsStopped) faulted(failure); }
+                }
             }
         }
-        catch (Exception error)
+        catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+        catch (Exception failure) { if (!IsStopped) faulted(failure); }
+        finally
         {
-            CameraDiagnostics.Error("SDK result adapter failed", error);
-            Interlocked.Exchange(ref stopped, 1); frames.Writer.TryComplete();
-            await output.StopAsync();
-            faulted(error);
+            while (frames.Reader.TryRead(out var remaining)) remaining.Dispose();
+            await processor.DisposeAsync();
         }
-        finally { while (frames.Reader.TryRead(out var remaining)) remaining.Dispose(); }
+    }
+    private static unsafe void CopyPixels(ResultFrame frame, nint pointer, int stride, int size)
+    {
+        if (pointer == 0 || stride < frame.Stride || stride > 32768 || size < (long)stride * frame.Height) throw new InvalidDataException("Invalid SDK result pixels.");
+        var target = frame.Pixels.Span;
+        for (int y = 0; y < frame.Height; ++y) new ReadOnlySpan<byte>((byte*)pointer + y * stride, frame.Stride).CopyTo(target.Slice(y * frame.Stride, frame.Stride));
     }
     // The same adapter is used by the no-cloud end-to-end verification.
     internal static bool SubmitBgra(IVirtualCameraOutput output, nint pointer, int size, int width, int height, int stride, long timestamp, Guid sessionId)
@@ -73,11 +97,9 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
     }
     public async ValueTask DisposeAsync()
     {
-        Interlocked.Exchange(ref stopped, 1);
-        frames.Writer.TryComplete();
-        // Clear IPC immediately, then let a packet already being read finish and be rejected.
-        await output.StopAsync();
-        await worker;
-        // Native session disposal releases the listener. Late callbacks still own/dispose packets.
+        if (Interlocked.Exchange(ref stopped, 1) != 0) { await worker; return; }
+        lifetime.Cancel(); frames.Writer.TryComplete();
+        try { await DisableOutputAsync(); }
+        finally { await worker; Preview.Dispose(); lifetime.Dispose(); }
     }
 }

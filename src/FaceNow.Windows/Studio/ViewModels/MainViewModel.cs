@@ -27,11 +27,11 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private bool closingSession;
     private Task cleanup = Task.CompletedTask;
     private readonly long[] lastStatisticsLog = new long[2];
-    private string status = "准备就绪 · 摄像头预览不需要 API Key", error = "", metrics = "等待视频统计";
+    private string status = AppText.Get("Ready · camera preview does not require an API key"), error = "", metrics = AppText.Get("Waiting for video statistics");
     private CameraDevice? camera;
     private VideoFormat format;
     private string sessionKey = "", sessionCamera = "";
-    private const XmaxEnvironment ServiceEnvironment = XmaxEnvironment.China;
+    private static XmaxEnvironment ServiceEnvironment => FaceNow.Core.Product.ProductProfile.Current.IsOverseas ? XmaxEnvironment.Global : XmaxEnvironment.China;
     private const string ServiceModel = "x2.1";
     private VideoFormat sessionFormat;
     private IXmaxVideoSource? local, remote;
@@ -53,9 +53,9 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     public bool IsClosing => closingSession;
     private void RefreshBusy()
     { Changed(nameof(Busy)); Changed(nameof(IsClosing)); Changed(nameof(CanEdit)); Changed(nameof(StartLabel)); RefreshCommands(); }
-    public string Status { get => status; private set { status = value; Changed(); } }
-    public string Error { get => error; private set { error = value; Changed(); } }
-    public string Metrics { get => metrics; private set { metrics = value; Changed(); } }
+    public string Status { get => status; private set { status = AppText.Get(value); Changed(); } }
+    public string Error { get => error; private set { error = AppText.Get(value); Changed(); } }
+    public string Metrics { get => metrics; private set { metrics = AppText.Get(value); Changed(); } }
     public IXmaxVideoSource? LocalVideo { get => local; private set { local = value; Changed(); } }
     public IXmaxVideoSource? RemoteVideo { get => remote; private set { remote = value; Changed(); } }
     public AsyncCommand RefreshCommand { get; }
@@ -72,6 +72,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         this.thumbnails = thumbnails;
         this.cameraOutput = cameraOutput;
         this.generationAccess = generationAccess;
+        effects.Changed += EffectsChanged;
         elapsedTimer = dispatcher.CreateTimer(TimeSpan.FromSeconds(1));
         RefreshCommand = new(() => GuardAsync(RefreshCamerasAsync), () => !Busy);
         PreviewCommand = new(() => GuardAsync(PreviewAsync), () => !Busy && Cameras.Count > 0);
@@ -101,7 +102,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         foreach (var item in devices.Where(item => CameraFilter?.Invoke(item) ?? true)) Cameras.Add(item);
         // Match Qt: preserve an explicit choice, auto-select only when there is exactly one device.
         SelectedCamera = previous is not null ? Cameras.FirstOrDefault(item => item.Id == previous) : Cameras.Count == 1 ? Cameras[0] : null;
-        Status = Cameras.Count == 0 ? "未发现摄像头，请检查设备和 Windows 相机权限。" : $"发现 {Cameras.Count} 个摄像头";
+        Status = Cameras.Count == 0 ? AppText.Get("No cameras found. Check your device and Windows camera permissions.") : AppText.Format("Found {0} cameras", Cameras.Count);
         RefreshCommands();
     }
     public async Task PreviewAsync()
@@ -136,6 +137,13 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         var preparationToken = preparation.Token;
         try
         {
+            effects.BeginSession();
+            var pipeline = await RemoteCameraPump.StartAsync(next, cameraOutput,
+                failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportCameraOutputError(failure); }), effects,
+                failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportError(new InvalidOperationException("Beauty unavailable. Original video has been restored.")); }), enableOutput: false);
+            if (current != revision) { await pipeline.DisposeAsync(); throw new OperationCanceledException(); }
+            cameraPump = pipeline;
+            Changed(nameof(ResultVideoSource));
             await next.SetVideoMirrorAsync(new(true, true, false));
             preparationToken.ThrowIfCancellationRequested();
             await next.PrepareCameraAsync(SelectedCamera.Id, SelectedFormat, microphone: false, cancellationToken: preparationToken);
@@ -194,13 +202,10 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     }
     private async Task StartCameraOutputAsync(XmaxRealtime target, int current)
     {
-        if (cameraPump is { IsStopped: false } || cameraOutput?.Status.Registration != CameraRegistrationState.Registered) return;
-        if (cameraPump is { } stoppedPump) { cameraPump = null; await stoppedPump.DisposeAsync(); }
-        RemoteCameraPump next;
+        if (cameraPump is not { IsStopped: false } pipeline || cameraOutput?.Status.Registration != CameraRegistrationState.Registered) return;
         try
         {
-            next = await RemoteCameraPump.StartAsync(target, cameraOutput, failure =>
-                dispatcher.InvokeAsync(() => { if (current == revision) ReportCameraOutputError(failure); }));
+            await pipeline.EnableOutputAsync();
         }
         catch (Exception failure) when (current == revision)
         {
@@ -208,22 +213,19 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
             ReportCameraOutputError(failure);
             return;
         }
-        if (current != revision) { await next.DisposeAsync(); throw new OperationCanceledException(); }
-        cameraPump = next;
+        if (current != revision) { await pipeline.DisableOutputAsync(); throw new OperationCanceledException(); }
     }
-    private void ReportCameraOutputError(Exception failure) => Error = "Virtual camera output: " + failure.Message;
+    private void ReportCameraOutputError(Exception failure) => Error = AppText.Get("Virtual camera output: ") + AppText.Get(failure.Message);
     internal async Task SynchronizeCameraOutputAsync()
     {
         var target = session;
         int current = revision;
         if (cameraOutput?.Status.Registration != CameraRegistrationState.Registered)
         {
-            var previous = cameraPump; cameraPump = null;
+            var previous = cameraPump;
             if (previous is not null)
             {
-                await previous.DisposeAsync();
-                try { if (target is not null) await target.SetRemoteMediaListenerAsync(null); }
-                catch (Exception) when (current != revision) { }
+                await previous.DisableOutputAsync();
             }
         }
         else if (target is not null && State == RealtimeState.Generating && cameraOutput.Status.State != CameraOutputState.Faulted)
@@ -249,7 +251,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
                 Active = true;
                 BeginElapsed();
             }
-            Status = $"状态：{item.State}";
+            Status = AppText.Format("Status: {0}", AppText.Get(item.State.ToString()));
         }
         else if (item.Type == RealtimeEventType.Error)
         {
@@ -258,7 +260,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         }
         else if (item.Type == RealtimeEventType.Statistics && item.Width > 0 && item.Height > 0)
         {
-            Metrics = $"{(item.Direction == 0 ? "上行" : "下行")}  {item.Width} × {item.Height}  ·  {Available(item.FramesPerSecond)} fps  ·  {Available(item.BitrateKbps)} kbps  ·  延迟 {Available(item.EndToEndMilliseconds)} ms";
+            Metrics = AppText.Format("{0}  {1} × {2}  ·  {3} fps  ·  {4} kbps  ·  Latency {5} ms", AppText.Get(item.Direction == 0 ? "Uplink" : "Downlink"), item.Width, item.Height, Available(item.FramesPerSecond), Available(item.BitrateKbps), Available(item.EndToEndMilliseconds));
             int direction = item.Direction == 0 ? 0 : 1;
             long now = Environment.TickCount64;
             if (now - lastStatisticsLog[direction] >= 10000)
@@ -268,7 +270,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
             }
         }
         else if (item.Type == RealtimeEventType.Timing && item.Code >= 0)
-            Metrics = $"首帧 {item.FirstFrameMilliseconds:F0} ms  ·  总启动 {item.TotalMilliseconds:F0} ms";
+            Metrics = AppText.Format("First frame {0:F0} ms  ·  Total startup {1:F0} ms", item.FirstFrameMilliseconds, item.TotalMilliseconds);
     }
     private static string Available(int value) => value >= 0 ? value.ToString() : "—";
     private async Task GuardAsync(Func<Task> operation)
@@ -288,5 +290,5 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private void RefreshCommands()
     { RefreshCommand.Refresh(); PreviewCommand.Refresh(); GenerateCommand.Refresh(); StopCommand.Refresh(); StartCommand?.Refresh(); SubmitPromptCommand?.Refresh(); }
     private void Changed([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new(name));
-    public ValueTask DisposeAsync() => new(StopAsync());
+    public async ValueTask DisposeAsync() { await StopAsync(); await effects.FlushAsync(); effects.Changed -= EffectsChanged; }
 }

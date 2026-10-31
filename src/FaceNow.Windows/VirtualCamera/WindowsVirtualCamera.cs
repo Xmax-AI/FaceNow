@@ -15,6 +15,7 @@ public sealed class WindowsVirtualCamera : IVirtualCameraOutput
     private CameraOutputStatus status = new(CameraOutputState.Unavailable, "Checking virtual camera components…");
     private bool disposed;
     private FramePublisher? publisher;
+    private FileStream? producerLease;
     private Timer? freshnessTimer;
     internal long SubmittedFrames => Volatile.Read(ref publisher)?.SubmittedFrames ?? 0;
     internal long DeliveredFrames => Interlocked.Read(ref deliveredBeforeStop) + (Volatile.Read(ref publisher)?.DeliveredFrames ?? 0);
@@ -134,10 +135,11 @@ public sealed class WindowsVirtualCamera : IVirtualCameraOutput
             if (status.Registration != CameraRegistrationState.Registered) throw new InvalidOperationException("Install and enable the FaceNow camera first.");
             if (!componentCurrent) throw new InvalidOperationException("Update the camera component with Install & Enable first.");
             cancellationToken.ThrowIfCancellationRequested();
+            producerLease = CameraProducerLease.Acquire();
             publisher = new FramePublisher(symbolicLink, format.SessionId);
             freshnessTimer = new Timer(_ => UpdateOutputStatus(), null, 0, 500);
         }
-        catch (Exception error) { status = new(CameraOutputState.Faulted, error.Message, status.Registration); Notify(); throw; }
+        catch (Exception error) { if (publisher is null) { producerLease?.Dispose(); producerLease = null; } status = new(CameraOutputState.Faulted, error.Message, status.Registration); Notify(); throw; }
         finally { operations.Release(); }
     }
     public bool TrySubmit(OutputFrame frame) => Volatile.Read(ref publisher)?.TrySubmit(frame) ?? false;
@@ -157,7 +159,8 @@ public sealed class WindowsVirtualCamera : IVirtualCameraOutput
         var timer = freshnessTimer; freshnessTimer = null;
         if (timer is not null) await timer.DisposeAsync();
         var previous = Interlocked.Exchange(ref publisher, null);
-        if (previous is not null) { await previous.DisposeAsync(); Interlocked.Add(ref deliveredBeforeStop, previous.DeliveredFrames); }
+        try { if (previous is not null) { await previous.DisposeAsync(); Interlocked.Add(ref deliveredBeforeStop, previous.DeliveredFrames); } }
+        finally { producerLease?.Dispose(); producerLease = null; }
         UpdateOutputStatus();
     }
     public async Task StopAsync()

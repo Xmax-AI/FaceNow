@@ -14,8 +14,8 @@ internal static class ReferenceCatalog
         return document.RootElement.EnumerateArray().Select(item => new ReferenceItem
         {
             Id = item.GetProperty("id").GetString()!, Mode = item.GetProperty("mode").GetString()!,
-            Name = item.GetProperty("name").GetString()!, ThumbnailUrl = item.GetProperty("thumbnail").GetString()!,
-            ReferenceUrl = item.GetProperty("reference").GetString()!
+            Name = AppText.Get(item.GetProperty("name").GetString()!), ThumbnailUrl = FaceNow.Core.Product.ProductProfile.Current.ResolveAsset(item.GetProperty("thumbnail").GetString()!),
+            ReferenceUrl = FaceNow.Core.Product.ProductProfile.Current.ResolveAsset(item.GetProperty("reference").GetString()!)
         }).ToList();
     }
 }

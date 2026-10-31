@@ -12,7 +12,7 @@ public sealed partial class MainWindow
     private Popup? virtualCameraPopup;
     private Action? refreshCameraUsage;
     private bool cameraStatusRefreshing;
-    private const string CameraUsageLabel = "Virtual Camera";
+    private static string CameraUsageLabel => AppText.Get("Virtual Camera");
     private const string FaceNowCameraName = "FaceNow - Xmax Virtual Camera";
 
     private sealed record CameraUsage(string Title, string Description, string Color, string? Setup = null, bool Ready = false);

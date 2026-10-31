@@ -3,6 +3,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="FaceNow" />
     <InternalsVisibleTo Include="FaceNow.GenerationTests" />
+    <InternalsVisibleTo Include="FaceNow.MediaTests" />
     <ProjectReference Include="../FaceNow.Core/FaceNow.Core.csproj" />
     <ProjectReference Include="$(XmaxSdkRoot)/Sources/XmaxSDK.Net/XmaxSDK.Net.csproj" />
     <EmbeddedResource Include="$(XmaxSdkRoot)/Examples/XLab/assets/presets.json" LogicalName="FaceNow.presets.json" />

@@ -78,7 +78,7 @@ internal static class CameraDiagnostics
         {
             lock (Gate)
             {
-                string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XMAX.AI", "FaceNow", "Logs");
+                string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XMAX.AI", FaceNow.Core.Product.ProductProfile.Current.Id, "Logs");
                 Directory.CreateDirectory(directory);
                 string path = Path.Combine(directory, "virtual-camera.log");
                 if (File.Exists(path) && new FileInfo(path).Length > 1024 * 1024)

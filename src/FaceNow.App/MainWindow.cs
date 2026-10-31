@@ -33,7 +33,8 @@ public sealed partial class MainWindow : Window
     private readonly TextBlock terms = Theme.Text("", 13, "#9CA3AF");
     private readonly StackPanel workspace = new();
     private readonly Grid localPanel = new() { Background = Theme.Brush("#000000") }, remotePanel = new() { Background = Theme.Brush("#000000") };
-    internal readonly XmaxRealtimeVideoView LocalView = new() { ContentMode = VideoContentMode.Fill }, RemoteView = new() { ContentMode = VideoContentMode.Fill };
+    internal readonly XmaxRealtimeVideoView LocalView = new() { ContentMode = VideoContentMode.Fill };
+    internal readonly ResultVideoView RemoteView = new() { ContentMode = VideoContentMode.Fill };
     private readonly TextBlock localPlaceholder = Theme.Text("", 14, "#B3FFFFFF"), resultPlaceholder = Theme.Text("", 14, "#B3FFFFFF");
     private readonly StackPanel localStatistics = new(), remoteStatistics = new();
     private readonly Grid referenceArea = new() { Height = 190 };
@@ -42,25 +43,25 @@ public sealed partial class MainWindow : Window
     private readonly Dictionary<string, CenteredWrapPanel> referencePanels = [];
     private readonly Dictionary<string, Button> tabs = [];
     private readonly Border freePromptBox = new() { Height = 136, CornerRadius = new(18), Background = Theme.Brush("#F7F8FA"), BorderBrush = Theme.Brush("#E5E7EB"), BorderThickness = new(1), VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly TextBox promptEditor = new() { PlaceholderText = "Describe what you want to see…", AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, BorderThickness = new(0), Background = Theme.Brush("#00FFFFFF"), Padding = new(0), FontFamily = Theme.Font, FontSize = 14 };
+    private readonly TextBox promptEditor = new() { PlaceholderText = AppText.Get("Describe what you want to see…"), AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, BorderThickness = new(0), Background = Theme.Brush("#00FFFFFF"), Padding = new(0), FontFamily = Theme.Font, FontSize = 14 };
     private readonly Grid freeReferenceHost = new() { Width = 44, Height = 44, Margin = new(0, 0, 10, 0) };
     private readonly Image freeReferenceImage = new() { Stretch = Stretch.UniformToFill };
     private readonly ReferenceUploadOverlay freeReferenceUploadOverlay = new(compact: true);
     private readonly TextBlock freeReferenceStatus = Theme.Text("", 8, "#FFFFFF");
     private readonly Grid footer = new() { Height = 36 };
     private readonly TextBlock previewFooter = Theme.Text("UI preview · no camera, network session or generated output", 11, "#9CA3AF");
-    private readonly Pill previewBadge = new() { Text = "UI Preview · camera off", Accent = true, Margin = new(16, 0, 0, 0), IsHitTestVisible = false };
-    internal readonly Pill StartButton = new() { Text = "Start Camera", Glyph = "camera", Primary = true, Height = 52, FontSize = 16, HorizontalAlignment = HorizontalAlignment.Center,
+    private readonly Pill previewBadge = new() { Text = AppText.Get("UI Preview · camera off"), Accent = true, Margin = new(16, 0, 0, 0), IsHitTestVisible = false };
+    internal readonly Pill StartButton = new() { Text = AppText.Get("Start Camera"), Glyph = "camera", Primary = true, Height = 52, FontSize = 16, HorizontalAlignment = HorizontalAlignment.Center,
         OpacityTransition = new ScalarTransition { Duration = TimeSpan.FromMilliseconds(300) } };
-    private readonly Pill cameraButton = new() { Text = "Select Camera", MaxWidth = 280, LabelMaxWidth = 220,
+    private readonly Pill cameraButton = new() { Text = AppText.Get("Select Camera"), MaxWidth = 280, LabelMaxWidth = 220,
         FontSize = 13, Height = 32, Translucent = true };
-    private readonly Pill modelButton = new() { Text = "X2.1", Glyph = "chevron", TrailingGlyph = true, Padding = new(18, 0, 12, 0), ContentSpacing = 6, Visibility = Visibility.Collapsed };
+    private readonly Pill modelButton = new() { Text = AppText.Get("X2.1"), Glyph = "chevron", TrailingGlyph = true, Padding = new(18, 0, 12, 0), ContentSpacing = 6, Visibility = Visibility.Collapsed };
     private readonly Pill keyButton = new() { Glyph = "key", LabelVerticalOffset = 2.75 };
     private readonly WindowsVirtualCamera virtualCameraOutput = new();
     private readonly Pill homeVirtualCamera = new() { Glyph = "camera", ExtraChevron = true, FontSize = 12, LabelMaxWidth = 220, Padding = new(15, 0, 12, 0) };
     private readonly Pill statisticsButton = new() { Glyph = "statistics", Secondary = true };
     private readonly Pill elapsed = new() { Passive = true, MinWidth = 72, IsHitTestVisible = false };
-    private readonly Pill stopButton = new() { Text = "Stop Session", Glyph = "stop", Destructive = true };
+    private readonly Pill stopButton = new() { Text = AppText.Get("Stop Session"), Glyph = "stop", Destructive = true };
     private readonly Pill freeUpload = new() { Glyph = "plus", Width = 44, Height = 44, Padding = new(0), Margin = new(0, 0, 10, 0) };
     private readonly Pill submit = new() { Glyph = "arrow", Primary = true, Width = 44, Height = 44, Padding = new(0) };
     private readonly ToastView toast = new();
@@ -70,7 +71,7 @@ public sealed partial class MainWindow : Window
     internal MainWindow(bool preview = false, bool previewSession = false, ApiKeyStore? store = null, bool environmentKey = true, bool setupPreview = false, UserRepository? user = null)
     {
         cameraSetupPreview = setupPreview;
-        Title = preview ? "FaceNow — UI Preview" : "FaceNow";
+        Title = preview ? "FaceNow — UI Preview" : FaceNow.Core.Product.ProductProfile.Current.DisplayName;
         if (setupPreview) Title = "FaceNow — Camera setup preview (simulated)";
         AppWindow.SetIcon(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "FaceNow.ico"));
         apiKeyStore = store;
@@ -80,12 +81,13 @@ public sealed partial class MainWindow : Window
         if (preview) Model.ConfigurePreview(previewSession);
         root.DataContext = Model;
         BuildUi();
+        BuildBeautyUi();
         BuildAccountUi();
         if (setupPreview)
         {
-            previewBadge.Text = "Restart setup preview"; previewBadge.IsHitTestVisible = true;
+            previewBadge.Text = AppText.Get("Restart setup preview"); previewBadge.IsHitTestVisible = true;
             previewBadge.Click += (_, _) => ResetCameraSetupPreview();
-            previewFooter.Text = "Camera setup simulation · no installation, camera access or system changes";
+            previewFooter.Text = AppText.Get("Camera setup simulation · no installation, camera access or system changes");
         }
         Content = root;
         toast.Dismissed += ToastDismissed;
@@ -99,7 +101,7 @@ public sealed partial class MainWindow : Window
         Model.CameraRequired += OpenCameras;
         LocalView.PlaybackFailed += Model.ReportError; RemoteView.PlaybackFailed += Model.ReportError;
         Theme.Bind(LocalView, XmaxRealtimeVideoView.VideoSourceProperty, nameof(Model.LocalVideo), Model);
-        Theme.Bind(RemoteView, XmaxRealtimeVideoView.VideoSourceProperty, nameof(Model.RemoteVideo), Model);
+        Theme.Bind(RemoteView, ResultVideoView.VideoSourceProperty, nameof(Model.ResultVideoSource), Model);
         root.SizeChanged += (_, _) => RequestLayout();
         scroller.ViewChanged += (_, _) => RequestLayout();
         root.Loaded += async (_, _) =>
@@ -151,6 +153,7 @@ public sealed partial class MainWindow : Window
     }
     private void RefreshUi()
     {
+        RefreshBeautyUi();
         bool changed = previousActive != Model.Active;
         homeControls.Visibility = landing.Visibility = footer.Visibility = Model.Active ? Visibility.Collapsed : Visibility.Visible;
         sessionControls.Visibility = workspace.Visibility = Model.Active ? Visibility.Visible : Visibility.Collapsed;
@@ -180,7 +183,7 @@ public sealed partial class MainWindow : Window
         freeReferenceHost.Visibility = Model.HasFreeReference ? Visibility.Visible : Visibility.Collapsed;
         freeReferenceImage.Source = Model.FreeReference?.Thumbnail as ImageSource;
         freeReferenceUploadOverlay.SetUploading(Model.FreeReference?.IsUploading == true, Model.FreeReference?.UploadProgress);
-        freeReferenceStatus.Text = Model.FreeReference?.HasError == true ? "Retry" : "";
+        freeReferenceStatus.Text = Model.FreeReference?.HasError == true ? AppText.Get("Retry") : "";
         submit.IsEnabled = Model.SubmitPromptCommand.CanExecute(null);
         UpdateToast();
         foreach (var tile in ReferenceTiles.Values) tile.IsEnabled = Model.CanEdit && !tile.Item.IsUploading;
@@ -213,7 +216,7 @@ public sealed partial class MainWindow : Window
         landingStage.Height = landingStage.Width * 1080 / 1920;
         terms.Width = Math.Max(0, landingStage.Width - 40); terms.FontSize = Math.Clamp(width * .0028 + 9.5, 12, 15);
         StartButton.FontSize = Math.Clamp(width * .003 + 12, 15, 18);
-        double padding = Math.Clamp(width * .0075 + 18, 25, 40); StartButton.Padding = new(padding, 0, padding, 0);
+        double padding = Math.Clamp(width * .0075 + 18, 25, 40); StartButton.Padding = new(padding - 1, 0, padding + 1, 0);
         StartButton.Height = Math.Max(20, Math.Ceiling(StartButton.FontSize * 1.3)) + Math.Clamp(width * .0028 + 9, 12, 16) * 2; StartButton.Refresh();
         localPanel.Height = remotePanel.Height = Math.Max(0, (width - 80) / 2 * 1080 / 1920);
         freePromptBox.Width = Math.Min(880, workspace.Width);
@@ -229,5 +232,5 @@ public sealed partial class MainWindow : Window
         previewFooter.Width = width; Canvas.SetTop(previewFooter, page.Height - 20);
     }
     private void OpenLink(string url)
-    { try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); } catch (Exception error) { Model.ReportError(error); } }
+    { try { Process.Start(new ProcessStartInfo(FaceNow.Core.Product.ProductProfile.Current.ResolveLink(url)) { UseShellExecute = true }); } catch (Exception error) { Model.ReportError(error); } }
 }
