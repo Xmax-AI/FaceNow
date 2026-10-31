@@ -12,6 +12,7 @@ DerivedData/
 *.dSYM/
 *.dmg
 *.log
+__pycache__/
 
 # Per-user Xcode state; keep shared schemes and Package.resolved tracked
 xcuserdata/
