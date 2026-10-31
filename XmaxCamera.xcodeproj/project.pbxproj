@@ -1734,8 +1734,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 78AA1498C22C85A2313F4FE0 /* Oversea.xcconfig */;
 			buildSettings = {
-				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
-				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
@@ -1994,8 +1992,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
 			buildSettings = {
-				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
-				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
