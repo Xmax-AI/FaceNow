@@ -144,8 +144,13 @@ final class GenerationVideoPanel: Canvas {
             make.height.equalTo(20)
         }
         captionBackground.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(14)
-            make.bottom.equalToSuperview().inset(12)
+            if showsWatermark {
+                make.trailing.equalToSuperview().inset(14)
+                make.top.equalToSuperview().inset(12)
+            } else {
+                make.leading.equalToSuperview().offset(14)
+                make.bottom.equalToSuperview().inset(12)
+            }
         }
         caption.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(6)

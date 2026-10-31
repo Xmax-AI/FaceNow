@@ -14,24 +14,27 @@ final class VirtualCameraWatermarkTests: XCTestCase {
         pixelFormat: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
     )
 
-    func testArtworkKeepsOnlyLeftCornerMarks() throws {
+    func testArtworkPlacesBrandTopLeftAndCaptionTopRight() throws {
         let image = try VirtualCameraWatermark.makeImage(format: format, generationCaption: "AI")
         let pixels = rgba(image)
         XCTAssertGreaterThan(alphaSum(pixels, region: CGRect(x: 0, y: 312, width: 200, height: 48)), 10_000)
-        XCTAssertGreaterThan(alphaSum(pixels, region: CGRect(x: 0, y: 0, width: 200, height: 60)), 10_000)
-        XCTAssertEqual(alphaSum(pixels, region: CGRect(x: 320, y: 0, width: 320, height: 360)), 0)
+        XCTAssertGreaterThan(alphaSum(pixels, region: CGRect(x: 440, y: 312, width: 200, height: 48)), 10_000)
+        XCTAssertEqual(alphaSum(pixels, region: CGRect(x: 0, y: 0, width: 640, height: 180)), 0)
         XCTAssertEqual(alphaSum(pixels, region: CGRect(x: 200, y: 80, width: 240, height: 200)), 0)
     }
 
     func testCaptionUsesTheSuppliedTextAndCanvas() throws {
-        let chinese = rgba(try VirtualCameraWatermark.makeImage(format: format, generationCaption: "AI 生成"))
+        let chinese = rgba(try VirtualCameraWatermark.makeImage(format: format, generationCaption: "AI生成"))
         let english = rgba(try VirtualCameraWatermark.makeImage(format: format, generationCaption: "AI Generation"))
         XCTAssertFalse(chinese.elementsEqual(english))
         XCTAssertGreaterThan(
-            alphaSum(english, region: CGRect(x: 0, y: 0, width: 200, height: 60)),
-            alphaSum(chinese, region: CGRect(x: 0, y: 0, width: 200, height: 60))
+            alphaSum(english, region: CGRect(x: 440, y: 312, width: 200, height: 48)),
+            alphaSum(chinese, region: CGRect(x: 440, y: 312, width: 200, height: 48))
         )
-        XCTAssertTrue(chinese.suffix(640 * 48 * 4).elementsEqual(english.suffix(640 * 48 * 4)))
+        let brandBytes: ([UInt8]) -> [UInt8] = { pixels in
+            (312..<360).flatMap { y in Array(pixels[(y * 640 * 4)..<((y * 640 + 200) * 4)]) }
+        }
+        XCTAssertEqual(brandBytes(chinese), brandBytes(english))
         let large = try VirtualCameraWatermark.makeImage(
             format: VirtualCameraConfiguration.videoFormat,
             generationCaption: "AI Generation"
@@ -54,10 +57,10 @@ final class VirtualCameraWatermarkTests: XCTestCase {
         XCTAssertTrue(CMVideoFormatDescriptionMatchesImageBuffer(renderer.formatDescription, imageBuffer: output))
         let before = luma(input)
         let after = luma(output)
-        XCTAssertGreaterThan(changedPixels(before, after, region: CGRect(x: 0, y: 0, width: 200, height: 60)), 50)
+        XCTAssertEqual(changedPixels(before, after, region: CGRect(x: 0, y: 0, width: 200, height: 60)), 0)
         XCTAssertEqual(changedPixels(before, after, region: CGRect(x: 440, y: 0, width: 200, height: 60)), 0)
         XCTAssertGreaterThan(changedPixels(before, after, region: CGRect(x: 0, y: 312, width: 200, height: 48)), 50)
-        XCTAssertEqual(changedPixels(before, after, region: CGRect(x: 440, y: 312, width: 200, height: 48)), 0)
+        XCTAssertGreaterThan(changedPixels(before, after, region: CGRect(x: 440, y: 312, width: 200, height: 48)), 50)
         XCTAssertEqual(changedPixels(before, after, region: CGRect(x: 200, y: 80, width: 240, height: 200)), 0)
         let pts = CMTime(value: 1234, timescale: 60)
         let sample = try renderer.sampleBuffer(output, at: pts)
@@ -82,7 +85,7 @@ final class VirtualCameraWatermarkTests: XCTestCase {
             changedPixels(
                 luma(clean),
                 luma(marked),
-                region: CGRect(x: 0, y: 0, width: 200, height: 60)
+                region: CGRect(x: 440, y: 312, width: 200, height: 48)
             ),
             50
         )

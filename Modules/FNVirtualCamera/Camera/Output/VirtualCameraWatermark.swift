@@ -23,7 +23,7 @@ enum VirtualCameraWatermark {
         case allocation
     }
 
-    /// Draws the product name and generation badge in the two left corners.
+    /// Draws the product name at top left and the generation badge at top right.
     /// The bitmap uses output pixel coordinates and never reads or modifies a source video frame.
     static func makeImage(
         format: VideoFormat,
@@ -45,8 +45,8 @@ enum VirtualCameraWatermark {
 
         let badge = try badgeImage(text: generationCaption, scale: scale)
         let badgeBounds = CGRect(
-            x: 14 * scale,
-            y: 12 * scale,
+            x: width - 14 * scale - CGFloat(badge.width),
+            y: height - 12 * scale - CGFloat(badge.height),
             width: CGFloat(badge.width),
             height: CGFloat(badge.height)
         )
