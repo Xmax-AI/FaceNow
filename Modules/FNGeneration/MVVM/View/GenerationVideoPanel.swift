@@ -66,8 +66,8 @@ final class GenerationVideoPanel: Canvas {
         return view
     }()
 
-    /// The FaceNow watermark shown only on the result panel.
-    private lazy var watermark: NSTextField = {
+    /// The normally oriented FaceNow watermark at the result's upper-left corner.
+    private lazy var leftWatermark: NSTextField = {
         let view = makeLabel(
             "✦ FaceNow",
             size: 13,
@@ -75,6 +75,16 @@ final class GenerationVideoPanel: Canvas {
             weight: .semibold
         )
         view.font = .systemFont(ofSize: 13, weight: .semibold)
+        view.isHidden = !showsWatermark
+        return view
+    }()
+
+    /// Mirrors the complete watermark horizontally at the result's upper-right corner.
+    private lazy var rightWatermark: MirroredWatermarkLabel = {
+        let view = MirroredWatermarkLabel(labelWithString: "✦ FaceNow")
+        view.font = .systemFont(ofSize: 13, weight: .semibold)
+        view.textColor = .white.withAlphaComponent(0.8)
+        view.lineBreakMode = .byTruncatingTail
         view.isHidden = !showsWatermark
         return view
     }()
@@ -105,7 +115,8 @@ final class GenerationVideoPanel: Canvas {
         }
         addSubview(captionBackground)
         captionBackground.addSubview(caption)
-        addSubview(watermark)
+        addSubview(leftWatermark)
+        addSubview(rightWatermark)
         setAccessibilityLabel(title)
         configureLayout()
     }
@@ -151,7 +162,11 @@ final class GenerationVideoPanel: Canvas {
             make.leading.trailing.equalToSuperview().inset(6)
             make.top.bottom.equalToSuperview().inset(3)
         }
-        watermark.snp.makeConstraints { make in
+        leftWatermark.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.leading.equalToSuperview().inset(16)
+        }
+        rightWatermark.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.trailing.equalToSuperview().inset(16)
         }
@@ -163,6 +178,8 @@ final class GenerationVideoPanel: Canvas {
                 make.height.equalTo(panel.panelHeight)
                 if let previous {
                     make.top.equalTo(previous.snp.bottom).offset(8)
+                } else if showsWatermark {
+                    make.top.equalTo(leftWatermark.snp.bottom).offset(8)
                 } else {
                     make.top.equalToSuperview().offset(12)
                 }
@@ -170,4 +187,25 @@ final class GenerationVideoPanel: Canvas {
             previous = panel
         }
     }
+}
+
+/// Reflects the complete native label drawing while keeping its layout and text value intact.
+private final class MirroredWatermarkLabel: NSTextField {
+
+    /// Mirrors glyphs around the label's horizontal center without reversing the string.
+    override func draw(
+        _ dirtyRect: NSRect
+    ) {
+        guard let context = NSGraphicsContext.current?.cgContext else { return }
+        context.saveGState()
+        context.translateBy(x: bounds.minX + bounds.maxX, y: 0)
+        context.scaleBy(x: -1, y: 1)
+        super.draw(dirtyRect)
+        context.restoreGState()
+    }
+
+    /// Lets decorative watermark clicks reach the video beneath it.
+    override func hitTest(
+        _ point: NSPoint
+    ) -> NSView? { nil }
 }

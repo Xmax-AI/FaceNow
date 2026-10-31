@@ -885,7 +885,7 @@ enum GenerationStrings {
         Localization.string(
             "controls.local",
             table: "Generation",
-            defaultValue: "Local"
+            defaultValue: "Preview"
         )
     }
 
@@ -894,7 +894,7 @@ enum GenerationStrings {
         Localization.string(
             "controls.result",
             table: "Generation",
-            defaultValue: "Result"
+            defaultValue: "AI Generation"
         )
     }
 

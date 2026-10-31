@@ -332,13 +332,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Local"
+            "value": "Preview"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "本地画面"
+            "value": "Preview"
           }
         }
       }
@@ -404,13 +404,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Result"
+            "value": "AI Generation"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "生成画面"
+            "value": "AI 生成"
           }
         }
       }
