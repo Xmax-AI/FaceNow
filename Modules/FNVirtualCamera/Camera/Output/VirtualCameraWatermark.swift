@@ -35,7 +35,7 @@ enum VirtualCameraWatermark {
         let scale = min(width / 640, height / 360)
         let brand = try brandImage(scale: scale)
         let brandBounds = CGRect(
-            x: 16 * scale,
+            x: 12 * scale,
             y: height - 12 * scale - CGFloat(brand.height),
             width: CGFloat(brand.width),
             height: CGFloat(brand.height)
@@ -45,7 +45,7 @@ enum VirtualCameraWatermark {
 
         let badge = try badgeImage(text: generationCaption, scale: scale)
         let badgeBounds = CGRect(
-            x: width - 14 * scale - CGFloat(badge.width),
+            x: width - 12 * scale - CGFloat(badge.width),
             y: height - 12 * scale - CGFloat(badge.height),
             width: CGFloat(badge.width),
             height: CGFloat(badge.height)
@@ -59,7 +59,7 @@ enum VirtualCameraWatermark {
     private static func brandImage(
         scale: CGFloat
     ) throws -> CGImage {
-        let brand = line("✦ FaceNow", size: 13 * scale, weight: .semibold, opacity: 0.8)
+        let brand = line("✦ FaceNow", size: 11 * scale, weight: .semibold, opacity: 0.8)
         var ascent: CGFloat = 0
         var descent: CGFloat = 0
         let width = Int(ceil(CTLineGetTypographicBounds(brand, &ascent, &descent, nil)))
@@ -77,7 +77,7 @@ enum VirtualCameraWatermark {
         text: String,
         scale: CGFloat
     ) throws -> CGImage {
-        let caption = line(text, size: 12 * scale, weight: .regular, opacity: 0.65)
+        let caption = line(text, size: 10 * scale, weight: .regular, opacity: 0.65)
         var ascent: CGFloat = 0
         var descent: CGFloat = 0
         var leading: CGFloat = 0

@@ -145,7 +145,7 @@ final class GenerationVideoPanel: Canvas {
         }
         captionBackground.snp.makeConstraints { make in
             if showsWatermark {
-                make.trailing.equalToSuperview().inset(14)
+                make.trailing.equalToSuperview().inset(12)
                 make.top.equalToSuperview().inset(12)
             } else {
                 make.leading.equalToSuperview().offset(14)
@@ -158,7 +158,7 @@ final class GenerationVideoPanel: Canvas {
         }
         leftWatermark.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
-            make.leading.equalToSuperview().inset(16)
+            make.leading.equalToSuperview().inset(12)
         }
         var previous: GenerationStatisticsPanel?
         for panel in panels {

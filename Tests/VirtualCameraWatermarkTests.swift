@@ -21,6 +21,16 @@ final class VirtualCameraWatermarkTests: XCTestCase {
         XCTAssertGreaterThan(alphaSum(pixels, region: CGRect(x: 440, y: 312, width: 200, height: 48)), 10_000)
         XCTAssertEqual(alphaSum(pixels, region: CGRect(x: 0, y: 0, width: 640, height: 180)), 0)
         XCTAssertEqual(alphaSum(pixels, region: CGRect(x: 200, y: 80, width: 240, height: 200)), 0)
+        var captionMaxX = 0
+        var captionMaxY = 0
+        for y in 312..<360 {
+            for x in 440..<640 where pixels[(y * 640 + x) * 4 + 3] > 0 {
+                captionMaxX = max(captionMaxX, x)
+                captionMaxY = max(captionMaxY, y)
+            }
+        }
+        XCTAssertEqual(639 - captionMaxX, 12)
+        XCTAssertEqual(359 - captionMaxY, 12)
     }
 
     func testCaptionUsesTheSuppliedTextAndCanvas() throws {
