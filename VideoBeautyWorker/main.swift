@@ -1,3 +1,3 @@
-import XmaxVideoBeautyWorkerSupport
+import XmaxRealtimeVideoBeautyWorkerSupport
 
-XmaxVideoBeautyWorker.run()
+XmaxRealtimeVideoBeautyWorker.run()
