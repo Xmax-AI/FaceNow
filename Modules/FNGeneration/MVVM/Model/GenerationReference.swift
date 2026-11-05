@@ -37,6 +37,9 @@ struct GenerationReference: Identifiable, Sendable {
     /// The default generation prompt, or a per-reference override when present.
     var prompt: String? = nil
 
+    /// Whether this reference restores the original face; uploaded references default to disabled.
+    var faceRestoration: Bool = false
+
     /// The current reference upload or retry state.
     var uploadState: UploadState = .ready
 
@@ -82,7 +85,8 @@ struct GenerationReference: Identifiable, Sendable {
         version: String,
         name: String,
         reference: String,
-        prompt: String
+        prompt: String,
+        faceRestoration: Bool = false
     ) -> Self {
         let base = NetworkEnvironment.current.assetBaseURL.absoluteString
         let path = "\(base)/images/playground/\(mode.rawValue)/\(reference)?v=32&presetVersion=\(version)"
@@ -93,7 +97,8 @@ struct GenerationReference: Identifiable, Sendable {
             name: name,
             thumbnailURL: URL(string: thumbnail)!,
             referencePath: path,
-            prompt: prompt
+            prompt: prompt,
+            faceRestoration: faceRestoration
         )
     }
 }

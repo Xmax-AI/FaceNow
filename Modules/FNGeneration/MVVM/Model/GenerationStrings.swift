@@ -16,12 +16,123 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum GenerationStrings {
 
-    /// Opens local monitoring and generated-result appearance settings.
+    /// Opens the audio and video synchronization settings card.
     static var audioVideoAdjustments: String {
         Localization.string(
             "controls.audio_video_adjustments",
             table: "Generation",
             defaultValue: "Audio & Video"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var adjustmentsClose: String {
+        Localization.string(
+            "sync.close",
+            table: "Generation",
+            defaultValue: "Close audio and video adjustments"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var automaticSync: String {
+        Localization.string(
+            "sync.automatic_title",
+            table: "Generation",
+            defaultValue: "Automatic A/V Sync"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var syncEnabled: String {
+        Localization.string(
+            "sync.enabled",
+            table: "Generation",
+            defaultValue: "Enabled"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var automaticSyncDescription: String {
+        Localization.string(
+            "sync.automatic_description",
+            table: "Generation",
+            defaultValue: "Automatically align audio with generated video"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var manualSyncOffset: String {
+        Localization.string(
+            "sync.manual_title",
+            table: "Generation",
+            defaultValue: "Manual Sync Offset"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var manualSyncDescription: String {
+        Localization.string(
+            "sync.manual_description",
+            table: "Generation",
+            defaultValue: "Fine-tune the automatic synchronization"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var audioEarlier: String {
+        Localization.string(
+            "sync.audio_earlier",
+            table: "Generation",
+            defaultValue: "Audio earlier"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var audioLater: String {
+        Localization.string(
+            "sync.audio_later",
+            table: "Generation",
+            defaultValue: "Audio later"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var syncOffsetValue: String {
+        Localization.string(
+            "sync.offset_value",
+            table: "Generation",
+            defaultValue: "Offset"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var syncReset: String {
+        Localization.string(
+            "sync.reset",
+            table: "Generation",
+            defaultValue: "Reset"
+        )
+    }
+
+    /// Localized copy for the audio synchronization settings card.
+    static var syncRealtimeHint: String {
+        Localization.string(
+            "sync.realtime_hint",
+            table: "Generation",
+            defaultValue: "Adjustments take effect immediately"
+        )
+    }
+
+    /// Formats the complete manual offset value with its millisecond unit.
+    static func syncOffsetMilliseconds(
+        value: Int
+    ) -> String {
+        Localization.format(
+            "sync.offset_milliseconds",
+            table: "Generation",
+            defaultValue: "%lld ms",
+            arguments: [Int64(value)]
         )
     }
 

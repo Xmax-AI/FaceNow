@@ -218,7 +218,7 @@
       }
     },
     "controls.audio_video_adjustments": {
-      "comment": "Opens local monitoring and generated-result appearance settings.",
+      "comment": "Opens the audio and video synchronization settings card.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2445,6 +2445,222 @@
           "stringUnit": {
             "state": "translated",
             "value": "很差"
+          }
+        }
+      }
+    },
+    "sync.audio_earlier": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio earlier"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "声音提前"
+          }
+        }
+      }
+    },
+    "sync.audio_later": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio later"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "声音延后"
+          }
+        }
+      }
+    },
+    "sync.automatic_description": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically align audio with generated video"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动对齐声音与生成画面"
+          }
+        }
+      }
+    },
+    "sync.automatic_title": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic A/V Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动音画同步"
+          }
+        }
+      }
+    },
+    "sync.close": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close audio and video adjustments"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭音画调节"
+          }
+        }
+      }
+    },
+    "sync.enabled": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已启用"
+          }
+        }
+      }
+    },
+    "sync.manual_description": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fine-tune the automatic synchronization"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在自动同步基础上微调"
+          }
+        }
+      }
+    },
+    "sync.manual_title": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual Sync Offset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动同步偏移"
+          }
+        }
+      }
+    },
+    "sync.offset_milliseconds": {
+      "comment": "Manual synchronization offset in milliseconds; preserve the integer placeholder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ms"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ms"
+          }
+        }
+      }
+    },
+    "sync.offset_value": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偏移值"
+          }
+        }
+      }
+    },
+    "sync.realtime_hint": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjustments take effect immediately"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调整实时生效"
+          }
+        }
+      }
+    },
+    "sync.reset": {
+      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置"
           }
         }
       }

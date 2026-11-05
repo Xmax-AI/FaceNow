@@ -87,11 +87,40 @@ final class GenerationPresetsTests: XCTestCase {
         XCTAssertNotEqual(glasses.prompt, GenerationMode.clothx.prompt)
     }
 
-    func testFaceRestorationRemainsLimitedToVirtualTryOn() {
-        XCTAssertEqual(
-            GenerationMode.allCases.filter(\.faceRestoration),
-            [.clothx]
-        )
+    func testFaceRestorationIsEnabledOnlyForTheTenClothingPresets() {
+        let restoredImages: Set<String> = [
+            "clothx_image1.png", "clothx_image2.png", "clothx_real_image3.png", "clothx_real_image4.png",
+            "clothx_image5.png", "clothx_image6.png", "clothx_image7.png", "clothx_image8.png",
+            "clothx_real_image9.png", "clothx_real_image10.png",
+        ]
+        let presets = GenerationMode.allCases.flatMap(\.presets)
+        XCTAssertEqual(presets.filter(\.faceRestoration).count, restoredImages.count)
+        for reference in presets {
+            let filename = URL(string: reference.referencePath)?.lastPathComponent ?? ""
+            XCTAssertEqual(
+                reference.faceRestoration,
+                reference.mode == .clothx && restoredImages.contains(filename),
+                "Unexpected face restoration setting for \(reference.id)"
+            )
+        }
+    }
+
+    func testUploadedReferencesDisableFaceRestorationInEveryMode() {
+        for mode in GenerationMode.allCases {
+            var uploaded = GenerationReference(
+                id: UUID().uuidString,
+                mode: mode,
+                name: "Custom image",
+                thumbnailURL: URL(fileURLWithPath: "/tmp/reference.png"),
+                referencePath: "",
+                thumbnailData: Data([1]),
+                prompt: mode.prompt
+            )
+            XCTAssertFalse(uploaded.faceRestoration, "Custom references must opt out even in virtual try-on")
+            uploaded.referencePath = "https://example.com/uploaded-reference.png"
+            uploaded.uploadState = .ready
+            XCTAssertFalse(uploaded.faceRestoration, "Completing an upload must preserve the reference setting")
+        }
     }
 
     func testSummonSupportsPromptOnlyAndImagePresetsInPlaygroundOrder() {
@@ -118,7 +147,7 @@ final class GenerationPresetsTests: XCTestCase {
             XCTAssertEqual(presets[1].prompt, "召唤一只小老鼠到人物肩膀上")
             XCTAssertTrue(presets[2].prompt?.contains("不替换任何原有主体") == true)
         #endif
-        XCTAssertFalse(GenerationMode.dimx.faceRestoration)
+        XCTAssertTrue(GenerationMode.dimx.presets.allSatisfy { !$0.faceRestoration })
     }
 
     func testFreePromptStartsWithoutPresetImagesOrImplicitPrompt() {

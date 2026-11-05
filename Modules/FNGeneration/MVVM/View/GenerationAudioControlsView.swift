@@ -16,14 +16,11 @@ import SnapKit
 @MainActor
 final class GenerationAudioControlsView: Canvas {
 
-    /// The matching top and bottom space around standard toolbar controls.
-    private static let verticalInset: CGFloat = 8
-
-    /// The matching leading and trailing space inside the audio toolbar.
-    private static let horizontalInset: CGFloat = 16
+    /// The matching space around all four edges of the audio toolbar.
+    private static let contentInset: CGFloat = 8
 
     /// The complete row height shared by workspace measurement and native constraints.
-    static let preferredHeight = ToolbarControlMetrics.compactHeight + 2 * verticalInset
+    static let preferredHeight = ToolbarControlMetrics.compactHeight + 2 * contentInset
 
     /// Derives presentation from the shared generation state.
     private let viewModel = GenerationAudioControlsViewModel()
@@ -47,7 +44,7 @@ final class GenerationAudioControlsView: Canvas {
     /// Finishes hiding the entire indicator after its shared opacity transition.
     private var levelDismissal: Task<Void, Never>?
 
-    /// Opens existing monitoring and result beauty settings in a native popover.
+    /// Opens the audio synchronization design in a native popover.
     private lazy var adjustmentButton: ToolbarButton = {
         let view = ToolbarButton(
             GenerationStrings.audioVideoAdjustments,
@@ -76,8 +73,8 @@ final class GenerationAudioControlsView: Canvas {
         layer?.borderColor = Palette.border.cgColor
         [microphonePicker, inputLevel, adjustmentButton].forEach(addSubview)
         microphonePicker.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(Self.horizontalInset)
-            make.top.bottom.equalToSuperview().inset(Self.verticalInset)
+            make.leading.equalToSuperview().offset(Self.contentInset)
+            make.top.bottom.equalToSuperview().inset(Self.contentInset)
         }
         inputLevel.snp.makeConstraints { make in
             make.leading.equalTo(microphonePicker.snp.trailing).offset(20)
@@ -88,7 +85,7 @@ final class GenerationAudioControlsView: Canvas {
             make.trailing.lessThanOrEqualTo(adjustmentButton.snp.leading).offset(-20)
         }
         adjustmentButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(Self.horizontalInset)
+            make.trailing.equalToSuperview().inset(Self.contentInset)
             make.top.bottom.equalTo(microphonePicker)
             make.width.equalTo(adjustmentButton.preferredWidth)
         }
@@ -162,6 +159,7 @@ final class GenerationAudioControlsView: Canvas {
         guard viewModel.canAdjust, window != nil, !isHiddenOrHasHiddenAncestor else { return }
         microphonePicker.closePicker()
         let content = GenerationAdjustmentPopoverView()
+        content.onClose = { [weak self] in self?.closePopovers() }
         let controller = NSViewController()
         controller.view = content
         let popover = NSPopover()

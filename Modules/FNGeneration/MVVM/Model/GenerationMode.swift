@@ -16,7 +16,7 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
     /// Replaces the live character using a selected reference image.
     case charx
 
-    /// Applies virtual clothing and requests face restoration.
+    /// Applies virtual clothing using the selected reference configuration.
     case clothx
 
     /// Applies the visual style of a reference image.
@@ -68,9 +68,6 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
         case .free: ""
         }
     }
-
-    /// Whether the selected mode requests the clothing workflow's face restoration.
-    var faceRestoration: Bool { self == .clothx }
 
     /// Matches api-platform-web develop 3e7b9233's X2.1 image references and workbook order.
     var presets: [GenerationReference] {
@@ -278,7 +275,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
                         english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -288,7 +286,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
                         english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -298,7 +297,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
                         english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -308,7 +308,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
                         english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -318,7 +319,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
                         english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -328,7 +330,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的上衣穿到视频人物身上，其他保持不变",
                         english: "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -338,7 +341,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的上衣穿到视频人物身上，其他保持不变",
                         english: "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -348,7 +352,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的下装穿到视频人物身上，其他保持不变",
                         english: "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -358,7 +363,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的下装穿到视频人物身上，其他保持不变",
                         english: "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -368,7 +374,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
                         english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
-                    )
+                    ),
+                    faceRestoration: true
                 ),
                 .preset(
                     .clothx,
@@ -378,7 +385,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图棒球帽应用到视频角色身上",
                         english: "Apply the cap from the reference image to the video character."
-                    )
+                    ),
+                    faceRestoration: false
                 ),
                 .preset(
                     .clothx,
@@ -388,7 +396,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图眼镜应用到视频角色身上",
                         english: "Apply the glasses from the reference image to the video character."
-                    )
+                    ),
+                    faceRestoration: false
                 ),
             ]
         case .vibex:

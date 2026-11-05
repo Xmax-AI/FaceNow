@@ -807,7 +807,7 @@ final class GenerationRepository: ObservableObject {
                 prompt: reference.prompt ?? reference.mode.prompt,
                 referencePath: reference.referencePath.isEmpty ? nil : reference.referencePath
             ),
-            faceRestoration: reference.mode.faceRestoration
+            faceRestoration: reference.faceRestoration
         )
         guard lifecycleID == operation else { return }
         advanceStartup(
