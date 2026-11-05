@@ -48,9 +48,7 @@ final class GenerationAudioControlsViewModel {
         if generationRepo.microphoneSwitching { return .switching }
         let id = generationRepo.microphoneID
         if id == GenerationRepository.disabledMicrophoneID { return .disabled }
-        let available =
-            id == GenerationRepository.systemMicrophoneID
-            ? !generationRepo.microphones.isEmpty : generationRepo.microphones.contains { $0.id == id }
+        let available = generationRepo.microphones.contains { $0.id == id }
         return available ? .ready : .unavailable
     }
 

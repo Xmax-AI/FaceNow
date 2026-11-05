@@ -50,31 +50,22 @@ final class GenerationRepository: ObservableObject {
     /// The currently selectable physical inputs, excluding FaceNow's own output.
     @Published private(set) var cameras: [CaptureDevice] = []
 
-    /// The sentinel selecting the system input, resolved by the SDK when audio capture starts.
-    static let systemMicrophoneID = "system-default"
-
     /// The sentinel disabling microphone permission and capture for this session.
     static let disabledMicrophoneID = "disabled"
 
-    /// The saved input selection; first launch follows the system microphone.
-    @Published var microphoneID = UserDefaults.standard.string(forKey: "generation.microphone.id") ?? "system-default" {
+    /// The saved input UID; an empty or legacy selection is resolved during device discovery.
+    @Published var microphoneID = UserDefaults.standard.string(forKey: "generation.microphone.id") ?? "" {
         didSet { UserDefaults.standard.set(microphoneID, forKey: "generation.microphone.id") }
     }
 
     /// The SDK input selection corresponding to the saved picker choice.
     private var selectedMicrophone: RealtimeMicrophone {
-        switch microphoneID {
-        case Self.disabledMicrophoneID: .disabled
-        case Self.systemMicrophoneID: .systemDefault
-        default: .device(id: microphoneID)
-        }
+        microphoneID.isEmpty || microphoneID == Self.disabledMicrophoneID
+            ? .disabled : .device(id: microphoneID)
     }
 
     /// The available audio inputs, excluding FaceNow's virtual microphone output.
     @Published private(set) var microphones: [CaptureDevice] = []
-
-    /// The system-default input UID from the latest device discovery snapshot.
-    @Published private(set) var defaultMicrophoneID: String?
 
     /// Whether a runtime audio change owns the input selector until SDK configuration completes.
     @Published private(set) var microphoneSwitching = false
@@ -311,21 +302,24 @@ final class GenerationRepository: ObservableObject {
         if selection != cameraID { cameraID = selection }
     }
 
-    /// Refreshes audio choices off the main thread without acquiring microphone permission.
-    func refreshMicrophones() {
-        guard !isClosing else { return }
+    /// Refreshes inputs and resolves an initial selection to a concrete device without acquiring permission.
+    @discardableResult
+    func refreshMicrophones() -> Task<Void, Never>? {
+        guard !isClosing else { return nil }
         let request = UUID()
         microphoneRefreshID = request
-        Task { [weak self] in
+        return Task { [weak self] in
             let devices = await MediaDevices.listMicrophoneDevices()
             guard let self, self.microphoneRefreshID == request, !self.isClosing else { return }
-            let available = devices.filter { $0.id != VirtualMicrophoneOutput.deviceUID }
-                .map { CaptureDevice(id: $0.id, name: $0.name) }
+            let inputs = devices.filter { $0.id != VirtualMicrophoneOutput.deviceUID }
+            let available = inputs.map { CaptureDevice(id: $0.id, name: $0.name) }
             if !self.microphones.elementsEqual(available, by: { $0.id == $1.id && $0.name == $1.name }) {
                 self.microphones = available
             }
-            let defaultID = devices.first(where: \.isDefault)?.id
-            if self.defaultMicrophoneID != defaultID { self.defaultMicrophoneID = defaultID }
+            if self.microphoneID.isEmpty || self.microphoneID == "system-default" {
+                self.microphoneID = inputs.first(where: \.isDefault)?.id
+                    ?? inputs.first?.id ?? Self.disabledMicrophoneID
+            }
         }
     }
 
@@ -334,7 +328,7 @@ final class GenerationRepository: ObservableObject {
         _ id: String
     ) async {
         guard canChangeMicrophone, id != microphoneID,
-            id == Self.systemMicrophoneID || id == Self.disabledMicrophoneID || microphones.contains(where: { $0.id == id })
+            id == Self.disabledMicrophoneID || microphones.contains(where: { $0.id == id })
         else { return }
         guard sessionActive, let manager else {
             microphoneID = id
@@ -349,7 +343,7 @@ final class GenerationRepository: ObservableObject {
             if id == Self.disabledMicrophoneID {
                 try await manager.setMicrophoneEnabled(false)
             } else {
-                try await manager.switchMicrophone(to: id == Self.systemMicrophoneID ? nil : id)
+                try await manager.switchMicrophone(to: id)
                 routeChanged = true
                 guard lifecycleID == operation, !isClosing else { return }
                 try await manager.setMicrophoneEnabled(true)
@@ -359,7 +353,7 @@ final class GenerationRepository: ObservableObject {
         } catch {
             guard lifecycleID == operation, !isClosing else { return }
             if routeChanged, previous != Self.disabledMicrophoneID {
-                try? await manager.switchMicrophone(to: previous == Self.systemMicrophoneID ? nil : previous)
+                try? await manager.switchMicrophone(to: previous)
             }
             let enabled = await manager.isMicrophoneEnabled
             guard lifecycleID == operation, !isClosing else { return }
@@ -441,6 +435,8 @@ final class GenerationRepository: ObservableObject {
             to: .appSetup,
             operation: operation
         )
+        await refreshMicrophones()?.value
+        guard lifecycleID == operation else { return }
         activeMode = .charx
         selectedReferenceID = nil
         launchTiming = RealtimeLaunchTiming()

@@ -106,15 +106,6 @@ enum HomeStrings {
         )
     }
 
-    /// The input option that follows the system default microphone.
-    static var systemMicrophone: String {
-        Localization.string(
-            "home.system_microphone",
-            table: "Home",
-            defaultValue: "System Default Microphone"
-        )
-    }
-
     /// The input option disabling audio capture and permission requests.
     static var microphoneOff: String {
         Localization.string(

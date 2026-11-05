@@ -46,12 +46,10 @@ final class HomeInputPickerView: Canvas {
     /// The input capability whose selection and choices this view presents.
     private let input: Input
 
-    /// The choices including explicit system-default and disabled microphone options.
+    /// The concrete input devices followed by the disabled microphone option.
     private var devices: [GenerationRepository.CaptureDevice] {
         if input == .camera { return generationRepo.cameras }
-        return [
-            .init(id: GenerationRepository.systemMicrophoneID, name: HomeStrings.systemMicrophone),
-        ] + generationRepo.microphones + [
+        return generationRepo.microphones + [
             .init(id: GenerationRepository.disabledMicrophoneID, name: HomeStrings.microphoneOff),
         ]
     }
@@ -153,18 +151,21 @@ final class HomeInputPickerView: Canvas {
         let signature = selectedID + devices.map { $0.id + $0.name }.joined()
         if signature != inputSignature {
             inputSignature = signature
-            closePicker()
+            if let popover = inputPopover, popover.isShown {
+                let content = HomeInputPickerPopoverView(
+                    devices: devices,
+                    selectedID: selectedID,
+                    onSelect: { [weak self] id in self?.selectDevice(id) }
+                )
+                let controller = NSViewController()
+                controller.view = content
+                popover.contentViewController = controller
+                popover.contentSize = content.fittingSize
+            }
         }
-        let selectionTitle =
+        let title =
             devices.first { $0.id == selectedID }?.name
             ?? (input == .camera ? HomeStrings.homeSelectCamera : HomeStrings.selectMicrophone)
-        let title: String
-        if presentation == .toolbar, input == .microphone, selectedID == GenerationRepository.systemMicrophoneID {
-            title = generationRepo.microphones.first { $0.id == generationRepo.defaultMicrophoneID }?.name
-                ?? selectionTitle
-        } else {
-            title = selectionTitle
-        }
         if button.title != title {
             button.title = title
             invalidateIntrinsicContentSize()

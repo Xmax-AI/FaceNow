@@ -667,24 +667,6 @@
         }
       }
     },
-    "home.system_microphone": {
-      "comment": "Audio input selection beneath Start Camera.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "System Default Microphone"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "系统默认麦克风"
-          }
-        }
-      }
-    },
     "home.troubleshooting": {
       "comment": "Footer documentation link after the version; no click action until its URL is supplied.",
       "extractionState": "manual",
