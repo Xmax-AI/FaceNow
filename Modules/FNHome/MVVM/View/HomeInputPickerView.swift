@@ -14,7 +14,7 @@ import SnapKit
 
 /// Selects camera or microphone input beneath the landing page's Start Camera action.
 @MainActor
-final class HomeInputPickerView: Canvas {
+final class HomeInputPickerView: Canvas, NSPopoverDelegate {
 
     /// The input capability represented by this selector.
     enum Input {
@@ -213,6 +213,7 @@ final class HomeInputPickerView: Canvas {
         popover.animates = true
         popover.appearance = NSAppearance(named: .aqua)
         popover.contentViewController = controller
+        popover.delegate = self
         popover.contentSize = content.fittingSize
         inputPopover = popover
         popover.show(
@@ -225,6 +226,14 @@ final class HomeInputPickerView: Canvas {
     /// Releases the list before the trigger is covered or detached.
     func closePicker() {
         inputPopover?.close()
+        inputPopover = nil
+    }
+
+    /// Releases a natively dismissed device list.
+    func popoverDidClose(
+        _ notification: Notification
+    ) {
+        guard let popover = notification.object as? NSPopover, inputPopover === popover else { return }
         inputPopover = nil
     }
 
@@ -396,9 +405,11 @@ private final class HomeInputPickerPopoverView: Canvas {
         let width = min(340, max(220, (rows.map(\.preferredWidth).max() ?? 0) + 20))
         snp.makeConstraints { make in
             make.width.equalTo(width)
-            make.height.equalTo(min(286, listHeight) + 20)
         }
-        scroll.snp.makeConstraints { make in make.edges.equalToSuperview().inset(10) }
+        scroll.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(10)
+            make.height.equalTo(min(286, listHeight))
+        }
         list.snp.makeConstraints { make in
             make.top.leading.trailing.equalTo(scroll.contentView)
             make.height.equalTo(listHeight)

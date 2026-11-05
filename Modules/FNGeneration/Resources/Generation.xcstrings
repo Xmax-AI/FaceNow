@@ -343,6 +343,42 @@
         }
       }
     },
+    "controls.input_level": {
+      "comment": "Heading of the physical microphone input strength indicator.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input Level"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入音量"
+          }
+        }
+      }
+    },
+    "controls.input_level_help": {
+      "comment": "Tooltip and accessibility help for the microphone input strength indicator.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speak into your microphone to check the input."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对着麦克风说话，检查是否正常收音"
+          }
+        }
+      }
+    },
     "controls.local": {
       "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
       "extractionState": "manual",
@@ -357,78 +393,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "预览"
-          }
-        }
-      }
-    },
-    "controls.microphone_disabled": {
-      "comment": "The user has explicitly disabled physical microphone input.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disabled"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已关闭"
-          }
-        }
-      }
-    },
-    "controls.microphone_ready": {
-      "comment": "The selected physical microphone is available and enabled.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ready"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已就绪"
-          }
-        }
-      }
-    },
-    "controls.microphone_switching": {
-      "comment": "The SDK is applying a physical microphone input change.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Switching…"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "切换中…"
-          }
-        }
-      }
-    },
-    "controls.microphone_unavailable": {
-      "comment": "The selected physical microphone is no longer available.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unavailable"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "不可用"
           }
         }
       }

@@ -25,39 +25,21 @@ enum GenerationStrings {
         )
     }
 
-    /// The selected physical microphone is available and enabled.
-    static var microphoneReady: String {
+    /// The heading and accessibility label of the physical microphone input meter.
+    static var inputLevel: String {
         Localization.string(
-            "controls.microphone_ready",
+            "controls.input_level",
             table: "Generation",
-            defaultValue: "Ready"
+            defaultValue: "Input Level"
         )
     }
 
-    /// The user has explicitly disabled physical microphone input.
-    static var microphoneDisabled: String {
+    /// Explains how to check the selected microphone's input activity.
+    static var inputLevelHelp: String {
         Localization.string(
-            "controls.microphone_disabled",
+            "controls.input_level_help",
             table: "Generation",
-            defaultValue: "Disabled"
-        )
-    }
-
-    /// The SDK is applying a physical microphone input change.
-    static var microphoneSwitching: String {
-        Localization.string(
-            "controls.microphone_switching",
-            table: "Generation",
-            defaultValue: "Switching…"
-        )
-    }
-
-    /// The selected physical microphone is no longer available.
-    static var microphoneUnavailable: String {
-        Localization.string(
-            "controls.microphone_unavailable",
-            table: "Generation",
-            defaultValue: "Unavailable"
+            defaultValue: "Speak into your microphone to check the input."
         )
     }
 

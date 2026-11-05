@@ -9,9 +9,10 @@
 //
 
 import AppKit
+import Combine
 import SnapKit
 
-/// Aligns microphone selection and status with the trailing audio and video adjustments action.
+/// Aligns microphone selection and input strength with the trailing audio and video adjustments action.
 @MainActor
 final class GenerationAudioControlsView: Canvas {
 
@@ -34,26 +35,17 @@ final class GenerationAudioControlsView: Canvas {
         return view
     }()
 
-    /// Indicates input availability independently of remote generated audio.
-    private lazy var statusDot: Canvas = {
-        let view = Canvas(radius: 4)
-        view.setAccessibilityElement(false)
+    /// Displays live input strength beside the selected microphone.
+    private lazy var inputLevel: GenerationInputLevelView = {
+        let view = GenerationInputLevelView()
         return view
     }()
 
-    /// Uses the same glyph centering as both adjacent toolbar buttons.
-    private lazy var statusLabel: ToolbarButton = {
-        let view = ToolbarButton(style: .plain)
-        view.foregroundColor = Palette.secondary
-        view.leadingPadding = 0
-        view.trailingPadding = 0
-        view.alignment = .left
-        view.centersTitleVisually = true
-        view.passive = true
-        view.isEnabled = false
-        view.setAccessibilityRole(.staticText)
-        return view
-    }()
+    /// Updates only the meter without refreshing the workspace's other controls.
+    private var levelObservation: AnyCancellable?
+
+    /// Finishes hiding the entire indicator after its shared opacity transition.
+    private var levelDismissal: Task<Void, Never>?
 
     /// Opens existing monitoring and result beauty settings in a native popover.
     private lazy var adjustmentButton: ToolbarButton = {
@@ -82,29 +74,26 @@ final class GenerationAudioControlsView: Canvas {
         super.init(color: .white, radius: 16)
         layer?.borderWidth = 1
         layer?.borderColor = Palette.border.cgColor
-        [microphonePicker, statusDot, statusLabel, adjustmentButton].forEach(addSubview)
+        [microphonePicker, inputLevel, adjustmentButton].forEach(addSubview)
         microphonePicker.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(Self.horizontalInset)
             make.top.bottom.equalToSuperview().inset(Self.verticalInset)
         }
-        statusDot.snp.makeConstraints { make in
+        inputLevel.snp.makeConstraints { make in
             make.leading.equalTo(microphonePicker.snp.trailing).offset(20)
             make.centerY.equalTo(microphonePicker)
-            make.size.equalTo(8)
-        }
-        statusLabel.snp.makeConstraints { make in
-            make.leading.equalTo(statusDot.snp.trailing).offset(6)
-            make.top.bottom.equalTo(microphonePicker)
-            make.width.equalTo(
-                GenerationAudioControlsViewModel.MicrophoneStatus.allCases
-                    .map { statusLabel.preferredWidth(for: $0.title) }.max() ?? 0
-            )
+            make.height.equalTo(microphonePicker)
+            make.width.equalTo(220).priority(490)
+            make.width.greaterThanOrEqualTo(160)
             make.trailing.lessThanOrEqualTo(adjustmentButton.snp.leading).offset(-20)
         }
         adjustmentButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(Self.horizontalInset)
             make.top.bottom.equalTo(microphonePicker)
             make.width.equalTo(adjustmentButton.preferredWidth)
+        }
+        levelObservation = viewModel.microphoneLevels.removeDuplicates().sink { [weak self] level in
+            self?.inputLevel.update(level: level)
         }
         update()
     }
@@ -114,22 +103,35 @@ final class GenerationAudioControlsView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Reflects repository state without changing control widths when status changes.
+    /// Reflects selection and adjustment availability independently of meter updates.
     func update() {
         microphonePicker.update()
-        let status = viewModel.microphoneStatus
-        statusLabel.title = status.title
-        statusLabel.setAccessibilityLabel(status.title)
-        let color: NSColor =
-            switch status {
-            case .ready: .systemGreen
-            case .disabled: .systemRed
-            case .switching: .systemOrange
-            case .unavailable: .systemRed
-            }
-        ControlMotion.set(color.cgColor, for: "backgroundColor", on: statusDot.layer, in: self)
+        updateInputLevelVisibility()
         adjustmentButton.isEnabled = viewModel.canAdjust
         if !viewModel.canAdjust { closePopovers() }
+    }
+
+    /// Reveals the title and meter together only while a microphone is selected.
+    private func updateInputLevelVisibility() {
+        let visible = viewModel.showsInputLevel
+        let opacity: CGFloat = visible ? 1 : 0
+        guard inputLevel.alphaValue != opacity else { return }
+        levelDismissal?.cancel()
+        levelDismissal = nil
+        inputLevel.setAccessibilityElement(visible)
+        if visible { inputLevel.isHidden = false }
+        ControlMotion.setOpacity(opacity, on: inputLevel)
+        guard !visible else { return }
+        guard ControlMotion.isAnimated(in: inputLevel), !isHiddenOrHasHiddenAncestor else {
+            inputLevel.isHidden = true
+            return
+        }
+        levelDismissal = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(ControlMotion.duration)) } catch { return }
+            guard let self, !self.viewModel.showsInputLevel else { return }
+            self.inputLevel.isHidden = true
+            self.levelDismissal = nil
+        }
     }
 
     /// Releases device and adjustment menus before page navigation or teardown.
@@ -170,5 +172,91 @@ final class GenerationAudioControlsView: Canvas {
         popover.contentSize = content.fittingSize
         adjustmentPopover = popover
         popover.show(relativeTo: adjustmentButton.bounds, of: adjustmentButton, preferredEdge: .maxY)
+    }
+}
+
+/// Shows physical microphone input as a title followed by eight equal green segments.
+@MainActor
+private final class GenerationInputLevelView: Canvas {
+
+    /// Names the read-only input activity indicator.
+    private lazy var titleLabel: NSTextField = {
+        let view = NSTextField(labelWithString: GenerationStrings.inputLevel)
+        view.font = .systemFont(ofSize: 13, weight: .semibold)
+        view.textColor = Palette.softText
+        view.setContentHuggingPriority(.required, for: .horizontal)
+        view.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.setAccessibilityElement(false)
+        return view
+    }()
+
+    /// Clips the ends of the segmented track to the existing rounded shape.
+    private lazy var track: Canvas = {
+        let view = Canvas(radius: 4)
+        view.layer?.masksToBounds = true
+        return view
+    }()
+
+    /// The fixed segment cells used for both layout and normalized strength updates.
+    private let segments: [Canvas] = (0..<8).map { _ in Canvas(color: Palette.border) }
+
+    /// Creates a horizontal meter whose title and track share the toolbar's vertical center.
+    init() {
+        super.init()
+        toolTip = GenerationStrings.inputLevelHelp
+        setAccessibilityElement(true)
+        setAccessibilityRole(.levelIndicator)
+        setAccessibilityLabel(GenerationStrings.inputLevel)
+        setAccessibilityHelp(GenerationStrings.inputLevelHelp)
+        setAccessibilityMinValue(0)
+        setAccessibilityMaxValue(100)
+        [titleLabel, track].forEach(addSubview)
+        titleLabel.snp.makeConstraints { make in
+            make.leading.centerY.equalToSuperview()
+        }
+        track.snp.makeConstraints { make in
+            make.leading.equalTo(titleLabel.snp.trailing).offset(8)
+            make.trailing.centerY.equalToSuperview()
+            make.height.equalTo(8)
+        }
+        var previous: Canvas?
+        for segment in segments {
+            track.addSubview(segment)
+            segment.snp.makeConstraints { make in
+                make.top.bottom.equalToSuperview()
+                if let previous {
+                    make.leading.equalTo(previous.snp.trailing).offset(2)
+                    make.width.equalTo(previous)
+                } else {
+                    make.leading.equalToSuperview()
+                }
+            }
+            previous = segment
+        }
+        previous?.snp.makeConstraints { make in make.trailing.equalToSuperview() }
+        update(level: nil)
+    }
+
+    /// Storyboard decoding is unsupported for this read-only indicator.
+    required init?(
+        coder: NSCoder
+    ) { fatalError("init(coder:) has not been implemented") }
+
+    /// Updates the lit segment count using the normalized SDK reading and shared appearance transition.
+    func update(
+        level: Float?
+    ) {
+        let value = level.flatMap { $0.isFinite ? min(1, max(0, $0)) : nil } ?? 0
+        let count = Int(ceil(value * Float(segments.count)))
+        for (index, segment) in segments.enumerated() {
+            let color: NSColor = index < count ? .systemGreen : Palette.border
+            ControlMotion.set(
+                color.cgColor,
+                for: "backgroundColor",
+                on: segment.layer,
+                in: self
+            )
+        }
+        setAccessibilityValue(Int((value * 100).rounded()))
     }
 }

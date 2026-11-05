@@ -67,6 +67,14 @@ final class GenerationRepository: ObservableObject {
     /// The available audio inputs, excluding FaceNow's virtual microphone output.
     @Published private(set) var microphones: [CaptureDevice] = []
 
+    /// The latest input strength, kept outside page-wide publications to avoid redrawing generation on every sample.
+    private let microphoneLevelSubject = CurrentValueSubject<Float?, Never>(nil)
+
+    /// Emits current physical microphone strength on the main actor, independently of generated audio output.
+    var microphoneLevels: AnyPublisher<Float?, Never> {
+        microphoneLevelSubject.eraseToAnyPublisher()
+    }
+
     /// Whether a runtime audio change owns the input selector until SDK configuration completes.
     @Published private(set) var microphoneSwitching = false
 
@@ -464,6 +472,10 @@ final class GenerationRepository: ObservableObject {
         )
         self.client = client
         self.manager = manager
+        await manager.setMicrophoneLevelListener { [weak self] level in
+            guard let self, self.lifecycleID == operation, !self.isClosing else { return }
+            self.microphoneLevelSubject.send(level)
+        }
         await manager.setLaunchTimingListener { [weak self] timing in
             guard let self, self.lifecycleID == operation else { return }
             self.launchTiming = timing
@@ -1035,6 +1047,7 @@ final class GenerationRepository: ObservableObject {
         application?.cancel()
         testPatternActive = false
         lifecycleID = UUID()
+        microphoneLevelSubject.send(nil)
         appLaunchTiming = AppLaunchTiming()
         let operation = lifecycleID
         selectionIntent = UUID()
@@ -1058,6 +1071,7 @@ final class GenerationRepository: ObservableObject {
             )
             async let microphoneStop: Void = microphone.stop()
             try? await closingManager?.setRemoteMediaFrameListener(nil)
+            await closingManager?.setMicrophoneLevelListener(nil)
             await closingManager?.setStateListener(nil)
             await closingManager?.close()
             await closingBeautyApplication?.value
