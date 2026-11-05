@@ -76,6 +76,9 @@ class Button: NSButton {
     /// The trailing content inset, in points.
     var trailingPadding: CGFloat = 14
 
+    /// The trailing edge inset for a toolbar disclosure chevron, in points.
+    var chevronTrailingPadding: CGFloat = ToolbarControlMetrics.trailingPadding
+
     /// The square glyph size, in points.
     var iconSize: CGFloat = 18
 
@@ -99,6 +102,9 @@ class Button: NSButton {
 
     /// Gives toolbar controls one compact shadow recipe regardless of their semantic fill color.
     private var usesToolbarAppearance = false
+
+    /// Gives device status capsules warm tints matching the pending-state gradient and outline.
+    var usesStatusAppearance = false { didSet { needsDisplay = true } }
 
     /// An explicit foreground override for a specialized control.
     var foregroundColor: NSColor? { didSet { needsDisplay = true } }
@@ -381,6 +387,15 @@ class Button: NSButton {
     private var foreground: NSColor {
         if let foregroundColor { return foregroundColor }
         if style == .primary { return .white }
+        if usesStatusAppearance && (style == .success || style == .destructive) {
+            let ready = style == .success
+            return NSColor(
+                srgbRed: ready ? 73 / 255 : 166 / 255,
+                green: ready ? 112 / 255 : 75 / 255,
+                blue: ready ? 44 / 255 : 49 / 255,
+                alpha: 1
+            )
+        }
         if style == .destructive { return Palette.destructive }
         if style == .success { return Palette.success }
         if selected && style == .statistics { return Palette.accent }
@@ -662,22 +677,54 @@ class Button: NSButton {
             bottom = top
             border = .clear
         case .destructive, .success:
-            if style == .success {
+            if usesStatusAppearance {
+                let ready = style == .success
+                let topRGB: (red: CGFloat, green: CGFloat, blue: CGFloat) =
+                    ready ? (247, 251, 240) : (255, 248, 243)
+                let bottomRGB: (red: CGFloat, green: CGFloat, blue: CGFloat) =
+                    ready
+                    ? (hot ? (224, 238, 201) : (232, 243, 214))
+                    : (hot ? (255, 218, 200) : (255, 228, 214))
+                let borderRGB: (red: CGFloat, green: CGFloat, blue: CGFloat) =
+                    ready
+                    ? (hot ? (170, 198, 137) : (185, 210, 157))
+                    : (hot ? (224, 164, 140) : (233, 181, 159))
+                top = NSColor(
+                    srgbRed: topRGB.red / 255,
+                    green: topRGB.green / 255,
+                    blue: topRGB.blue / 255,
+                    alpha: 1
+                )
                 bottom = NSColor(
-                    srgbRed: hot ? 220 / 255 : 240 / 255,
-                    green: hot ? 252 / 255 : 253 / 255,
-                    blue: hot ? 231 / 255 : 244 / 255,
+                    srgbRed: bottomRGB.red / 255,
+                    green: bottomRGB.green / 255,
+                    blue: bottomRGB.blue / 255,
+                    alpha: 1
+                )
+                border = NSColor(
+                    srgbRed: borderRGB.red / 255,
+                    green: borderRGB.green / 255,
+                    blue: borderRGB.blue / 255,
                     alpha: 1
                 )
             } else {
-                bottom = NSColor(
-                    srgbRed: 253 / 255,
-                    green: hot ? 232 / 255 : 242 / 255,
-                    blue: hot ? 232 / 255 : 242 / 255,
-                    alpha: 1
-                )
+                if style == .success {
+                    bottom = NSColor(
+                        srgbRed: hot ? 220 / 255 : 240 / 255,
+                        green: hot ? 252 / 255 : 253 / 255,
+                        blue: hot ? 231 / 255 : 244 / 255,
+                        alpha: 1
+                    )
+                } else {
+                    bottom = NSColor(
+                        srgbRed: 253 / 255,
+                        green: hot ? 232 / 255 : 242 / 255,
+                        blue: hot ? 232 / 255 : 242 / 255,
+                        alpha: 1
+                    )
+                }
+                border = foreground.withAlphaComponent(hot ? 0.5 : 0.28)
             }
-            border = foreground.withAlphaComponent(hot ? 0.5 : 0.28)
         case .statistics where selected:
             top = NSColor(
                 srgbRed: 238 / 255,
@@ -752,7 +799,7 @@ class Button: NSButton {
                 bottom: bottom,
                 border: border,
                 foreground: foreground,
-                highlightOpacity: outlined ? 0.6 : 0,
+                highlightOpacity: outlined && !(usesStatusAppearance && (style == .success || style == .destructive)) ? 0.6 : 0,
                 shadowColor: primaryShadow ? Palette.accent : .black,
                 shadowOpacity: shadowScale
                     * (!showsShadow || flat ? 0 : primaryShadow ? 0.35 : style == .tab ? 0.1 : hot ? 0.08 : 0.05),
@@ -869,7 +916,7 @@ class Button: NSButton {
             let arrow = NSBezierPath()
             let x =
                 usesToolbarAppearance
-                ? bounds.width - ToolbarControlMetrics.trailingPadding - ToolbarControlMetrics.disclosureWidth / 2
+                ? bounds.width - chevronTrailingPadding - ToolbarControlMetrics.disclosureWidth / 2
                 : bounds.width - 20
             let y = bounds.midY
             arrow.move(

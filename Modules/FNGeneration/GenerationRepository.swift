@@ -50,6 +50,44 @@ final class GenerationRepository: ObservableObject {
     /// The currently selectable physical inputs, excluding FaceNow's own output.
     @Published private(set) var cameras: [CaptureDevice] = []
 
+    /// The sentinel selecting the system input, resolved by the SDK when audio capture starts.
+    static let systemMicrophoneID = "system-default"
+
+    /// The sentinel disabling microphone permission and capture for this session.
+    static let disabledMicrophoneID = "disabled"
+
+    /// The saved input selection; first launch follows the system microphone.
+    @Published var microphoneID = UserDefaults.standard.string(forKey: "generation.microphone.id") ?? "system-default" {
+        didSet { UserDefaults.standard.set(microphoneID, forKey: "generation.microphone.id") }
+    }
+
+    /// The SDK input selection corresponding to the saved picker choice.
+    private var selectedMicrophone: RealtimeMicrophone {
+        switch microphoneID {
+        case Self.disabledMicrophoneID: .disabled
+        case Self.systemMicrophoneID: .systemDefault
+        default: .device(id: microphoneID)
+        }
+    }
+
+    /// The available audio inputs, excluding FaceNow's virtual microphone output.
+    @Published private(set) var microphones: [CaptureDevice] = []
+
+    /// The system-default input UID from the latest device discovery snapshot.
+    @Published private(set) var defaultMicrophoneID: String?
+
+    /// Whether a runtime audio change owns the input selector until SDK configuration completes.
+    @Published private(set) var microphoneSwitching = false
+
+    /// Allows startup selection or a runtime microphone change while other generation work is idle.
+    var canChangeMicrophone: Bool {
+        !isBusy && !isClosing && !microphoneSwitching && !testPatternActive
+            && (!sessionActive || [.ready, .connected, .generating].contains(state.connectionState))
+    }
+
+    /// Rejects stale input discovery results after another refresh or capture startup.
+    private var microphoneRefreshID = UUID()
+
     /// Whether diagnostic video is using the virtual output without generation.
     @Published private(set) var testPatternActive = false
 
@@ -76,7 +114,7 @@ final class GenerationRepository: ObservableObject {
     /// Whether resource cleanup must complete before another session starts.
     @Published private(set) var isClosing = false
 
-    /// The active-session wall-clock start used only for the elapsed-time label.
+    /// The first generating transition's wall-clock time, used only for the elapsed-time label.
     @Published private(set) var sessionStartedAt: Date?
 
     /// The reference identity currently selected by the latest valid intent.
@@ -109,15 +147,10 @@ final class GenerationRepository: ObservableObject {
     /// The remote playback volume in the range zero through one.
     @Published private(set) var remoteAudioVolume: Float = 0
 
-    /// The app's default result strengths, also used by the reset action.
-    static let defaultBeautyOptions = RealtimeVideoBeautyOptions(
-        smoothness: 0.5,
-        lightening: 0.5,
-        sharpness: 0,
-        redness: 0
-    )
+    /// The SDK's default result strengths, used when no user values have been saved.
+    static let defaultBeautyOptions = RealtimeVideoBeautyOptions()
 
-    /// The saved result beauty preference, disabled by default for new installations.
+    /// The saved result beauty preference, disabled until explicitly enabled.
     @Published private(set) var beautyEnabled = false
 
     /// The editable strengths shared by result preview and virtual-camera output.
@@ -139,6 +172,9 @@ final class GenerationRepository: ObservableObject {
 
     /// The virtual-output owner consuming processed generated frames.
     @Injected(\.virtualCameraRepo) private var virtualCameraRepo: VirtualCameraRepository
+
+    /// Sends the generated audio track to the opt-in system microphone.
+    @Injected(\.virtualMicrophoneRepo) private var virtualMicrophoneRepo: VirtualMicrophoneRepository
 
     /// The transport owned by the shared virtual-camera repository.
     private var output: VirtualCameraOutput { virtualCameraRepo.output }
@@ -178,6 +214,9 @@ final class GenerationRepository: ObservableObject {
 
     /// Retains device-change notifications without owning capture devices.
     private var deviceObservation: AnyCancellable?
+
+    /// Presents nonfatal audio-output errors without ending the generation lifecycle.
+    private var microphoneFailureObservation: AnyCancellable?
 
     /// Creates the SDK manager, allowing dependency-controlled construction.
     private let makeManager: (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging
@@ -222,6 +261,10 @@ final class GenerationRepository: ObservableObject {
             redness: strength("redness", fallback: Self.defaultBeautyOptions.redness)
         )
         deviceObservation = deviceMonitor.changes.sink { [weak self] in self?.refreshCameras() }
+        microphoneFailureObservation = virtualMicrophoneRepo.$failure.compactMap { $0 }.sink { [weak self] message in
+            guard let self, self.sessionActive else { return }
+            self.errorMessage = message
+        }
         refreshCameras()
     }
 
@@ -229,7 +272,7 @@ final class GenerationRepository: ObservableObject {
     var hasAPIKey: Bool { userRepo.hasAPIKey }
 
     /// Whether the current session accepts reference or prompt generation commands.
-    var canGenerate: Bool { userRepo.hasVerifiedSession && hasAPIKey && !isBusy && sessionActive }
+    var canGenerate: Bool { userRepo.hasVerifiedSession && hasAPIKey && !isBusy && !microphoneSwitching && sessionActive }
 
     /// The uploaded reference currently associated with Free Prompt.
     var freeReference: GenerationReference? { uploadedReferences.first { $0.mode == .free } }
@@ -250,6 +293,7 @@ final class GenerationRepository: ObservableObject {
     /// Discovers physical inputs without opening a capture session.
     func refreshCameras() {
         guard !settingsLocked else { return }
+        refreshMicrophones()
         let available = deviceMonitor.devices.filter {
             $0.uniqueID.caseInsensitiveCompare(VirtualCameraConfiguration.deviceID.uuidString) != .orderedSame
                 && $0.localizedName != VirtualCameraConfiguration.deviceName
@@ -265,6 +309,63 @@ final class GenerationRepository: ObservableObject {
         // Preserve a valid explicit choice; otherwise select the first published physical input.
         let selection = available.contains(where: { $0.id == cameraID }) ? cameraID : available.first?.id ?? ""
         if selection != cameraID { cameraID = selection }
+    }
+
+    /// Refreshes audio choices off the main thread without acquiring microphone permission.
+    func refreshMicrophones() {
+        guard !isClosing else { return }
+        let request = UUID()
+        microphoneRefreshID = request
+        Task { [weak self] in
+            let devices = await MediaDevices.listMicrophoneDevices()
+            guard let self, self.microphoneRefreshID == request, !self.isClosing else { return }
+            let available = devices.filter { $0.id != VirtualMicrophoneOutput.deviceUID }
+                .map { CaptureDevice(id: $0.id, name: $0.name) }
+            if !self.microphones.elementsEqual(available, by: { $0.id == $1.id && $0.name == $1.name }) {
+                self.microphones = available
+            }
+            let defaultID = devices.first(where: \.isDefault)?.id
+            if self.defaultMicrophoneID != defaultID { self.defaultMicrophoneID = defaultID }
+        }
+    }
+
+    /// Applies a microphone choice and saves it only after the current SDK session accepts the change.
+    func selectMicrophone(
+        _ id: String
+    ) async {
+        guard canChangeMicrophone, id != microphoneID,
+            id == Self.systemMicrophoneID || id == Self.disabledMicrophoneID || microphones.contains(where: { $0.id == id })
+        else { return }
+        guard sessionActive, let manager else {
+            microphoneID = id
+            return
+        }
+        let operation = lifecycleID
+        let previous = microphoneID
+        microphoneSwitching = true
+        defer { if lifecycleID == operation { microphoneSwitching = false } }
+        var routeChanged = false
+        do {
+            if id == Self.disabledMicrophoneID {
+                try await manager.setMicrophoneEnabled(false)
+            } else {
+                try await manager.switchMicrophone(to: id == Self.systemMicrophoneID ? nil : id)
+                routeChanged = true
+                guard lifecycleID == operation, !isClosing else { return }
+                try await manager.setMicrophoneEnabled(true)
+            }
+            guard lifecycleID == operation, !isClosing else { return }
+            microphoneID = id
+        } catch {
+            guard lifecycleID == operation, !isClosing else { return }
+            if routeChanged, previous != Self.disabledMicrophoneID {
+                try? await manager.switchMicrophone(to: previous == Self.systemMicrophoneID ? nil : previous)
+            }
+            let enabled = await manager.isMicrophoneEnabled
+            guard lifecycleID == operation, !isClosing else { return }
+            if !enabled { microphoneID = Self.disabledMicrophoneID }
+            errorMessage = error.localizedDescription
+        }
     }
 
     /// Exercises the installed camera transport without starting a generation session.
@@ -306,7 +407,6 @@ final class GenerationRepository: ObservableObject {
 
     /// Creates and binds camera preview before starting generation when the SDK reports ready.
     func start(
-        useMicrophone: Bool = false,
         requestedAt: UInt64 = DispatchTime.now().uptimeNanoseconds
     ) async {
         guard !isClosing else {
@@ -336,6 +436,7 @@ final class GenerationRepository: ObservableObject {
         startupLogger.notice("App startup accepted; measuring from Start click")
         await cleanup?.value
         guard lifecycleID == operation else { return }
+        beautyEnabled = UserDefaults.standard.object(forKey: "generation.beauty.enabled") as? Bool ?? false
         advanceStartup(
             to: .appSetup,
             operation: operation
@@ -386,7 +487,7 @@ final class GenerationRepository: ObservableObject {
         await manager.setStateListener { [weak self] state in
             guard let self, self.lifecycleID == operation else { return }
             self.state = state
-            if [.connected, .generating].contains(state.connectionState), self.sessionStartedAt == nil {
+            if state.connectionState == .generating, self.sessionStartedAt == nil {
                 self.sessionStartedAt = Date()
             }
             if ![.connected, .generating].contains(state.connectionState) { self.remoteStream = nil }
@@ -407,15 +508,32 @@ final class GenerationRepository: ObservableObject {
         do {
             output.frames.reset(producer: operation)
             let mailbox = output.frames
+            let microphone = virtualMicrophoneRepo.output
+            microphone.reset(producer: operation)
             try await manager.setRemoteMediaFrameListener { event in
-                guard case .video(let frame) = event.content else { return }
-                mailbox.submit(
-                    frame.pixelBuffer,
-                    producer: operation,
-                    timestamp: frame.presentationTimeStamp.seconds,
-                    duration: frame.duration.seconds,
-                    now: CMClockGetTime(CMClockGetHostTimeClock()).seconds
-                )
+                switch event.content {
+                case .audio(let frame):
+                    microphone.submit(
+                        data: frame.data,
+                        sourceRate: frame.sampleRate,
+                        channels: frame.channels,
+                        samplesPerChannel: frame.samplesPerChannel,
+                        producer: operation,
+                        discontinuous: event.isDiscontinuous,
+                        presentationTime: mailbox.presentationTime(
+                            forSourceTimestamp: frame.presentationTimeStamp.seconds,
+                            producer: operation
+                        )
+                    )
+                case .video(let frame):
+                    mailbox.submit(
+                        frame.pixelBuffer,
+                        producer: operation,
+                        timestamp: frame.presentationTimeStamp.seconds,
+                        duration: frame.duration.seconds,
+                        now: CMClockGetTime(CMClockGetHostTimeClock()).seconds
+                    )
+                }
             }
             guard lifecycleID == operation else { return }
             advanceStartup(
@@ -425,7 +543,7 @@ final class GenerationRepository: ObservableObject {
             let stream = try await manager.createLocalCameraStream(
                 deviceID: cameraID,
                 mirror: false,
-                useMicrophone: useMicrophone
+                microphone: selectedMicrophone
             )
             guard lifecycleID == operation else {
                 await manager.close()
@@ -438,7 +556,12 @@ final class GenerationRepository: ObservableObject {
                 self.disableBeautyAfterFailure(error)
             }
             guard lifecycleID == operation else { return }
-            await applyPendingBeauty()
+            let defaults = UserDefaults.standard
+            if defaults.object(forKey: "generation.beauty.enabled") != nil
+                || defaults.object(forKey: "generation.beauty.options") != nil
+            {
+                await applyPendingBeauty()
+            }
             guard lifecycleID == operation else { return }
             try await manager.setRemoteAudioVolume(remoteAudioVolume)
             guard lifecycleID == operation else { return }
@@ -742,7 +865,7 @@ final class GenerationRepository: ObservableObject {
 
     /// Applies the opposite SDK interpolation setting while protecting the active lifecycle.
     func toggleInterpolation() async {
-        guard sessionActive, !isBusy, let manager else { return }
+        guard sessionActive, !isBusy, !microphoneSwitching, let manager else { return }
         let operation = lifecycleID
         isBusy = true
         interpolationSwitching = true
@@ -838,13 +961,12 @@ final class GenerationRepository: ObservableObject {
         await task.value
     }
 
-    /// Reports a recoverable effect failure while retaining camera, generation, and output.
+    /// Reports a recoverable effect failure without overwriting the user's saved preference.
     private func disableBeautyAfterFailure(
         _ error: any Error
     ) {
         beautyEnabled = false
         beautyRevision &+= 1
-        saveBeautyPreferences()
         errorMessage = GenerationStrings.beautyUnavailable
         startupLogger.error("Result beauty disabled: \(error.localizedDescription, privacy: .public)")
     }
@@ -887,6 +1009,7 @@ final class GenerationRepository: ObservableObject {
         resetSession()
         errorMessage = nil
         await cleanup?.value
+        await userRepo.refreshCredits(force: true)
     }
 
     /// Quit also cancels an in-flight startup and waits for the sink to close.
@@ -911,6 +1034,8 @@ final class GenerationRepository: ObservableObject {
         closingOutputStartup?.cancel()
         outputStartup = nil
         output.frames.reset(producer: nil)
+        let microphone = virtualMicrophoneRepo.output
+        microphone.reset(producer: nil)
         application?.cancel()
         testPatternActive = false
         lifecycleID = UUID()
@@ -925,6 +1050,7 @@ final class GenerationRepository: ObservableObject {
         isBusy = true
         isClosing = true
         interpolationSwitching = false
+        microphoneSwitching = false
         sessionStartedAt = nil
         // Keep hidden video bindings alive while the landing page animates and resources are released.
         cleanup = Task { [output] in
@@ -934,11 +1060,13 @@ final class GenerationRepository: ObservableObject {
                 output,
                 startup: closingOutputStartup
             )
+            async let microphoneStop: Void = microphone.stop()
             try? await closingManager?.setRemoteMediaFrameListener(nil)
             await closingManager?.setStateListener(nil)
             await closingManager?.close()
             await closingBeautyApplication?.value
             await outputStop
+            await microphoneStop
             withExtendedLifetime(closingClient) {}
             guard self.lifecycleID == operation else { return }
             self.localStream = nil

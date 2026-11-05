@@ -16,6 +16,114 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum HomeStrings {
 
+    /// The home-toolbar entry and popover title for virtual media devices.
+    static var virtualDevices: String {
+        Localization.string(
+            "home.virtual_devices",
+            table: "Home",
+            defaultValue: "Virtual Devices"
+        )
+    }
+
+    /// The shared enabled state for virtual camera and microphone rows.
+    static var deviceEnabled: String {
+        Localization.string(
+            "home.device.enabled",
+            table: "Home",
+            defaultValue: "Enabled"
+        )
+    }
+
+    /// A device whose current preparation state is being checked.
+    static var deviceChecking: String {
+        Localization.string(
+            "home.device.checking",
+            table: "Home",
+            defaultValue: "Checking"
+        )
+    }
+
+    /// A virtual device whose extension or driver is missing.
+    static var deviceNotInstalled: String {
+        Localization.string(
+            "home.device.not_installed",
+            table: "Home",
+            defaultValue: "Not Installed"
+        )
+    }
+
+    /// A device that needs approval or another explicit preparation step.
+    static var deviceNeedsSetup: String {
+        Localization.string(
+            "home.device.needs_setup",
+            table: "Home",
+            defaultValue: "Needs Setup"
+        )
+    }
+
+    /// An installed microphone driver awaiting system publication.
+    static var devicePending: String {
+        Localization.string(
+            "home.device.pending",
+            table: "Home",
+            defaultValue: "Pending"
+        )
+    }
+
+    /// A virtual microphone with a recoverable output failure.
+    static var deviceFailed: String {
+        Localization.string(
+            "home.device.failed",
+            table: "Home",
+            defaultValue: "Error"
+        )
+    }
+
+    /// Opens explicit preparation for a single virtual device.
+    static var deviceSetup: String {
+        Localization.string(
+            "home.device.setup",
+            table: "Home",
+            defaultValue: "Set Up"
+        )
+    }
+
+    /// Opens instructions for selecting FaceNow devices in meeting applications.
+    static var deviceGuide: String {
+        Localization.string(
+            "home.device.guide",
+            table: "Home",
+            defaultValue: "View Integration Guide"
+        )
+    }
+
+    /// The accessibility label for the audio input selector.
+    static var selectMicrophone: String {
+        Localization.string(
+            "home.select_microphone",
+            table: "Home",
+            defaultValue: "Select Microphone"
+        )
+    }
+
+    /// The input option that follows the system default microphone.
+    static var systemMicrophone: String {
+        Localization.string(
+            "home.system_microphone",
+            table: "Home",
+            defaultValue: "System Default Microphone"
+        )
+    }
+
+    /// The input option disabling audio capture and permission requests.
+    static var microphoneOff: String {
+        Localization.string(
+            "home.microphone_off",
+            table: "Home",
+            defaultValue: "Microphone Off"
+        )
+    }
+
     /// The footer documentation entry awaiting its destination URL.
     static var troubleshooting: String {
         Localization.string(

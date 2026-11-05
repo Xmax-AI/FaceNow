@@ -66,8 +66,7 @@ final class GenerationToolbarView: Canvas {
     private lazy var beautyButton: ToolbarButton = {
         let view = ToolbarButton(
             GenerationStrings.beauty,
-            style: .interpolation,
-            chevron: true
+            style: .interpolation
         )
         view.symbolName = "sparkles"
         view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)

@@ -46,7 +46,7 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
         if CommandLine.arguments.contains("--verify-video-beauty") {
             Task {
                 do {
-                    let data = try await RealtimeVideoBeautyDiagnostics.verify()
+                    let data = try await RealtimeBeautyDiagnostics.verify()
                     FileHandle.standardOutput.write(data)
                     FileHandle.standardOutput.write(Data("\n".utf8))
                     exit(EXIT_SUCCESS)

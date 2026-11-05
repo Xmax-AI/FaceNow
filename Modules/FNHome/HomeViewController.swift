@@ -131,7 +131,20 @@ final class HomeViewController: NSViewController {
     private lazy var cameraControls: HomeCameraControlsView = {
         let view = HomeCameraControlsView()
         view.onShowOnboarding = { [weak self] step in self?.showOnboarding(at: step) }
+        view.onOpenCameraSettings = { [weak self] in
+            Task { @MainActor [weak self] in
+                guard let self, !self.isShuttingDown, !self.viewModel.needsLogin else { return }
+                await self.routeCameraNoticeAction(.openSettings(.cameraExtensions))
+            }
+        }
+        view.onShowMicrophoneSetup = { [weak self] in self?.microphoneSetup.presentSetup() }
         return view
+    }()
+
+    /// Presents explicit audio-driver actions from the virtual-device popover.
+    private lazy var microphoneSetup: VirtualMicrophoneSetupViewController = {
+        let controller = VirtualMicrophoneSetupViewController()
+        return controller
     }()
 
     /// The credential editor owned by FNUser.
@@ -306,6 +319,7 @@ final class HomeViewController: NSViewController {
         signInToast.shutdown()
         errorView.shutdown()
         landing.closeCameraPicker()
+        cameraControls.closePopover()
         userView.shutdown()
         footer.closePopover()
         workspace.suspendImages()
@@ -372,7 +386,6 @@ final class HomeViewController: NSViewController {
         displayedCameraWarning = cameraWarning
         let previousCameraWidth = cameraControls.preferredWidth
         let previousUserWidth = userView.preferredWidth(controlHeight: homeControls.bounds.height)
-        cameraControls.update(state: cameraStatusModel.virtualCameraIndicator)
         userView.showsAvatar = !active
         userView.settingsLocked = viewModel.settingsLocked
         userView.update()
@@ -402,6 +415,7 @@ final class HomeViewController: NSViewController {
         if pageChanged {
             displayedSession = active
             landing.closeCameraPicker()
+            cameraControls.closePopover()
             userView.closePopover()
             footer.closePopover()
             scroll.contentView.scroll(to: .zero)
@@ -525,6 +539,7 @@ final class HomeViewController: NSViewController {
         dismissOnboarding(animated: false)
         landing.setServiceNoticeInteractionEnabled(false)
         landing.closeCameraPicker()
+        cameraControls.closePopover()
         userView.closePopover()
         footer.closePopover()
         if let page = aboutPage {
@@ -569,6 +584,7 @@ final class HomeViewController: NSViewController {
         onboardingAutoPresented = true
         landing.setServiceNoticeInteractionEnabled(false)
         landing.closeCameraPicker()
+        cameraControls.closePopover()
         userView.closePopover()
         footer.closePopover()
         onboardingModel.refresh()
@@ -643,6 +659,7 @@ final class HomeViewController: NSViewController {
             dismissSignInToast()
             userView.closePopover()
             landing.closeCameraPicker()
+            cameraControls.closePopover()
             let form = UserLoginFormView()
             form.onRequestError = { [weak self] message in
                 guard let self, !self.isShuttingDown else { return }

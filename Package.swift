@@ -16,6 +16,22 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "AudioTimelineBuffer",
+            path: "Services/Media/Audio",
+            publicHeadersPath: "."
+        ),
+        .target(
+            name: "VirtualMicrophoneCore",
+            dependencies: ["AudioTimelineBuffer", "CameraCore"],
+            path: "Modules/FNVirtualMicrophone",
+            exclude: ["VirtualMicrophoneRepository.swift", "VirtualMicrophoneStrings.swift", "VirtualMicrophoneSetupViewController.swift", "Resources"]
+        ),
+        .testTarget(
+            name: "VirtualMicrophoneTests",
+            dependencies: ["AudioTimelineBuffer", "CameraCore", "VirtualMicrophoneCore"],
+            path: "Tests/Audio"
+        ),
+        .target(
             name: "Localization",
             path: "Services/Localization"
         ),
@@ -33,7 +49,7 @@ let package = Package(
             name: "CameraCore",
             dependencies: ["Localization"],
             path: "Services",
-            exclude: ["Storage", "UI", "Localization"]
+            exclude: ["Storage", "UI", "Localization", "Media/Audio"]
         ),
         .target(
             name: "FNUser",
@@ -62,7 +78,7 @@ let package = Package(
             name: "CameraCoreTests",
             dependencies: ["CameraCore", "FNVirtualCameraCore"],
             path: "Tests",
-            exclude: ["Modules", "Network", "Localization"]
+            exclude: ["Modules", "Network", "Localization", "Audio", "NativeAudio"]
         ),
         .testTarget(
             name: "LocalizationTests",

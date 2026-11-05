@@ -17,6 +17,9 @@ enum Icon {
     /// The vector glyphs supported by the shared native controls.
     enum Kind {
 
+        /// The display glyph representing virtual camera and microphone devices.
+        case display
+
         /// The physical or virtual camera glyph.
         case camera
 
@@ -117,6 +120,19 @@ enum Icon {
             }
         }
         switch kind {
+        case .display:
+            p.addRoundedRect(
+                in: CGRect(
+                    x: 2,
+                    y: 3,
+                    width: 20,
+                    height: 14
+                ),
+                cornerWidth: 1,
+                cornerHeight: 1
+            )
+            line(points([(9, 17), (9, 21), (15, 21), (15, 17)]))
+            line(points([(7, 21), (17, 21)]))
         case .stop:
             p.addRect(
                 CGRect(

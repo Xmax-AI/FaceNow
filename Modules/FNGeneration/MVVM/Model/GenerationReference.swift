@@ -76,7 +76,7 @@ struct GenerationReference: Identifiable, Sendable {
         )
     }
 
-    /// Uses the same Playground image for the optimized thumbnail and original generation reference.
+    /// Uses a Retina-sized center crop of the Playground image while retaining the original for generation.
     static func preset(
         _ mode: GenerationMode,
         version: String,
@@ -86,7 +86,7 @@ struct GenerationReference: Identifiable, Sendable {
     ) -> Self {
         let base = NetworkEnvironment.current.assetBaseURL.absoluteString
         let path = "\(base)/images/playground/\(mode.rawValue)/\(reference)?v=32&presetVersion=\(version)"
-        let thumbnail = "\(path)&imageMogr2/thumbnail/160x160/format/webp/quality/80"
+        let thumbnail = "\(path)&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90"
         return Self(
             id: path,
             mode: mode,

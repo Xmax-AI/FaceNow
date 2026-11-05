@@ -78,9 +78,24 @@ final class OnboardingLandingView: Canvas {
     }()
 
     /// Selects the physical input beneath the primary capture action.
-    private lazy var cameraPicker: HomeCameraPickerView = {
-        let view = HomeCameraPickerView()
+    private lazy var cameraPicker: HomeInputPickerView = {
+        let view = HomeInputPickerView()
         view.onShowCameraSetup = { [weak self] in self?.onShowCameraSetup?() }
+        return view
+    }()
+
+    /// Selects the system microphone, a named input, or disabled capture before starting.
+    private lazy var microphonePicker: HomeInputPickerView = {
+        let view = HomeInputPickerView(input: .microphone)
+        return view
+    }()
+
+    /// Centers both input selectors with consistent spacing beneath the start action.
+    private lazy var inputPickers: NSStackView = {
+        let view = NSStackView(views: [cameraPicker, microphonePicker])
+        view.orientation = .horizontal
+        view.alignment = .centerY
+        view.spacing = 10
         return view
     }()
 
@@ -125,7 +140,7 @@ final class OnboardingLandingView: Canvas {
     init() {
         super.init()
         [titleLabel, setupReminder, checkerboard, copyright].forEach(addSubview)
-        [startButton, cameraPicker, serviceNotice].forEach(checkerboard.addSubview)
+        [startButton, inputPickers, serviceNotice].forEach(checkerboard.addSubview)
         configureLayout()
     }
 
@@ -198,13 +213,17 @@ final class OnboardingLandingView: Canvas {
         startButton.isEnabled = !isStarting
         startButton.toolTip = canStart ? OnboardingStrings.landingStartCamera : unavailableMessage
         cameraPicker.update()
+        microphonePicker.update()
     }
 
     /// Opens the relocated selector for the shared Choose Camera action.
-    func showCameraPicker() { cameraPicker.showCameraPicker() }
+    func showCameraPicker() { cameraPicker.showPicker() }
 
     /// Closes native selection before navigation, account changes, or application cleanup.
-    func closeCameraPicker() { cameraPicker.closeCameraPicker() }
+    func closeCameraPicker() {
+        cameraPicker.closePicker()
+        microphonePicker.closePicker()
+    }
 
     /// Shows a persistent reason only for denied permissions or confirmed device unavailability.
     func updatePreparation(
@@ -245,9 +264,11 @@ final class OnboardingLandingView: Canvas {
             make.width.equalTo(200)
             make.height.equalTo(54)
         }
-        cameraPicker.snp.makeConstraints { make in
+        inputPickers.snp.makeConstraints { make in
             make.centerX.equalTo(startButton)
             make.top.equalTo(startButton.snp.bottom).offset(12)
+            make.leading.greaterThanOrEqualToSuperview().offset(16)
+            make.trailing.lessThanOrEqualToSuperview().inset(16)
         }
         setupReminder.snp.makeConstraints { make in
             make.centerX.equalToSuperview()

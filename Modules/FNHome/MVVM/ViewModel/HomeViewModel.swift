@@ -51,7 +51,6 @@ final class HomeViewModel {
             return
         }
         await generationRepo.start(
-            useMicrophone: false,
             requestedAt: requestedAt
         )
     }

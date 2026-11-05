@@ -29,6 +29,54 @@ final class UserAccountTests: XCTestCase {
         XCTAssertNil(context.account.remainingCredits)
     }
 
+    func testForcedCreditsRefreshBypassesThePollingInterval() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+            "/open/api/v1/points/balance": #"{"success":true,"code":200,"data":{"currentBalance":1250}}"#,
+        ])
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        var updates = 0
+        let observation = context.account.$remainingCredits.compactMap { $0 }.sink { _ in updates += 1 }
+        defer { observation.cancel() }
+        await context.account.refreshCredits()
+        await context.account.refreshCredits()
+        XCTAssertEqual(updates, 1, "Ordinary polling remains throttled")
+        await context.account.refreshCredits(force: true)
+        XCTAssertEqual(updates, 2, "Closing a session must fetch credits immediately")
+    }
+
+    func testForcedCreditsRefreshSupersedesAnInFlightPoll() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+            "/open/api/v1/points/balance": #"{"success":true,"code":200,"data":{"currentBalance":1250}}"#,
+        ], delay: 0.2)
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        let started = expectation(description: "Background poll started")
+        var starts = 0
+        var updates = 0
+        let loading = context.account.$isLoadingCredits.dropFirst().sink { value in
+            if value {
+                starts += 1
+                if starts == 1 { started.fulfill() }
+            }
+        }
+        let credits = context.account.$remainingCredits.compactMap { $0 }.sink { _ in updates += 1 }
+        defer { loading.cancel(); credits.cancel() }
+        let poll = _Concurrency.Task { await context.account.refreshCredits() }
+        await fulfillment(of: [started], timeout: 2)
+        XCTAssertTrue(context.account.isLoadingCredits)
+        await context.account.refreshCredits(force: true)
+        await poll.value
+        XCTAssertEqual(starts, 2, "The close refresh must not be swallowed by a pending poll")
+        XCTAssertEqual(updates, 1, "A superseded balance must not update the header")
+        XCTAssertEqual(context.account.remainingCredits, 1250)
+        XCTAssertFalse(context.account.isLoadingCredits)
+    }
+
     func testUnavailableBalanceDoesNotBecomeZeroOrInvalidateAnOtherwiseValidAccount() async throws {
         let context = makeContext(routes: [
             "/baas/api/user/apikey/list": activeAPIKeyResponse,

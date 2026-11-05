@@ -79,6 +79,9 @@ final class ScheduledFrameStore: @unchecked Sendable {
     /// The previous source timestamp used to detect backward jumps or large gaps.
     private var lastTimestamp: TimeInterval?
 
+    /// The actual deadline paired with the last source timestamp for synchronized audio.
+    private var lastPresentationTime: TimeInterval?
+
     /// The next host-clock presentation slot reserved for an interpolation burst.
     private var nextPresentationTime: TimeInterval?
 
@@ -147,6 +150,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
             nextPresentationTime = due + duration
         }
         lastTimestamp = timestamp
+        lastPresentationTime = due
         pending.append(
             ScheduledVideoFrame(
                 pixelBuffer: pixelBuffer,
@@ -159,6 +163,21 @@ final class ScheduledFrameStore: @unchecked Sendable {
             statistics.overflow += count
             pending.removeFirst(count)
         }
+    }
+
+    /// Maps audio onto the latest video playout interval without changing the video scheduler.
+    /// Returns nil before video starts, after producer replacement, or across a stale timeline.
+    func presentationTime(
+        forSourceTimestamp timestamp: TimeInterval,
+        producer: UUID
+    ) -> TimeInterval? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard self.producer == producer, timestamp.isFinite,
+            let lastTimestamp, let lastPresentationTime,
+            abs(timestamp - lastTimestamp) < maximumLatency
+        else { return nil }
+        return lastPresentationTime + timestamp - lastTimestamp
     }
 
     /// Presents due frames in order; lower-rate consumers may skip to the latest due frame.
@@ -212,6 +231,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
         sourceOrigin = nil
         hostOrigin = nil
         lastTimestamp = nil
+        lastPresentationTime = nil
         nextPresentationTime = nil
     }
 }

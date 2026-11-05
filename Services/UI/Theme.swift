@@ -22,6 +22,14 @@ enum Palette {
         alpha: 1
     )
 
+    /// The softer primary foreground for secondary surfaces and compact controls.
+    static let softText = NSColor(
+        srgbRed: 66 / 255,
+        green: 73 / 255,
+        blue: 84 / 255,
+        alpha: 1
+    )
+
     /// The secondary foreground color used by hints and supporting labels.
     static let secondary = NSColor(
         srgbRed: 0.42,

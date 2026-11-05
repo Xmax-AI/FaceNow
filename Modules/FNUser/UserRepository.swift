@@ -109,6 +109,9 @@ final class UserRepository: ObservableObject {
     /// The last attempted balance refresh, measured independently of wall-clock changes.
     private var creditsRefreshedAt: ContinuousClock.Instant?
 
+    /// Rejects balance responses superseded by a forced refresh.
+    private var creditsRequestID = UUID()
+
     /// Whether a validated account session is available.
     var isSignedIn: Bool { profile != nil && token != nil }
 
@@ -509,27 +512,30 @@ final class UserRepository: ObservableObject {
     }
 
     /// Refreshes server-owned credits without changing the active generation key.
+    /// Forced refreshes bypass throttling and supersede an in-flight balance request.
     func refreshCredits(
         force: Bool = false
     ) async {
-        guard hasVerifiedSession, let token, !isBusy, !isLoadingCredits else { return }
+        guard hasVerifiedSession, let token, !isBusy, force || !isLoadingCredits else { return }
         let now = ContinuousClock.now
         if !force, let creditsRefreshedAt, now - creditsRefreshedAt < .seconds(5) { return }
         creditsRefreshedAt = now
+        let requestID = UUID()
+        creditsRequestID = requestID
         isLoadingCredits = true
         let operation = lifecycle
-        defer { if lifecycle == operation { isLoadingCredits = false } }
+        defer { if lifecycle == operation, creditsRequestID == requestID { isLoadingCredits = false } }
         do {
             let balance = try await networkRepo.send(
                 AccountAPI.balance,
                 as: AccountBalance.self,
                 bearerToken: token
             )
-            guard lifecycle == operation, !Task.isCancelled else { return }
+            guard lifecycle == operation, creditsRequestID == requestID, !Task.isCancelled else { return }
             remainingCredits = balance.currentBalance
             creditsErrorMessage = nil
         } catch {
-            guard lifecycle == operation, !Task.isCancelled else { return }
+            guard lifecycle == operation, creditsRequestID == requestID, !Task.isCancelled else { return }
             creditsErrorMessage = error.localizedDescription
         }
     }
@@ -605,6 +611,7 @@ final class UserRepository: ObservableObject {
         remainingCredits = nil
         creditsErrorMessage = nil
         creditsRefreshedAt = nil
+        creditsRequestID = UUID()
         isLoadingCredits = false
     }
 

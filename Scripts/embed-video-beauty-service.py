@@ -18,11 +18,11 @@ def entitlements(bundle):
 
 
 def main():
-    source = Path(os.environ["FACENOW_SHARED_PRODUCTS_DIR"]) / "XmaxRealtimeVideoBeautyWorker.xpc"
+    source = Path(os.environ["FACENOW_SHARED_PRODUCTS_DIR"]) / "XmaxRealtimeBeautyWorker.xpc"
     destination = (
         Path(os.environ["TARGET_BUILD_DIR"])
         / os.environ["CONTENTS_FOLDER_PATH"]
-        / "XPCServices/XmaxRealtimeVideoBeautyWorker.xpc"
+        / "XPCServices/XmaxRealtimeBeautyWorker.xpc"
     )
     if source.resolve() == destination.resolve():
         raise RuntimeError("The beauty service source and destination must differ")

@@ -42,7 +42,7 @@
 		23914E8FA7C3BB547AFF7A67 /* AccountDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CAA7A07D7C0D5FF743B5F8B /* AccountDTO.swift */; };
 		244DA2B340CF128DAB2DBE11 /* Onboarding.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CCA273043A2E923BF52CBC88 /* Onboarding.xcassets */; };
 		2625B5FB17F246F8026A80B0 /* HomeStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D86CE2D5A0942A98A936ECC /* HomeStrings.swift */; };
-		266EDFC1E1DDAAF2EE480DB6 /* HomeCameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45C0924FF47468CAC16A675 /* HomeCameraPickerView.swift */; };
+		266EDFC1E1DDAAF2EE480DB6 /* HomeInputPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45C0924FF47468CAC16A675 /* HomeInputPickerView.swift */; };
 		2710787A2131E0139BF94725 /* AboutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9077E937E14964A9AC931A /* AboutViewModel.swift */; };
 		280E048362BC11092E9213D7 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD2BBE5DA1FB5B2E8A9B3FB /* Button.swift */; };
 		28AA2AADA808AFE540641357 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A7F488488899F50ECA5164BB /* Sparkle */; };
@@ -121,7 +121,7 @@
 		793D5757B61B0375CE9B84E7 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 547F224791C8B782CD96C133 /* HomeViewModel.swift */; };
 		79A8885D67BDEE86390E4A90 /* HomeCameraControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */; };
 		7A52480AAEE8BC5EBF3374B5 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 0AD50D1B9F74A5D240504FB5 /* Moya */; };
-		7B40BF71B83B42AD86AE3C58 /* HomeCameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45C0924FF47468CAC16A675 /* HomeCameraPickerView.swift */; };
+		7B40BF71B83B42AD86AE3C58 /* HomeInputPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45C0924FF47468CAC16A675 /* HomeInputPickerView.swift */; };
 		7CA9B8B28C4F00FBF661BD58 /* FaceNowLoginPoster.png in Resources */ = {isa = PBXBuildFile; fileRef = 93BA6F48A2F52BA3D3729997 /* FaceNowLoginPoster.png */; };
 		7D50262EA0ACC5EC4C45CCB1 /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC6CAB3E9E6622372D354EF /* Canvas.swift */; };
 		7DD3892CF0363949D2DC1D72 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691BDD5482F6BCB68F00B895 /* ToastView.swift */; };
@@ -268,13 +268,39 @@
 		F228CDF91C16447339338745 /* GenerationFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74346EEEBB0F485F13A1860F /* GenerationFailure.swift */; };
 		ED10B7000000000000000001 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10B7000000000000000002 /* main.swift */; };
 
-		ED10B7000000000000000005 /* XmaxRealtimeVideoBeautyWorker in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = ED10B7000000000000000006 /* XmaxRealtimeVideoBeautyWorker */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		ED10B7000000000000000005 /* XmaxRealtimeBeautyWorker in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = ED10B7000000000000000006 /* XmaxRealtimeBeautyWorker */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 
-		ED10B7000000000000000015 /* XmaxRealtimeVideoBeautyWorkerSupport in Frameworks */ = {isa = PBXBuildFile; productRef = ED10B7000000000000000014 /* XmaxRealtimeVideoBeautyWorkerSupport */; };
-		ED10B7000000000000000016 /* XmaxRealtimeVideoBeautyWorker in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = ED10B7000000000000000006 /* XmaxRealtimeVideoBeautyWorker */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		ED10B7000000000000000015 /* XmaxRealtimeBeautyWorkerSupport in Frameworks */ = {isa = PBXBuildFile; productRef = ED10B7000000000000000014 /* XmaxRealtimeBeautyWorkerSupport */; };
+		ED10B7000000000000000016 /* XmaxRealtimeBeautyWorker in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = ED10B7000000000000000006 /* XmaxRealtimeBeautyWorker */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 
 		AE0CA6010000000000000001 /* VirtualCameraWatermark.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0CA6010000000000000003 /* VirtualCameraWatermark.swift */; };
 		AE0CA6010000000000000002 /* VirtualCameraWatermark.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0CA6010000000000000003 /* VirtualCameraWatermark.swift */; };
+		3569FE20AC0AE959A5E5525D /* VirtualMicrophoneRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42BA35FFDC75E1301F74DD0D /* VirtualMicrophoneRepository.swift */; };
+		3435B7E97D4B662D4CB9D27A /* VirtualMicrophoneOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54E4B38B73CD765841D149A /* VirtualMicrophoneOutput.swift */; };
+		82901F3D40B7B76D476E46D6 /* VirtualMicrophoneStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64AAD6042C558D915413D956 /* VirtualMicrophoneStrings.swift */; };
+		4AC298EC30117BC57CC38F16 /* AudioTimelineBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D8E26E88458D933DE94DDD40 /* AudioTimelineBuffer.c */; };
+		32C76E33A993AE6FB3838B0C /* VirtualMicrophone.xcstrings in Sources */ = {isa = PBXBuildFile; fileRef = 02AD45804EF5E988780822CD /* VirtualMicrophone.xcstrings */; };
+		0F61489BE99CD2ABC6C8A658 /* VirtualMicrophoneRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42BA35FFDC75E1301F74DD0D /* VirtualMicrophoneRepository.swift */; };
+		B3AE16D349576A51E45B4EBF /* VirtualMicrophoneOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54E4B38B73CD765841D149A /* VirtualMicrophoneOutput.swift */; };
+		D19B28B958160BE4BBB59603 /* VirtualMicrophoneStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64AAD6042C558D915413D956 /* VirtualMicrophoneStrings.swift */; };
+		6CDD2F067708DDE43D5C4F53 /* AudioTimelineBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D8E26E88458D933DE94DDD40 /* AudioTimelineBuffer.c */; };
+		3C5691D8FF1444288BA9BADE /* VirtualMicrophone.xcstrings in Sources */ = {isa = PBXBuildFile; fileRef = 02AD45804EF5E988780822CD /* VirtualMicrophone.xcstrings */; };
+		F1E02F5813B4BAA172F4BAC4 /* AudioPCMConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3410073D737477C50BC1B8EB; };
+		321CDB904DD25FBEBCE14644 /* AudioPCMConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3410073D737477C50BC1B8EB; };
+		A24FC412B1B84B94DC44F4B7 /* VirtualMicrophoneSetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46058734EBFBE4F0D868230A; };
+		63EABC13A672E3CC27AAB323 /* VirtualMicrophoneSetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46058734EBFBE4F0D868230A; };
+		E9998472923C41CEB7DB1DBF /* HomeVirtualDevicesPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBECE18BA0754959878551E5 /* HomeVirtualDevicesPopoverView.swift */; };
+		20EB706074D642A08993D8B9 /* HomeVirtualDevicesPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBECE18BA0754959878551E5 /* HomeVirtualDevicesPopoverView.swift */; };
+		F285E81DCC5C429383110A44 /* HomeVirtualDevicesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126C4E4239C34FEA9C1581A0 /* HomeVirtualDevicesViewModel.swift */; };
+		C4F1771E74084BEFA4A25224 /* HomeVirtualDevicesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126C4E4239C34FEA9C1581A0 /* HomeVirtualDevicesViewModel.swift */; };
+		175679EB35154DFB8C5DC3F8 /* VirtualMicrophoneStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FFEB5F0B884CEC8C76D3FD /* VirtualMicrophoneStatus.swift */; };
+		444252F0106C415596E0AA96 /* VirtualMicrophoneStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FFEB5F0B884CEC8C76D3FD /* VirtualMicrophoneStatus.swift */; };
+		7443AD1B70A442DFB68B96B4 /* GenerationAudioControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */; };
+		AA0C5D199BE2406BAF680E40 /* GenerationAudioControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */; };
+		4FB733F718EC446EAAE1B0A1 /* GenerationAdjustmentPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */; };
+		09AEF5760A6145E3921A7709 /* GenerationAdjustmentPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */; };
+		D75624EA5B734BCC86AF540A /* GenerationAudioControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */; };
+		7F108C87185243D0B2E92BAD /* GenerationAudioControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -311,7 +337,7 @@
 			containerPortal = EFC3001F4B9B1E4A6BE63472 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = ED10B7000000000000000009;
-			remoteInfo = XmaxRealtimeVideoBeautyWorker;
+			remoteInfo = XmaxRealtimeBeautyWorker;
 		};
 
 /* End PBXContainerItemProxy section */
@@ -451,7 +477,7 @@
 		B90C2D6DFB324DEC9C679E38 /* UserCreditsPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCreditsPopoverView.swift; sourceTree = "<group>"; };
 		BAB55B2527899D907EBC5A3D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCameraControlsView.swift; sourceTree = "<group>"; };
-		C45C0924FF47468CAC16A675 /* HomeCameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCameraPickerView.swift; sourceTree = "<group>"; };
+		C45C0924FF47468CAC16A675 /* HomeInputPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeInputPickerView.swift; sourceTree = "<group>"; };
 		C6A71B702AAD312D95A42ACB /* XmaxCamera.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = XmaxCamera.entitlements; sourceTree = "<group>"; };
 		C79871C6FC7B5D976D034A9A /* NetworkEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkEnvironment.swift; sourceTree = "<group>"; };
 		CC88E9DB0406DDCBF3772891 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -497,12 +523,30 @@
 		74346EEEBB0F485F13A1860F /* GenerationFailure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationFailure.swift; sourceTree = "<group>"; };
 		ED10B7000000000000000002 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 
-		ED10B7000000000000000006 /* XmaxRealtimeVideoBeautyWorker */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = XmaxRealtimeVideoBeautyWorker.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		ED10B7000000000000000006 /* XmaxRealtimeBeautyWorker */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = XmaxRealtimeBeautyWorker.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 
-		ED10B7000000000000000007 /* XmaxRealtimeVideoBeautyWorker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XmaxRealtimeVideoBeautyWorker.entitlements; sourceTree = "<group>"; };
+		ED10B7000000000000000007 /* XmaxRealtimeBeautyWorker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XmaxRealtimeBeautyWorker.entitlements; sourceTree = "<group>"; };
 
 		ED10B700000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AE0CA6010000000000000003 /* VirtualCameraWatermark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCameraWatermark.swift; sourceTree = "<group>"; };
+		42BA35FFDC75E1301F74DD0D /* VirtualMicrophoneRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMicrophoneRepository.swift; sourceTree = "<group>"; };
+		A54E4B38B73CD765841D149A /* VirtualMicrophoneOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMicrophoneOutput.swift; sourceTree = "<group>"; };
+		64AAD6042C558D915413D956 /* VirtualMicrophoneStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMicrophoneStrings.swift; sourceTree = "<group>"; };
+		02AD45804EF5E988780822CD /* VirtualMicrophone.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = VirtualMicrophone.xcstrings; sourceTree = "<group>"; };
+		D8E26E88458D933DE94DDD40 /* AudioTimelineBuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = AudioTimelineBuffer.c; sourceTree = "<group>"; };
+		BF968C3259E45C7054D37E7B /* AudioTimelineBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioTimelineBuffer.h; sourceTree = "<group>"; };
+		AD326E6E412328D13E27FD77 /* FaceNowMicrophone.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = FaceNowMicrophone.c; sourceTree = "<group>"; };
+		1D552B3B146C8FEFA0592BB7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0F477AB8A2DD85C0DAD51B45 /* LICENSE-Apple.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE-Apple.txt; sourceTree = "<group>"; };
+		970B1FCFDBC37FCAA10F3AB3 /* XmaxCamera-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XmaxCamera-Bridging-Header.h"; sourceTree = "<group>"; };
+		3410073D737477C50BC1B8EB /* AudioPCMConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPCMConverter.swift; sourceTree = "<group>"; };
+		46058734EBFBE4F0D868230A /* VirtualMicrophoneSetupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMicrophoneSetupViewController.swift; sourceTree = "<group>"; };
+		DBECE18BA0754959878551E5 /* HomeVirtualDevicesPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeVirtualDevicesPopoverView.swift; sourceTree = "<group>"; };
+		126C4E4239C34FEA9C1581A0 /* HomeVirtualDevicesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeVirtualDevicesViewModel.swift; sourceTree = "<group>"; };
+		C2FFEB5F0B884CEC8C76D3FD /* VirtualMicrophoneStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMicrophoneStatus.swift; sourceTree = "<group>"; };
+		60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAudioControlsView.swift; sourceTree = "<group>"; };
+		3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAdjustmentPopoverView.swift; sourceTree = "<group>"; };
+		B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAudioControlsViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -547,7 +591,7 @@
 		ED10B7000000000000000013 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
-			files = (ED10B7000000000000000015 /* XmaxRealtimeVideoBeautyWorkerSupport in Frameworks */, );
+			files = (ED10B7000000000000000015 /* XmaxRealtimeBeautyWorkerSupport in Frameworks */, );
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -566,6 +610,7 @@
 			children = (
 				3E9077E937E14964A9AC931A /* AboutViewModel.swift */,
 				547F224791C8B782CD96C133 /* HomeViewModel.swift */,
+				126C4E4239C34FEA9C1581A0 /* HomeVirtualDevicesViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -702,7 +747,7 @@
 				606E92A00D1608AECF5468D8 /* FaceNow.app */,
 				31626DE0A2F7B97F1E04ED35 /* FaceNow.app */,
 				ED10A6000000000000000006 /* FaceNowCameraProbe */,
-				ED10B7000000000000000006 /* XmaxRealtimeVideoBeautyWorker */,
+				ED10B7000000000000000006 /* XmaxRealtimeBeautyWorker */,
 				548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */,
 			);
 			name = Products;
@@ -753,6 +798,7 @@
 		42D1B8043EA57A383889263B /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				0075F94F58AF90B56A2A159E /* FNVirtualMicrophone */,
 				A463F2AE7F5AFC19A72967D9 /* FNNetwork */,
 				B3B737A892E8B44EEF2EE68E /* FNGeneration */,
 				2A0CCA0C2C7A03EF30CECF67 /* FNHome */,
@@ -800,6 +846,7 @@
 		4AEAD3DDD7956F4051F08197 = {
 			isa = PBXGroup;
 			children = (
+				39FABB72860C81F3FEA18577 /* VirtualMicrophoneDriver */,
 				43CD58098DD34306C50933C8 /* Services */,
 				42D1B8043EA57A383889263B /* Modules */,
 				3591BDEBAE5C7EAD0E628879 /* Products */,
@@ -810,7 +857,7 @@
 				52D03361DC46ECE44860F7D5 /* App */,
 				FDD7AAD0EFE92E34BD8CCE07 /* CameraExtension */,
 				ED10A600000000000000000B /* CameraProbe */,
-				ED10B700000000000000000B /* VideoBeautyWorker */,
+				ED10B700000000000000000B /* BeautyWorker */,
 				4959D9FC9BBE2C684A18ABD8 /* Shared */,
 			);
 			sourceTree = "<group>";
@@ -828,6 +875,7 @@
 		52D03361DC46ECE44860F7D5 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				970B1FCFDBC37FCAA10F3AB3 /* XmaxCamera-Bridging-Header.h */,
 				EABF25A90D38D9BD967F8BE5 /* UpdateStrings.swift */,
 				45EF65DAEC57538F89181C5F /* ApplicationUpdater.swift */,
 				4AF8EF9A2620ED87E310518F /* Info.plist */,
@@ -850,6 +898,7 @@
 		55F26A11E2B4BE4199C9437B /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */,
 				2B4EC551B300E50D51DFCD3E /* GenerationStatisticsViewModel.swift */,
 			);
 			path = ViewModel;
@@ -918,8 +967,9 @@
 		8118D10AD50BDFFBBF3EDF4A /* View */ = {
 			isa = PBXGroup;
 			children = (
-				C45C0924FF47468CAC16A675 /* HomeCameraPickerView.swift */,
+				C45C0924FF47468CAC16A675 /* HomeInputPickerView.swift */,
 				C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */,
+				DBECE18BA0754959878551E5 /* HomeVirtualDevicesPopoverView.swift */,
 				33181E771D7849B6961719E0 /* AboutView.swift */,
 				E6DF3DE892E7D9E93FDC6E2E /* HomeFooterView.swift */,
 			);
@@ -972,6 +1022,8 @@
 				3089FD656110DBB37F9F3617 /* GenerationStatisticsPanel.swift */,
 				A45BA854F3373B27C50E4D4E /* GenerationToolbarView.swift */,
 				FD6255C8E5D4462EC1B5B53F /* GenerationVideoPanel.swift */,
+				60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */,
+				3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */,
 				A4C174A9084F61A056530525 /* GenerationWorkspaceView.swift */,
 			);
 			path = View;
@@ -1002,6 +1054,8 @@
 		A365B4D0E6B2BFD26D73A655 /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				3410073D737477C50BC1B8EB /* AudioPCMConverter.swift */,
+				8E8678811F8DC1AC2B52130C /* Audio */,
 				DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
 				5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */,
@@ -1141,17 +1195,37 @@
 			path = CameraExtension;
 			sourceTree = "<group>";
 		};
-		ED10B700000000000000000B /* VideoBeautyWorker */ = {
+		ED10B700000000000000000B /* BeautyWorker */ = {
 			isa = PBXGroup;
 			children = (
 				ED10B7000000000000000002 /* main.swift */,
-				ED10B7000000000000000007 /* XmaxRealtimeVideoBeautyWorker.entitlements */,
+				ED10B7000000000000000007 /* XmaxRealtimeBeautyWorker.entitlements */,
 				ED10B700000000000000001A /* Info.plist */,
 			);
-			path = VideoBeautyWorker;
+			path = BeautyWorker;
 			sourceTree = "<group>";
 		};
 
+		0075F94F58AF90B56A2A159E /* FNVirtualMicrophone */ = {isa = PBXGroup; children = (
+				46058734EBFBE4F0D868230A /* VirtualMicrophoneSetupViewController.swift */,
+				080CDDEB8C2D2AC64A265D6C /* Resources */,
+				42BA35FFDC75E1301F74DD0D /* VirtualMicrophoneRepository.swift */,
+				C2FFEB5F0B884CEC8C76D3FD /* VirtualMicrophoneStatus.swift */,
+				A54E4B38B73CD765841D149A /* VirtualMicrophoneOutput.swift */,
+				64AAD6042C558D915413D956 /* VirtualMicrophoneStrings.swift */,
+			); path = FNVirtualMicrophone; sourceTree = "<group>"; };
+		080CDDEB8C2D2AC64A265D6C /* Resources */ = {isa = PBXGroup; children = (
+				02AD45804EF5E988780822CD /* VirtualMicrophone.xcstrings */,
+			); path = Resources; sourceTree = "<group>"; };
+		8E8678811F8DC1AC2B52130C /* Audio */ = {isa = PBXGroup; children = (
+				D8E26E88458D933DE94DDD40 /* AudioTimelineBuffer.c */,
+				BF968C3259E45C7054D37E7B /* AudioTimelineBuffer.h */,
+			); path = Audio; sourceTree = "<group>"; };
+		39FABB72860C81F3FEA18577 /* VirtualMicrophoneDriver */ = {isa = PBXGroup; children = (
+				AD326E6E412328D13E27FD77 /* FaceNowMicrophone.c */,
+				1D552B3B146C8FEFA0592BB7 /* Info.plist */,
+				0F477AB8A2DD85C0DAD51B45 /* LICENSE-Apple.txt */,
+			); path = VirtualMicrophoneDriver; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1159,6 +1233,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 409E59C55406672ABA20ACCC /* Build configuration list for PBXNativeTarget "FaceNow-oversea" */;
 			buildPhases = (
+				8FB46D654FAF3E604941F8CA /* Build Virtual Microphone Installer */,
 				2B2207D39CED4C9BB39F812E /* Sources */,
 				A8EEEED0F0FD0DA9351A09AF /* Frameworks */,
 				838E37899099A64FF4C78753 /* Resources */,
@@ -1191,6 +1266,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E4FC42A2B10522F7176D923C /* Build configuration list for PBXNativeTarget "XmaxCamera" */;
 			buildPhases = (
+				43D7AC59414069D5DC3C5CC5 /* Build Virtual Microphone Installer */,
 				F139991591ADFB02DE333939 /* Sources */,
 				B7C1C126ADEA50838EE2DEF6 /* Frameworks */,
 				33A6FC372F520C06DE028D41 /* Resources */,
@@ -1251,9 +1327,9 @@
 			productReference = ED10A6000000000000000006 /* FaceNowCameraProbe */;
 			productType = "com.apple.product-type.tool";
 		};
-		ED10B7000000000000000009 /* XmaxRealtimeVideoBeautyWorker */ = {
+		ED10B7000000000000000009 /* XmaxRealtimeBeautyWorker */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = ED10B700000000000000000C /* Build configuration list for PBXNativeTarget "XmaxRealtimeVideoBeautyWorker" */;
+			buildConfigurationList = ED10B700000000000000000C /* Build configuration list for PBXNativeTarget "XmaxRealtimeBeautyWorker" */;
 			buildPhases = (
 				ED10B700000000000000000D /* Sources */,
 				ED10B7000000000000000013 /* Frameworks */,
@@ -1262,12 +1338,12 @@
 			);
 			dependencies = (
 			);
-			name = XmaxRealtimeVideoBeautyWorker;
+			name = XmaxRealtimeBeautyWorker;
 			packageProductDependencies = (
-				ED10B7000000000000000014 /* XmaxRealtimeVideoBeautyWorkerSupport */,
+				ED10B7000000000000000014 /* XmaxRealtimeBeautyWorkerSupport */,
 			);
-			productName = XmaxRealtimeVideoBeautyWorker;
-			productReference = ED10B7000000000000000006 /* XmaxRealtimeVideoBeautyWorker */;
+			productName = XmaxRealtimeBeautyWorker;
+			productReference = ED10B7000000000000000006 /* XmaxRealtimeBeautyWorker */;
 			productType = "com.apple.product-type.xpc-service";
 		};
 
@@ -1345,7 +1421,7 @@
 				17CB8784BD0FAC4A3278BF0A /* FaceNow-oversea */,
 				BD76D3D724D4D028F97D966F /* XmaxCameraExtension */,
 				ED10A6000000000000000009 /* FaceNowCameraProbe */,
-				ED10B7000000000000000009 /* XmaxRealtimeVideoBeautyWorker */,
+				ED10B7000000000000000009 /* XmaxRealtimeBeautyWorker */,
 			);
 		};
 /* End PBXProject section */
@@ -1355,6 +1431,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32C76E33A993AE6FB3838B0C /* VirtualMicrophone.xcstrings */,
 				244DA2B340CF128DAB2DBE11 /* Onboarding.xcassets in Resources */,
 				2CAB5C069C0382B757753C16 /* FaceNowLoginPoster.png in Resources */,
 				03D7E9F275CA49AAB9F1C611 /* Camera.xcstrings in Resources */,
@@ -1386,6 +1463,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C5691D8FF1444288BA9BADE /* VirtualMicrophone.xcstrings */,
 				A1A5B98F9CB7863FD6AE15A9 /* Onboarding.xcassets in Resources */,
 				7CA9B8B28C4F00FBF661BD58 /* FaceNowLoginPoster.png in Resources */,
 				867CE081E6DAECA66D853CCE /* Camera.xcstrings in Resources */,
@@ -1415,11 +1493,11 @@
 			files = ();
 			inputPaths = (
 				"$(SRCROOT)/Scripts/embed-video-beauty-service.py",
-				"$(FACENOW_SHARED_PRODUCTS_DIR)/XmaxRealtimeVideoBeautyWorker.xpc",
+				"$(FACENOW_SHARED_PRODUCTS_DIR)/XmaxRealtimeBeautyWorker.xpc",
 			);
 			name = "Embed Video Beauty Service";
 			outputPaths = (
-				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/XmaxRealtimeVideoBeautyWorker.xpc",
+				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/XmaxRealtimeBeautyWorker.xpc",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1432,16 +1510,40 @@
 			files = ();
 			inputPaths = (
 				"$(SRCROOT)/Scripts/embed-video-beauty-service.py",
-				"$(FACENOW_SHARED_PRODUCTS_DIR)/XmaxRealtimeVideoBeautyWorker.xpc",
+				"$(FACENOW_SHARED_PRODUCTS_DIR)/XmaxRealtimeBeautyWorker.xpc",
 			);
 			name = "Embed Video Beauty Service";
 			outputPaths = (
-				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/XmaxRealtimeVideoBeautyWorker.xpc",
+				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/XmaxRealtimeBeautyWorker.xpc",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/usr/bin/python3 \"${SRCROOT}/Scripts/embed-video-beauty-service.py\"\n";
 		};
+		43D7AC59414069D5DC3C5CC5 /* Build Virtual Microphone Installer */ = {
+            isa = PBXShellScriptBuildPhase;
+            alwaysOutOfDate = 1;
+            buildActionMask = 2147483647;
+            files = ();
+            inputPaths = ("$(SRCROOT)/Scripts/build-virtual-microphone.py", "$(SRCROOT)/Scripts/Audio/uninstall-microphone.sh", "$(SRCROOT)/VirtualMicrophoneDriver", "$(SRCROOT)/Services/Media/Audio");
+            name = "Build Virtual Microphone Installer";
+            outputPaths = ("$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophone.pkg", "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophoneUninstall.pkg");
+            runOnlyForDeploymentPostprocessing = 0;
+            shellPath = /bin/sh;
+            shellScript = "/usr/bin/python3 \"${SRCROOT}/Scripts/build-virtual-microphone.py\"\n";
+        };
+		8FB46D654FAF3E604941F8CA /* Build Virtual Microphone Installer */ = {
+            isa = PBXShellScriptBuildPhase;
+            alwaysOutOfDate = 1;
+            buildActionMask = 2147483647;
+            files = ();
+            inputPaths = ("$(SRCROOT)/Scripts/build-virtual-microphone.py", "$(SRCROOT)/Scripts/Audio/uninstall-microphone.sh", "$(SRCROOT)/VirtualMicrophoneDriver", "$(SRCROOT)/Services/Media/Audio");
+            name = "Build Virtual Microphone Installer";
+            outputPaths = ("$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophone.pkg", "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophoneUninstall.pkg");
+            runOnlyForDeploymentPostprocessing = 0;
+            shellPath = /bin/sh;
+            shellScript = "/usr/bin/python3 \"${SRCROOT}/Scripts/build-virtual-microphone.py\"\n";
+        };
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1449,6 +1551,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63EABC13A672E3CC27AAB323 /* VirtualMicrophoneSetupViewController.swift */,
+				321CDB904DD25FBEBCE14644 /* AudioPCMConverter.swift */,
+				6CDD2F067708DDE43D5C4F53 /* AudioTimelineBuffer.c */,
+				D19B28B958160BE4BBB59603 /* VirtualMicrophoneStrings.swift */,
+				B3AE16D349576A51E45B4EBF /* VirtualMicrophoneOutput.swift */,
+				0F61489BE99CD2ABC6C8A658 /* VirtualMicrophoneRepository.swift */,
+				444252F0106C415596E0AA96 /* VirtualMicrophoneStatus.swift in Sources */,
 				EA6409E37D37C4137EFA993E /* UpdateInstallationGate.swift in Sources */,
 				0C2F6241E177C0223C41FBFC /* UpdateConfiguration.swift in Sources */,
 				AC277D488010CFA45E672C41 /* UpdateStrings.swift in Sources */,
@@ -1471,6 +1580,7 @@
 				E0D38147E07EE01B726D13EB /* OnboardingSetupViewModel.swift in Sources */,
 				2710787A2131E0139BF94725 /* AboutViewModel.swift in Sources */,
 				793D5757B61B0375CE9B84E7 /* HomeViewModel.swift in Sources */,
+				F285E81DCC5C429383110A44 /* HomeVirtualDevicesViewModel.swift in Sources */,
 				617A0BD93B4DC326A53EB272 /* GenerationThumbnailView.swift in Sources */,
 				51B92D8C258349013500EB39 /* GenerationReferenceLayout.swift in Sources */,
 				811DFFD72DEA09C30EBEB6FE /* GenerationReferenceItem.swift in Sources */,
@@ -1503,9 +1613,13 @@
 				822D19FB12DD1579D4B8CF5E /* GenerationStatisticsPanel.swift in Sources */,
 				3ECA980840B8B45413957AFC /* GenerationToolbarView.swift in Sources */,
 				83A4BA4A7D937E4BAB76EB39 /* GenerationVideoPanel.swift in Sources */,
+				7443AD1B70A442DFB68B96B4 /* GenerationAudioControlsView.swift in Sources */,
+				4FB733F718EC446EAAE1B0A1 /* GenerationAdjustmentPopoverView.swift in Sources */,
+				D75624EA5B734BCC86AF540A /* GenerationAudioControlsViewModel.swift in Sources */,
 				22221881296C7A34A0BAE2C3 /* GenerationWorkspaceView.swift in Sources */,
-				266EDFC1E1DDAAF2EE480DB6 /* HomeCameraPickerView.swift in Sources */,
+				266EDFC1E1DDAAF2EE480DB6 /* HomeInputPickerView.swift in Sources */,
 				79A8885D67BDEE86390E4A90 /* HomeCameraControlsView.swift in Sources */,
+				E9998472923C41CEB7DB1DBF /* HomeVirtualDevicesPopoverView.swift in Sources */,
 				50318AC1E0D02B4A32810AA2 /* ToastView.swift in Sources */,
 				E05213100BF3AEBB521AC2DD /* AboutView.swift in Sources */,
 				57B929B1982D74830A32C870 /* HomeFooterView.swift in Sources */,
@@ -1579,6 +1693,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A24FC412B1B84B94DC44F4B7 /* VirtualMicrophoneSetupViewController.swift */,
+				F1E02F5813B4BAA172F4BAC4 /* AudioPCMConverter.swift */,
+				4AC298EC30117BC57CC38F16 /* AudioTimelineBuffer.c */,
+				82901F3D40B7B76D476E46D6 /* VirtualMicrophoneStrings.swift */,
+				3435B7E97D4B662D4CB9D27A /* VirtualMicrophoneOutput.swift */,
+				3569FE20AC0AE959A5E5525D /* VirtualMicrophoneRepository.swift */,
+				175679EB35154DFB8C5DC3F8 /* VirtualMicrophoneStatus.swift in Sources */,
 				F94928A81561F7062F3DA0BC /* UpdateInstallationGate.swift in Sources */,
 				3410B22205FF88FC03B73E38 /* UpdateConfiguration.swift in Sources */,
 				304C52DACE25902A2FEC326E /* UpdateStrings.swift in Sources */,
@@ -1601,6 +1722,7 @@
 				B277F3BF08033840EE799C5E /* OnboardingSetupViewModel.swift in Sources */,
 				761CFD83E5C8439992D1268C /* AboutViewModel.swift in Sources */,
 				F09AA32C1ABB14280CA850C2 /* HomeViewModel.swift in Sources */,
+				C4F1771E74084BEFA4A25224 /* HomeVirtualDevicesViewModel.swift in Sources */,
 				7EDAAE42C3E3166B399DB4E0 /* GenerationThumbnailView.swift in Sources */,
 				4E9DABE7602FE00D53C21BF9 /* GenerationReferenceLayout.swift in Sources */,
 				90FE5666C55B2A16DC12B491 /* GenerationReferenceItem.swift in Sources */,
@@ -1633,9 +1755,13 @@
 				A4CC22971872B9C1D808CF6B /* GenerationStatisticsPanel.swift in Sources */,
 				9A0586F4E153B22C559BB5C6 /* GenerationToolbarView.swift in Sources */,
 				B6CEC4DBFDCB5ABD5C478BE8 /* GenerationVideoPanel.swift in Sources */,
+				AA0C5D199BE2406BAF680E40 /* GenerationAudioControlsView.swift in Sources */,
+				09AEF5760A6145E3921A7709 /* GenerationAdjustmentPopoverView.swift in Sources */,
+				7F108C87185243D0B2E92BAD /* GenerationAudioControlsViewModel.swift in Sources */,
 				8AE2364A8A6CBAFE13319C39 /* GenerationWorkspaceView.swift in Sources */,
-				7B40BF71B83B42AD86AE3C58 /* HomeCameraPickerView.swift in Sources */,
+				7B40BF71B83B42AD86AE3C58 /* HomeInputPickerView.swift in Sources */,
 				5B770C916864127B5715935A /* HomeCameraControlsView.swift in Sources */,
+				20EB706074D642A08993D8B9 /* HomeVirtualDevicesPopoverView.swift in Sources */,
 				7DD3892CF0363949D2DC1D72 /* ToastView.swift in Sources */,
 				0DED128F63A7483BAB0A3B3D /* AboutView.swift in Sources */,
 				46806423B5CCB6CE2636238C /* HomeFooterView.swift in Sources */,
@@ -1717,13 +1843,13 @@
 		};
 		ED10B700000000000000000E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = ED10B7000000000000000009 /* XmaxRealtimeVideoBeautyWorker */;
+			target = ED10B7000000000000000009 /* XmaxRealtimeBeautyWorker */;
 			targetProxy = ED10B7000000000000000008 /* PBXContainerItemProxy */;
 		};
 
 		ED10B7000000000000000017 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = ED10B7000000000000000009 /* XmaxRealtimeVideoBeautyWorker */;
+			target = ED10B7000000000000000009 /* XmaxRealtimeBeautyWorker */;
 			targetProxy = ED10B7000000000000000008 /* PBXContainerItemProxy */;
 		};
 
@@ -1734,6 +1860,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 78AA1498C22C85A2313F4FE0 /* Oversea.xcconfig */;
 			buildSettings = {
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/App/XmaxCamera-Bridging-Header.h";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
@@ -1930,6 +2057,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 78AA1498C22C85A2313F4FE0 /* Oversea.xcconfig */;
 			buildSettings = {
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/App/XmaxCamera-Bridging-Header.h";
 				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
 				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1955,6 +2083,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
 			buildSettings = {
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/App/XmaxCamera-Bridging-Header.h";
 				BUILT_PRODUCTS_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)";
 				CONFIGURATION_BUILD_DIR = "$(FACENOW_SHARED_PRODUCTS_DIR)/$(TARGET_NAME)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1992,6 +2121,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
 			buildSettings = {
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/App/XmaxCamera-Bridging-Header.h";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = App/XmaxCamera.entitlements;
@@ -2059,15 +2189,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = VideoBeautyWorker/XmaxRealtimeVideoBeautyWorker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BeautyWorker/XmaxRealtimeBeautyWorker.entitlements;
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				DEVELOPMENT_TEAM = A84PZNYY82;
 				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.sdk.video-beauty;
-				PRODUCT_NAME = XmaxRealtimeVideoBeautyWorker;
+				PRODUCT_NAME = XmaxRealtimeBeautyWorker;
 				REGISTER_APP_GROUPS = NO;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../../../../Frameworks", "@executable_path/../../..");
 				SDKROOT = macosx;
-				INFOPLIST_FILE = VideoBeautyWorker/Info.plist;
+				INFOPLIST_FILE = BeautyWorker/Info.plist;
 				GENERATE_INFOPLIST_FILE = NO;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 6.0;
@@ -2079,15 +2209,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = VideoBeautyWorker/XmaxRealtimeVideoBeautyWorker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BeautyWorker/XmaxRealtimeBeautyWorker.entitlements;
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				DEVELOPMENT_TEAM = A84PZNYY82;
 				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.sdk.video-beauty;
-				PRODUCT_NAME = XmaxRealtimeVideoBeautyWorker;
+				PRODUCT_NAME = XmaxRealtimeBeautyWorker;
 				REGISTER_APP_GROUPS = NO;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../../../../Frameworks", "@executable_path/../../..");
 				SDKROOT = macosx;
-				INFOPLIST_FILE = VideoBeautyWorker/Info.plist;
+				INFOPLIST_FILE = BeautyWorker/Info.plist;
 				GENERATE_INFOPLIST_FILE = NO;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 6.0;
@@ -2143,7 +2273,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		ED10B700000000000000000C /* Build configuration list for PBXNativeTarget "XmaxRealtimeVideoBeautyWorker" */ = {
+		ED10B700000000000000000C /* Build configuration list for PBXNativeTarget "XmaxRealtimeBeautyWorker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				ED10B700000000000000000F /* Debug */,
@@ -2284,10 +2414,10 @@
 			package = 263A870DB8070B0234127A40 /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
 		};
-		ED10B7000000000000000014 /* XmaxRealtimeVideoBeautyWorkerSupport */ = {
+		ED10B7000000000000000014 /* XmaxRealtimeBeautyWorkerSupport */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */;
-			productName = XmaxRealtimeVideoBeautyWorkerSupport;
+			productName = XmaxRealtimeBeautyWorkerSupport;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

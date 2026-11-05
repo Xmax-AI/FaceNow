@@ -49,6 +49,12 @@ final class GenerationWorkspaceView: Canvas {
         return view
     }()
 
+    /// The audio control row shared by both video panels, outside their output pixels.
+    private lazy var audioControls: GenerationAudioControlsView = {
+        let view = GenerationAudioControlsView()
+        return view
+    }()
+
     /// Uses the same painted Canvas surface as statistics for the lower-right result controls.
     private lazy var beautyOverlay: GenerationBeautyPanelView = {
         let view = GenerationBeautyPanelView()
@@ -186,12 +192,13 @@ final class GenerationWorkspaceView: Canvas {
     ) -> CGFloat {
         let panelWidth = (contentWidth - 24) / 2
         return panelWidth * CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
-            + 34 + 42 + 28
+            + 12 + GenerationAudioControlsView.preferredHeight + 24 + 42 + 28
             + 190
     }
 
     /// Updates existing controls while retaining preview bindings during startup.
     func update() {
+        audioControls.update()
         let active = generationRepo.sessionActive
         if active && !generationRepo.isClosing {
             setBeautyVisible(generationRepo.beautyEnabled)
@@ -308,13 +315,17 @@ final class GenerationWorkspaceView: Canvas {
     /// Releases overlay editing when the workspace returns to home or login.
     override func viewDidHide() {
         super.viewDidHide()
+        audioControls.closePopovers()
         setBeautyVisible(false, animated: false)
     }
 
     /// Cancels view-owned animation work when its window detaches.
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        if window == nil { setBeautyVisible(false, animated: false) }
+        if window == nil {
+            audioControls.closePopovers()
+            setBeautyVisible(false, animated: false)
+        }
     }
 
     /// Keeps panels, tabs, references, and prompt controls in one persistent constraint graph.
@@ -331,6 +342,11 @@ final class GenerationWorkspaceView: Canvas {
             make.trailing.top.equalToSuperview()
             make.height.equalTo(localPanel)
         }
+        audioControls.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(localPanel.snp.bottom).offset(12)
+            make.height.equalTo(GenerationAudioControlsView.preferredHeight)
+        }
         beautyOverlay.snp.makeConstraints { make in
             make.trailing.bottom.equalTo(resultPanel).inset(12)
             make.width.equalTo(beautyOverlay.preferredWidth).priority(490)
@@ -339,7 +355,7 @@ final class GenerationWorkspaceView: Canvas {
         }
         tabs.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(localPanel.snp.bottom).offset(34)
+            make.top.equalTo(audioControls.snp.bottom).offset(24)
             make.width.lessThanOrEqualToSuperview()
             make.width.equalTo(tabs.preferredWidth).priority(490)
             make.height.equalTo(42)
@@ -386,7 +402,7 @@ final class GenerationWorkspaceView: Canvas {
 
     /// Builds persistent generation controls and binds their mode-specific actions.
     private func configureWorkspace() {
-        [localPanel, resultPanel, tabs, promptContainer].forEach(addSubview)
+        [localPanel, resultPanel, audioControls, tabs, promptContainer].forEach(addSubview)
         resultPanel.addSubview(beautyOverlay)
         for mode in GenerationMode.allCases {
             if mode != .free {

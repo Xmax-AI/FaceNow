@@ -1,0 +1,5 @@
+InputStreamName = "Generated Audio";
+OutputStreamName = "FaceNow Audio Feed";
+MasterElementName = "Main";
+LeftElementName = "Left";
+RightElementName = "Right";

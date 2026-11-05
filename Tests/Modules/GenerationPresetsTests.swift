@@ -31,7 +31,8 @@ final class GenerationPresetsTests: XCTestCase {
                 thumbnailURL.host,
                 expectedHost
             )
-            XCTAssertTrue(thumbnailURL.absoluteString.contains("imageMogr2/thumbnail/160x160"))
+            XCTAssertTrue(thumbnailURL.absoluteString.contains("imageMogr2/crop/256x256/gravity/center"))
+            XCTAssertTrue(thumbnailURL.absoluteString.contains("format/webp/quality/90"))
             XCTAssertFalse(reference.referencePath.contains("imageMogr2"))
             let original = try XCTUnwrap(URLComponents(string: reference.referencePath))
             let thumbnail = try XCTUnwrap(URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false))

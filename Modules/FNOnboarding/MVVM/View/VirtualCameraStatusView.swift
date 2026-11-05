@@ -29,12 +29,16 @@ final class VirtualCameraStatusView: Canvas {
             chevron: true,
             weight: .semibold
         )
+        view.usesStatusAppearance = true
+        view.leadingPadding = 16
+        view.chevronTrailingPadding = 14
+        view.trailingPadding = view.chevronTrailingPadding + ToolbarControlMetrics.disclosureWidth + 6
         view.setAccessibilityLabel(OnboardingStrings.virtualCamera)
         view.onClick = { [weak self] in self?.onShowOnboarding?() }
         return view
     }()
 
-    /// Composes an actionable capsule using the same surface and insets as Stop Session.
+    /// Composes an actionable capsule with more leading space and a compact disclosure area.
     init() {
         super.init()
         addSubview(capsule)

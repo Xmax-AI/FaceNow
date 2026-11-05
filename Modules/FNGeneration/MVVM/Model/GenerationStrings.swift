@@ -16,6 +16,69 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum GenerationStrings {
 
+    /// Opens local monitoring and generated-result appearance settings.
+    static var audioVideoAdjustments: String {
+        Localization.string(
+            "controls.audio_video_adjustments",
+            table: "Generation",
+            defaultValue: "Audio & Video"
+        )
+    }
+
+    /// The selected physical microphone is available and enabled.
+    static var microphoneReady: String {
+        Localization.string(
+            "controls.microphone_ready",
+            table: "Generation",
+            defaultValue: "Ready"
+        )
+    }
+
+    /// The user has explicitly disabled physical microphone input.
+    static var microphoneDisabled: String {
+        Localization.string(
+            "controls.microphone_disabled",
+            table: "Generation",
+            defaultValue: "Disabled"
+        )
+    }
+
+    /// The SDK is applying a physical microphone input change.
+    static var microphoneSwitching: String {
+        Localization.string(
+            "controls.microphone_switching",
+            table: "Generation",
+            defaultValue: "Switching…"
+        )
+    }
+
+    /// The selected physical microphone is no longer available.
+    static var microphoneUnavailable: String {
+        Localization.string(
+            "controls.microphone_unavailable",
+            table: "Generation",
+            defaultValue: "Unavailable"
+        )
+    }
+
+    /// The volume of generated audio played on the local machine.
+    static var monitoringVolume: String {
+        Localization.string(
+            "controls.monitoring_volume",
+            table: "Generation",
+            defaultValue: "Monitoring Volume"
+        )
+    }
+
+    /// Explains the user-visible separation between local monitoring and virtual microphone output.
+    static var monitoringVolumeDescription: String {
+        Localization.string(
+            "controls.monitoring_volume_description",
+            table: "Generation",
+            defaultValue: "Only affects local playback; virtual microphone output is unchanged."
+        )
+    }
+
     /// Closes the result overlay without changing the active beauty effect.
     static var beautyClose: String {
         Localization.string(

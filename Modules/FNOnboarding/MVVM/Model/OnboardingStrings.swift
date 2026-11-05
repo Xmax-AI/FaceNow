@@ -1407,7 +1407,7 @@ enum OnboardingStrings {
         Localization.format(
             "content.we_access_your_camera_in_accordance_with_our_terms",
             table: "Onboarding",
-            defaultValue: "We access your camera in accordance with our %1$@ and %2$@.",
+            defaultValue: "We access your camera and, when enabled, microphone in accordance with our %1$@ and %2$@.",
             arguments: [termsOfUse, privacyPolicy]
         )
     }

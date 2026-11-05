@@ -68,7 +68,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "将你的新形象带入视频通话"
+            "value" : "以你喜欢的样子出镜"
           }
         }
       }
@@ -134,13 +134,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "We access your camera in accordance with our %1$@ and %2$@."
+            "value" : "We access your camera and, when enabled, microphone in accordance with our %1$@ and %2$@."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "我们会依照《%1$@》和《%2$@》使用你的摄像头。"
+            "value" : "我们会依照《%1$@》和《%2$@》使用你的摄像头和麦克风。"
           }
         }
       }

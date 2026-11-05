@@ -125,6 +125,7 @@ final class GenerationVideoPanel: Canvas {
         video.track = track
         if placeholder.stringValue != message { placeholder.stringValue = message }
         placeholder.isHidden = message.isEmpty
+        leftWatermark.isHidden = !showsWatermark || visible
         for (panel, group) in zip(
             panels,
             statistics
@@ -144,13 +145,7 @@ final class GenerationVideoPanel: Canvas {
             make.height.equalTo(20)
         }
         captionBackground.snp.makeConstraints { make in
-            if showsWatermark {
-                make.trailing.equalToSuperview().inset(12)
-                make.top.equalToSuperview().inset(12)
-            } else {
-                make.leading.equalToSuperview().offset(14)
-                make.bottom.equalToSuperview().inset(12)
-            }
+            make.trailing.top.equalToSuperview().inset(12)
         }
         caption.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(6)
@@ -168,8 +163,6 @@ final class GenerationVideoPanel: Canvas {
                 make.height.equalTo(panel.panelHeight)
                 if let previous {
                     make.top.equalTo(previous.snp.bottom).offset(8)
-                } else if showsWatermark {
-                    make.top.equalTo(leftWatermark.snp.bottom).offset(8)
                 } else {
                     make.top.equalToSuperview().offset(12)
                 }
