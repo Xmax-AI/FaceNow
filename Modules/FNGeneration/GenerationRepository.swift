@@ -64,6 +64,12 @@ final class GenerationRepository: ObservableObject {
             ? .disabled : .device(id: microphoneID)
     }
 
+    /// The current system authorization used by input selectors independently of device discovery.
+    @Published private(set) var microphoneAuthorization = AVCaptureDevice.authorizationStatus(for: .audio)
+
+    /// Shares one explicit system permission request across microphone selectors.
+    private var microphonePermissionTask: Task<Bool, Never>?
+
     /// The available audio inputs, excluding FaceNow's virtual microphone output.
     @Published private(set) var microphones: [CaptureDevice] = []
 
@@ -145,6 +151,15 @@ final class GenerationRepository: ObservableObject {
 
     /// The remote playback volume in the range zero through one.
     @Published private(set) var remoteAudioVolume: Float = 0
+
+    /// The signed audio offset for meeting output; positive delays audio and negative delays video.
+    @Published private(set) var audioSyncOffsetMilliseconds = min(
+        2000,
+        max(-2000, UserDefaults.standard.integer(forKey: "generation.audioSyncOffsetMilliseconds"))
+    )
+
+    /// Coalesces slider updates without restarting output devices or clearing queued media.
+    private var audioSyncAdjustment: Task<Void, Never>?
 
     /// The SDK's default result strengths, used when no user values have been saved.
     static let defaultBeautyOptions = RealtimeVideoBeautyOptions()
@@ -310,9 +325,36 @@ final class GenerationRepository: ObservableObject {
         if selection != cameraID { cameraID = selection }
     }
 
+    /// Refreshes microphone permission without displaying a prompt or starting capture.
+    func synchronizeMicrophoneAuthorization() {
+        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        if microphoneAuthorization != status { microphoneAuthorization = status }
+    }
+
+    /// Requests microphone access after an explicit user action, sharing an outstanding system prompt.
+    func requestMicrophoneAccess() async -> Bool {
+        guard !isClosing else { return false }
+        synchronizeMicrophoneAuthorization()
+        if microphoneAuthorization == .authorized { return true }
+        if microphoneAuthorization == .notDetermined {
+            let task: Task<Bool, Never>
+            if let pending = microphonePermissionTask {
+                task = pending
+            } else {
+                task = Task { await AVCaptureDevice.requestAccess(for: .audio) }
+                microphonePermissionTask = task
+            }
+            _ = await task.value
+            microphonePermissionTask = nil
+            synchronizeMicrophoneAuthorization()
+        }
+        return microphoneAuthorization == .authorized
+    }
+
     /// Refreshes inputs and resolves an initial selection to a concrete device without acquiring permission.
     @discardableResult
     func refreshMicrophones() -> Task<Void, Never>? {
+        synchronizeMicrophoneAuthorization()
         guard !isClosing else { return nil }
         let request = UUID()
         microphoneRefreshID = request
@@ -514,10 +556,16 @@ final class GenerationRepository: ObservableObject {
         }
         selectedReferenceID = reference.id
         do {
-            output.frames.reset(producer: operation)
+            output.frames.reset(
+                producer: operation,
+                videoDelay: Double(max(0, -audioSyncOffsetMilliseconds)) / 1000
+            )
             let mailbox = output.frames
             let microphone = virtualMicrophoneRepo.output
-            microphone.reset(producer: operation)
+            microphone.reset(
+                producer: operation,
+                playbackDelay: Double(max(0, audioSyncOffsetMilliseconds)) / 1000
+            )
             try await manager.setRemoteMediaFrameListener { event in
                 switch event.content {
                 case .audio(let frame):
@@ -621,7 +669,10 @@ final class GenerationRepository: ObservableObject {
                 )
                 try Task.checkCancellation()
                 guard let self, self.lifecycleID == operation else { return }
-                output.frames.reset(producer: operation)
+                output.frames.reset(
+                    producer: operation,
+                    videoDelay: Double(max(0, -self.audioSyncOffsetMilliseconds)) / 1000
+                )
                 self.startupLogger.notice(
                     "Virtual camera output ready after result: \(startedAt.duration(to: .now).description, privacy: .public)"
                 )
@@ -979,6 +1030,32 @@ final class GenerationRepository: ObservableObject {
         startupLogger.error("Result beauty disabled: \(error.localizedDescription, privacy: .public)")
     }
 
+    /// Saves meeting-output timing and applies the latest slider setting after a short coalescing interval.
+    func setAudioSyncOffset(
+        _ milliseconds: Int
+    ) {
+        guard sessionActive, !isClosing else { return }
+        let value = min(2000, max(-2000, milliseconds))
+        guard value != audioSyncOffsetMilliseconds else { return }
+        audioSyncOffsetMilliseconds = value
+        UserDefaults.standard.set(value, forKey: "generation.audioSyncOffsetMilliseconds")
+        audioSyncAdjustment?.cancel()
+        let operation = lifecycleID
+        audioSyncAdjustment = Task { [weak self] in
+            do { try await Task.sleep(for: .milliseconds(80)) } catch { return }
+            guard let self, self.lifecycleID == operation, !self.isClosing else { return }
+            self.output.frames.setVideoDelay(
+                Double(max(0, -value)) / 1000,
+                producer: operation
+            )
+            self.virtualMicrophoneRepo.output.setPlaybackDelay(
+                Double(max(0, value)) / 1000,
+                producer: operation
+            )
+            self.audioSyncAdjustment = nil
+        }
+    }
+
     /// Applies remote playback volume without letting a late operation overwrite a new session.
     func setRemoteAudioVolume(
         _ volume: Float
@@ -1033,6 +1110,8 @@ final class GenerationRepository: ObservableObject {
         let closingClient = client
         let closingOutputStartup = outputStartup
         let closingBeautyApplication = beautyApplication
+        audioSyncAdjustment?.cancel()
+        audioSyncAdjustment = nil
         beautyDebounce?.cancel()
         beautyDebounce = nil
         beautyApplication?.cancel()

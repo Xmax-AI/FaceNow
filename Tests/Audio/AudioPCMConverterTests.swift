@@ -5,6 +5,93 @@ import AudioTimelineBuffer
 @testable import VirtualMicrophoneCore
 
 final class AudioPCMConverterTests: XCTestCase {
+    func testRenderWithoutAllocatedStorageReturnsSilence() throws {
+        let ring = try XCTUnwrap(AudioTimelineBufferCreate(48_000))
+        defer { AudioTimelineBufferDestroy(ring) }
+        var list = AudioBufferList(
+            mNumberBuffers: 1,
+            mBuffers: AudioBuffer(mNumberChannels: 2, mDataByteSize: 384, mData: nil)
+        )
+        var stamp = AudioTimeStamp()
+        stamp.mHostTime = mach_absolute_time()
+        stamp.mFlags = .hostTimeValid
+        var flags: AudioUnitRenderActionFlags = []
+        XCTAssertEqual(
+            AudioTimelineBufferRender(UnsafeMutableRawPointer(ring), &flags, &stamp, 0, 48, &list),
+            noErr
+        )
+        XCTAssertTrue(flags.contains(.unitRenderAction_OutputIsSilence))
+    }
+
+    func testTwoSecondAudioHistoryAtEverySupportedDeviceRate() throws {
+        for rate in [44_100.0, 48_000.0, 192_000.0] {
+            let ring = try XCTUnwrap(AudioTimelineBufferCreate(rate))
+            defer { AudioTimelineBufferDestroy(ring) }
+            AudioTimelineBufferSetPlaybackDelay(ring, 2)
+            let frames = UInt32(rate * 2.15)
+            let stream = [Float](repeating: 0.5, count: Int(frames) * 2)
+            stream.withUnsafeBufferPointer { pointer in
+                AudioTimelineBufferSchedule(ring, 100, pointer.baseAddress, frames)
+            }
+            XCTAssertTrue(render(ring, at: 100).allSatisfy { $0 == 0 })
+            let delayed = render(ring, at: 102)
+            XCTAssertTrue(delayed.allSatisfy { abs($0 - 0.5) < 0.001 })
+            AudioTimelineBufferReset(ring)
+            XCTAssertTrue(render(ring, at: 102).allSatisfy { $0 == 0 })
+        }
+    }
+
+    func testChangingDelayCrossfadesBufferedHistoryWithoutClearingIt() throws {
+        let ring = try XCTUnwrap(AudioTimelineBufferCreate(48_000))
+        defer { AudioTimelineBufferDestroy(ring) }
+        for (time, value) in [(100.1, Float(0.2)), (100.3, Float(0.8))] {
+            [Float](repeating: value, count: 8000).withUnsafeBufferPointer { pointer in
+                AudioTimelineBufferSchedule(ring, time, pointer.baseAddress, 4000)
+            }
+        }
+        XCTAssertEqual(render(ring, at: 100.3)[0], 0.8, accuracy: 0.001)
+        AudioTimelineBufferSetPlaybackDelay(ring, 0.2)
+        let transition = render(ring, at: 100.31, frames: 961)
+        XCTAssertEqual(transition[0], 0.8, accuracy: 0.001)
+        XCTAssertEqual(transition.last!, 0.2, accuracy: 0.001)
+        for index in stride(from: 2, to: transition.count, by: 2) {
+            XCTAssertLessThan(abs(transition[index] - transition[index - 2]), 0.001)
+        }
+        AudioTimelineBufferSetPlaybackDelay(ring, 0)
+        let reset = render(ring, at: 100.34, frames: 961)
+        XCTAssertEqual(reset[0], 0.2, accuracy: 0.001)
+        XCTAssertEqual(reset.last!, 0.8, accuracy: 0.001)
+        AudioTimelineBufferReset(ring)
+        XCTAssertTrue(render(ring, at: 100.36).allSatisfy { $0 == 0 })
+    }
+
+    private func render(
+        _ ring: OpaquePointer,
+        at seconds: TimeInterval,
+        frames: UInt32 = 48
+    ) -> [Float] {
+        var samples = [Float](repeating: 0, count: Int(frames) * 2)
+        samples.withUnsafeMutableBytes { bytes in
+            var list = AudioBufferList(
+                mNumberBuffers: 1,
+                mBuffers: AudioBuffer(
+                    mNumberChannels: 2,
+                    mDataByteSize: UInt32(bytes.count),
+                    mData: bytes.baseAddress
+                )
+            )
+            var stamp = AudioTimeStamp()
+            stamp.mHostTime = AVAudioTime.hostTime(forSeconds: seconds)
+            stamp.mFlags = .hostTimeValid
+            var flags: AudioUnitRenderActionFlags = []
+            XCTAssertEqual(
+                AudioTimelineBufferRender(UnsafeMutableRawPointer(ring), &flags, &stamp, 0, frames, &list),
+                noErr
+            )
+        }
+        return samples
+    }
+
     func testMonoBecomesIdenticalStereoWithoutMonitoringGain() throws {
         let converter = AudioPCMConverter()
         let source = [Int16](repeating: 16_384, count: 480)

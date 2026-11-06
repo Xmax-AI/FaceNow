@@ -27,6 +27,9 @@ final class OnboardingGuideView: Canvas {
     /// Returns to the preceding device stage.
     var onPrevious: (() -> Void)?
 
+    /// Continues preparation with the current optional audio capability disabled.
+    var onSkipAudio: (() -> Void)?
+
     /// Blocks child interaction while the modal is leaving the home page.
     private var isDismissing = false
 
@@ -182,12 +185,32 @@ final class OnboardingGuideView: Canvas {
         return view
     }()
 
+    /// Offers optional audio deferral below the current setup action.
+    private lazy var skipAudio: Button = {
+        let view = Button(OnboardingStrings.skipMicrophone, style: .plain)
+        view.font = Typography.font(size: 12)
+        view.foregroundColor = Palette.secondary
+        view.alignment = .right
+        view.onClick = { [weak self] in self?.onSkipAudio?() }
+        return view
+    }()
+
+    /// Keeps the primary action and optional skip link aligned to the bottom-right corner.
+    private lazy var footerActions: NSStackView = {
+        let view = NSStackView(views: [primary, skipAudio])
+        view.orientation = .vertical
+        view.alignment = .trailing
+        view.spacing = 8
+        view.detachesHiddenViews = true
+        return view
+    }()
+
     /// Composes a modal overlay while retaining the underlying home and preview bindings.
     init() {
         super.init()
         addSubview(backdrop)
         addSubview(card)
-        [heading, closeButton, progress, scroll, divider, footerNavigation, primary].forEach(card.addSubview)
+        [heading, closeButton, progress, scroll, divider, footerNavigation, footerActions].forEach(card.addSubview)
         scroll.documentView = body
         [copy, illustration].forEach(body.addSubview)
         [title, subtitle, timeline].forEach {
@@ -292,10 +315,16 @@ final class OnboardingGuideView: Canvas {
         progress.update(
             current: repo.step,
             cameraReady: repo.cameraReady,
+            microphoneReady: repo.microphoneReady,
+            microphoneSkipped: repo.microphoneSkipped,
+            virtualMicrophoneReady: repo.virtualMicrophoneReady,
+            virtualMicrophoneSkipped: repo.virtualMicrophoneSkipped,
             virtualCameraReady: repo.virtualCameraReady
         )
-        previous.isHidden = repo.step == .camera
+        previous.isHidden = repo.step == .microphone
         later.isHidden = !model.showsSetupLater
+        skipAudio.isHidden = !model.showsAudioSkip
+        skipAudio.isEnabled = model.canSkipAudio
         primary.title = model.primaryTitle
         primary.isEnabled = model.primaryEnabled
         primary.loading = model.primaryLoading
@@ -305,9 +334,17 @@ final class OnboardingGuideView: Canvas {
             title.stringValue = model.cameraStepTitle
             subtitle.stringValue = model.cameraStepDescription
             timeline.update(items: model.preparationInstructions.map { .init(title: $0.title, detail: $0.detail) })
+        case .microphone:
+            title.stringValue = model.microphoneStepTitle
+            subtitle.stringValue = model.microphoneStepDescription
+            timeline.update(items: model.preparationInstructions.map { .init(title: $0.title, detail: $0.detail) })
+        case .virtualMicrophone:
+            title.stringValue = OnboardingStrings.setupVirtualMicrophone
+            subtitle.stringValue = OnboardingStrings.virtualMicrophoneIntroduction
+            timeline.update(items: model.preparationInstructions.map { .init(title: $0.title, detail: $0.detail) })
         case .virtualCamera:
-            title.stringValue = OnboardingStrings.guideEnableVirtualCamera
-            subtitle.stringValue = OnboardingStrings.guideFaceNowUsesAVirtualCameraToBringYourChosen
+            title.stringValue = model.virtualCameraStepTitle
+            subtitle.stringValue = model.virtualCameraStepDescription
             timeline.update(items: model.preparationInstructions.map { .init(title: $0.title, detail: $0.detail) })
         case .videoCalls:
             title.stringValue = OnboardingStrings.guideUseFaceNowInVideoCalls
@@ -322,7 +359,7 @@ final class OnboardingGuideView: Canvas {
         )
         let controls: [NSControl] =
             ([closeButton]
-            + illustration.navigationControls + [previous, later, primary])
+            + illustration.navigationControls + [previous, later, primary, skipAudio])
             .filter { !$0.isHidden && $0.isEnabled }
         for (index, control) in controls.enumerated() {
             control.nextKeyView = controls[(index + 1) % controls.count]
@@ -358,7 +395,7 @@ final class OnboardingGuideView: Canvas {
         }
         divider.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview().inset(82)
+            make.bottom.equalTo(footerActions.snp.top).offset(-16)
             make.height.equalTo(1)
         }
         scroll.snp.makeConstraints { make in
@@ -393,9 +430,14 @@ final class OnboardingGuideView: Canvas {
             make.size.equalTo(CGSize(width: 100, height: 32))
         }
         primary.snp.makeConstraints { make in
-            make.trailing.bottom.equalToSuperview().inset(24)
             make.height.equalTo(42)
             make.width.equalTo(primary.preferredWidth)
+        }
+        skipAudio.snp.makeConstraints { make in
+            make.height.equalTo(22)
+        }
+        footerActions.snp.makeConstraints { make in
+            make.trailing.bottom.equalToSuperview().inset(24)
         }
     }
 
@@ -493,7 +535,7 @@ private final class OnboardingProgressView: Canvas {
         view.orientation = .horizontal
         view.alignment = .centerY
         view.distribution = .fill
-        view.spacing = 16
+        view.spacing = 8
         return view
     }()
 
@@ -552,7 +594,7 @@ private final class OnboardingProgressView: Canvas {
             }
             let title = makeLabel(
                 step.title,
-                size: 16,
+                size: 14,
                 color: Palette.secondary,
                 weight: .medium
             )
@@ -560,7 +602,7 @@ private final class OnboardingProgressView: Canvas {
             let group = NSStackView(views: [badge, title])
             group.orientation = .horizontal
             group.alignment = .centerY
-            group.spacing = 10
+            group.spacing = 8
             group.setHuggingPriority(.required, for: .horizontal)
             row.addArrangedSubview(group)
             badges.append(badge)
@@ -579,11 +621,24 @@ private final class OnboardingProgressView: Canvas {
     func update(
         current: OnboardingRepository.Step,
         cameraReady: Bool,
+        microphoneReady: Bool,
+        microphoneSkipped: Bool,
+        virtualMicrophoneReady: Bool,
+        virtualMicrophoneSkipped: Bool,
         virtualCameraReady: Bool
     ) {
         for (index, step) in OnboardingRepository.Step.allCases.enumerated() {
-            let completed = step == .camera ? cameraReady : step == .virtualCamera ? virtualCameraReady : false
+            let completed: Bool
+            switch step {
+            case .camera: completed = cameraReady
+            case .microphone: completed = microphoneReady
+            case .virtualMicrophone: completed = virtualMicrophoneReady
+            case .virtualCamera: completed = virtualCameraReady
+            case .videoCalls: completed = false
+            }
             let active = step == current
+            let skipped = (step == .microphone && microphoneSkipped)
+                || (step == .virtualMicrophone && virtualMicrophoneSkipped)
             let fill: NSColor = completed ? .systemGreen : active ? Palette.accent : Palette.border
             let numberColor: NSColor = completed || active ? .white : Palette.secondary
             let titleColor = active ? Palette.accent : Palette.secondary
@@ -605,6 +660,7 @@ private final class OnboardingProgressView: Canvas {
                     title: step.title,
                     state: completed
                         ? OnboardingStrings.completed
+                        : skipped ? OnboardingStrings.skipped
                         : active ? OnboardingStrings.currentStep : OnboardingStrings.upcoming
                 )
             )

@@ -108,7 +108,7 @@ final class VirtualMicrophoneRepository: ObservableObject {
         named name: String
     ) {
         guard let url = Bundle.main.url(forResource: name, withExtension: "pkg"), NSWorkspace.shared.open(url) else {
-            failure = VirtualMicrophoneStrings.failed
+            failure = VirtualMicrophoneStrings.installerUnavailable
             return
         }
     }

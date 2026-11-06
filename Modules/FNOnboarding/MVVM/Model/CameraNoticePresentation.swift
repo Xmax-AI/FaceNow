@@ -133,15 +133,22 @@ struct CameraNoticePresentation: Equatable {
         operation: CameraOperationContext?,
         failure: CameraOperationFailure?,
         actionsLocked: Bool,
-        surface: CameraNoticeSurface = .banner
+        surface: CameraNoticeSurface = .banner,
+        installationFailure: CameraOperationFailure? = nil
     ) -> Self? {
-        guard let notice = resolve(
+        guard var notice = resolve(
             readiness: readiness,
             operation: operation,
             failure: failure,
             actionsLocked: actionsLocked,
             surface: surface
         ) else { return nil }
+        if !notice.isLoading,
+            notice.action.operation == .install || notice.action.operation == .reinstall,
+            let installationFailure
+        {
+            notice = failed(installationFailure)
+        }
         guard surface == .banner else { return notice }
         return Self(
             message: notice.message,
@@ -157,6 +164,13 @@ struct CameraNoticePresentation: Equatable {
         actionsLocked: Bool,
         surface: CameraNoticeSurface
     ) -> Self? {
+        if operation == nil, readiness.isCameraAuthorized, let failure,
+            failure.kind == .invalidLocation || failure.kind == .invalidBundle || failure.operation == .checkStatus
+        {
+            var result = failed(failure)
+            result.isEnabled = !actionsLocked || result.action.operation == nil
+            return result
+        }
         if let operation, operation.origin == .user {
             switch readiness {
             case .permissionRequired(.denied), .permissionRequired(.restricted),
@@ -338,7 +352,7 @@ struct CameraNoticePresentation: Equatable {
                 action: .revealApplication
             )
         case .invalidBundle:
-            return Self(message: OnboardingStrings.noticeInvalidCameraBundle, action: .installVirtualCamera)
+            return Self(message: OnboardingStrings.noticeInvalidCameraBundle, action: .copyErrorDetails)
         case .systemPolicy:
             return Self(message: OnboardingStrings.noticeCameraBlockedByPolicy, action: .copyErrorDetails)
         case .recoveryExhausted:
@@ -353,6 +367,9 @@ struct CameraNoticePresentation: Equatable {
             }
             return Self(message: OnboardingStrings.noticeSetupInterrupted, action: action)
         case .system:
+            if failure.operation == .checkStatus {
+                return Self(message: OnboardingStrings.noticeCameraStatusCheckFailed, action: .checkAgain(.checkStatus))
+            }
             if failure.operation == .remove {
                 return Self(message: OnboardingStrings.noticeManualRemoval, action: .openSettings(.cameraExtensions))
             }

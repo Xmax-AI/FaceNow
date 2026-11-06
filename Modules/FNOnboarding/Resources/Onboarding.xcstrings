@@ -1,6 +1,402 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "notice.camera_status_check_failed" : {
+      "comment" : "Distinguishes an unavailable status check from an activation failure.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t check Virtual Camera. Check again, or reopen FaceNow if this continues."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取虚拟摄像头状态。请重新检查；若仍失败，请重新打开 FaceNow。"
+          }
+        }
+      }
+    },
+    "guide.reinstall_application_title" : {
+      "comment" : "Names the recovery for a missing or invalid bundled camera component.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinstall FaceNow"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请重新安装 FaceNow"
+          }
+        }
+      }
+    },
+    "guide.move_application_title" : {
+      "comment" : "Explains the location prerequisite before offering virtual-camera installation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move FaceNow to Applications"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先将 FaceNow 移至“应用程序”"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone" : {
+      "comment" : "Names the optional generated-audio output step.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Microphone"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟麦克风"
+          }
+        }
+      }
+    },
+    "guide.setup_virtual_microphone" : {
+      "comment" : "Introduces explicit installation and enabling of audio output.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set Up Virtual Microphone"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置虚拟麦克风"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_introduction" : {
+      "comment" : "Explains optional generated-audio routing independently of physical microphone permission.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send generated audio from FaceNow into video calls or live streams. You can skip this step and continue using the camera."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将 FaceNow 生成的声音带入视频通话或直播。你可以跳过此步骤，继续使用摄像头。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_enable_detail" : {
+      "comment" : "Explains enabling an already published virtual input.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The device is available. Click Enable to send generated audio to FaceNow - Xmax Virtual Microphone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备已可用。点击“启用”，将生成的声音输出到 FaceNow - Xmax Virtual Microphone。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_step_ready" : {
+      "comment" : "Confirms device readiness without claiming audio capture or generation has started.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Microphone is enabled. Continue setup."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟麦克风已启用。继续完成设置。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_skip_detail" : {
+      "comment" : "Defers only generated-audio output while retaining camera preparation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip to continue with virtual microphone output off. You can enable it later under Virtual Devices."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角“跳过”，可关闭虚拟麦克风输出并继续引导。之后可在“虚拟设备”中设置。"
+          }
+        }
+      }
+    },
+    "guide.video_calls.microphone_title" : {
+      "comment" : "Adds microphone selection only when virtual audio output is enabled.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select FaceNow as your microphone"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择 FaceNow 作为麦克风"
+          }
+        }
+      }
+    },
+    "guide.video_calls.microphone_detail" : {
+      "comment" : "Names the stable virtual audio input to select in calling software.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In your calling app’s microphone menu, select “FaceNow - Xmax Virtual Microphone” to use the generated audio."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在视频通话应用的麦克风菜单中选择“FaceNow - Xmax Virtual Microphone”，使用生成后的声音。"
+          }
+        }
+      }
+    },
+    "guide.microphone_access" : {
+      "comment" : "Names the optional microphone permission step.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone Access"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风权限"
+          }
+        }
+      }
+    },
+    "guide.allow_microphone_access" : {
+      "comment" : "Requests system permission without starting audio capture.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Microphone Access"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许麦克风访问"
+          }
+        }
+      }
+    },
+    "guide.microphone_introduction" : {
+      "comment" : "Explains optional physical microphone input.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow FaceNow to capture your voice. You can choose an input device or turn the microphone off at any time."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许 FaceNow 使用麦克风采集声音。你可以随时选择输入设备或关闭麦克风。"
+          }
+        }
+      }
+    },
+    "guide.microphone_restricted_title" : {
+      "comment" : "Identifies microphone access restricted by system policy.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone Access Is Restricted"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风访问受限"
+          }
+        }
+      }
+    },
+    "guide.microphone_restricted_detail" : {
+      "comment" : "Explains restricted microphone access and optional continuation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone access is restricted by macOS or your administrator. You can skip this step and continue with video."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 的麦克风权限受到系统或管理员限制。你可以跳过此步骤，继续使用视频功能。"
+          }
+        }
+      }
+    },
+    "guide.microphone_settings_detail" : {
+      "comment" : "Explains how to enable a previously denied microphone permission.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In System Settings → Privacy & Security → Microphone, enable FaceNow, then return here."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“系统设置 → 隐私与安全性 → 麦克风”中开启 FaceNow，然后返回此处。"
+          }
+        }
+      }
+    },
+    "guide.microphone_request_detail" : {
+      "comment" : "Explains the explicit microphone permission prompt.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Allow Microphone Access”, then choose Allow in the macOS permission dialog."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击“允许麦克风访问”，然后在 macOS 授权弹窗中选择“允许”。"
+          }
+        }
+      }
+    },
+    "guide.microphone_skip_detail" : {
+      "comment" : "Explains that skipping leaves microphone input off.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip to continue with microphone input off. You can enable it later from the microphone menu."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角“跳过”，可关闭麦克风并继续引导。之后可在麦克风菜单中重新开启。"
+          }
+        }
+      }
+    },
+    "guide.microphone_step_ready" : {
+      "comment" : "Confirms permission without claiming audio capture has started.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone access is ready. Continue setup."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风权限已开启。继续完成设置。"
+          }
+        }
+      }
+    },
+    "guide.skip_microphone" : {
+      "comment" : "Defers optional microphone permission without closing setup.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳过"
+          }
+        }
+      }
+    },
+    "step.state.skipped" : {
+      "comment" : "Identifies an explicitly deferred optional step for accessibility.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "skipped"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已跳过"
+          }
+        }
+      }
+    },
     "action.copy_error_details" : {
       "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
       "extractionState" : "manual",
@@ -332,13 +728,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Camera access is ready. Continue to set up Virtual Camera."
+            "value" : "Camera access is ready. Continue setup."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "摄像头权限已就绪。请继续设置虚拟摄像头。"
+            "value" : "摄像头权限已开启。继续完成设置。"
           }
         }
       }
@@ -710,13 +1106,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Click “Show in Finder” to locate FaceNow. Move it to your Applications folder, then reopen it and try again."
+            "value" : "Click “Show in Finder” to locate the running FaceNow app. Move it to /Applications, quit this copy, then open FaceNow from Applications."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点击“在访达中显示”以找到 FaceNow。将它移至“应用程序”文件夹，然后重新打开并重试。"
+            "value" : "点击“在访达中显示”找到当前运行的 FaceNow。将它移至 /Applications，退出当前 FaceNow，再从“应用程序”中打开。"
           }
         }
       }
@@ -1682,13 +2078,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Virtual Camera is ready. Continue to learn how to use FaceNow in video calls."
+            "value" : "Virtual Camera is ready. Continue setup."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "虚拟摄像头已就绪。请继续了解如何在视频通话中使用 FaceNow。"
+            "value" : "虚拟摄像头已就绪。继续完成设置。"
           }
         }
       }
@@ -2330,13 +2726,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS couldn’t validate the camera extension. If this continues, reinstall the latest signed version of FaceNow."
+            "value" : "FaceNow’s camera component is missing or couldn’t be validated. Reinstall FaceNow, or copy the error details for support."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS 无法验证摄像头扩展。如果仍然失败，请重新安装最新的已签名版 FaceNow。"
+            "value" : "FaceNow 的虚拟摄像头组件缺失或无法验证。请重新安装 FaceNow；也可复制错误详情联系支持。"
           }
         }
       }
@@ -2366,13 +2762,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Move FaceNow to Applications to set up Virtual Camera."
+            "value" : "Move FaceNow to /Applications and open it from there before installing Virtual Camera."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请将 FaceNow 移至“应用程序”文件夹，以设置虚拟摄像头。"
+            "value" : "请将 FaceNow 移至“应用程序”（/Applications），并从那里重新打开后再安装虚拟摄像头。"
           }
         }
       }

@@ -1,6 +1,24 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "status.invalid_camera_bundle": {
+      "comment": "Separates a missing app component from an unsupported installation location.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceNow’s camera component is unavailable. Reinstall FaceNow before continuing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceNow 的虚拟摄像头组件不可用。请重新安装 FaceNow 后继续。"
+          }
+        }
+      }
+    },
     "error.installation_failed": {
       "comment": "Complete display message; preserve the format placeholders.",
       "extractionState": "manual",

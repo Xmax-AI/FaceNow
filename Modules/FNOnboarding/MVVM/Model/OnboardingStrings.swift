@@ -16,6 +16,33 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum OnboardingStrings {
 
+    /// Explains the location prerequisite before offering virtual-camera installation.
+    static var moveApplicationTitle: String {
+        Localization.string(
+            "guide.move_application_title",
+            table: "Onboarding",
+            defaultValue: "Move FaceNow to Applications"
+        )
+    }
+
+    /// Names the recovery for a missing or invalid bundled camera component.
+    static var reinstallApplicationTitle: String {
+        Localization.string(
+            "guide.reinstall_application_title",
+            table: "Onboarding",
+            defaultValue: "Reinstall FaceNow"
+        )
+    }
+
+    /// Distinguishes an unavailable status check from an activation failure.
+    static var noticeCameraStatusCheckFailed: String {
+        Localization.string(
+            "notice.camera_status_check_failed",
+            table: "Onboarding",
+            defaultValue: "Couldn’t check Virtual Camera. Check again, or reopen FaceNow if this continues."
+        )
+    }
+
     /// Opens the guide from any visible camera status banner.
     static var viewAction: String {
         Localization.string(
@@ -115,7 +142,7 @@ enum OnboardingStrings {
             "notice.invalid_camera_bundle",
             table: "Onboarding",
             defaultValue:
-                "macOS couldn’t validate the camera extension. If this continues, reinstall the latest signed version of FaceNow."
+                "FaceNow’s camera component is missing or couldn’t be validated. Reinstall FaceNow, or copy the error details for support."
         )
     }
 
@@ -290,7 +317,7 @@ enum OnboardingStrings {
             "guide.explanation.move_application",
             table: "Onboarding",
             defaultValue:
-                "Click “Show in Finder” to locate FaceNow. Move it to your Applications folder, then reopen it and try again."
+                "Click “Show in Finder” to locate the running FaceNow app. Move it to /Applications, quit this copy, then open FaceNow from Applications."
         )
     }
 
@@ -586,7 +613,7 @@ enum OnboardingStrings {
         Localization.string(
             "notice.move_facenow_to_applications_to_set_up_virtual_camera",
             table: "Onboarding",
-            defaultValue: "Move FaceNow to Applications to set up Virtual Camera."
+            defaultValue: "Move FaceNow to /Applications and open it from there before installing Virtual Camera."
         )
     }
 
@@ -1510,7 +1537,7 @@ enum OnboardingStrings {
         Localization.string(
             "guide.camera_step_ready",
             table: "Onboarding",
-            defaultValue: "Camera access is ready. Continue to set up Virtual Camera."
+            defaultValue: "Camera access is ready. Continue setup."
         )
     }
 
@@ -1519,7 +1546,7 @@ enum OnboardingStrings {
         Localization.string(
             "guide.virtual_camera_step_ready",
             table: "Onboarding",
-            defaultValue: "Virtual Camera is ready. Continue to learn how to use FaceNow in video calls."
+            defaultValue: "Virtual Camera is ready. Continue setup."
         )
     }
 
@@ -1656,6 +1683,177 @@ enum OnboardingStrings {
             table: "Onboarding",
             defaultValue: "Show %@ camera example",
             arguments: [app]
+        )
+    }
+
+    /// Names the optional microphone permission step.
+    static var microphoneAccess: String {
+        Localization.string(
+            "guide.microphone_access",
+            table: "Onboarding",
+            defaultValue: "Microphone Access"
+        )
+    }
+
+    /// Requests system permission without starting audio capture.
+    static var allowMicrophoneAccess: String {
+        Localization.string(
+            "guide.allow_microphone_access",
+            table: "Onboarding",
+            defaultValue: "Allow Microphone Access"
+        )
+    }
+
+    /// Explains optional physical microphone input.
+    static var microphoneIntroduction: String {
+        Localization.string(
+            "guide.microphone_introduction",
+            table: "Onboarding",
+            defaultValue: "Allow FaceNow to capture your voice. You can choose an input device or turn the microphone off at any time."
+        )
+    }
+
+    /// Identifies microphone access restricted by system policy.
+    static var microphoneRestrictedTitle: String {
+        Localization.string(
+            "guide.microphone_restricted_title",
+            table: "Onboarding",
+            defaultValue: "Microphone Access Is Restricted"
+        )
+    }
+
+    /// Explains restricted microphone access and optional continuation.
+    static var microphoneRestrictedDetail: String {
+        Localization.string(
+            "guide.microphone_restricted_detail",
+            table: "Onboarding",
+            defaultValue: "Microphone access is restricted by macOS or your administrator. You can skip this step and continue with video."
+        )
+    }
+
+    /// Explains how to enable a previously denied microphone permission.
+    static var microphoneSettingsDetail: String {
+        Localization.string(
+            "guide.microphone_settings_detail",
+            table: "Onboarding",
+            defaultValue: "In System Settings → Privacy & Security → Microphone, enable FaceNow, then return here."
+        )
+    }
+
+    /// Explains the explicit microphone permission prompt.
+    static var microphoneRequestDetail: String {
+        Localization.string(
+            "guide.microphone_request_detail",
+            table: "Onboarding",
+            defaultValue: "Click “Allow Microphone Access”, then choose Allow in the macOS permission dialog."
+        )
+    }
+
+    /// Explains that skipping leaves microphone input off.
+    static var microphoneSkipDetail: String {
+        Localization.string(
+            "guide.microphone_skip_detail",
+            table: "Onboarding",
+            defaultValue: "Skip to continue with microphone input off. You can enable it later from the microphone menu."
+        )
+    }
+
+    /// Confirms permission without claiming audio capture has started.
+    static var microphoneStepReady: String {
+        Localization.string(
+            "guide.microphone_step_ready",
+            table: "Onboarding",
+            defaultValue: "Microphone access is ready. Continue setup."
+        )
+    }
+
+    /// Defers optional microphone permission without closing setup.
+    static var skipMicrophone: String {
+        Localization.string(
+            "guide.skip_microphone",
+            table: "Onboarding",
+            defaultValue: "Skip"
+        )
+    }
+
+    /// Identifies an explicitly deferred optional step for accessibility.
+    static var skipped: String {
+        Localization.string(
+            "step.state.skipped",
+            table: "Onboarding",
+            defaultValue: "skipped"
+        )
+    }
+
+    /// Names the optional generated-audio output step.
+    static var virtualMicrophone: String {
+        Localization.string(
+            "guide.virtual_microphone",
+            table: "Onboarding",
+            defaultValue: "Virtual Microphone"
+        )
+    }
+
+    /// Introduces explicit installation and enabling of audio output.
+    static var setupVirtualMicrophone: String {
+        Localization.string(
+            "guide.setup_virtual_microphone",
+            table: "Onboarding",
+            defaultValue: "Set Up Virtual Microphone"
+        )
+    }
+
+    /// Explains optional generated-audio routing independently of physical microphone permission.
+    static var virtualMicrophoneIntroduction: String {
+        Localization.string(
+            "guide.virtual_microphone_introduction",
+            table: "Onboarding",
+            defaultValue: "Send generated audio from FaceNow into video calls or live streams. You can skip this step and continue using the camera."
+        )
+    }
+
+    /// Explains enabling an already published virtual input.
+    static var virtualMicrophoneEnableDetail: String {
+        Localization.string(
+            "guide.virtual_microphone_enable_detail",
+            table: "Onboarding",
+            defaultValue: "The device is available. Click Enable to send generated audio to FaceNow - Xmax Virtual Microphone."
+        )
+    }
+
+    /// Confirms device readiness without claiming audio capture or generation has started.
+    static var virtualMicrophoneStepReady: String {
+        Localization.string(
+            "guide.virtual_microphone_step_ready",
+            table: "Onboarding",
+            defaultValue: "Virtual Microphone is enabled. Continue setup."
+        )
+    }
+
+    /// Defers only generated-audio output while retaining camera preparation.
+    static var virtualMicrophoneSkipDetail: String {
+        Localization.string(
+            "guide.virtual_microphone_skip_detail",
+            table: "Onboarding",
+            defaultValue: "Skip to continue with virtual microphone output off. You can enable it later under Virtual Devices."
+        )
+    }
+
+    /// Adds microphone selection only when virtual audio output is enabled.
+    static var videoCallsMicrophoneTitle: String {
+        Localization.string(
+            "guide.video_calls.microphone_title",
+            table: "Onboarding",
+            defaultValue: "Select FaceNow as your microphone"
+        )
+    }
+
+    /// Names the stable virtual audio input to select in calling software.
+    static var videoCallsMicrophoneDetail: String {
+        Localization.string(
+            "guide.video_calls.microphone_detail",
+            table: "Onboarding",
+            defaultValue: "In your calling app’s microphone menu, select “FaceNow - Xmax Virtual Microphone” to use the generated audio."
         )
     }
 

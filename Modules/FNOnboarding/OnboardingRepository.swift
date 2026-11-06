@@ -25,6 +25,12 @@ final class OnboardingRepository: ObservableObject {
     /// The ordered preparation stages, independent of system permission APIs.
     enum Step: Int, CaseIterable {
 
+        /// Offers optional physical microphone access.
+        case microphone
+
+        /// Offers optional generated-audio output through the virtual microphone.
+        case virtualMicrophone
+
         /// Grants physical camera access.
         case camera
 
@@ -38,6 +44,8 @@ final class OnboardingRepository: ObservableObject {
         var title: String {
             switch self {
             case .camera: OnboardingStrings.contentCameraAccess
+            case .microphone: OnboardingStrings.microphoneAccess
+            case .virtualMicrophone: OnboardingStrings.virtualMicrophone
             case .virtualCamera: OnboardingStrings.virtualCamera
             case .videoCalls: OnboardingStrings.contentVideoCalls
             }
@@ -58,10 +66,12 @@ final class OnboardingRepository: ObservableObject {
         processID: Int32 = ProcessInfo.processInfo.processIdentifier
     ) {
         self.processID = processID
+        microphoneSkipped = userDefaults.bool(forKey: "facenow.onboarding.microphoneSkipped.v1")
+        virtualMicrophoneSkipped = userDefaults.bool(forKey: "facenow.onboarding.virtualMicrophoneSkipped.v1")
     }
 
     /// The current preparation stage, retained while the guide is open.
-    @Published private(set) var step = Step.camera
+    @Published private(set) var step = Step.microphone
 
     /// Whether the home coordinator should retain the modal guide.
     @Published private(set) var isPresented = false
@@ -69,11 +79,26 @@ final class OnboardingRepository: ObservableObject {
     /// The latest physical-camera permission and available-device check.
     @Published private(set) var cameraReady = false
 
+    /// Whether the system currently permits physical microphone input.
+    @Published private(set) var microphoneReady = false
+
+    /// Whether optional microphone preparation was explicitly deferred on this Mac.
+    @Published private(set) var microphoneSkipped = false
+
+    /// Whether the virtual microphone is published, enabled, and free of output failures.
+    @Published private(set) var virtualMicrophoneReady = false
+
+    /// Whether generated-audio output was explicitly deferred on this Mac.
+    @Published private(set) var virtualMicrophoneSkipped = false
+
     /// The latest installed-version and output-device check.
     @Published private(set) var virtualCameraReady = false
 
     /// Keeps ready stages visible in order while the complete onboarding interface is being reviewed.
     private var reviewsAllSteps = false
+
+    /// Keeps explicitly requested repair pages focused until the user chooses to continue.
+    private var advancesAutomatically = true
 
     /// The preference written only after the video-call instructions are completed.
     var hasCompletedGuide: Bool { userDefaults.bool(forKey: "facenow.onboarding.completed.v1") }
@@ -104,22 +129,24 @@ final class OnboardingRepository: ObservableObject {
 
     /// The first unmet device requirement, followed by the video-call instructions.
     var firstIncompleteStep: Step {
-        !cameraReady ? .camera : !virtualCameraReady ? .virtualCamera : .videoCalls
+        if !microphoneReady && !microphoneSkipped { return .microphone }
+        if !virtualMicrophoneReady && !virtualMicrophoneSkipped { return .virtualMicrophone }
+        if !cameraReady { return .camera }
+        return !virtualCameraReady ? .virtualCamera : .videoCalls
     }
 
-    /// Opens the first unmet requirement or explicitly reviews every stage from camera access.
+    /// Opens the first unmet requirement or explicitly reviews all five preparation stages.
     func begin(
         at requestedStep: Step? = nil,
         fromFirstStep: Bool = false
     ) {
         reviewsAllSteps = fromFirstStep
-        let requested = fromFirstStep ? .camera : requestedStep ?? firstIncompleteStep
-        if !cameraReady {
-            step = .camera
-        } else if requested == .videoCalls, !virtualCameraReady {
-            step = .virtualCamera
+        advancesAutomatically = !fromFirstStep && (requestedStep == nil || requestedStep == .videoCalls)
+        let requested = fromFirstStep ? .microphone : requestedStep ?? firstIncompleteStep
+        if let requestedStep, requestedStep != .videoCalls, !fromFirstStep {
+            step = requestedStep
         } else {
-            step = requested
+            step = requested.rawValue > firstIncompleteStep.rawValue ? firstIncompleteStep : requested
         }
         isPresented = true
     }
@@ -127,22 +154,44 @@ final class OnboardingRepository: ObservableObject {
     /// Advances newly completed requirements and returns to requirements that become invalid.
     func updateReadiness(
         camera: Bool,
+        microphone: Bool,
+        virtualMicrophone: Bool,
         virtualCamera: Bool,
-        cameraAccessJustGranted: Bool = false
+        cameraAccessJustGranted: Bool = false,
+        microphoneAccessJustGranted: Bool = false
     ) {
         let cameraChanged = cameraReady != camera
+        let microphoneChanged = microphoneReady != microphone
+        let virtualMicrophoneChanged = virtualMicrophoneReady != virtualMicrophone
         let virtualCameraChanged = virtualCameraReady != virtualCamera
         if cameraChanged { cameraReady = camera }
+        if microphoneChanged { microphoneReady = microphone }
+        if virtualMicrophoneChanged { virtualMicrophoneReady = virtualMicrophone }
+        if microphone, microphoneSkipped {
+            microphoneSkipped = false
+            userDefaults.removeObject(forKey: "facenow.onboarding.microphoneSkipped.v1")
+        }
+        if virtualMicrophone, virtualMicrophoneSkipped {
+            virtualMicrophoneSkipped = false
+            userDefaults.removeObject(forKey: "facenow.onboarding.virtualMicrophoneSkipped.v1")
+        }
         if virtualCameraChanged { virtualCameraReady = virtualCamera }
         guard isPresented else { return }
-        if cameraAccessJustGranted, step == .camera {
+        if cameraAccessJustGranted, step == .camera, advancesAutomatically || reviewsAllSteps {
             step = .virtualCamera
-        } else if cameraChanged, !camera {
-            step = .camera
-        } else if virtualCameraChanged, !virtualCamera, step == .videoCalls {
+        } else if microphoneAccessJustGranted, step == .microphone, advancesAutomatically || reviewsAllSteps {
+            step = reviewsAllSteps ? .virtualMicrophone : firstIncompleteStep
+        } else if advancesAutomatically || reviewsAllSteps, firstIncompleteStep.rawValue < step.rawValue,
+            (cameraChanged && !camera)
+                || (microphoneChanged && !microphone && !microphoneSkipped)
+                || (virtualMicrophoneChanged && !virtualMicrophone && !virtualMicrophoneSkipped)
+                || (virtualCameraChanged && !virtualCamera)
+        {
             step = firstIncompleteStep
-        } else if !reviewsAllSteps,
+        } else if advancesAutomatically,
             (cameraChanged && camera && step == .camera)
+                || (microphoneChanged && microphone && step == .microphone)
+                || (virtualMicrophoneChanged && virtualMicrophone && step == .virtualMicrophone)
                 || (virtualCameraChanged && virtualCamera && step == .virtualCamera)
         {
             step = firstIncompleteStep
@@ -156,17 +205,29 @@ final class OnboardingRepository: ObservableObject {
 
     /// Moves forward only after the current device requirement is satisfied.
     func advance() {
-        switch step {
-        case .camera where cameraReady:
-            step = !reviewsAllSteps && virtualCameraReady ? .videoCalls : .virtualCamera
-        case .virtualCamera where cameraReady && virtualCameraReady: step = .videoCalls
-        default: break
-        }
+        guard isSatisfied(step), step != .videoCalls else { return }
+        step = reviewsAllSteps ? Step(rawValue: step.rawValue + 1) ?? .videoCalls : firstIncompleteStep
     }
 
-    /// Records completion only when both devices are ready and the final guide is confirmed.
+    /// Defers optional microphone access while preserving the remaining preparation requirements.
+    func skipMicrophone() {
+        guard isPresented, step == .microphone else { return }
+        microphoneSkipped = true
+        userDefaults.set(true, forKey: "facenow.onboarding.microphoneSkipped.v1")
+        advance()
+    }
+
+    /// Defers generated-audio output independently of physical microphone authorization.
+    func skipVirtualMicrophone() {
+        guard isPresented, step == .virtualMicrophone else { return }
+        virtualMicrophoneSkipped = true
+        userDefaults.set(true, forKey: "facenow.onboarding.virtualMicrophoneSkipped.v1")
+        advance()
+    }
+
+    /// Records completion after required video preparation and both optional audio decisions.
     func complete() {
-        guard isPresented, step == .videoCalls, cameraReady, virtualCameraReady else { return }
+        guard isPresented, step == .videoCalls, firstIncompleteStep == .videoCalls else { return }
         userDefaults.set(true, forKey: "facenow.onboarding.completed.v1")
         dismiss()
     }
@@ -175,6 +236,19 @@ final class OnboardingRepository: ObservableObject {
     func dismiss() {
         guard isPresented else { return }
         isPresented = false
+    }
+
+    /// Keeps real readiness distinct from explicit deferral when navigating optional stages.
+    private func isSatisfied(
+        _ step: Step
+    ) -> Bool {
+        switch step {
+        case .microphone: microphoneReady || microphoneSkipped
+        case .virtualMicrophone: virtualMicrophoneReady || virtualMicrophoneSkipped
+        case .camera: cameraReady
+        case .virtualCamera: virtualCameraReady
+        case .videoCalls: true
+        }
     }
 
     /// The headline above the initial camera stage.

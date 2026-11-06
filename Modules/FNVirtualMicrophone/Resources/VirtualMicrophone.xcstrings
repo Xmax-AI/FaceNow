@@ -1,6 +1,24 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "microphone.installer_unavailable": {
+      "comment": "Reports a missing or unopenable installer without implying generated audio has failed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t open the audio driver installer. Reinstall FaceNow and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法打开音频驱动安装器。请重新安装 FaceNow 后重试。"
+          }
+        }
+      }
+    },
     "microphone.title": {
       "comment": "Virtual microphone setup and output status.",
       "extractionState": "manual",

@@ -152,6 +152,34 @@ struct CameraOperationFailure: Codable, Equatable, Sendable {
 
 }
 
+/// Checks application placement and bundled extension metadata before offering activation.
+enum CameraInstallationPreflight {
+
+    /// Returns a distinct local failure without submitting or changing a system request.
+    static func failure(
+        applicationURL: URL,
+        extensionVersion: String?,
+        operation: CameraOperation = .install
+    ) -> CameraOperationFailure? {
+        let applicationURL = applicationURL.resolvingSymlinksInPath().standardizedFileURL
+        guard applicationURL.path.hasPrefix("/Applications/") else {
+            return CameraOperationFailure(
+                operation: operation,
+                kind: .invalidLocation,
+                diagnosticMessage: "FaceNow must be reopened from /Applications before camera installation. Current path: \(applicationURL.path)"
+            )
+        }
+        guard let extensionVersion, !extensionVersion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return CameraOperationFailure(
+                operation: operation,
+                kind: .invalidBundle,
+                diagnosticMessage: "The bundled virtual camera extension is missing or has no build version."
+            )
+        }
+        return nil
+    }
+}
+
 /// Persists a user-authorized setup across native callbacks, application exits, and system restarts.
 struct CameraSetupWorkflow: Codable, Equatable, Sendable {
 

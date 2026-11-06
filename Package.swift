@@ -78,7 +78,7 @@ let package = Package(
             name: "CameraCoreTests",
             dependencies: ["CameraCore", "FNVirtualCameraCore"],
             path: "Tests",
-            exclude: ["Modules", "Network", "Localization", "Audio", "NativeAudio"]
+            exclude: ["Modules", "Network", "Localization", "Audio", "NativeAudio", "NativeCamera"]
         ),
         .testTarget(
             name: "LocalizationTests",

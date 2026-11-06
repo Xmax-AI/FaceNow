@@ -58,6 +58,14 @@ enum VirtualMicrophoneStrings {
     /// Refreshes device publication without reinstalling or restarting system audio.
     static var checkAgain: String { text("microphone.check_again", "Check Again") }
 
+    /// Reports a missing or unopenable installer without implying generated audio has failed.
+    static var installerUnavailable: String {
+        text(
+            "microphone.installer_unavailable",
+            "Couldn’t open the audio driver installer. Reinstall FaceNow and try again."
+        )
+    }
+
     /// Reports a recoverable audio-output failure.
     static var failed: String {
         text(

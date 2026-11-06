@@ -397,6 +397,24 @@
         }
       }
     },
+    "controls.microphone_permission_required": {
+      "comment": "Shown after an explicit microphone request is denied or restricted.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone access is unavailable. Allow FaceNow to access your microphone in System Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风权限未开启，请在系统设置中允许 FaceNow 访问麦克风。"
+          }
+        }
+      }
+    },
     "controls.monitoring_volume": {
       "comment": "The volume of generated audio played on the local machine.",
       "extractionState": "manual",
@@ -2450,7 +2468,7 @@
       }
     },
     "sync.audio_earlier": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2468,7 +2486,7 @@
       }
     },
     "sync.audio_later": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2486,7 +2504,7 @@
       }
     },
     "sync.automatic_description": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2504,7 +2522,7 @@
       }
     },
     "sync.automatic_title": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2522,7 +2540,7 @@
       }
     },
     "sync.close": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2540,7 +2558,7 @@
       }
     },
     "sync.enabled": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2558,7 +2576,7 @@
       }
     },
     "sync.manual_description": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2576,7 +2594,7 @@
       }
     },
     "sync.manual_title": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2612,7 +2630,7 @@
       }
     },
     "sync.offset_value": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2630,25 +2648,25 @@
       }
     },
     "sync.realtime_hint": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Adjustments take effect immediately"
+            "value": "Adjustments apply to meeting output"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "调整实时生效"
+            "value": "调整实时生效，仅影响会议输出"
           }
         }
       }
     },
     "sync.reset": {
-      "comment": "Audio synchronization settings card; UI-only controls at this stage.",
+      "comment": "Meeting-output audio/video synchronization settings.",
       "extractionState": "manual",
       "localizations": {
         "en": {

@@ -22,12 +22,16 @@ final class GenerationAudioControlsView: Canvas {
     /// The complete row height shared by workspace measurement and native constraints.
     static let preferredHeight = ToolbarControlMetrics.compactHeight + 2 * contentInset
 
+    /// Routes microphone privacy navigation through the owning workspace.
+    var onShowMicrophoneSettings: (() -> Void)?
+
     /// Derives presentation from the shared generation state.
     private let viewModel = GenerationAudioControlsViewModel()
 
     /// Selects physical microphone input through the existing native device list.
     private lazy var microphonePicker: HomeInputPickerView = {
         let view = HomeInputPickerView(input: .microphone, presentation: .toolbar)
+        view.onShowMicrophoneSettings = { [weak self] in self?.onShowMicrophoneSettings?() }
         view.setContentCompressionResistancePriority(.required, for: .horizontal)
         return view
     }()
@@ -77,7 +81,7 @@ final class GenerationAudioControlsView: Canvas {
             make.top.bottom.equalToSuperview().inset(Self.contentInset)
         }
         inputLevel.snp.makeConstraints { make in
-            make.leading.equalTo(microphonePicker.snp.trailing).offset(20)
+            make.leading.equalTo(microphonePicker.snp.trailing).offset(12)
             make.centerY.equalTo(microphonePicker)
             make.height.equalTo(microphonePicker)
             make.width.equalTo(220).priority(490)

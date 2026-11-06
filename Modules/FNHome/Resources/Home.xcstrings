@@ -8,13 +8,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Built for real-world interaction"
+            "value": "Why Xmax?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "让实时互动更流畅"
+            "value": "为什么选择 Xmax？"
           }
         }
       }
@@ -44,13 +44,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Let’s build your next real-time experience."
+            "value": "Tell us about your use case and integration needs."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "一起把你的创意变成实时互动体验。"
+            "value": "聊聊你的应用场景和接入需求。"
           }
         }
       }
@@ -80,13 +80,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Runs on consumer-grade GPUs, with costs several to tens of times lower than alternative solutions."
+            "value": "At a fraction of the price of competing products, it significantly lowers the cost of real-time video generation."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "支持消费级 GPU，降低硬件门槛和运行成本，让大规模部署更容易落地。"
+            "value": "价格仅为竞品的几分之一，大幅降低实时视频生成成本。"
           }
         }
       }
@@ -104,7 +104,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "约 6 美元 / 小时"
+            "value": "20 元 / 小时"
           }
         }
       }
@@ -116,13 +116,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cost Efficiency"
+            "value": "Lowest Price"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "低成本"
+            "value": "同类最低价"
           }
         }
       }
@@ -134,13 +134,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Real-time 1080P output preserves fine details and textures, with greater fidelity to the characters, clothing, and style in your reference images."
+            "value": "Faithfully reproduces the details and textures of characters and clothing, bringing generated results closer to the intended look and style."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清晰呈现人物、服装与纹理细节，更好地还原参考图中的外观和风格。"
+            "value": "高保真还原人物与服装的细节纹理，使生成结果更契合预期的形象与风格。"
           }
         }
       }
@@ -188,13 +188,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "End-to-end latency is measured in hundreds of milliseconds, ensuring that updates to generation conditions and interaction controls are reflected instantly."
+            "value": "Ultra-low end-to-end latency brings movements and effects to the screen in real time, with fast startup and smooth effect switching."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "端到端延迟为百毫秒级，首帧生成与效果切换均可实现秒级响应，响应速度显著优于同类方案。"
+            "value": "极低的端到端延迟，让动作与效果都能实时呈现，带来秒开秒换的流畅体验。"
           }
         }
       }
@@ -206,13 +206,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "~200 ms"
+            "value": "Millisecond Scale"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "约 200 毫秒"
+            "value": "毫秒级延迟"
           }
         }
       }
@@ -242,13 +242,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xmax X2.1 is a world-leading general-purpose model for real-time interaction and video editing. A single model supports character swapping, virtual try-on, free-form editing, touch interaction, and interactions between virtual elements and the physical world. It generates 1080P video with approximately 200 ms of end-to-end latency and runs on consumer-grade GPUs, reducing reliance on costly data center GPUs. At approximately $0.001667 per second (about $6 per hour), X2.1 delivers these capabilities at a fraction of the cost of comparable solutions, making large-scale commercial deployment economically viable."
+            "value": "Xmax X2.1 is the real-time video generation model behind FaceNow and one of the world's leading general-purpose video editing models. It can reshape character appearances, outfits, and visual styles in real time, combining high-fidelity visuals with the fastest response and lowest usage costs in its class to make real-time video applications commercially viable at scale."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xmax X2.1 是一款面向实时互动与视频编辑的模型，支持角色替换、虚拟试穿、风格迁移、触控交互等功能。它可以以比竞品便宜数倍到数十倍的成本生成清晰、流畅的视频，为可商用的实时互动应用提供支持。"
+            "value": "Xmax X2.1 是 FaceNow 背后的实时视频生成模型，也是目前世界领先的通用视频编辑模型。它能够实时重塑视频中的人物形象、服装穿搭与视觉风格，在保持高保真画质的同时，兼具同类最快的响应速度与最低的使用成本，让实时视频应用的规模化商用成为现实。"
           }
         }
       }
@@ -266,7 +266,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "了解 Xmax X2.1"
+            "value": "认识 Xmax X2.1"
           }
         }
       }
@@ -278,13 +278,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FaceNow brings your new look into video meetings, live streams, and more through a virtual camera. The same technology also powers other commercial experiences, including virtual try-on and interactive applications. If you are exploring a business use case, contact us to discuss a solution together. We can help you shape the experience and provide technical support."
+            "value": "Beyond video meetings, Xmax X2.1 can power live streaming, virtual try-on for e-commerce, and other interactive video products. Related applications have received positive feedback at industry showcases and from partners. If you would like to integrate real-time video generation into your own app, contact us to learn about integration options and technical support."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "通过 FaceNow 虚拟摄像头，你可以用全新形象参与视频会议、直播等活动。Xmax X2.1 的能力还可用于虚拟试穿、互动应用等更多场景。如果你正在探索相关产品或商业应用，欢迎联系我们，一起讨论需求和落地方案。我们也可以提供体验设计与技术支持。"
+            "value": "除了视频会议，Xmax X2.1 还可用于直播、电商试穿及其他视频互动产品，相关应用已在行业展示与合作伙伴中获得积极反馈。如果你希望将实时视频生成能力接入自己的应用，欢迎联系我们，了解接入方案与技术支持服务。"
           }
         }
       }
@@ -296,13 +296,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beyond Video Calls"
+            "value": "Bring Real-Time Video to Your App"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "从视频通话，到更多应用场景"
+            "value": "把实时视频生成接入你的应用"
           }
         }
       }

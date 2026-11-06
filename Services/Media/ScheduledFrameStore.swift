@@ -50,7 +50,19 @@ final class ScheduledFrameStore: @unchecked Sendable {
     private let playoutDelay: TimeInterval
 
     /// The maximum number of pending presentation slots retained by one producer.
-    private let capacity = 8
+    private let capacity: Int
+
+    /// The caller's maximum additional video hold, in seconds.
+    private let maximumVideoDelay: TimeInterval
+
+    /// Owns queued pixels when long waits would otherwise retain a producer's scarce pool leases.
+    private let copiesFrames: Bool
+
+    /// The manual video hold, kept separate from the base clock shared with audio.
+    private var videoDelay: TimeInterval = 0
+
+    /// Drops elapsed slots once when reducing the video hold instead of replaying the backlog.
+    private var catchesUp = false
 
     /// The maximum allowed presentation lateness in seconds for a queued frame.
     private let maximumLatency: TimeInterval = 0.15
@@ -92,23 +104,45 @@ final class ScheduledFrameStore: @unchecked Sendable {
     init(
         usesHostTime: Bool = false,
         playoutDelay: TimeInterval = 1.0 / 30,
-        staleInterval: TimeInterval = 2
+        staleInterval: TimeInterval = 2,
+        capacity: Int = 8,
+        maximumVideoDelay: TimeInterval = 0,
+        copiesFrames: Bool = false
     ) {
         self.usesHostTime = usesHostTime
         self.playoutDelay = playoutDelay
         self.staleInterval = staleInterval
+        self.capacity = max(1, capacity)
+        self.maximumVideoDelay = maximumVideoDelay.isFinite ? max(0, maximumVideoDelay) : 0
+        self.copiesFrames = copiesFrames
     }
 
     /// A new producer invalidates every queued frame and the previous timeline.
     func reset(
-        producer: UUID?
+        producer: UUID?,
+        videoDelay: TimeInterval = 0
     ) {
         lock.lock()
         defer { lock.unlock() }
         self.producer = producer
+        self.videoDelay = boundedVideoDelay(videoDelay)
+        catchesUp = false
         clearTimeline()
         displayed = nil
         statistics = FrameQueueStatistics()
+    }
+
+    /// Changes output timing without rebasing the audio clock or accepting a stale session's setting.
+    func setVideoDelay(
+        _ delay: TimeInterval,
+        producer: UUID
+    ) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard self.producer == producer else { return }
+        let value = boundedVideoDelay(delay)
+        if value < videoDelay { catchesUp = true }
+        videoDelay = value
     }
 
     /// Retains frames in timestamp order, rebasing interrupted or discontinuous timelines.
@@ -151,9 +185,13 @@ final class ScheduledFrameStore: @unchecked Sendable {
         }
         lastTimestamp = timestamp
         lastPresentationTime = due
+        guard let retainedPixels = copiesFrames ? copyPixels(pixelBuffer) : pixelBuffer else {
+            statistics.overflow += 1
+            return
+        }
         pending.append(
             ScheduledVideoFrame(
-                pixelBuffer: pixelBuffer,
+                pixelBuffer: retainedPixels,
                 receivedAt: now,
                 presentationTime: due
             )
@@ -165,7 +203,7 @@ final class ScheduledFrameStore: @unchecked Sendable {
         }
     }
 
-    /// Maps audio onto the latest video playout interval without changing the video scheduler.
+    /// Maps audio onto the automatic playout interval, before the independent manual video hold.
     /// Returns nil before video starts, after producer replacement, or across a stale timeline.
     func presentationTime(
         forSourceTimestamp timestamp: TimeInterval,
@@ -189,23 +227,29 @@ final class ScheduledFrameStore: @unchecked Sendable {
         defer { lock.unlock() }
         let previousCount = pending.count
         pending.removeAll {
-            now - $0.receivedAt >= staleInterval || now - $0.presentationTime > maximumLatency
+            now - $0.receivedAt >= staleInterval + videoDelay
+                || now - $0.presentationTime - videoDelay > maximumLatency
         }
         statistics.expired += previousCount - pending.count
         var selectedCount = 0
-        while let first = pending.first, first.presentationTime <= now + 0.0005 {
+        while let first = pending.first, first.presentationTime + videoDelay <= now + 0.0005 {
             displayed = pending.removeFirst()
             selectedCount += 1
-            if !preferLatest { break }
+            if !preferLatest && !catchesUp { break }
         }
+        if selectedCount > 0 { catchesUp = false }
         statistics.superseded += max(0, selectedCount - 1)
         guard let displayed, now >= displayed.receivedAt,
-            now - displayed.receivedAt < staleInterval
+            now - displayed.receivedAt < staleInterval + videoDelay
         else {
             self.displayed = nil
             return nil
         }
-        return displayed
+        return ScheduledVideoFrame(
+            pixelBuffer: displayed.pixelBuffer,
+            receivedAt: displayed.receivedAt,
+            presentationTime: displayed.presentationTime + videoDelay
+        )
     }
 
     /// Reports retained work for diagnostics without exposing queue mutation.
@@ -221,6 +265,59 @@ final class ScheduledFrameStore: @unchecked Sendable {
         defer { lock.unlock() }
         let result = statistics
         statistics = FrameQueueStatistics()
+        return result
+    }
+
+    /// Rejects invalid delays while preserving the configured queue's maximum hold.
+    private func boundedVideoDelay(
+        _ delay: TimeInterval
+    ) -> TimeInterval {
+        delay.isFinite ? min(maximumVideoDelay, max(0, delay)) : 0
+    }
+
+    /// Copies immutable pixels and propagating metadata without retaining external native-resource leases.
+    private func copyPixels(
+        _ source: CVPixelBuffer
+    ) -> CVPixelBuffer? {
+        var result: CVPixelBuffer?
+        guard
+            CVPixelBufferCreate(
+                nil,
+                CVPixelBufferGetWidth(source),
+                CVPixelBufferGetHeight(source),
+                CVPixelBufferGetPixelFormatType(source),
+                [kCVPixelBufferIOSurfacePropertiesKey: [:]] as CFDictionary,
+                &result
+            ) == kCVReturnSuccess, let result
+        else { return nil }
+        guard CVPixelBufferLockBaseAddress(source, .readOnly) == kCVReturnSuccess else { return nil }
+        defer { CVPixelBufferUnlockBaseAddress(source, .readOnly) }
+        guard CVPixelBufferLockBaseAddress(result, []) == kCVReturnSuccess else { return nil }
+        defer { CVPixelBufferUnlockBaseAddress(result, []) }
+        let planeCount = CVPixelBufferGetPlaneCount(source)
+        guard planeCount == CVPixelBufferGetPlaneCount(result) else { return nil }
+        for plane in 0..<max(1, planeCount) {
+            let planar = planeCount > 0
+            let input = planar ? CVPixelBufferGetBaseAddressOfPlane(source, plane) : CVPixelBufferGetBaseAddress(source)
+            let output =
+                planar ? CVPixelBufferGetBaseAddressOfPlane(result, plane) : CVPixelBufferGetBaseAddress(result)
+            guard let input, let output else { return nil }
+            let inputStride =
+                planar
+                ? CVPixelBufferGetBytesPerRowOfPlane(source, plane) : CVPixelBufferGetBytesPerRow(source)
+            let outputStride =
+                planar
+                ? CVPixelBufferGetBytesPerRowOfPlane(result, plane) : CVPixelBufferGetBytesPerRow(result)
+            let height = planar ? CVPixelBufferGetHeightOfPlane(source, plane) : CVPixelBufferGetHeight(source)
+            for row in 0..<height {
+                memcpy(
+                    output.advanced(by: row * outputStride),
+                    input.advanced(by: row * inputStride),
+                    min(inputStride, outputStride)
+                )
+            }
+        }
+        CVBufferPropagateAttachments(source, result)
         return result
     }
 

@@ -16,6 +16,15 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum GenerationStrings {
 
+    /// Explains a denied or restricted microphone permission after an explicit request.
+    static var microphonePermissionRequired: String {
+        Localization.string(
+            "controls.microphone_permission_required",
+            table: "Generation",
+            defaultValue: "Microphone access is unavailable. Allow FaceNow to access your microphone in System Settings."
+        )
+    }
+
     /// Opens the audio and video synchronization settings card.
     static var audioVideoAdjustments: String {
         Localization.string(
@@ -120,7 +129,7 @@ enum GenerationStrings {
         Localization.string(
             "sync.realtime_hint",
             table: "Generation",
-            defaultValue: "Adjustments take effect immediately"
+            defaultValue: "Adjustments apply to meeting output"
         )
     }
 

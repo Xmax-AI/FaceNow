@@ -19,7 +19,12 @@ import os
 final class VirtualCameraOutput: @unchecked Sendable {
 
     /// The timestamped, bounded entry point for generated frames.
-    let frames = ScheduledFrameStore(staleInterval: VirtualCameraConfiguration.staleInterval)
+    let frames = ScheduledFrameStore(
+        staleInterval: VirtualCameraConfiguration.staleInterval,
+        capacity: 320,
+        maximumVideoDelay: 2,
+        copiesFrames: true
+    )
 
     /// The serial transport queue and bounded renderer.
     private let worker = DispatchQueue(

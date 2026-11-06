@@ -112,12 +112,29 @@ final class HomeViewController: NSViewController {
         return view
     }()
 
-    /// The product wordmark displayed in the header.
-    private lazy var logo: NSImageView = {
+    /// Displays the supplied FaceNow brand artwork in the product header.
+    private lazy var logoIcon: NSImageView = {
         let view = NSImageView()
-        view.image = NSImage(named: "XmaxWordmark")
+        view.image = NSImage(named: "FaceNowBrandMark")
         view.imageScaling = .scaleProportionallyUpOrDown
-        view.setAccessibilityLabel("Xmax")
+        view.setAccessibilityElement(false)
+        return view
+    }()
+
+    /// Names the product consistently in both regional editions.
+    private lazy var logoTitle: NSTextField = {
+        let view = NSTextField(labelWithString: "FaceNow")
+        view.font = .systemFont(ofSize: 24, weight: .semibold)
+        view.textColor = Palette.text
+        return view
+    }()
+
+    /// Aligns the FaceNow brand artwork and wordmark on the shared header centerline.
+    private lazy var logo: NSStackView = {
+        let view = NSStackView(views: [logoIcon, logoTitle])
+        view.orientation = .horizontal
+        view.alignment = .centerY
+        view.spacing = 8
         return view
     }()
 
@@ -170,6 +187,7 @@ final class HomeViewController: NSViewController {
         let view = OnboardingLandingView()
         view.onStart = { [weak self] in self?.startCamera() }
         view.onShowCameraSetup = { [weak self] in self?.showOnboarding(at: .camera) }
+        view.onShowMicrophoneSettings = { [weak self] in self?.openMicrophoneSettings() }
         view.onCameraAction = { [weak self] action in self?.performCameraNoticeAction(action) }
         return view
     }()
@@ -177,6 +195,7 @@ final class HomeViewController: NSViewController {
     /// The persistent generation workspace, mounted before camera readiness.
     private lazy var workspace: GenerationWorkspaceView = {
         let view = GenerationWorkspaceView()
+        view.onShowMicrophoneSettings = { [weak self] in self?.openMicrophoneSettings() }
         return view
     }()
 
@@ -491,6 +510,17 @@ final class HomeViewController: NSViewController {
         }
     }
 
+    /// Opens the microphone privacy page after an explicit selector action cannot obtain permission.
+    private func openMicrophoneSettings() {
+        guard !isShuttingDown, !viewModel.needsLogin else { return }
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"),
+            NSWorkspace.shared.open(url)
+        else {
+            generationRepo.showSetupError(GenerationStrings.microphonePermissionRequired)
+            return
+        }
+    }
+
     /// Keeps native navigation and application cleanup outside the notice view and device model.
     private func routeCameraNoticeAction(
         _ action: CameraNoticeAction
@@ -601,6 +631,7 @@ final class HomeViewController: NSViewController {
             dismissesOnBackdropClick: dismissesOnBackdropClick
         )
         page.onDismiss = { [weak self] in self?.dismissOnboarding() }
+        page.onMicrophoneSettings = { [weak self] in self?.openMicrophoneSettings() }
         page.onCameraNavigation = { [weak self] action in
             guard let self, !Task.isCancelled, !self.isShuttingDown, !self.viewModel.needsLogin else { return }
             await self.routeCameraNoticeAction(action)
@@ -802,10 +833,12 @@ final class HomeViewController: NSViewController {
             make.height.equalTo(80)
         }
         logo.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
+            make.leading.equalTo(document.snp.leading).offset(24)
             make.top.equalToSuperview().offset(8)
-            make.height.equalTo(34)
-            make.width.equalTo(logo.snp.height).multipliedBy(552.0 / 172)
+            make.height.equalTo(40)
+        }
+        logoIcon.snp.makeConstraints { make in
+            make.width.height.equalTo(logo.snp.height)
         }
         userView.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
@@ -866,7 +899,8 @@ final class HomeViewController: NSViewController {
         landing.viewportWidth = width
         let landingHeight = landing.preferredHeight(contentWidth: contentWidth)
         let workspaceHeight = workspace.preferredHeight(contentWidth: contentWidth)
-        let logoHeight = min(52, max(34, width * 0.008 + 24))
+        let wordmarkHeight = min(52, max(34, width * 0.008 + 24))
+        let logoHeight = wordmarkHeight + 6
         let headerHeight = max(logoHeight, controlHeight) + 32
         let minimumHeight =
             active
@@ -885,6 +919,7 @@ final class HomeViewController: NSViewController {
         }
         workspace.snp.updateConstraints { make in make.height.equalTo(workspaceHeight).priority(490) }
         logo.snp.updateConstraints { make in make.height.equalTo(logoHeight) }
+        logoTitle.font = .systemFont(ofSize: wordmarkHeight * 0.7, weight: .semibold)
         userView.snp.updateConstraints { make in
             make.trailing.equalToSuperview().offset(active ? -(toolbarWidth + ToolbarControlMetrics.spacing) : 0)
             make.width.equalTo(userWidth)

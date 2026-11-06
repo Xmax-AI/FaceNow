@@ -39,18 +39,27 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
 
     /// Whether the repository currently accepts changes to this input capability.
     private var canSelect: Bool {
-        input == .microphone ? generationRepo.canChangeMicrophone
+        input == .microphone
+            ? generationRepo.canChangeMicrophone
             : !generationRepo.settingsLocked && !generationRepo.isClosing
     }
 
     /// The input capability whose selection and choices this view presents.
     private let input: Input
 
+    /// Hides cached device names until this input has system permission.
+    private var hasInputAccess: Bool {
+        input == .camera
+            ? virtualCameraRepo.canStartSession
+            : generationRepo.microphoneAuthorization == .authorized
+    }
+
     /// The concrete input devices followed by the disabled microphone option.
     private var devices: [GenerationRepository.CaptureDevice] {
+        guard hasInputAccess else { return [] }
         if input == .camera { return generationRepo.cameras }
         return generationRepo.microphones + [
-            .init(id: GenerationRepository.disabledMicrophoneID, name: HomeStrings.microphoneOff),
+            .init(id: GenerationRepository.disabledMicrophoneID, name: HomeStrings.microphoneOff)
         ]
     }
 
@@ -61,6 +70,9 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
 
     /// Opens camera preparation only after the user requests an unavailable selector.
     var onShowCameraSetup: (() -> Void)?
+
+    /// Routes unavailable microphone authorization to the shared home coordinator.
+    var onShowMicrophoneSettings: (() -> Void)?
 
     /// Supplies discovered inputs and their shared selection.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
@@ -74,7 +86,8 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
             style: presentation == .toolbar ? .pill : .plain,
             chevron: true
         )
-        view.font = presentation == .toolbar
+        view.font =
+            presentation == .toolbar
             ? .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold) : Typography.font(size: 13)
         view.leadingPadding = 16
         if presentation == .toolbar {
@@ -108,6 +121,9 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
 
     /// Identifies device-list changes while a popover presents an earlier snapshot.
     private var inputSignature = ""
+
+    /// Keeps permission and device refresh attached to the visible selector's lifetime.
+    private var pickerTask: Task<Void, Never>?
 
     /// Cancels a view-owned selection request when its containing page is removed or hidden.
     private var selectionTask: Task<Void, Never>?
@@ -148,6 +164,7 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
 
     /// Reflects repository selection without retaining independent input state.
     func update() {
+        if input == .microphone { generationRepo.synchronizeMicrophoneAuthorization() }
         let signature = selectedID + devices.map { $0.id + $0.name }.joined()
         if signature != inputSignature {
             inputSignature = signature
@@ -178,7 +195,7 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
                 disabled: selectedID == GenerationRepository.disabledMicrophoneID
             )
         }
-        if !button.isEnabled || (input == .camera && !virtualCameraRepo.canStartSession) { closePicker() }
+        if inputPopover != nil, !button.isEnabled || !hasInputAccess { closePicker() }
     }
 
     /// Opens current input choices, routing missing camera permission through the existing setup flow.
@@ -198,8 +215,32 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
             virtualCameraRepo.prepareCameraInputs()
             generationRepo.refreshCameras()
         } else {
-            generationRepo.refreshMicrophones()
+            guard pickerTask == nil else { return }
+            pickerTask = Task { [weak self] in
+                guard let self else { return }
+                defer {
+                    pickerTask = nil
+                    update()
+                }
+                guard !Task.isCancelled, canSelect, window != nil, !isHiddenOrHasHiddenAncestor else { return }
+                let granted = await generationRepo.requestMicrophoneAccess()
+                guard !Task.isCancelled, canSelect, window != nil, !isHiddenOrHasHiddenAncestor else { return }
+                guard granted else {
+                    onShowMicrophoneSettings?()
+                    return
+                }
+                await generationRepo.refreshMicrophones()?.value
+                guard !Task.isCancelled else { return }
+                presentPicker()
+            }
+            return
         }
+        presentPicker()
+    }
+
+    /// Presents authorized choices only while the selector is still visible and interactive.
+    private func presentPicker() {
+        guard canSelect, hasInputAccess, window != nil, !isHiddenOrHasHiddenAncestor else { return }
         update()
         let content = HomeInputPickerPopoverView(
             devices: devices,
@@ -225,6 +266,7 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
 
     /// Releases the list before the trigger is covered or detached.
     func closePicker() {
+        pickerTask?.cancel()
         inputPopover?.close()
         inputPopover = nil
     }

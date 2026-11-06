@@ -31,6 +31,9 @@ final class OnboardingViewController: NSViewController {
     /// Routes system navigation through the home coordinator while this modal owns cancellation.
     var onCameraNavigation: (@MainActor (CameraNoticeAction) async -> Void)?
 
+    /// Opens microphone privacy settings through the home coordinator.
+    var onMicrophoneSettings: (() -> Void)?
+
     /// The guide content whose callbacks remain bound for its entire presentation.
     private lazy var guide: OnboardingGuideView = {
         let view = OnboardingGuideView()
@@ -38,6 +41,7 @@ final class OnboardingViewController: NSViewController {
         view.onDismiss = { [weak self] in self?.viewModel.onboardingRepo.dismiss() }
         view.onPrevious = { [weak self] in self?.viewModel.onboardingRepo.previous() }
         view.onPrimary = { [weak self] in self?.performPrimaryAction() }
+        view.onSkipAudio = { [weak self] in self?.performPrimaryAction(skippingAudio: true) }
         return view
     }()
 
@@ -88,6 +92,9 @@ final class OnboardingViewController: NSViewController {
             in: &observations
         )
         viewModel.generationRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(
+            in: &observations
+        )
+        viewModel.virtualMicrophoneRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(
             in: &observations
         )
         NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
@@ -159,8 +166,12 @@ final class OnboardingViewController: NSViewController {
     }
 
     /// Owns the explicit action and suppresses navigation after the modal has been dismissed.
-    private func performPrimaryAction() {
-        guard !isStopped, !isDismissing, actionTask == nil, viewModel.primaryEnabled else { return }
+    private func performPrimaryAction(
+        skippingAudio: Bool = false
+    ) {
+        guard !isStopped, !isDismissing, actionTask == nil,
+            skippingAudio ? viewModel.canSkipAudio : viewModel.primaryEnabled
+        else { return }
         let actionID = UUID()
         self.actionID = actionID
         actionTask = Task { @MainActor [weak self] in
@@ -171,11 +182,14 @@ final class OnboardingViewController: NSViewController {
                     self.actionID = nil
                 }
             }
-            let navigation = await self.viewModel.performPrimaryAction()
+            let navigation = await self.viewModel.performPrimaryAction(skippingAudio: skippingAudio)
             guard !Task.isCancelled, !self.isStopped, !self.isDismissing,
                 self.viewModel.onboardingRepo.isPresented, let navigation
             else { return }
-            await self.onCameraNavigation?(navigation)
+            switch navigation {
+            case .camera(let action): await self.onCameraNavigation?(action)
+            case .microphoneSettings: self.onMicrophoneSettings?()
+            }
         }
     }
 

@@ -205,6 +205,15 @@ enum CameraStrings {
         )
     }
 
+    /// Separates a missing app component from an unsupported installation location.
+    static var statusInvalidCameraBundle: String {
+        Localization.string(
+            "status.invalid_camera_bundle",
+            table: "Camera",
+            defaultValue: "FaceNow’s camera component is unavailable. Reinstall FaceNow before continuing."
+        )
+    }
+
     /// Camera preparation status or recovery message.
     static var statusRemovingVirtualCamera: String {
         Localization.string(

@@ -9,17 +9,21 @@
 //
 
 import AppKit
+import Combine
 import SnapKit
 
-/// Presents the audio synchronization design with view-local draft controls only.
+/// Adjusts timestamp-based meeting output while leaving local monitoring silent.
 @MainActor
 final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
 
     /// Dismisses the workspace-owned settings popover.
     var onClose: (() -> Void)?
 
-    /// The draft offset in milliseconds; it is not applied to playback or output.
-    private var offset = 0
+    /// Supplies saved timing and forwards edits to the generation-owned output scheduler.
+    private let viewModel = GenerationAudioControlsViewModel()
+
+    /// Keeps reopened and currently displayed controls aligned with the saved setting.
+    private var offsetObservation: AnyCancellable?
 
     /// Names the settings card.
     private lazy var heading: NSTextField = {
@@ -38,7 +42,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Names automatic synchronization in the reference design.
+    /// Names the automatic timestamp alignment underneath the manual offset.
     private lazy var automaticTitle: NSTextField = {
         let view = Self.label(GenerationStrings.automaticSync, size: 16, weight: .semibold)
         return view
@@ -50,7 +54,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Displays the reference design's automatic synchronization status.
+    /// Displays the active timestamp-alignment status.
     private lazy var enabledLabel: NSTextField = {
         let view = Self.label(GenerationStrings.syncEnabled, size: 12, weight: .semibold)
         view.textColor = NSColor(srgbRed: 0.22, green: 0.65, blue: 0.16, alpha: 1)
@@ -81,12 +85,12 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Edits a draft offset in the temporary minus-500 through plus-500 millisecond range.
+    /// Edits relative meeting-output timing within minus 2000 through plus 2000 milliseconds.
     private lazy var offsetSlider: NSSlider = {
         let view = NSSlider()
         view.cell = GenerationOffsetSliderCell()
-        view.minValue = -500
-        view.maxValue = 500
+        view.minValue = -2000
+        view.maxValue = 2000
         view.doubleValue = 0
         view.isContinuous = true
         view.target = self
@@ -101,7 +105,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Shows the draft offset directly below the slider midpoint.
+    /// Shows the signed offset directly below the slider midpoint.
     private lazy var offsetLabel: NSTextField = {
         let view = Self.label("0 ms", weight: .medium)
         view.alignment = .center
@@ -128,7 +132,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Edits only the local draft and normalizes it when editing ends.
+    /// Allows signed numeric input and normalizes it when editing ends.
     private lazy var offsetInput: NSTextField = {
         let view = NSTextField(string: "0")
         view.font = .systemFont(ofSize: 14)
@@ -148,7 +152,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Restores the local draft offset without invoking media operations.
+    /// Restores automatic alignment by clearing the additional offset.
     private lazy var resetButton: ToolbarButton = {
         let view = ToolbarButton(GenerationStrings.syncReset, style: .pill)
         view.cornerRadius = 7
@@ -158,7 +162,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Retains the reference design's footer copy during the UI-only implementation.
+    /// Explains that live adjustments apply to meeting output.
     private lazy var footer: NSTextField = {
         let view = Self.label(GenerationStrings.syncRealtimeHint, secondary: true)
         return view
@@ -177,6 +181,9 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         inputContainer.addSubview(offsetInput)
         inputContainer.addSubview(unitLabel)
         installConstraints()
+        offsetObservation = viewModel.audioSyncOffsets.removeDuplicates().sink { [weak self] value in
+            self?.displayOffset(value)
+        }
     }
 
     /// Storyboard decoding is unsupported for this native settings card.
@@ -289,36 +296,43 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }
 
-    /// Updates the local draft and keeps its three visible representations aligned.
+    /// Saves a bounded offset and normalizes all three visible representations.
     private func setOffset(
         _ value: Int
     ) {
-        offset = min(500, max(-500, value))
-        offsetSlider.integerValue = offset
-        offsetInput.stringValue = String(offset)
-        offsetLabel.stringValue = GenerationStrings.syncOffsetMilliseconds(value: offset)
+        let offset = min(2000, max(-2000, value))
+        viewModel.setAudioSyncOffset(offset)
+        displayOffset(viewModel.audioSyncOffsetMilliseconds)
+        offsetInput.stringValue = String(viewModel.audioSyncOffsetMilliseconds)
     }
 
-    /// Reflects pointer and keyboard slider edits without scheduling audio changes.
+    /// Reflects saved values without overwriting an in-progress numeric edit.
+    private func displayOffset(
+        _ value: Int
+    ) {
+        offsetSlider.integerValue = value
+        if offsetInput.currentEditor() == nil { offsetInput.stringValue = String(value) }
+        offsetLabel.stringValue = GenerationStrings.syncOffsetMilliseconds(value: value)
+    }
+
+    /// Applies pointer and keyboard slider edits to meeting output.
     @objc private func sliderChanged() {
         setOffset(Int(offsetSlider.doubleValue.rounded()))
     }
 
-    /// Reflects valid numeric drafts while allowing a minus sign during typing.
+    /// Applies valid numeric edits while allowing a minus sign during typing.
     func controlTextDidChange(
         _ notification: Notification
     ) {
-        guard let value = Int(offsetInput.stringValue), (-500...500).contains(value) else { return }
-        offset = value
-        offsetSlider.integerValue = value
-        offsetLabel.stringValue = GenerationStrings.syncOffsetMilliseconds(value: value)
+        guard let value = Int(offsetInput.stringValue), (-2000...2000).contains(value) else { return }
+        viewModel.setAudioSyncOffset(value)
     }
 
-    /// Restores a valid bounded draft when numeric editing completes.
+    /// Restores a valid bounded setting when numeric editing completes.
     func controlTextDidEndEditing(
         _ notification: Notification
     ) {
-        setOffset(Int(offsetInput.stringValue) ?? offset)
+        setOffset(Int(offsetInput.stringValue) ?? viewModel.audioSyncOffsetMilliseconds)
     }
 }
 

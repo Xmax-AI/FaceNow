@@ -72,6 +72,9 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
     private let converter = AudioPCMConverter()
     private var nextPresentationTime: TimeInterval?
 
+    /// The additional playback hold in seconds, independent of automatic timestamp placement.
+    private var playbackDelay: TimeInterval = 0
+
     /// Publishes transport state without invoking UI from the realtime callback.
     var onStatus: (@Sendable (Result<Bool, Error>) -> Void)?
 
@@ -100,13 +103,27 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
 
     /// Updates the generation identity and explicitly invalidates queued audio on the worker.
     func reset(
-        producer: UUID?
+        producer: UUID?,
+        playbackDelay: TimeInterval = 0
     ) {
         worker.async { [self] in
             stopStatistics()
             stopUnit()
             self.producer = producer
+            self.playbackDelay = playbackDelay.isFinite ? min(2, max(0, playbackDelay)) : 0
             prepareOutput()
+        }
+    }
+
+    /// Adjusts the render read position while retaining buffered audio and rejecting old sessions.
+    func setPlaybackDelay(
+        _ delay: TimeInterval,
+        producer: UUID
+    ) {
+        worker.async { [self] in
+            guard self.producer == producer else { return }
+            playbackDelay = delay.isFinite ? min(2, max(0, delay)) : 0
+            AudioTimelineBufferSetPlaybackDelay(ring, playbackDelay)
         }
     }
 
@@ -355,6 +372,7 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
             )
             guard let ring = AudioTimelineBufferCreate(sampleRate) else { throw OutputError.format }
             self.ring = ring
+            AudioTimelineBufferSetPlaybackDelay(ring, playbackDelay)
             var callback = AURenderCallbackStruct(
                 inputProc: AudioTimelineBufferRender,
                 inputProcRefCon: UnsafeMutableRawPointer(ring)

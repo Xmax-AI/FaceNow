@@ -63,11 +63,22 @@ final class CameraStatusViewModel {
                 operation: operation,
                 failure: failure,
                 actionsLocked: generationRepo.settingsLocked || generationRepo.isClosing,
-                surface: surface
+                surface: surface,
+                installationFailure: virtualCameraRepo.installationPreflightFailure
             )
         else { return nil }
         if let operation = presentation.action.operation, !presentation.isLoading {
             presentation.isEnabled = presentation.isEnabled && virtualCameraRepo.canPerform(operation)
+            if scope != .cameraInput, surface == .onboarding, !presentation.isEnabled, virtualCameraRepo.isRefreshing,
+                !generationRepo.settingsLocked, !generationRepo.isClosing
+            {
+                return CameraNoticePresentation(
+                    message: OnboardingStrings.noticeCheckingVirtualCameraStatus,
+                    action: .checkAgain(.checkStatus),
+                    progressTitle: OnboardingStrings.noticeChecking,
+                    isEnabled: false
+                )
+            }
         }
         return presentation
     }
