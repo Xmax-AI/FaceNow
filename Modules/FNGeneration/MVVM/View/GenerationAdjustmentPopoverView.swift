@@ -85,12 +85,12 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Edits relative meeting-output timing within minus 2000 through plus 2000 milliseconds.
+    /// Edits relative meeting-output timing within minus 5000 through plus 5000 milliseconds.
     private lazy var offsetSlider: NSSlider = {
         let view = NSSlider()
         view.cell = GenerationOffsetSliderCell()
-        view.minValue = -2000
-        view.maxValue = 2000
+        view.minValue = -5000
+        view.maxValue = 5000
         view.doubleValue = 0
         view.isContinuous = true
         view.target = self
@@ -300,7 +300,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
     private func setOffset(
         _ value: Int
     ) {
-        let offset = min(2000, max(-2000, value))
+        let offset = min(5000, max(-5000, value))
         viewModel.setAudioSyncOffset(offset)
         displayOffset(viewModel.audioSyncOffsetMilliseconds)
         offsetInput.stringValue = String(viewModel.audioSyncOffsetMilliseconds)
@@ -324,7 +324,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
     func controlTextDidChange(
         _ notification: Notification
     ) {
-        guard let value = Int(offsetInput.stringValue), (-2000...2000).contains(value) else { return }
+        guard let value = Int(offsetInput.stringValue), (-5000...5000).contains(value) else { return }
         viewModel.setAudioSyncOffset(value)
     }
 

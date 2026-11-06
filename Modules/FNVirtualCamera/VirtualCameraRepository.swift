@@ -478,7 +478,7 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
     private var inputAvailability: CameraAvailability {
         guard deviceMonitor.isStarted else { return .checking(.inputDiscovery) }
         let inputs = deviceMonitor.devices.filter {
-            $0.uniqueID.caseInsensitiveCompare(VirtualCameraConfiguration.deviceID.uuidString) != .orderedSame
+            !VirtualCameraConfiguration.isFaceNowCamera($0.uniqueID)
                 && $0.localizedName != VirtualCameraConfiguration.deviceName
         }
         guard !inputs.isEmpty else { return .unavailable(.noInputCamera) }

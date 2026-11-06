@@ -15,7 +15,11 @@ import os
 enum VirtualCameraDiagnostics {
 
     /// The bundled helper executable allowed to perform fresh-process discovery.
-    static let helperName = "FaceNowCameraProbe"
+    #if OVERSEA
+        static let helperName = "FaceNowOverseaCameraProbe"
+    #else
+        static let helperName = "FaceNowCameraProbe"
+    #endif
 
     /// The helper-only argument selecting a single discovery snapshot.
     static let probeArgument = "--camera-discovery-probe"

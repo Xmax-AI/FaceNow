@@ -11,7 +11,7 @@ AudioTimelineBuffer* _Nullable AudioTimelineBufferCreate(double sampleRate);
 void AudioTimelineBufferDestroy(AudioTimelineBuffer* _Nullable buffer);
 /// Invalidates queued samples immediately without reallocating storage.
 void AudioTimelineBufferReset(AudioTimelineBuffer* _Nullable buffer);
-/// Sets an additional 0...2000 ms playback delay without moving queued samples; invalid values select zero.
+/// Sets an additional 0...5000 ms playback delay without moving queued samples; invalid values select zero.
 /// One serialized render callback crossfades delay changes over 20 ms. Direct reads remain unshifted.
 void AudioTimelineBufferSetPlaybackDelay(AudioTimelineBuffer* _Nullable buffer, double seconds);
 /// Stores interleaved stereo at an absolute sample index; frames beyond capacity are rejected.

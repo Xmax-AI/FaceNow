@@ -4,7 +4,7 @@ import Foundation
 
 /// Provides edition-fixed copy for the virtual microphone's explicit setup flow.
 enum VirtualMicrophoneStrings {
-    /// The system device name remains English and identical in both app editions.
+    /// The setup title follows the app edition’s fixed language.
     static var title: String { text("microphone.title", "Virtual Microphone") }
     /// Enables result-audio output.
     static var enable: String { text("microphone.enable", "Enable") }
@@ -19,11 +19,13 @@ enum VirtualMicrophoneStrings {
     static var cancel: String { text("microphone.cancel", "Close") }
     /// Opens the system audio-device utility.
     static var audioSettings: String { text("microphone.settings", "Audio MIDI Setup") }
-    /// Explains routing the generated audio into meeting software.
+    /// Explains routing synchronized audio into meeting software.
     static var instructions: String {
-        text(
+        Localization.format(
             "microphone.instructions",
-            "Sends audio from generated results. In your meeting app, select FaceNow - Xmax Virtual Microphone as the microphone. Local listening volume does not affect this output. If the result contains no audio, the microphone outputs silence."
+            table: "VirtualMicrophone",
+            defaultValue: "In your meeting app, select %1$@ as the microphone to keep audio and video in sync. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.",
+            arguments: [VirtualMicrophoneConfiguration.deviceName]
         )
     }
     /// Describes administrator installation and deferred device loading.
@@ -39,7 +41,7 @@ enum VirtualMicrophoneStrings {
     static var uninstallInstructions: String {
         text(
             "microphone.uninstall_instructions",
-            "Uninstall the FaceNow audio driver? Administrator authorization is required. Restart your Mac after removal to unload the device. This shared driver is used by both FaceNow editions. Other audio drivers will not be changed."
+            "Uninstall the FaceNow audio driver? Administrator authorization is required. Restart your Mac after removal to unload the device. Only this FaceNow edition’s audio driver will be removed. The other edition and other audio drivers will not be changed."
         )
     }
 

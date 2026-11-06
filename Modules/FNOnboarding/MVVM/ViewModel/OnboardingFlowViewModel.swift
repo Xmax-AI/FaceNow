@@ -80,8 +80,7 @@ final class OnboardingFlowViewModel: ObservableObject {
     /// Prevents skipping while permission or input configuration is still being applied.
     var canSkipAudio: Bool {
         guard showsAudioSkip else { return false }
-        return onboardingRepo.step == .virtualMicrophone
-            || (!isRequestingMicrophoneAccess && generationRepo.canChangeMicrophone)
+        return !isRequestingMicrophoneAccess && generationRepo.canChangeMicrophone
     }
 
     /// Requires a published, enabled device; an installed bundle alone is not sufficient.
@@ -89,12 +88,23 @@ final class OnboardingFlowViewModel: ObservableObject {
 
     /// Explains the next explicit audio-output action using the existing device module's state.
     var virtualMicrophoneExplanation: String {
+        if virtualMicrophoneRepo.deviceCheckState == .checking {
+            return OnboardingStrings.virtualMicrophoneCheckingDetail
+        }
+        if virtualMicrophoneRepo.deviceCheckState == .timedOut, !virtualMicrophoneRepo.deviceAvailable {
+            return OnboardingStrings.virtualMicrophoneCheckTimedOutDetail
+        }
+        let checked = virtualMicrophoneRepo.deviceCheckState == .completed
         switch virtualMicrophoneRepo.status {
-        case .notInstalled: VirtualMicrophoneStrings.installInstructions
-        case .pending: VirtualMicrophoneStrings.pendingActivation
-        case .disabled: OnboardingStrings.virtualMicrophoneEnableDetail
-        case .enabled: OnboardingStrings.virtualMicrophoneStepReady
-        case .failed: virtualMicrophoneRepo.failure ?? VirtualMicrophoneStrings.failed
+        case .notInstalled:
+            return checked ? OnboardingStrings.virtualMicrophoneCheckedNotInstalledDetail
+                : OnboardingStrings.virtualMicrophoneInstallDetail
+        case .pending:
+            return checked ? OnboardingStrings.virtualMicrophoneCheckedPendingDetail
+                : OnboardingStrings.virtualMicrophonePendingDetail
+        case .disabled: return OnboardingStrings.virtualMicrophoneEnableDetail(microphone: VirtualMicrophoneConfiguration.deviceName)
+        case .enabled: return OnboardingStrings.virtualMicrophoneStepReady
+        case .failed: return virtualMicrophoneRepo.failure ?? VirtualMicrophoneStrings.failed
         }
     }
 
@@ -203,11 +213,10 @@ final class OnboardingFlowViewModel: ObservableObject {
         case camera(CameraNoticeAction)
         case requestMicrophoneAccess
         case microphoneSettings
-        case skipMicrophone
+        case skipAudio
         case installVirtualMicrophone
         case enableVirtualMicrophone
         case checkVirtualMicrophone
-        case skipVirtualMicrophone
     }
 
     /// Routes native settings navigation back to the home coordinator.
@@ -227,6 +236,14 @@ final class OnboardingFlowViewModel: ObservableObject {
     /// Derives one primary action from shared camera facts and the current guide stage.
     var primaryPresentation: PrimaryPresentation {
         if onboardingRepo.step == .virtualMicrophone {
+            if virtualMicrophoneRepo.deviceCheckState == .checking {
+                return PrimaryPresentation(
+                    title: OnboardingStrings.noticeChecking,
+                    action: nil,
+                    isEnabled: false,
+                    isLoading: true
+                )
+            }
             if virtualMicrophoneReady {
                 return PrimaryPresentation(title: OnboardingStrings.continueAction, action: .advance)
             }
@@ -258,7 +275,7 @@ final class OnboardingFlowViewModel: ObservableObject {
         }
         if onboardingRepo.step == .videoCalls {
             return PrimaryPresentation(
-                title: OnboardingStrings.guideDoneLetSGetStarted,
+                title: OnboardingStrings.finishSetup,
                 action: .complete,
                 isEnabled: onboardingRepo.firstIncompleteStep == .videoCalls
             )
@@ -287,16 +304,6 @@ final class OnboardingFlowViewModel: ObservableObject {
     var primaryEnabled: Bool { primaryPresentation.isEnabled && !primaryPresentation.isLoading }
     var primaryLoading: Bool { primaryPresentation.isLoading }
 
-    /// Offers deferral only while the current device requirement remains incomplete.
-    var showsSetupLater: Bool {
-        switch onboardingRepo.step {
-        case .camera: !cameraReady
-        case .microphone, .virtualMicrophone: false
-        case .virtualCamera: !virtualCameraReady
-        case .videoCalls: false
-        }
-    }
-
     /// A numbered instruction rendered by the guide without interpreting repository flags.
     struct Instruction {
         let title: String
@@ -319,7 +326,7 @@ final class OnboardingFlowViewModel: ObservableObject {
             instructions.append(
                 .init(
                     title: OnboardingStrings.videoCallsMicrophoneTitle,
-                    detail: OnboardingStrings.videoCallsMicrophoneDetail
+                    detail: OnboardingStrings.videoCallsMicrophoneDetail(microphone: VirtualMicrophoneConfiguration.deviceName)
                 )
             )
         }
@@ -332,6 +339,17 @@ final class OnboardingFlowViewModel: ObservableObject {
         return instructions
     }
 
+    /// Replaces setup illustrations once the current device requirement is satisfied.
+    var isPreparationComplete: Bool {
+        switch onboardingRepo.step {
+        case .microphone: onboardingRepo.microphoneReady
+        case .virtualMicrophone: virtualMicrophoneReady
+        case .camera: cameraReady
+        case .virtualCamera: virtualCameraReady
+        case .videoCalls: false
+        }
+    }
+
     /// Keeps supporting instructions aligned with the exact command shown in the footer.
     var preparationInstructions: [Instruction] {
         if onboardingRepo.step == .virtualMicrophone {
@@ -340,7 +358,6 @@ final class OnboardingFlowViewModel: ObservableObject {
             }
             return [
                 .init(title: primaryTitle, detail: virtualMicrophoneExplanation),
-                .init(title: OnboardingStrings.skipMicrophone, detail: OnboardingStrings.virtualMicrophoneSkipDetail),
             ]
         }
         if onboardingRepo.step == .microphone {
@@ -353,7 +370,6 @@ final class OnboardingFlowViewModel: ObservableObject {
                         ? OnboardingStrings.noticeOpenSystemSettings : OnboardingStrings.allowMicrophoneAccess,
                     detail: microphonePermissionDetail
                 ),
-                .init(title: OnboardingStrings.skipMicrophone, detail: OnboardingStrings.microphoneSkipDetail),
             ]
         }
         let notice = cameraNotice
@@ -465,7 +481,7 @@ final class OnboardingFlowViewModel: ObservableObject {
         if onboardingRepo.step == .virtualMicrophone { return virtualMicrophoneExplanation }
         if onboardingRepo.step == .microphone {
             if onboardingRepo.microphoneReady { return OnboardingStrings.microphoneStepReady }
-            return microphonePermissionDetail + "\n\n" + OnboardingStrings.microphoneSkipDetail
+            return microphonePermissionDetail
         }
         guard let notice = cameraNotice else {
             if virtualCameraRepo.readiness(for: preparationScope).isReady {
@@ -572,7 +588,7 @@ final class OnboardingFlowViewModel: ObservableObject {
     ) async -> Navigation? {
         let requestedStep = onboardingRepo.step
         let requestedAction: PrimaryAction? = skippingAudio
-            ? (requestedStep == .virtualMicrophone ? .skipVirtualMicrophone : .skipMicrophone)
+            ? .skipAudio
             : primaryPresentation.action
         synchronize()
         guard onboardingRepo.isPresented, onboardingRepo.step == requestedStep,
@@ -592,12 +608,13 @@ final class OnboardingFlowViewModel: ObservableObject {
             synchronize()
         case .microphoneSettings:
             return .microphoneSettings
-        case .skipMicrophone:
+        case .skipAudio:
             await generationRepo.selectMicrophone(GenerationRepository.disabledMicrophoneID)
             guard !Task.isCancelled, onboardingRepo.isPresented, onboardingRepo.step == requestedStep,
                 generationRepo.microphoneID == GenerationRepository.disabledMicrophoneID
             else { return nil }
-            onboardingRepo.skipMicrophone()
+            virtualMicrophoneRepo.setEnabled(false)
+            onboardingRepo.skipAudio()
         case .installVirtualMicrophone:
             virtualMicrophoneRepo.clearFailure()
             virtualMicrophoneRepo.installDriver()
@@ -607,10 +624,7 @@ final class OnboardingFlowViewModel: ObservableObject {
             synchronize()
         case .checkVirtualMicrophone:
             virtualMicrophoneRepo.clearFailure()
-            virtualMicrophoneRepo.refreshDeviceAvailability()
-        case .skipVirtualMicrophone:
-            virtualMicrophoneRepo.setEnabled(false)
-            onboardingRepo.skipVirtualMicrophone()
+            virtualMicrophoneRepo.checkDeviceAvailability()
         case .camera(let command):
             let navigation = await cameraStatusModel.perform(
                 command,

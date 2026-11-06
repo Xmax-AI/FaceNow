@@ -1,6 +1,186 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "guide.virtual_microphone_checking_detail": {
+      "comment": "Describes an explicit in-progress microphone device query.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking Virtual Microphone. Please wait..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检测虚拟麦克风，请稍候…"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_checked_pending_detail": {
+      "comment": "Confirms that a completed query still found no published device.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check complete. macOS still has not detected Virtual Microphone. The driver is installed. Restart your Mac and check again, or set up audio later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测完成，系统仍未识别到虚拟麦克风。驱动已安装，请重启 Mac 后再检测；也可以先跳过音频设置。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_checked_not_installed_detail": {
+      "comment": "Distinguishes a completed negative installation check from an in-progress query.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check complete. The Virtual Microphone driver was not found. Install it first, or set up audio later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测完成，尚未找到虚拟麦克风驱动。请先安装，或选择“稍后设置音频”。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_check_timed_out_detail": {
+      "comment": "Offers retry or deferral when system discovery takes too long.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The check timed out, so Virtual Microphone status could not be confirmed. Check again, or set up audio later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测超时，暂时无法确认虚拟麦克风状态。你可以重新检测，或稍后设置音频。"
+          }
+        }
+      }
+    },
+    "guide.microphone_permission_prompt": {
+      "comment": "Describes the supplied microphone-access prompt to assistive technologies.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone permission dialog. Choose Allow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风权限弹窗。请选择“允许”。"
+          }
+        }
+      }
+    },
+    "guide.audio_setup": {
+      "comment": "Groups optional microphone permission and synchronized audio output.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio Setup (Optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音频设置（可选）"
+          }
+        }
+      }
+    },
+    "guide.skip_audio_setup": {
+      "comment": "Defers the complete audio setup without leaving the video preparation flow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Up Audio Later"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍后设置音频"
+          }
+        }
+      }
+    },
+    "guide.finish_setup": {
+      "comment": "Finishes preparation without implying that camera capture has already started.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish Setup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成设置"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_install_detail": {
+      "comment": "Explains administrator installation while allowing video use before audio is ready.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install the FaceNow audio driver with the macOS installer. Administrator authorization is required. If the device has not appeared after installation, you can use video first and restart your Mac later to finish audio setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 macOS 安装器安装 FaceNow 音频驱动，需要管理员授权。如果安装后设备尚未出现，可以先使用视频功能，稍后重启 Mac 完成音频设置。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_pending_detail": {
+      "comment": "Keeps a deferred audio-driver restart from interrupting video preparation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Virtual Microphone driver is installed but not active yet. You can use video first and restart your Mac later to finish audio setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟麦克风驱动已安装，但尚未生效。你可以先使用视频功能，稍后重启 Mac 完成音频设置。"
+          }
+        }
+      }
+    },
     "notice.camera_status_check_failed" : {
       "comment" : "Distinguishes an unavailable status check from an activation failure.",
       "extractionState" : "manual",
@@ -92,19 +272,19 @@
       }
     },
     "guide.virtual_microphone_introduction" : {
-      "comment" : "Explains optional generated-audio routing independently of physical microphone permission.",
+      "comment" : "Explains optional synchronized audio output for video calls.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Send generated audio from FaceNow into video calls or live streams. You can skip this step and continue using the camera."
+            "value" : "Enable Virtual Microphone to keep audio and video in sync during video calls. You can skip this step and set it up later."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "将 FaceNow 生成的声音带入视频通话或直播。你可以跳过此步骤，继续使用摄像头。"
+            "value" : "开启虚拟麦克风，让视频通话的声音与画面保持同步。你也可以跳过，稍后再设置。"
           }
         }
       }
@@ -116,13 +296,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The device is available. Click Enable to send generated audio to FaceNow - Xmax Virtual Microphone."
+            "value" : "The device is available. Click Enable to output synchronized audio through %1$@."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "设备已可用。点击“启用”，将生成的声音输出到 FaceNow - Xmax Virtual Microphone。"
+            "value" : "设备已可用。点击“启用”，通过 %1$@ 输出与画面同步的声音。"
           }
         }
       }
@@ -141,24 +321,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "虚拟麦克风已启用。继续完成设置。"
-          }
-        }
-      }
-    },
-    "guide.virtual_microphone_skip_detail" : {
-      "comment" : "Defers only generated-audio output while retaining camera preparation.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip to continue with virtual microphone output off. You can enable it later under Virtual Devices."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "点击右下角“跳过”，可关闭虚拟麦克风输出并继续引导。之后可在“虚拟设备”中设置。"
           }
         }
       }
@@ -188,13 +350,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In your calling app’s microphone menu, select “FaceNow - Xmax Virtual Microphone” to use the generated audio."
+            "value" : "In your calling app’s microphone menu, select “%1$@” to keep audio in sync with your FaceNow video."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在视频通话应用的麦克风菜单中选择“FaceNow - Xmax Virtual Microphone”，使用生成后的声音。"
+            "value" : "在视频通话应用的麦克风菜单中选择“%1$@”，让声音与 FaceNow 画面保持同步。"
           }
         }
       }
@@ -314,31 +476,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Click “Allow Microphone Access”, then choose Allow in the macOS permission dialog."
+            "value" : "Click “Allow Microphone Access”, then choose Allow in the permission dialog."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点击“允许麦克风访问”，然后在 macOS 授权弹窗中选择“允许”。"
-          }
-        }
-      }
-    },
-    "guide.microphone_skip_detail" : {
-      "comment" : "Explains that skipping leaves microphone input off.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip to continue with microphone input off. You can enable it later from the microphone menu."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "点击右下角“跳过”，可关闭麦克风并继续引导。之后可在麦克风菜单中重新开启。"
+            "value" : "点击“允许麦克风访问”，然后在权限弹窗中选择“允许”。"
           }
         }
       }
@@ -357,24 +501,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "麦克风权限已开启。继续完成设置。"
-          }
-        }
-      }
-    },
-    "guide.skip_microphone" : {
-      "comment" : "Defers optional microphone permission without closing setup.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "跳过"
           }
         }
       }
@@ -764,13 +890,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose Allow in the macOS permission dialog."
+            "value" : "Choose Allow in the permission dialog."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 macOS 权限弹窗中选择“允许”。"
+            "value" : "在权限弹窗中选择“允许”。"
           }
         }
       }
@@ -897,24 +1023,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "关闭设置指南"
-          }
-        }
-      }
-    },
-    "guide.done_let_s_get_started" : {
-      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingFlowViewModel.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done, Let's Get Started"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成，开始使用"
           }
         }
       }
@@ -1178,13 +1286,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Click “Allow Camera Access” in the bottom-right corner, then choose Allow in the macOS permission dialog."
+            "value" : "Click “Allow Camera Access” in the bottom-right corner, then choose Allow in the permission dialog."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点击右下角的“允许使用摄像头”，然后在 macOS 权限弹窗中选择“允许”。"
+            "value" : "点击右下角的“允许使用摄像头”，然后在权限弹窗中选择“允许”。"
           }
         }
       }
@@ -1304,13 +1412,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "FaceNow turns your movements into your chosen look, in real-time."
+            "value" : "FaceNow uses your camera feed as input for real-time generation, mapping your expressions and movements to your selected appearance."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "FaceNow 将你的动作实时呈现在所选形象上。"
+            "value" : "FaceNow 使用摄像头画面作为实时生成的输入，将你的表情和动作同步到所选形象。"
           }
         }
       }
@@ -1743,24 +1851,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择 FaceNow 摄像头"
-          }
-        }
-      }
-    },
-    "guide.set_up_later" : {
-      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Setup Later"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "稍后设置"
           }
         }
       }
@@ -2294,13 +2384,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Allow camera access in the macOS permission dialog."
+            "value" : "Allow camera access in the permission dialog."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请在 macOS 权限弹窗中允许访问摄像头。"
+            "value" : "请在权限弹窗中允许访问摄像头。"
           }
         }
       }

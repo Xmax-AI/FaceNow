@@ -85,7 +85,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     /// The queue-confined renderer normalizing output to the shared camera format.
     private let renderer: VideoFrameRenderer
 
-    /// The cached neutral frame used when a producer is absent or its input expires.
+    /// The cached offline artwork used when a producer is absent or its input expires.
     private let waitingBuffer: CVPixelBuffer
 
     /// The output clock runs while a producer or consumer is active.
@@ -142,7 +142,10 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
         queue: DispatchQueue
     ) throws {
         self.queue = queue
-        renderer = try VideoFrameRenderer(format: VirtualCameraConfiguration.videoFormat)
+        renderer = try VideoFrameRenderer(
+            format: VirtualCameraConfiguration.videoFormat,
+            waitingArtwork: VirtualCameraConfiguration.waitingArtwork
+        )
         waitingBuffer = try renderer.waiting()
         super.init()
         device = CMIOExtensionDevice(

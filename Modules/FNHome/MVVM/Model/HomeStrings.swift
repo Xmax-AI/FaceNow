@@ -106,6 +106,24 @@ enum HomeStrings {
         )
     }
 
+    /// Opens the camera-permission guide before displaying device choices.
+    static var authorizeCamera: String {
+        Localization.string(
+            "home.authorize_camera",
+            table: "Home",
+            defaultValue: "Allow Camera Access"
+        )
+    }
+
+    /// Opens the microphone-permission guide before displaying device choices.
+    static var authorizeMicrophone: String {
+        Localization.string(
+            "home.authorize_microphone",
+            table: "Home",
+            defaultValue: "Allow Microphone Access"
+        )
+    }
+
     /// The input option disabling audio capture and permission requests.
     static var microphoneOff: String {
         Localization.string(

@@ -34,7 +34,7 @@ final class GenerationAudioControlsViewModel {
         generationRepo.sessionActive && !generationRepo.isClosing
     }
 
-    /// The saved meeting-output offset, in milliseconds within minus 2000 through plus 2000.
+    /// The saved meeting-output offset, in milliseconds within minus 5000 through plus 5000.
     var audioSyncOffsetMilliseconds: Int { generationRepo.audioSyncOffsetMilliseconds }
 
     /// Keeps an open adjustment card synchronized with repository-owned settings.

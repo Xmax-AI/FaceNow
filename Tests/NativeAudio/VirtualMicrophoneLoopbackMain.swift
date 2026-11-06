@@ -1,4 +1,5 @@
 import AVFoundation
+import CoreAudio
 import CoreVideo
 import Foundation
 
@@ -35,6 +36,7 @@ struct VirtualMicrophoneLoopbackMain {
     }
 
     private static func verify() async throws {
+        try verifyInputOnlyDevice()
         let probe = MicrophoneReadProbeStart()
         var reading = true
         defer { if reading { _ = MicrophoneReadProbeFinish(probe) } }
@@ -128,6 +130,9 @@ struct VirtualMicrophoneLoopbackMain {
         }
         let report: [String: Any] = [
             "deviceUID": VirtualMicrophoneOutput.deviceUID,
+            "writerDeviceUID": VirtualMicrophoneOutput.writerDeviceUID,
+            "publicDeviceHasNoOutputStreams": true,
+            "writerExcludedFromNormalDeviceList": true,
             "preparedBeforeFirstPCM": true,
             "clock": "production ScheduledFrameStore",
             "source": "synthetic 440 Hz PCM; no cloud generation or physical microphone capture",
@@ -142,6 +147,44 @@ struct VirtualMicrophoneLoopbackMain {
         let data = try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys])
         FileHandle.standardOutput.write(data)
         FileHandle.standardOutput.write(Data("\n".utf8))
+    }
+
+    /// Requires the upgraded topology before sending any synthetic audio through the system.
+    private static func verifyInputOnlyDevice() throws {
+        guard let microphone = VirtualMicrophoneOutput.installedDevice(),
+            let writer = VirtualMicrophoneOutput.installedWriterDevice(), writer != microphone
+        else { throw failure("Install and reload the input-only microphone driver before running this probe.") }
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyStreams,
+            mScope: kAudioObjectPropertyScopeOutput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var size: UInt32 = 0
+        guard AudioObjectGetPropertyDataSize(microphone, &address, 0, nil, &size) == noErr, size == 0 else {
+            throw failure("The public microphone still exposes speaker output streams.")
+        }
+        address.mSelector = kAudioDevicePropertyIsHidden
+        address.mScope = kAudioObjectPropertyScopeGlobal
+        var hidden: UInt32 = 0
+        size = UInt32(MemoryLayout<UInt32>.size)
+        guard AudioObjectGetPropertyData(writer, &address, 0, nil, &size, &hidden) == noErr, hidden == 1 else {
+            throw failure("The internal writer is not marked as hidden.")
+        }
+        address.mSelector = kAudioHardwarePropertyDevices
+        size = 0
+        guard AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size) == noErr,
+            size >= MemoryLayout<AudioDeviceID>.size
+        else {
+            throw failure("Could not read the normal device list.")
+        }
+        var devices = [AudioDeviceID](repeating: 0, count: Int(size) / MemoryLayout<AudioDeviceID>.size)
+        let status = devices.withUnsafeMutableBytes { buffer -> OSStatus in
+            guard let storage = buffer.baseAddress else { return kAudioHardwareBadPropertySizeError }
+            return AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, storage)
+        }
+        guard status == noErr, devices.contains(microphone), !devices.contains(writer) else {
+            throw failure("The microphone must be listed while its writer remains hidden.")
+        }
     }
 
     private static func failure(_ message: String) -> NSError {

@@ -21,6 +21,7 @@ A minimal user-space driver.
 #include <mach/mach_time.h>
 #include <pthread.h>
 #include <stdint.h>
+#include <string.h>
 #include <sys/syslog.h>
 
 //==================================================================================================
@@ -83,12 +84,12 @@ A minimal user-space driver.
 //	- a plug-in
 //		- custom property with the selector kPlugIn_CustomPropertyID = 'PCst'
 //	- a box
-//	- a device
+//	- a public input device and a hidden output device sharing one clock
 //		- supports 44100 and 48000 sample rates
 //		- provides a rate scalar of 1.0 via hard coding
 //	- a single input stream
 //		- supports 2 channels of 32 bit float LPCM samples
-//		- always produces zeros 
+//		- reads generated audio from the shared ring
 //	- a single output stream
 //		- supports 2 channels of 32 bit float LPCM samples
 //		- audio is looped back into the input stream with a 512-frame delay
@@ -122,31 +123,105 @@ enum
 	kObjectID_Volume_Output_Master		= 9,
 	kObjectID_Mute_Output_Master		= 10,
 	kObjectID_DataSource_Output_Master	= 11,
-	kObjectID_DataDestination_PlayThru_Master	= 12
+	kObjectID_DataDestination_PlayThru_Master	= 12,
+    kObjectID_Device_Writer = 13
 };
 
+// The public device owns only input. Its separate output device is discoverable by UID only.
+static Boolean FaceNowMicrophone_IsDevice(AudioObjectID object)
+{
+    return object == kObjectID_Device || object == kObjectID_Device_Writer;
+}
+
+static AudioObjectID FaceNowMicrophone_DeviceForObject(AudioObjectID object)
+{
+    return object >= kObjectID_Stream_Output && object <= kObjectID_DataDestination_PlayThru_Master
+        ? kObjectID_Device_Writer : kObjectID_Device;
+}
+
+static Boolean FaceNowMicrophone_SupportsScope(AudioObjectID device, AudioObjectPropertyScope scope)
+{
+    return scope == kAudioObjectPropertyScopeGlobal
+        || scope == (device == kObjectID_Device ? kAudioObjectPropertyScopeInput : kAudioObjectPropertyScopeOutput);
+}
+
+// Property sizes and payloads use the same lists so a hidden endpoint cannot leak into the public device.
+static UInt32 FaceNowMicrophone_DeviceObjects(AudioObjectID device, const AudioObjectPropertyAddress* address,
+                                             const AudioObjectID** objects)
+{
+    static const AudioObjectID input[] = {
+        kObjectID_Stream_Input, kObjectID_Volume_Input_Master, kObjectID_Mute_Input_Master, kObjectID_DataSource_Input_Master
+    };
+    static const AudioObjectID output[] = {
+        kObjectID_Stream_Output, kObjectID_Volume_Output_Master, kObjectID_Mute_Output_Master,
+        kObjectID_DataSource_Output_Master, kObjectID_DataDestination_PlayThru_Master
+    };
+    *objects = device == kObjectID_Device ? input : output;
+    if (!FaceNowMicrophone_SupportsScope(device, address->mScope)) return 0;
+    if (address->mSelector == kAudioDevicePropertyStreams) return 1;
+    UInt32 count = device == kObjectID_Device ? 4 : 5;
+    if (address->mSelector == kAudioObjectPropertyControlList) { *objects += 1; count -= 1; }
+    return count;
+}
+
+static UInt32 FaceNowMicrophone_CopyObjects(const AudioObjectID* objects, UInt32 count, UInt32 capacity, void* output)
+{
+    UInt32 written = capacity / sizeof(AudioObjectID);
+    if (written > count) written = count;
+    if (written > 0) memcpy(output, objects, written * sizeof(AudioObjectID));
+    return written * sizeof(AudioObjectID);
+}
+
 //	Declare the stuff that tracks the state of the plug-in, the device and its sub-objects.
-//	Note that we use global variables here because this driver only ever has a single device. If
-//	multiple devices were supported, this state would need to be encapsulated in one or more structs
-//	so that each object's state can be tracked individually.
+// The input and hidden writer deliberately share one sample clock and timestamp-tagged ring.
+// Per-endpoint IO counters keep an idle writer distinct from an active meeting reader.
 //	Note also that we share a single mutex across all objects to be thread safe for the same reason.
 static AudioTimelineBuffer* gLoopback = NULL;
 
-#define										kPlugIn_BundleID				"com.xmax.facenow.microphone.driver"
+// Build-time identities keep independently installed editions from publishing the same devices.
+#ifndef FACENOW_DRIVER_BUNDLE_ID
+#define FACENOW_DRIVER_BUNDLE_ID "com.xmax.facenow.microphone.driver"
+#endif
+#ifndef FACENOW_BOX_UID
+#define FACENOW_BOX_UID "com.xmax.facenow.microphone.box"
+#endif
+#ifndef FACENOW_DEVICE_UID
+#define FACENOW_DEVICE_UID "com.xmax.facenow.microphone.device"
+#endif
+#ifndef FACENOW_WRITER_UID
+#define FACENOW_WRITER_UID "com.xmax.facenow.microphone.writer"
+#endif
+#ifndef FACENOW_MODEL_UID
+#define FACENOW_MODEL_UID "com.xmax.facenow.microphone.model"
+#endif
+#ifndef FACENOW_MICROPHONE_NAME
+#define FACENOW_MICROPHONE_NAME "FaceNow 虚拟麦克风"
+#endif
+#ifndef FACENOW_SPEAKER_NAME
+#define FACENOW_SPEAKER_NAME "FaceNow 虚拟扬声器"
+#endif
+#ifndef FACENOW_FACTORY_FUNCTION
+#define FACENOW_FACTORY_FUNCTION FaceNowMicrophone_Create
+#endif
+
+#define										kPlugIn_BundleID				FACENOW_DRIVER_BUNDLE_ID
 static pthread_mutex_t						gPlugIn_StateMutex				= PTHREAD_MUTEX_INITIALIZER;
 static UInt32								gPlugIn_RefCount				= 0;
 static AudioServerPlugInHostRef				gPlugIn_Host					= NULL;
 static const AudioObjectPropertySelector	kPlugIn_CustomPropertyID		= 'PCst';
 
-#define										kBox_UID						"com.xmax.facenow.microphone.box"
+#define										kBox_UID						FACENOW_BOX_UID
 static CFStringRef							gBox_Name						= NULL;
 static Boolean								gBox_Acquired					= true;
 
-#define										kDevice_UID						"com.xmax.facenow.microphone.device"
-#define										kDevice_ModelUID				"com.xmax.facenow.microphone.model"
+#define										kDevice_UID						FACENOW_DEVICE_UID
+#define kWriter_UID FACENOW_WRITER_UID
+#define										kDevice_ModelUID				FACENOW_MODEL_UID
 static pthread_mutex_t						gDevice_IOMutex					= PTHREAD_MUTEX_INITIALIZER;
 static Float64								gDevice_SampleRate				= 48000.0;
 static UInt64								gDevice_IOIsRunning				= 0;
+static UInt64 gInput_IOIsRunning = 0;
+static UInt64 gWriter_IOIsRunning = 0;
 static const UInt32							kDevice_RingBufferSize			= 16384;
 static Float64								gDevice_HostTicksPerFrame		= 0.0;
 static UInt64								gDevice_NumberTimeStamps		= 0;
@@ -178,7 +253,7 @@ static UInt32								gDataDestination_PlayThru_Master_Value	= 0;
 #pragma mark Prototypes
 
 //	Entry points for the COM methods
-void*				FaceNowMicrophone_Create(CFAllocatorRef inAllocator, CFUUIDRef inRequestedTypeUUID);
+void*				FACENOW_FACTORY_FUNCTION(CFAllocatorRef inAllocator, CFUUIDRef inRequestedTypeUUID);
 static HRESULT		FaceNowMicrophone_QueryInterface(void* inDriver, REFIID inUUID, LPVOID* outInterface);
 static ULONG		FaceNowMicrophone_AddRef(void* inDriver);
 static ULONG		FaceNowMicrophone_Release(void* inDriver);
@@ -266,7 +341,7 @@ static AudioServerPlugInDriverRef			gAudioServerPlugInDriverRef				= &gAudioServ
 
 #pragma mark Factory
 
-void*	FaceNowMicrophone_Create(CFAllocatorRef inAllocator, CFUUIDRef inRequestedTypeUUID)
+void*	FACENOW_FACTORY_FUNCTION(CFAllocatorRef inAllocator, CFUUIDRef inRequestedTypeUUID)
 {
 	//	This is the CFPlugIn factory function. Its job is to create the implementation for the given
 	//	type provided that the type is supported. Because this driver is simple and all its
@@ -497,7 +572,7 @@ static OSStatus	FaceNowMicrophone_AddDeviceClient(AudioServerPlugInDriverRef inD
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_AddDeviceClient: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_AddDeviceClient: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_AddDeviceClient: bad device ID");
 
 Done:
 	return theAnswer;
@@ -516,7 +591,7 @@ static OSStatus	FaceNowMicrophone_RemoveDeviceClient(AudioServerPlugInDriverRef 
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_RemoveDeviceClient: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_RemoveDeviceClient: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_RemoveDeviceClient: bad device ID");
 
 Done:
 	return theAnswer;
@@ -545,12 +620,22 @@ static OSStatus	FaceNowMicrophone_PerformDeviceConfigurationChange(AudioServerPl
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_PerformDeviceConfigurationChange: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_PerformDeviceConfigurationChange: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_PerformDeviceConfigurationChange: bad device ID");
 	FailWithAction((inChangeAction != 44100) && (inChangeAction != 48000), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_PerformDeviceConfigurationChange: bad sample rate");
 	
 	//	lock the state mutex
 	pthread_mutex_lock(&gPlugIn_StateMutex);
 	
+	// Both endpoints share one clock. Refuse to change it while the other endpoint is still in use.
+    if (gDevice_SampleRate == inChangeAction) {
+        pthread_mutex_unlock(&gPlugIn_StateMutex);
+        return noErr;
+    }
+    if (gDevice_IOIsRunning > 0) {
+        pthread_mutex_unlock(&gPlugIn_StateMutex);
+        return kAudioHardwareIllegalOperationError;
+    }
+
 	//	change the sample rate
 	gDevice_SampleRate = inChangeAction;
     if (gLoopback != NULL) AudioTimelineBufferReset(gLoopback);
@@ -564,6 +649,20 @@ static OSStatus	FaceNowMicrophone_PerformDeviceConfigurationChange(AudioServerPl
 
 	//	unlock the state mutex
 	pthread_mutex_unlock(&gPlugIn_StateMutex);
+
+    if (gPlugIn_Host != NULL && gPlugIn_Host->PropertiesChanged != NULL) {
+        const AudioObjectPropertyAddress rate = {
+            kAudioDevicePropertyNominalSampleRate, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain
+        };
+        const AudioObjectPropertyAddress formats[] = {
+            { kAudioStreamPropertyVirtualFormat, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain },
+            { kAudioStreamPropertyPhysicalFormat, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain }
+        };
+        gPlugIn_Host->PropertiesChanged(gPlugIn_Host, kObjectID_Device, 1, &rate);
+        gPlugIn_Host->PropertiesChanged(gPlugIn_Host, kObjectID_Device_Writer, 1, &rate);
+        gPlugIn_Host->PropertiesChanged(gPlugIn_Host, kObjectID_Stream_Input, 2, formats);
+        gPlugIn_Host->PropertiesChanged(gPlugIn_Host, kObjectID_Stream_Output, 2, formats);
+    }
 	
 Done:
 	return theAnswer;
@@ -583,7 +682,7 @@ static OSStatus	FaceNowMicrophone_AbortDeviceConfigurationChange(AudioServerPlug
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_PerformDeviceConfigurationChange: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_PerformDeviceConfigurationChange: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_PerformDeviceConfigurationChange: bad device ID");
 
 Done:
 	return theAnswer;
@@ -616,6 +715,7 @@ static Boolean	FaceNowMicrophone_HasProperty(AudioServerPlugInDriverRef inDriver
 			break;
 		
 		case kObjectID_Device:
+        case kObjectID_Device_Writer:
 			theAnswer = FaceNowMicrophone_HasDeviceProperty(inDriver, inObjectID, inClientProcessID, inAddress);
 			break;
 		
@@ -666,6 +766,7 @@ static OSStatus	FaceNowMicrophone_IsPropertySettable(AudioServerPlugInDriverRef 
 			break;
 		
 		case kObjectID_Device:
+        case kObjectID_Device_Writer:
 			theAnswer = FaceNowMicrophone_IsDevicePropertySettable(inDriver, inObjectID, inClientProcessID, inAddress, outIsSettable);
 			break;
 		
@@ -719,6 +820,7 @@ static OSStatus	FaceNowMicrophone_GetPropertyDataSize(AudioServerPlugInDriverRef
 			break;
 		
 		case kObjectID_Device:
+        case kObjectID_Device_Writer:
 			theAnswer = FaceNowMicrophone_GetDevicePropertyDataSize(inDriver, inObjectID, inClientProcessID, inAddress, inQualifierDataSize, inQualifierData, outDataSize);
 			break;
 		
@@ -755,7 +857,7 @@ static OSStatus	FaceNowMicrophone_GetPropertyData(AudioServerPlugInDriverRef inD
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetPropertyData: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPropertyData: no address");
 	FailWithAction(outDataSize == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPropertyData: no place to put the return value size");
-	FailWithAction(outData == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPropertyData: no place to put the return value");
+	FailWithAction(outData == NULL && inDataSize > 0, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPropertyData: no place to put the return value");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
 	//	extras that are useful but not required.
@@ -773,6 +875,7 @@ static OSStatus	FaceNowMicrophone_GetPropertyData(AudioServerPlugInDriverRef inD
 			break;
 		
 		case kObjectID_Device:
+        case kObjectID_Device_Writer:
 			theAnswer = FaceNowMicrophone_GetDevicePropertyData(inDriver, inObjectID, inClientProcessID, inAddress, inQualifierDataSize, inQualifierData, inDataSize, outDataSize, outData);
 			break;
 		
@@ -825,6 +928,7 @@ static OSStatus	FaceNowMicrophone_SetPropertyData(AudioServerPlugInDriverRef inD
 			break;
 		
 		case kObjectID_Device:
+        case kObjectID_Device_Writer:
 			theAnswer = FaceNowMicrophone_SetDevicePropertyData(inDriver, inObjectID, inClientProcessID, inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData, &theNumberPropertiesChanged, theChangedAddresses);
 			break;
 		
@@ -987,7 +1091,7 @@ static OSStatus	FaceNowMicrophone_GetPlugInPropertyDataSize(AudioServerPlugInDri
 		case kAudioObjectPropertyOwnedObjects:
 			if(gBox_Acquired)
 			{
-				*outDataSize = 2 * sizeof(AudioClassID);
+				*outDataSize = 3 * sizeof(AudioObjectID);
 			}
 			else
 			{
@@ -1006,7 +1110,7 @@ static OSStatus	FaceNowMicrophone_GetPlugInPropertyDataSize(AudioServerPlugInDri
 		case kAudioPlugInPropertyDeviceList:
 			if(gBox_Acquired)
 			{
-				*outDataSize = sizeof(AudioClassID);
+				*outDataSize = 2 * sizeof(AudioObjectID);
 			}
 			else
 			{
@@ -1055,7 +1159,7 @@ static OSStatus	FaceNowMicrophone_GetPlugInPropertyData(AudioServerPlugInDriverR
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetPlugInPropertyData: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPlugInPropertyData: no address");
 	FailWithAction(outDataSize == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPlugInPropertyData: no place to put the return value size");
-	FailWithAction(outData == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPlugInPropertyData: no place to put the return value");
+	FailWithAction(outData == NULL && inDataSize > 0, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetPlugInPropertyData: no place to put the return value");
 	FailWithAction(inObjectID != kObjectID_PlugIn, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetPlugInPropertyData: not the plug-in object");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
@@ -1094,32 +1198,12 @@ static OSStatus	FaceNowMicrophone_GetPlugInPropertyData(AudioServerPlugInDriverR
 			break;
 			
 		case kAudioObjectPropertyOwnedObjects:
-			//	Calculate the number of items that have been requested. Note that this
-			//	number is allowed to be smaller than the actual size of the list. In such
-			//	case, only that number of items will be returned
-			theNumberItemsToFetch = inDataSize / sizeof(AudioObjectID);
-			
-			//	Clamp that to the number of boxes this driver implements (which is just 1)
-			if(theNumberItemsToFetch > (gBox_Acquired ? 2 : 1))
-			{
-				theNumberItemsToFetch = (gBox_Acquired ? 2 : 1);
-			}
-			
-			//	Write the devices' object IDs into the return value
-			if(theNumberItemsToFetch > 1)
-			{
-				((AudioObjectID*)outData)[0] = kObjectID_Box;
-				((AudioObjectID*)outData)[0] = kObjectID_Device;
-			}
-			else if(theNumberItemsToFetch > 0)
-			{
-				((AudioObjectID*)outData)[0] = kObjectID_Box;
-			}
-			
-			//	Return how many bytes we wrote to
-			*outDataSize = theNumberItemsToFetch * sizeof(AudioClassID);
-			break;
-			
+        {
+            const AudioObjectID objects[] = { kObjectID_Box, kObjectID_Device, kObjectID_Device_Writer };
+            *outDataSize = FaceNowMicrophone_CopyObjects(objects, gBox_Acquired ? 3 : 1, inDataSize, outData);
+            break;
+        }
+
 		case kAudioPlugInPropertyBoxList:
 			//	Calculate the number of items that have been requested. Note that this
 			//	number is allowed to be smaller than the actual size of the list. In such
@@ -1163,28 +1247,12 @@ static OSStatus	FaceNowMicrophone_GetPlugInPropertyData(AudioServerPlugInDriverR
 			break;
 			
 		case kAudioPlugInPropertyDeviceList:
-			//	Calculate the number of items that have been requested. Note that this
-			//	number is allowed to be smaller than the actual size of the list. In such
-			//	case, only that number of items will be returned
-			theNumberItemsToFetch = inDataSize / sizeof(AudioObjectID);
-			
-			//	Clamp that to the number of devices this driver implements (which is just 1 if the
-			//	box has been acquired)
-			if(theNumberItemsToFetch > (gBox_Acquired ? 1 : 0))
-			{
-				theNumberItemsToFetch = (gBox_Acquired ? 1 : 0);
-			}
-			
-			//	Write the devices' object IDs into the return value
-			if(theNumberItemsToFetch > 0)
-			{
-				((AudioObjectID*)outData)[0] = kObjectID_Device;
-			}
-			
-			//	Return how many bytes we wrote to
-			*outDataSize = theNumberItemsToFetch * sizeof(AudioClassID);
-			break;
-			
+        {
+            const AudioObjectID devices[] = { kObjectID_Device, kObjectID_Device_Writer };
+            *outDataSize = FaceNowMicrophone_CopyObjects(devices, gBox_Acquired ? 2 : 0, inDataSize, outData);
+            break;
+        }
+
 		case kAudioPlugInPropertyTranslateUIDToDevice:
 			//	This property takes the CFString passed in the qualifier and converts that
 			//	to the object ID of the device it corresponds to. For this driver, there is
@@ -1194,10 +1262,14 @@ static OSStatus	FaceNowMicrophone_GetPlugInPropertyData(AudioServerPlugInDriverR
 			FailWithAction(inDataSize < sizeof(AudioObjectID), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetPlugInPropertyData: not enough space for the return value of kAudioPlugInPropertyTranslateUIDToDevice");
 			FailWithAction(inQualifierDataSize != sizeof(CFStringRef), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetPlugInPropertyData: the qualifier is the wrong size for kAudioPlugInPropertyTranslateUIDToDevice");
 			FailWithAction(inQualifierData == NULL, theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetPlugInPropertyData: no qualifier for kAudioPlugInPropertyTranslateUIDToDevice");
-			if(CFStringCompare(*((CFStringRef*)inQualifierData), CFSTR(kDevice_UID), 0) == kCFCompareEqualTo)
+			if(gBox_Acquired && CFEqual(*((CFStringRef*)inQualifierData), CFSTR(kDevice_UID)))
 			{
 				*((AudioObjectID*)outData) = kObjectID_Device;
 			}
+            else if(gBox_Acquired && CFEqual(*((CFStringRef*)inQualifierData), CFSTR(kWriter_UID)))
+            {
+                *((AudioObjectID*)outData) = kObjectID_Device_Writer;
+            }
 			else
 			{
 				*((AudioObjectID*)outData) = kAudioObjectUnknown;
@@ -1483,13 +1555,9 @@ static OSStatus	FaceNowMicrophone_GetBoxPropertyDataSize(AudioServerPlugInDriver
 			break;
 			
 		case kAudioBoxPropertyDeviceList:
-			{
-				pthread_mutex_lock(&gPlugIn_StateMutex);
-				*outDataSize = gBox_Acquired ? sizeof(AudioObjectID) : 0;
-				pthread_mutex_unlock(&gPlugIn_StateMutex);
-			}
-			break;
-			
+            *outDataSize = gBox_Acquired ? 2 * sizeof(AudioObjectID) : 0;
+            break;
+
 		default:
 			theAnswer = kAudioHardwareUnknownPropertyError;
 			break;
@@ -1510,7 +1578,7 @@ static OSStatus	FaceNowMicrophone_GetBoxPropertyData(AudioServerPlugInDriverRef 
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetBoxPropertyData: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetBoxPropertyData: no address");
 	FailWithAction(outDataSize == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetBoxPropertyData: no place to put the return value size");
-	FailWithAction(outData == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetBoxPropertyData: no place to put the return value");
+	FailWithAction(outData == NULL && inDataSize > 0, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetBoxPropertyData: no place to put the return value");
 	FailWithAction(inObjectID != kObjectID_Box, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetBoxPropertyData: not the plug-in object");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
@@ -1557,7 +1625,7 @@ static OSStatus	FaceNowMicrophone_GetBoxPropertyData(AudioServerPlugInDriverRef 
 		case kAudioObjectPropertyModelName:
 			//	This is the human readable name of the maker of the box.
 			FailWithAction(inDataSize < sizeof(CFStringRef), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetBoxPropertyData: not enough space for the return value of kAudioObjectPropertyManufacturer for the box");
-			*((CFStringRef*)outData) = CFSTR("FaceNow - Xmax Virtual Microphone");
+			*((CFStringRef*)outData) = CFSTR(FACENOW_MICROPHONE_NAME);
 			*outDataSize = sizeof(CFStringRef);
 			break;
 			
@@ -1654,21 +1722,14 @@ static OSStatus	FaceNowMicrophone_GetBoxPropertyData(AudioServerPlugInDriverRef 
 			break;
 			
 		case kAudioBoxPropertyDeviceList:
-			//	This is used to indicate which devices came from this box
-			pthread_mutex_lock(&gPlugIn_StateMutex);
-			if(gBox_Acquired)
-			{
-				FailWithAction(inDataSize < sizeof(AudioObjectID), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetBoxPropertyData: not enough space for the return value of kAudioBoxPropertyDeviceList for the box");
-				*((AudioObjectID*)outData) = kObjectID_Device;
-				*outDataSize = sizeof(AudioObjectID);
-			}
-			else
-			{
-				*outDataSize = 0;
-			}
-			pthread_mutex_unlock(&gPlugIn_StateMutex);
-			break;
-			
+        {
+            const AudioObjectID devices[] = { kObjectID_Device, kObjectID_Device_Writer };
+            pthread_mutex_lock(&gPlugIn_StateMutex);
+            *outDataSize = FaceNowMicrophone_CopyObjects(devices, gBox_Acquired ? 2 : 0, inDataSize, outData);
+            pthread_mutex_unlock(&gPlugIn_StateMutex);
+            break;
+        }
+
 		default:
 			theAnswer = kAudioHardwareUnknownPropertyError;
 			break;
@@ -1794,7 +1855,7 @@ static Boolean	FaceNowMicrophone_HasDeviceProperty(AudioServerPlugInDriverRef in
 	//	check the arguments
 	FailIf(inDriver != gAudioServerPlugInDriverRef, Done, "FaceNowMicrophone_HasDeviceProperty: bad driver reference");
 	FailIf(inAddress == NULL, Done, "FaceNowMicrophone_HasDeviceProperty: no address");
-	FailIf(inObjectID != kObjectID_Device, Done, "FaceNowMicrophone_HasDeviceProperty: not the device object");
+	FailIf(!FaceNowMicrophone_IsDevice(inObjectID), Done, "FaceNowMicrophone_HasDeviceProperty: not the device object");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
 	//	extras that are useful but not required. There is more detailed commentary about each
@@ -1830,7 +1891,7 @@ static Boolean	FaceNowMicrophone_HasDeviceProperty(AudioServerPlugInDriverRef in
 		case kAudioDevicePropertySafetyOffset:
 		case kAudioDevicePropertyPreferredChannelsForStereo:
 		case kAudioDevicePropertyPreferredChannelLayout:
-			theAnswer = (inAddress->mScope == kAudioObjectPropertyScopeInput) || (inAddress->mScope == kAudioObjectPropertyScopeOutput);
+			theAnswer = inAddress->mScope != kAudioObjectPropertyScopeGlobal && FaceNowMicrophone_SupportsScope(inObjectID, inAddress->mScope);
 			break;
 		
 		case kAudioObjectPropertyElementName:
@@ -1856,7 +1917,7 @@ static OSStatus	FaceNowMicrophone_IsDevicePropertySettable(AudioServerPlugInDriv
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_IsDevicePropertySettable: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_IsDevicePropertySettable: no address");
 	FailWithAction(outIsSettable == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_IsDevicePropertySettable: no place to put the return value");
-	FailWithAction(inObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_IsDevicePropertySettable: not the device object");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_IsDevicePropertySettable: not the device object");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
 	//	extras that are useful but not required. There is more detailed commentary about each
@@ -1913,12 +1974,13 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyDataSize(AudioServerPlugInDri
 	
 	//	declare the local variables
 	OSStatus theAnswer = 0;
+    const AudioObjectID* objects;
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetDevicePropertyDataSize: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetDevicePropertyDataSize: no address");
 	FailWithAction(outDataSize == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetDevicePropertyDataSize: no place to put the return value");
-	FailWithAction(inObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetDevicePropertyDataSize: not the device object");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetDevicePropertyDataSize: not the device object");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
 	//	extras that are useful but not required. There is more detailed commentary about each
@@ -1950,21 +2012,8 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyDataSize(AudioServerPlugInDri
 			break;
 			
 		case kAudioObjectPropertyOwnedObjects:
-			switch(inAddress->mScope)
-			{
-				case kAudioObjectPropertyScopeGlobal:
-					*outDataSize = 8 * sizeof(AudioObjectID);
-					break;
-					
-				case kAudioObjectPropertyScopeInput:
-					*outDataSize = 4 * sizeof(AudioObjectID);
-					break;
-					
-				case kAudioObjectPropertyScopeOutput:
-					*outDataSize = 4 * sizeof(AudioObjectID);
-					break;
-			};
-			break;
+            *outDataSize = FaceNowMicrophone_DeviceObjects(inObjectID, inAddress, &objects) * sizeof(AudioObjectID);
+            break;
 
 		case kAudioDevicePropertyDeviceUID:
 			*outDataSize = sizeof(CFStringRef);
@@ -1979,8 +2028,8 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyDataSize(AudioServerPlugInDri
 			break;
 
 		case kAudioDevicePropertyRelatedDevices:
-			*outDataSize = sizeof(AudioObjectID);
-			break;
+            *outDataSize = 2 * sizeof(AudioObjectID);
+            break;
 
 		case kAudioDevicePropertyClockDomain:
 			*outDataSize = sizeof(UInt32);
@@ -2007,25 +2056,12 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyDataSize(AudioServerPlugInDri
 			break;
 
 		case kAudioDevicePropertyStreams:
-			switch(inAddress->mScope)
-			{
-				case kAudioObjectPropertyScopeGlobal:
-					*outDataSize = 2 * sizeof(AudioObjectID);
-					break;
-					
-				case kAudioObjectPropertyScopeInput:
-					*outDataSize = 1 * sizeof(AudioObjectID);
-					break;
-					
-				case kAudioObjectPropertyScopeOutput:
-					*outDataSize = 1 * sizeof(AudioObjectID);
-					break;
-			};
-			break;
+            *outDataSize = FaceNowMicrophone_DeviceObjects(inObjectID, inAddress, &objects) * sizeof(AudioObjectID);
+            break;
 
 		case kAudioObjectPropertyControlList:
-			*outDataSize = 7 * sizeof(AudioObjectID);
-			break;
+            *outDataSize = FaceNowMicrophone_DeviceObjects(inObjectID, inAddress, &objects) * sizeof(AudioObjectID);
+            break;
 
 		case kAudioDevicePropertySafetyOffset:
 			*outDataSize = sizeof(UInt32);
@@ -2075,14 +2111,16 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 	//	declare the local variables
 	OSStatus theAnswer = 0;
 	UInt32 theNumberItemsToFetch;
-	UInt32 theItemIndex;
+	const AudioObjectID* objects;
+    UInt32 objectCount;
+    UInt32 theItemIndex;
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetDevicePropertyData: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetDevicePropertyData: no address");
 	FailWithAction(outDataSize == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetDevicePropertyData: no place to put the return value size");
-	FailWithAction(outData == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetDevicePropertyData: no place to put the return value");
-	FailWithAction(inObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetDevicePropertyData: not the device object");
+	FailWithAction(outData == NULL && inDataSize > 0, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetDevicePropertyData: no place to put the return value");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetDevicePropertyData: not the device object");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
 	//	extras that are useful but not required.
@@ -2115,7 +2153,8 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 		case kAudioObjectPropertyName:
 			//	This is the human readable name of the device.
 			FailWithAction(inDataSize < sizeof(CFStringRef), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetDevicePropertyData: not enough space for the return value of kAudioObjectPropertyName for the device");
-			*((CFStringRef*)outData) = CFSTR("FaceNow - Xmax Virtual Microphone");
+			*((CFStringRef*)outData) = inObjectID == kObjectID_Device
+                ? CFSTR(FACENOW_MICROPHONE_NAME) : CFSTR(FACENOW_SPEAKER_NAME);
 			*outDataSize = sizeof(CFStringRef);
 			break;
 			
@@ -2152,68 +2191,16 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 			break;
 			
 		case kAudioObjectPropertyOwnedObjects:
-			//	Calculate the number of items that have been requested. Note that this
-			//	number is allowed to be smaller than the actual size of the list. In such
-			//	case, only that number of items will be returned
-			theNumberItemsToFetch = inDataSize / sizeof(AudioObjectID);
-			
-			//	The device owns its streams and controls. Note that what is returned here
-			//	depends on the scope requested.
-			switch(inAddress->mScope)
-			{
-				case kAudioObjectPropertyScopeGlobal:
-					//	global scope means return all objects
-					if(theNumberItemsToFetch > 9)
-					{
-						theNumberItemsToFetch = 9;
-					}
-					
-					//	fill out the list with as many objects as requested, which is everything
-					for(theItemIndex = 0; theItemIndex < theNumberItemsToFetch; ++theItemIndex)
-					{
-						((AudioObjectID*)outData)[theItemIndex] = kObjectID_Stream_Input + theItemIndex;
-					}
-					break;
-					
-				case kAudioObjectPropertyScopeInput:
-					//	input scope means just the objects on the input side
-					if(theNumberItemsToFetch > 4)
-					{
-						theNumberItemsToFetch = 4;
-					}
-					
-					//	fill out the list with the right objects
-					for(theItemIndex = 0; theItemIndex < theNumberItemsToFetch; ++theItemIndex)
-					{
-						((AudioObjectID*)outData)[theItemIndex] = kObjectID_Stream_Input + theItemIndex;
-					}
-					break;
-					
-				case kAudioObjectPropertyScopeOutput:
-					//	output scope means just the objects on the output side
-					if(theNumberItemsToFetch > 4)
-					{
-						theNumberItemsToFetch = 4;
-					}
-					
-					//	fill out the list with the right objects
-					for(theItemIndex = 0; theItemIndex < theNumberItemsToFetch; ++theItemIndex)
-					{
-						((AudioObjectID*)outData)[theItemIndex] = kObjectID_Stream_Output + theItemIndex;
-					}
-					break;
-			};
-			
-			//	report how much we wrote
-			*outDataSize = theNumberItemsToFetch * sizeof(AudioObjectID);
-			break;
+            objectCount = FaceNowMicrophone_DeviceObjects(inObjectID, inAddress, &objects);
+            *outDataSize = FaceNowMicrophone_CopyObjects(objects, objectCount, inDataSize, outData);
+            break;
 
 		case kAudioDevicePropertyDeviceUID:
 			//	This is a CFString that is a persistent token that can identify the same
 			//	audio device across boot sessions. Note that two instances of the same
 			//	device must have different values for this property.
 			FailWithAction(inDataSize < sizeof(CFStringRef), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetDevicePropertyData: not enough space for the return value of kAudioDevicePropertyDeviceUID for the device");
-			*((CFStringRef*)outData) = CFSTR(kDevice_UID);
+			*((CFStringRef*)outData) = inObjectID == kObjectID_Device ? CFSTR(kDevice_UID) : CFSTR(kWriter_UID);
 			*outDataSize = sizeof(CFStringRef);
 			break;
 
@@ -2236,46 +2223,18 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 			break;
 
 		case kAudioDevicePropertyRelatedDevices:
-			//	The related devices property identifys device objects that are very closely
-			//	related. Generally, this is for relating devices that are packaged together
-			//	in the hardware such as when the input side and the output side of a piece
-			//	of hardware can be clocked separately and therefore need to be represented
-			//	as separate AudioDevice objects. In such case, both devices would report
-			//	that they are related to each other. Note that at minimum, a device is
-			//	related to itself, so this list will always be at least one item long.
-
-			//	Calculate the number of items that have been requested. Note that this
-			//	number is allowed to be smaller than the actual size of the list. In such
-			//	case, only that number of items will be returned
-			theNumberItemsToFetch = inDataSize / sizeof(AudioObjectID);
-			
-			//	we only have the one device...
-			if(theNumberItemsToFetch > 1)
-			{
-				theNumberItemsToFetch = 1;
-			}
-			
-			//	Write the devices' object IDs into the return value
-			if(theNumberItemsToFetch > 0)
-			{
-				((AudioObjectID*)outData)[0] = kObjectID_Device;
-			}
-			
-			//	report how much we wrote
-			*outDataSize = theNumberItemsToFetch * sizeof(AudioObjectID);
-			break;
+        {
+            const AudioObjectID devices[] = { kObjectID_Device, kObjectID_Device_Writer };
+            *outDataSize = FaceNowMicrophone_CopyObjects(devices, 2, inDataSize, outData);
+            break;
+        }
 
 		case kAudioDevicePropertyClockDomain:
-			//	This property allows the device to declare what other devices it is
-			//	synchronized with in hardware. The way it works is that if two devices have
-			//	the same value for this property and the value is not zero, then the two
-			//	devices are synchronized in hardware. Note that a device that either can't
-			//	be synchronized with others or doesn't know should return 0 for this
-			//	property.
-			FailWithAction(inDataSize < sizeof(UInt32), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetDevicePropertyData: not enough space for the return value of kAudioDevicePropertyClockDomain for the device");
-			*((UInt32*)outData) = 0;
-			*outDataSize = sizeof(UInt32);
-			break;
+            FailWithAction(inDataSize < sizeof(UInt32), theAnswer = kAudioHardwareBadPropertySizeError, Done, "Missing clock domain storage");
+            // Both endpoints use the same timestamp anchor and sample rate.
+            *((UInt32*)outData) = 0x464E4D43;
+            *outDataSize = sizeof(UInt32);
+            break;
 
 		case kAudioDevicePropertyDeviceIsAlive:
 			//	This property returns whether or not the device is alive. Note that it is
@@ -2291,7 +2250,7 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 			//	we need to take both the state lock to check this value for thread safety.
 			FailWithAction(inDataSize < sizeof(UInt32), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetDevicePropertyData: not enough space for the return value of kAudioDevicePropertyDeviceIsRunning for the device");
 			pthread_mutex_lock(&gPlugIn_StateMutex);
-			*((UInt32*)outData) = ((gDevice_IOIsRunning > 0) > 0) ? 1 : 0;
+			*((UInt32*)outData) = (inObjectID == kObjectID_Device ? gInput_IOIsRunning : gWriter_IOIsRunning) > 0;
 			pthread_mutex_unlock(&gPlugIn_StateMutex);
 			*outDataSize = sizeof(UInt32);
 			break;
@@ -2302,7 +2261,7 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 			//	will use to play their content on and FaceTime will use as it's microhphone.
 			//	Nearly all devices should allow for this.
 			FailWithAction(inDataSize < sizeof(UInt32), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetDevicePropertyData: not enough space for the return value of kAudioDevicePropertyDeviceCanBeDefaultDevice for the device");
-			*((UInt32*)outData) = (inAddress->mScope == kAudioObjectPropertyScopeInput ? 1 : 0);
+			*((UInt32*)outData) = (inObjectID == kObjectID_Device && inAddress->mScope == kAudioObjectPropertyScopeInput ? 1 : 0);
 			*outDataSize = sizeof(UInt32);
 			break;
 
@@ -2325,91 +2284,14 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 			break;
 
 		case kAudioDevicePropertyStreams:
-			//	Calculate the number of items that have been requested. Note that this
-			//	number is allowed to be smaller than the actual size of the list. In such
-			//	case, only that number of items will be returned
-			theNumberItemsToFetch = inDataSize / sizeof(AudioObjectID);
-			
-			//	Note that what is returned here depends on the scope requested.
-			switch(inAddress->mScope)
-			{
-				case kAudioObjectPropertyScopeGlobal:
-					//	global scope means return all streams
-					if(theNumberItemsToFetch > 2)
-					{
-						theNumberItemsToFetch = 2;
-					}
-					
-					//	fill out the list with as many objects as requested
-					if(theNumberItemsToFetch > 0)
-					{
-						((AudioObjectID*)outData)[0] = kObjectID_Stream_Input;
-					}
-					if(theNumberItemsToFetch > 1)
-					{
-						((AudioObjectID*)outData)[1] = kObjectID_Stream_Output;
-					}
-					break;
-					
-				case kAudioObjectPropertyScopeInput:
-					//	input scope means just the objects on the input side
-					if(theNumberItemsToFetch > 1)
-					{
-						theNumberItemsToFetch = 1;
-					}
-					
-					//	fill out the list with as many objects as requested
-					if(theNumberItemsToFetch > 0)
-					{
-						((AudioObjectID*)outData)[0] = kObjectID_Stream_Input;
-					}
-					break;
-					
-				case kAudioObjectPropertyScopeOutput:
-					//	output scope means just the objects on the output side
-					if(theNumberItemsToFetch > 1)
-					{
-						theNumberItemsToFetch = 1;
-					}
-					
-					//	fill out the list with as many objects as requested
-					if(theNumberItemsToFetch > 0)
-					{
-						((AudioObjectID*)outData)[0] = kObjectID_Stream_Output;
-					}
-					break;
-			};
-			
-			//	report how much we wrote
-			*outDataSize = theNumberItemsToFetch * sizeof(AudioObjectID);
-			break;
+            objectCount = FaceNowMicrophone_DeviceObjects(inObjectID, inAddress, &objects);
+            *outDataSize = FaceNowMicrophone_CopyObjects(objects, objectCount, inDataSize, outData);
+            break;
 
 		case kAudioObjectPropertyControlList:
-			//	Calculate the number of items that have been requested. Note that this
-			//	number is allowed to be smaller than the actual size of the list. In such
-			//	case, only that number of items will be returned
-			theNumberItemsToFetch = inDataSize / sizeof(AudioObjectID);
-			if(theNumberItemsToFetch > 7)
-			{
-				theNumberItemsToFetch = 7;
-			}
-			
-			//	fill out the list with as many objects as requested, which is everything
-			for(theItemIndex = 0; theItemIndex < theNumberItemsToFetch; ++theItemIndex)
-			{
-				if(theItemIndex < 3)
-				{
-					((AudioObjectID*)outData)[theItemIndex] = kObjectID_Volume_Input_Master + theItemIndex;
-				}
-				else
-				{
-					((AudioObjectID*)outData)[theItemIndex] = kObjectID_Volume_Output_Master + (theItemIndex - 3);
-				}
-			}
-			
-			//	report how much we wrote
-			*outDataSize = theNumberItemsToFetch * sizeof(AudioObjectID);
-			break;
+            objectCount = FaceNowMicrophone_DeviceObjects(inObjectID, inAddress, &objects);
+            *outDataSize = FaceNowMicrophone_CopyObjects(objects, objectCount, inDataSize, outData);
+            break;
 
 		case kAudioDevicePropertySafetyOffset:
 			//	This property returns the how close to now the HAL can read and write. For
@@ -2464,7 +2346,7 @@ static OSStatus	FaceNowMicrophone_GetDevicePropertyData(AudioServerPlugInDriverR
 		case kAudioDevicePropertyIsHidden:
 			//	This returns whether or not the device is visible to clients.
 			FailWithAction(inDataSize < sizeof(UInt32), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetDevicePropertyData: not enough space for the return value of kAudioDevicePropertyIsHidden for the device");
-			*((UInt32*)outData) = 0;
+			*((UInt32*)outData) = inObjectID == kObjectID_Device_Writer ? 1 : 0;
 			*outDataSize = sizeof(UInt32);
 			break;
 
@@ -2543,7 +2425,7 @@ static OSStatus	FaceNowMicrophone_SetDevicePropertyData(AudioServerPlugInDriverR
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_SetDevicePropertyData: no address");
 	FailWithAction(outNumberPropertiesChanged == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_SetDevicePropertyData: no place to return the number of properties that changed");
 	FailWithAction(outChangedAddresses == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_SetDevicePropertyData: no place to return the properties that changed");
-	FailWithAction(inObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_SetDevicePropertyData: not the device object");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_SetDevicePropertyData: not the device object");
 	
 	//	initialize the returned number of changed properties
 	*outNumberPropertiesChanged = 0;
@@ -2574,7 +2456,7 @@ static OSStatus	FaceNowMicrophone_SetDevicePropertyData(AudioServerPlugInDriverR
 				//	we dispatch this so that the change can happen asynchronously
 				theOldSampleRate = *((const Float64*)inData);
 				theNewSampleRate = (UInt64)theOldSampleRate;
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ gPlugIn_Host->RequestDeviceConfigurationChange(gPlugIn_Host, kObjectID_Device, theNewSampleRate, NULL); });
+				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ gPlugIn_Host->RequestDeviceConfigurationChange(gPlugIn_Host, inObjectID, theNewSampleRate, NULL); });
 			}
 			break;
 		
@@ -2771,7 +2653,7 @@ static OSStatus	FaceNowMicrophone_GetStreamPropertyData(AudioServerPlugInDriverR
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetStreamPropertyData: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetStreamPropertyData: no address");
 	FailWithAction(outDataSize == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetStreamPropertyData: no place to put the return value size");
-	FailWithAction(outData == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetStreamPropertyData: no place to put the return value");
+	FailWithAction(outData == NULL && inDataSize > 0, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetStreamPropertyData: no place to put the return value");
 	FailWithAction((inObjectID != kObjectID_Stream_Input) && (inObjectID != kObjectID_Stream_Output), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetStreamPropertyData: not a stream object");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
@@ -2798,7 +2680,7 @@ static OSStatus	FaceNowMicrophone_GetStreamPropertyData(AudioServerPlugInDriverR
 		case kAudioObjectPropertyOwner:
 			//	The stream's owner is the device object
 			FailWithAction(inDataSize < sizeof(AudioObjectID), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetStreamPropertyData: not enough space for the return value of kAudioObjectPropertyOwner for the stream");
-			*((AudioObjectID*)outData) = kObjectID_Device;
+			*((AudioObjectID*)outData) = FaceNowMicrophone_DeviceForObject(inObjectID);
 			*outDataSize = sizeof(AudioObjectID);
 			break;
 			
@@ -3015,7 +2897,7 @@ static OSStatus	FaceNowMicrophone_SetStreamPropertyData(AudioServerPlugInDriverR
 				//	we dispatch this so that the change can happen asynchronously
 				theOldSampleRate = ((const AudioStreamBasicDescription*)inData)->mSampleRate;
 				theNewSampleRate = (UInt64)theOldSampleRate;
-				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ gPlugIn_Host->RequestDeviceConfigurationChange(gPlugIn_Host, kObjectID_Device, theNewSampleRate, NULL); });
+				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ gPlugIn_Host->RequestDeviceConfigurationChange(gPlugIn_Host, FaceNowMicrophone_DeviceForObject(inObjectID), theNewSampleRate, NULL); });
 			}
 			break;
 		
@@ -3393,7 +3275,7 @@ static OSStatus	FaceNowMicrophone_GetControlPropertyData(AudioServerPlugInDriver
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetControlPropertyData: bad driver reference");
 	FailWithAction(inAddress == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetControlPropertyData: no address");
 	FailWithAction(outDataSize == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetControlPropertyData: no place to put the return value size");
-	FailWithAction(outData == NULL, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetControlPropertyData: no place to put the return value");
+	FailWithAction(outData == NULL && inDataSize > 0, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetControlPropertyData: no place to put the return value");
 	
 	//	Note that for each object, this driver implements all the required properties plus a few
 	//	extras that are useful but not required.
@@ -3423,7 +3305,7 @@ static OSStatus	FaceNowMicrophone_GetControlPropertyData(AudioServerPlugInDriver
 				case kAudioObjectPropertyOwner:
 					//	The control's owner is the device object
 					FailWithAction(inDataSize < sizeof(AudioObjectID), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetControlPropertyData: not enough space for the return value of kAudioObjectPropertyOwner for the volume control");
-					*((AudioObjectID*)outData) = kObjectID_Device;
+					*((AudioObjectID*)outData) = FaceNowMicrophone_DeviceForObject(inObjectID);
 					*outDataSize = sizeof(AudioObjectID);
 					break;
 					
@@ -3555,7 +3437,7 @@ static OSStatus	FaceNowMicrophone_GetControlPropertyData(AudioServerPlugInDriver
 				case kAudioObjectPropertyOwner:
 					//	The control's owner is the device object
 					FailWithAction(inDataSize < sizeof(AudioObjectID), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetControlPropertyData: not enough space for the return value of kAudioObjectPropertyOwner for the mute control");
-					*((AudioObjectID*)outData) = kObjectID_Device;
+					*((AudioObjectID*)outData) = FaceNowMicrophone_DeviceForObject(inObjectID);
 					*outDataSize = sizeof(AudioObjectID);
 					break;
 					
@@ -3629,7 +3511,7 @@ static OSStatus	FaceNowMicrophone_GetControlPropertyData(AudioServerPlugInDriver
 				case kAudioObjectPropertyOwner:
 					//	The control's owner is the device object
 					FailWithAction(inDataSize < sizeof(AudioObjectID), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetControlPropertyData: not enough space for the return value of kAudioObjectPropertyOwner for the data source control");
-					*((AudioObjectID*)outData) = kObjectID_Device;
+					*((AudioObjectID*)outData) = FaceNowMicrophone_DeviceForObject(inObjectID);
 					*outDataSize = sizeof(AudioObjectID);
 					break;
 					
@@ -3980,92 +3862,54 @@ Done:
 
 static OSStatus	FaceNowMicrophone_StartIO(AudioServerPlugInDriverRef inDriver, AudioObjectID inDeviceObjectID, UInt32 inClientID)
 {
-	//	This call tells the device that IO is starting for the given client. When this routine
-	//	returns, the device's clock is running and it is ready to have data read/written. It is
-	//	important to note that multiple clients can have IO running on the device at the same time.
-	//	So, work only needs to be done when the first client starts. All subsequent starts simply
-	//	increment the counter.
-	
-	#pragma unused(inClientID)
-	
-	//	declare the local variables
-	OSStatus theAnswer = 0;
-	
-	//	check the arguments
-	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_StartIO: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_StartIO: bad device ID");
-
-	//	we need to hold the state lock
-	pthread_mutex_lock(&gPlugIn_StateMutex);
-	
-	//	figure out what we need to do
-	if(gDevice_IOIsRunning == UINT64_MAX)
-	{
-		//	overflowing is an error
-		theAnswer = kAudioHardwareIllegalOperationError;
-	}
-	else if(gDevice_IOIsRunning == 0)
-	{
-		//	We need to start the hardware, which in this case is just anchoring the time line.
-		gDevice_IOIsRunning = 1;
-		gDevice_NumberTimeStamps = 0;
-		gDevice_AnchorSampleTime = 0;
-		gDevice_AnchorHostTime = mach_absolute_time();
+    (void)inClientID;
+    if (inDriver != gAudioServerPlugInDriverRef || !FaceNowMicrophone_IsDevice(inDeviceObjectID))
+        return kAudioHardwareBadObjectError;
+    pthread_mutex_lock(&gPlugIn_StateMutex);
+    UInt64* clients = inDeviceObjectID == kObjectID_Device ? &gInput_IOIsRunning : &gWriter_IOIsRunning;
+    OSStatus result = noErr;
+    if (gDevice_IOIsRunning == UINT64_MAX || *clients == UINT64_MAX) {
+        result = kAudioHardwareIllegalOperationError;
+    } else {
         if (gLoopback == NULL) gLoopback = AudioTimelineBufferCreate(gDevice_SampleRate);
-        if (gLoopback != NULL) AudioTimelineBufferReset(gLoopback);
-	}
-	else
-	{
-		//	IO is already running, so just bump the counter
-		++gDevice_IOIsRunning;
-	}
-	
-	//	unlock the state lock
-	pthread_mutex_unlock(&gPlugIn_StateMutex);
-	
-Done:
-	return theAnswer;
+        if (gLoopback == NULL) {
+            pthread_mutex_unlock(&gPlugIn_StateMutex);
+            return kAudioHardwareUnspecifiedError;
+        }
+        if (gDevice_IOIsRunning == 0) {
+            gDevice_NumberTimeStamps = 0;
+            gDevice_AnchorSampleTime = 0;
+            gDevice_AnchorHostTime = mach_absolute_time();
+            AudioTimelineBufferReset(gLoopback);
+        } else if (inDeviceObjectID == kObjectID_Device_Writer && *clients == 0) {
+            // A new writer discards old audio without moving the clock of an existing meeting reader.
+            AudioTimelineBufferReset(gLoopback);
+        }
+        ++gDevice_IOIsRunning;
+        ++*clients;
+    }
+    pthread_mutex_unlock(&gPlugIn_StateMutex);
+    return result;
 }
 
 static OSStatus	FaceNowMicrophone_StopIO(AudioServerPlugInDriverRef inDriver, AudioObjectID inDeviceObjectID, UInt32 inClientID)
 {
-	//	This call tells the device that the client has stopped IO. The driver can stop the hardware
-	//	once all clients have stopped.
-	
-	#pragma unused(inClientID)
-	
-	//	declare the local variables
-	OSStatus theAnswer = 0;
-	
-	//	check the arguments
-	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_StopIO: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_StopIO: bad device ID");
-
-	//	we need to hold the state lock
-	pthread_mutex_lock(&gPlugIn_StateMutex);
-	
-	//	figure out what we need to do
-	if(gDevice_IOIsRunning == 0)
-	{
-		//	underflowing is an error
-		theAnswer = kAudioHardwareIllegalOperationError;
-	}
-	else if(gDevice_IOIsRunning == 1)
-	{
-		//	We need to stop the hardware, which in this case means that there's nothing to do.
-		gDevice_IOIsRunning = 0;
-	}
-	else
-	{
-		//	IO is still running, so just bump the counter
-		--gDevice_IOIsRunning;
-	}
-	
-	//	unlock the state lock
-	pthread_mutex_unlock(&gPlugIn_StateMutex);
-	
-Done:
-	return theAnswer;
+    (void)inClientID;
+    if (inDriver != gAudioServerPlugInDriverRef || !FaceNowMicrophone_IsDevice(inDeviceObjectID))
+        return kAudioHardwareBadObjectError;
+    pthread_mutex_lock(&gPlugIn_StateMutex);
+    UInt64* clients = inDeviceObjectID == kObjectID_Device ? &gInput_IOIsRunning : &gWriter_IOIsRunning;
+    OSStatus result = noErr;
+    if (*clients == 0) {
+        result = kAudioHardwareIllegalOperationError;
+    } else {
+        --*clients;
+        --gDevice_IOIsRunning;
+        if (inDeviceObjectID == kObjectID_Device_Writer && *clients == 0 && gLoopback != NULL)
+            AudioTimelineBufferReset(gLoopback);
+    }
+    pthread_mutex_unlock(&gPlugIn_StateMutex);
+    return result;
 }
 
 static OSStatus	FaceNowMicrophone_GetZeroTimeStamp(AudioServerPlugInDriverRef inDriver, AudioObjectID inDeviceObjectID, UInt32 inClientID, Float64* outSampleTime, UInt64* outHostTime, UInt64* outSeed)
@@ -4090,7 +3934,7 @@ static OSStatus	FaceNowMicrophone_GetZeroTimeStamp(AudioServerPlugInDriverRef in
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetZeroTimeStamp: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetZeroTimeStamp: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_GetZeroTimeStamp: bad device ID");
 
 	//	we need to hold the locks
 	pthread_mutex_lock(&gPlugIn_StateMutex);
@@ -4133,7 +3977,7 @@ static OSStatus	FaceNowMicrophone_WillDoIOOperation(AudioServerPlugInDriverRef i
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_WillDoIOOperation: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_WillDoIOOperation: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_WillDoIOOperation: bad device ID");
 
 	//	figure out if we support the operation
 	bool willDo = false;
@@ -4141,12 +3985,12 @@ static OSStatus	FaceNowMicrophone_WillDoIOOperation(AudioServerPlugInDriverRef i
 	switch(inOperationID)
 	{
 		case kAudioServerPlugInIOOperationReadInput:
-			willDo = true;
+			willDo = inDeviceObjectID == kObjectID_Device;
 			willDoInPlace = true;
 			break;
 			
 		case kAudioServerPlugInIOOperationWriteMix:
-			willDo = true;
+			willDo = inDeviceObjectID == kObjectID_Device_Writer;
 			willDoInPlace = true;
 			break;
 			
@@ -4178,7 +4022,7 @@ static OSStatus	FaceNowMicrophone_BeginIOOperation(AudioServerPlugInDriverRef in
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_BeginIOOperation: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_BeginIOOperation: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_BeginIOOperation: bad device ID");
 
 Done:
 	return theAnswer;
@@ -4196,8 +4040,14 @@ static OSStatus	FaceNowMicrophone_DoIOOperation(AudioServerPlugInDriverRef inDri
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_DoIOOperation: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_DoIOOperation: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_DoIOOperation: bad device ID");
 	FailWithAction((inStreamObjectID != kObjectID_Stream_Input) && (inStreamObjectID != kObjectID_Stream_Output), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_DoIOOperation: bad stream ID");
+
+    FailWithAction((inOperationID == kAudioServerPlugInIOOperationReadInput
+                       && (inDeviceObjectID != kObjectID_Device || inStreamObjectID != kObjectID_Stream_Input))
+                   || (inOperationID == kAudioServerPlugInIOOperationWriteMix
+                       && (inDeviceObjectID != kObjectID_Device_Writer || inStreamObjectID != kObjectID_Stream_Output)),
+                   theAnswer = kAudioHardwareIllegalOperationError, Done, "IO operation targets the wrong endpoint");
 
     FailWithAction(ioMainBuffer == NULL || inIOCycleInfo == NULL || inIOBufferFrameSize > 32768,
                    theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_DoIOOperation: invalid buffer");
@@ -4235,7 +4085,7 @@ static OSStatus	FaceNowMicrophone_EndIOOperation(AudioServerPlugInDriverRef inDr
 	
 	//	check the arguments
 	FailWithAction(inDriver != gAudioServerPlugInDriverRef, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_EndIOOperation: bad driver reference");
-	FailWithAction(inDeviceObjectID != kObjectID_Device, theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_EndIOOperation: bad device ID");
+	FailWithAction(!FaceNowMicrophone_IsDevice(inDeviceObjectID), theAnswer = kAudioHardwareBadObjectError, Done, "FaceNowMicrophone_EndIOOperation: bad device ID");
 
 Done:
 	return theAnswer;

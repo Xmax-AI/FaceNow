@@ -7,7 +7,7 @@
 #include <math.h>
 #include <mach/mach_time.h>
 
-#define CAPACITY 524288u
+#define CAPACITY 1048576u
 _Static_assert(ATOMIC_LLONG_LOCK_FREE == 2, "Audio callbacks require lock-free 64-bit atomics");
 _Static_assert(ATOMIC_INT_LOCK_FREE == 2, "Audio callbacks require lock-free delay updates");
 
@@ -22,7 +22,7 @@ struct AudioTimelineBuffer {
     _Atomic uint64_t epoch;
     double sampleRate;
     double ticksToSeconds;
-    /// The worker-written target hold in sample frames, limited to two seconds.
+    /// The worker-written target hold in sample frames, limited to five seconds.
     _Atomic uint32_t targetDelay;
     /// Render-owned read positions; only the serialized AudioUnit callback accesses these fields.
     uint32_t currentDelay;
@@ -56,7 +56,7 @@ void AudioTimelineBufferReset(AudioTimelineBuffer* buffer) { if (buffer) atomic_
 
 void AudioTimelineBufferSetPlaybackDelay(AudioTimelineBuffer* buffer, double seconds) {
     if (!buffer) return;
-    double delay = isfinite(seconds) ? fmin(2, fmax(0, seconds)) : 0;
+    double delay = isfinite(seconds) ? fmin(5, fmax(0, seconds)) : 0;
     atomic_store(&buffer->targetDelay, (uint32_t)llround(delay * buffer->sampleRate));
 }
 

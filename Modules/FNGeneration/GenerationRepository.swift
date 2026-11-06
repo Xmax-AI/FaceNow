@@ -154,8 +154,8 @@ final class GenerationRepository: ObservableObject {
 
     /// The signed audio offset for meeting output; positive delays audio and negative delays video.
     @Published private(set) var audioSyncOffsetMilliseconds = min(
-        2000,
-        max(-2000, UserDefaults.standard.integer(forKey: "generation.audioSyncOffsetMilliseconds"))
+        5000,
+        max(-5000, UserDefaults.standard.integer(forKey: "generation.audioSyncOffsetMilliseconds"))
     )
 
     /// Coalesces slider updates without restarting output devices or clearing queued media.
@@ -309,7 +309,7 @@ final class GenerationRepository: ObservableObject {
         guard !settingsLocked else { return }
         refreshMicrophones()
         let available = deviceMonitor.devices.filter {
-            $0.uniqueID.caseInsensitiveCompare(VirtualCameraConfiguration.deviceID.uuidString) != .orderedSame
+            !VirtualCameraConfiguration.isFaceNowCamera($0.uniqueID)
                 && $0.localizedName != VirtualCameraConfiguration.deviceName
         }.map {
             CaptureDevice(
@@ -1035,7 +1035,7 @@ final class GenerationRepository: ObservableObject {
         _ milliseconds: Int
     ) {
         guard sessionActive, !isClosing else { return }
-        let value = min(2000, max(-2000, milliseconds))
+        let value = min(5000, max(-5000, milliseconds))
         guard value != audioSyncOffsetMilliseconds else { return }
         audioSyncOffsetMilliseconds = value
         UserDefaults.standard.set(value, forKey: "generation.audioSyncOffsetMilliseconds")

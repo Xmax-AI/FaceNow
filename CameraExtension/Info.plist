@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>$(FACENOW_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -11,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>FaceNow - Xmax Virtual Camera</string>
+	<string>$(FACENOW_CAMERA_DEVICE_NAME)</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
@@ -19,11 +19,11 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>CFBundleDisplayName</key>
-	<string>FaceNow - Xmax Virtual Camera</string>
+	<string>$(FACENOW_CAMERA_DEVICE_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>SYSX</string>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>Provides FaceNow - Xmax Virtual Camera to video applications.</string>
+	<string>$(FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION)</string>
 	<key>CMIOExtension</key>
 	<dict>
 		<key>CMIOExtensionMachServiceName</key>

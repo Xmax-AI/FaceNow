@@ -234,11 +234,12 @@ enum CameraStrings {
 
     /// Camera preparation status or recovery message.
     static var statusEnableFaceNowXmaxVirtualCameraInSystemSettingsGeneral: String {
-        Localization.string(
+        Localization.format(
             "status.enable_facenow_xmax_virtual_camera_in_system_settings_general",
             table: "Camera",
             defaultValue:
-                "Enable FaceNow - Xmax Virtual Camera in System Settings → General → Login Items & Extensions → Camera Extensions."
+                "Enable %1$@ in System Settings → General → Login Items & Extensions → Camera Extensions.",
+            arguments: [VirtualCameraConfiguration.deviceName]
         )
     }
 

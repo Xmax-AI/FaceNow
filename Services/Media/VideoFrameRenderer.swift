@@ -34,7 +34,7 @@ final class VideoFrameRenderer {
     /// The caller-owned output contract for this renderer instance.
     private let format: VideoFormat
 
-    /// The neutral offline canvas cached for this output format.
+    /// The offline canvas and optional centered artwork cached for this output format.
     private let waitingImage: CIImage
 
     /// The caller-supplied artwork cached in output pixel coordinates, applied only to video input.
@@ -43,7 +43,8 @@ final class VideoFrameRenderer {
     /// Creates a reusable renderer with optional output-coordinate artwork and a bounded buffer pool.
     init(
         format: VideoFormat,
-        overlay: CGImage? = nil
+        overlay: CGImage? = nil,
+        waitingArtwork: CGImage? = nil
     ) throws {
         self.format = format
         self.overlay = overlay.map { CIImage(cgImage: $0) }
@@ -91,7 +92,10 @@ final class VideoFrameRenderer {
         )
         guard let description else { throw RendererError.allocation }
         formatDescription = description
-        waitingImage = Self.makeWaitingImage(bounds: bounds)
+        waitingImage = Self.makeWaitingImage(
+            bounds: bounds,
+            artwork: waitingArtwork
+        )
     }
 
     /// Reuses compatible buffers only without artwork; otherwise normalizes and composites into owned output.
@@ -122,7 +126,7 @@ final class VideoFrameRenderer {
         return try render(overlay?.composited(over: resized) ?? resized)
     }
 
-    /// Returns a blank light-gray offline frame when generated video is unavailable.
+    /// Returns the cached offline artwork when generated video is unavailable.
     func waiting() throws -> CVPixelBuffer {
         try render(waitingImage)
     }
@@ -242,18 +246,28 @@ final class VideoFrameRenderer {
         )
     }
 
-    /// Builds a neutral waiting canvas without overlay artwork.
+    /// Fits offline artwork at the center, capped at 28 percent of the canvas's shorter edge.
+    /// A white canvas preserves the supplied image's background; callers without artwork keep the neutral canvas.
     private static func makeWaitingImage(
-        bounds: CGRect
+        bounds: CGRect,
+        artwork: CGImage?
     ) -> CIImage {
-        CIImage(
-            color: CIColor(
-                red: 241.0 / 255,
-                green: 243.0 / 255,
-                blue: 244.0 / 255
+        let background = artwork == nil
+            ? CIColor(red: 241.0 / 255, green: 243.0 / 255, blue: 244.0 / 255)
+            : .white
+        let canvas = CIImage(color: background).cropped(to: bounds)
+        guard let artwork else { return canvas }
+        let image = CIImage(cgImage: artwork)
+        let size = min(bounds.width, bounds.height) * 0.28
+        let scale = size / max(image.extent.width, image.extent.height)
+        let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        let centered = scaled.transformed(
+            by: CGAffineTransform(
+                translationX: bounds.midX - scaled.extent.midX,
+                y: bounds.midY - scaled.extent.midY
             )
         )
-        .cropped(to: bounds)
+        return centered.composited(over: canvas).cropped(to: bounds)
     }
 
     /// Converts framework status codes into actionable errors.

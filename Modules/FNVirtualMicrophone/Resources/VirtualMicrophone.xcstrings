@@ -134,13 +134,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends audio from generated results. In your meeting app, select FaceNow - Xmax Virtual Microphone as the microphone. Local listening volume does not affect this output. If the result contains no audio, the microphone outputs silence."
+            "value": "In your meeting app, select %1$@ as the microphone to keep audio and video in sync. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将生成结果中的声音传给会议软件。请在会议软件中选择 FaceNow - Xmax Virtual Microphone 作为麦克风。本机监听音量不影响此输出；生成结果没有声音时，麦克风保持静音。"
+            "value": "请在会议软件中选择 %1$@ 作为麦克风，让声音与画面保持同步。本机监听音量不影响此输出；没有音频时，虚拟麦克风保持静音。"
           }
         }
       }
@@ -206,13 +206,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uninstall the FaceNow audio driver? Administrator authorization is required. Restart your Mac after removal to unload the device. This shared driver is used by both FaceNow editions. Other audio drivers will not be changed."
+            "value": "Uninstall the FaceNow audio driver? Administrator authorization is required. Restart your Mac after removal to unload the device. Only this FaceNow edition’s audio driver will be removed. The other edition and other audio drivers will not be changed."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "确认卸载 FaceNow 音频驱动？需要管理员授权，卸载后请重新启动 Mac，以移除已加载的设备。国内版与海外版共用该驱动；其他音频驱动不会受到影响。"
+            "value": "确认卸载 FaceNow 音频驱动？需要管理员授权，卸载后请重新启动 Mac，以移除已加载的设备。只会移除此版本的音频驱动，不影响另一版本或其他音频驱动。"
           }
         }
       }

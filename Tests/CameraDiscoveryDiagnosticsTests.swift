@@ -351,7 +351,7 @@ final class CameraDiscoveryDiagnosticsTests: XCTestCase, @unchecked Sendable {
     func testOnlyExecutableEmbeddedHelperIsResolved() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
-        let helper = root.appendingPathComponent("Contents/Helpers/FaceNowCameraProbe")
+        let helper = root.appendingPathComponent("Contents/Helpers/\(VirtualCameraDiagnostics.helperName)")
         try FileManager.default.createDirectory(
             at: helper.deletingLastPathComponent(),
             withIntermediateDirectories: true

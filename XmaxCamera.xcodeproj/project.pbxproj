@@ -25,7 +25,7 @@
 		0BDFB12DDE41C10B5F1FA8FE /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBBE619AF71A5264F158BFF /* OnboardingViewController.swift */; };
 		0C2F6241E177C0223C41FBFC /* UpdateConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B3748660BB70B056BFF023 /* UpdateConfiguration.swift */; };
 		0C7DA2E719B418529A7F4C13 /* VideoFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */; };
-		0D7D2C3F6ECC4774D07145ED /* com.xmax.meeting.camera.extension.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 548FDE7BE76EF22CD115D7F2 /* com.xmax.meeting.camera.extension.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0D7D2C3F6ECC4774D07145ED /* com.xmax.meeting.camera.oversea.extension.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 23EE524E7A7F42AC97803C96 /* com.xmax.meeting.camera.oversea.extension.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0DED128F63A7483BAB0A3B3D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33181E771D7849B6961719E0 /* AboutView.swift */; };
 		0EFD2926CF9B6217858923B2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F45DDBCF2262F852E3ACAB /* main.swift */; };
 		0F76EC8BCE85FC03742B9C6A /* UserDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7CC7779097DC637510EFE9 /* UserDTO.swift */; };
@@ -107,7 +107,7 @@
 		67B2B5A362C554E6CDDCD5D6 /* DMSans-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = FAFDD084ECE3F2F08F776C50 /* DMSans-OFL.txt */; };
 		681D846BD11FADB799CE8535 /* VirtualCameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* VirtualCameraConfiguration.swift */; };
 		69FBD74A0A1A377B53B23857 /* ControlMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80D2214D9084042A1EA3AC0 /* ControlMotion.swift */; };
-		6A0285D8BC45130E5FFEB6D8 /* FaceNowCameraProbe in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = ED10A6000000000000000006 /* FaceNowCameraProbe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		6A0285D8BC45130E5FFEB6D8 /* FaceNowOverseaCameraProbe in Embed Camera Probe */ = {isa = PBXBuildFile; fileRef = 1AF4B30260714AA0B8FD9928 /* FaceNowOverseaCameraProbe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		6A9ADBC735EF4548A553D4AB /* GenerationPromptTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB3F2D2864FACF23A217F8E /* GenerationPromptTextView.swift */; };
 		6E4362283CDA4644AA567E70 /* Generation.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A921AE336FE2407094DDD149 /* Generation.xcstrings */; };
 		704A8FCED2ABDDB31F8F0101 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBBE619AF71A5264F158BFF /* OnboardingViewController.swift */; };
@@ -301,6 +301,23 @@
 		09AEF5760A6145E3921A7709 /* GenerationAdjustmentPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */; };
 		D75624EA5B734BCC86AF540A /* GenerationAudioControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */; };
 		7F108C87185243D0B2E92BAD /* GenerationAudioControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */; };
+		00B5CEDDFE9E4FACB348564E /* VideoFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */; };
+		83AED43707E44DEFA973F53E /* CameraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3762F515C2691E64BD4396C /* CameraProvider.swift */; };
+		9592A2A6D36A4EAC9C5DA1B1 /* CameraStreamSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB07A62B54184A9EDD5EFA76 /* CameraStreamSource.swift */; };
+		A5199C5FB2434E0D831DBE39 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F45DDBCF2262F852E3ACAB /* main.swift */; };
+		8E43F7E4344A49B78C684448 /* VirtualCameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* VirtualCameraConfiguration.swift */; };
+		FD7DF257164744C889D7D08F /* VideoFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */; };
+		76A1DA6EBF1943098F09A668 /* ScheduledFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */; };
+		5D79FCA866A749BEA17FBF24 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35AE350B17E3ECBF2E1C46F5 /* Cocoa.framework */; };
+		3BFFE0740CDF4AE7B10BEFB5 /* xmax-wordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EF32AFED00A1810D1BC6E16 /* xmax-wordmark.png */; };
+		435BB331B8B54C6CAB6D01FC /* VideoFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */; };
+		851D9E5B7CE04A94B1D57B33 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A6000000000000000002 /* main.swift */; };
+		C2FAE0648079457FB68BFF92 /* VirtualCameraDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */; };
+		5B2830B2B32442D9AA8C557E /* VirtualCameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* VirtualCameraConfiguration.swift */; };
+		010B442984F44348ABF18950 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
+		9FEB046115F549A983AF1470 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
+		9FAE18E9222E419291727849 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
+		71E3B2D795044D86BFA56A80 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -308,15 +325,15 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = EFC3001F4B9B1E4A6BE63472 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = BD76D3D724D4D028F97D966F;
-			remoteInfo = XmaxCameraExtension;
+			remoteGlobalIDString = F63E821F45674A28B652AC65;
+			remoteInfo = FaceNowOverseaCameraExtension;
 		};
 		E0D312DA1916FA19D381640B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EFC3001F4B9B1E4A6BE63472 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = ED10A6000000000000000009;
-			remoteInfo = FaceNowCameraProbe;
+			remoteGlobalIDString = C74CDCA7BC55402487C08AAD;
+			remoteInfo = FaceNowOverseaCameraProbe;
 		};
 		E3BAF2B21F7B4FFD00A2C9BF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -547,6 +564,9 @@
 		60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAudioControlsView.swift; sourceTree = "<group>"; };
 		3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAdjustmentPopoverView.swift; sourceTree = "<group>"; };
 		B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAudioControlsViewModel.swift; sourceTree = "<group>"; };
+		23EE524E7A7F42AC97803C96 /* com.xmax.meeting.camera.oversea.extension.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.xmax.meeting.camera.oversea.extension.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AF4B30260714AA0B8FD9928 /* FaceNowOverseaCameraProbe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FaceNowOverseaCameraProbe; sourceTree = BUILT_PRODUCTS_DIR; };
+		5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FaceNowCameraPlaceholder.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -592,6 +612,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (ED10B7000000000000000015 /* XmaxRealtimeBeautyWorkerSupport in Frameworks */, );
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEEEDC5455F149BB8CA44C9C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D79FCA866A749BEA17FBF24 /* Cocoa.framework in Frameworks */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -744,6 +772,8 @@
 		3591BDEBAE5C7EAD0E628879 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				23EE524E7A7F42AC97803C96 /* FaceNowOverseaCameraExtension */,
+				1AF4B30260714AA0B8FD9928 /* FaceNowOverseaCameraProbe */,
 				606E92A00D1608AECF5468D8 /* FaceNow.app */,
 				31626DE0A2F7B97F1E04ED35 /* FaceNow.app */,
 				ED10A6000000000000000006 /* FaceNowCameraProbe */,
@@ -835,6 +865,7 @@
 		4959D9FC9BBE2C684A18ABD8 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */,
 				32426F78F58740F88B1CAC3D /* Localization */,
 				A9DD008F433DBC9FF49D1D8E /* Assets.xcassets */,
 				ED10A2000000000000000002 /* AppIcon.icon */,
@@ -1347,6 +1378,38 @@
 			productType = "com.apple.product-type.xpc-service";
 		};
 
+		F63E821F45674A28B652AC65 /* FaceNowOverseaCameraExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E7B6E775C0D944FDBD0BB73D /* Build configuration list for PBXNativeTarget "FaceNowOverseaCameraExtension" */;
+			buildPhases = (
+				38B6BE47771D418A891009D9 /* Sources */,
+				AEEEDC5455F149BB8CA44C9C /* Frameworks */,
+				2B343A4FDA1F498AA987BF14 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FaceNowOverseaCameraExtension;
+			productName = FaceNowOverseaCameraExtension;
+			productReference = 23EE524E7A7F42AC97803C96 /* com.xmax.meeting.camera.oversea.extension.systemextension */;
+			productType = "com.apple.product-type.system-extension";
+		};
+		C74CDCA7BC55402487C08AAD /* FaceNowOverseaCameraProbe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD5DD9140DC047BD9124BA9E /* Build configuration list for PBXNativeTarget "FaceNowOverseaCameraProbe" */;
+			buildPhases = (
+				9479621123F54031BB5C9DC9 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FaceNowOverseaCameraProbe;
+			productName = FaceNowOverseaCameraProbe;
+			productReference = 1AF4B30260714AA0B8FD9928 /* FaceNowOverseaCameraProbe */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1417,6 +1480,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				F63E821F45674A28B652AC65 /* FaceNowOverseaCameraExtension */,
+				C74CDCA7BC55402487C08AAD /* FaceNowOverseaCameraProbe */,
 				7EF4C081D4D1FA0411233A3C /* XmaxCamera */,
 				17CB8784BD0FAC4A3278BF0A /* FaceNow-oversea */,
 				BD76D3D724D4D028F97D966F /* XmaxCameraExtension */,
@@ -1431,6 +1496,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				010B442984F44348ABF18950 /* FaceNowCameraPlaceholder.png in Resources */,
 				32C76E33A993AE6FB3838B0C /* VirtualMicrophone.xcstrings */,
 				244DA2B340CF128DAB2DBE11 /* Onboarding.xcassets in Resources */,
 				2CAB5C069C0382B757753C16 /* FaceNowLoginPoster.png in Resources */,
@@ -1455,6 +1521,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FAE18E9222E419291727849 /* FaceNowCameraPlaceholder.png in Resources */,
 				85CD855B5A0DDFE40B110C1F /* xmax-wordmark.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1463,6 +1530,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FEB046115F549A983AF1470 /* FaceNowCameraPlaceholder.png in Resources */,
 				3C5691D8FF1444288BA9BADE /* VirtualMicrophone.xcstrings */,
 				A1A5B98F9CB7863FD6AE15A9 /* Onboarding.xcassets in Resources */,
 				7CA9B8B28C4F00FBF661BD58 /* FaceNowLoginPoster.png in Resources */,
@@ -1480,6 +1548,15 @@
 				B3DA3023A57C43AB9DFAF62F /* DMSans.ttf in Resources */,
 				9A38EE41DADF140BFCAC2D42 /* DMSans-OFL.txt in Resources */,
 				4003A80E5AF3FB365B2CEC44 /* xmax-wordmark.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B343A4FDA1F498AA987BF14 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				71E3B2D795044D86BFA56A80 /* FaceNowCameraPlaceholder.png in Resources */,
+				3BFFE0740CDF4AE7B10BEFB5 /* xmax-wordmark.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1525,7 +1602,8 @@
             alwaysOutOfDate = 1;
             buildActionMask = 2147483647;
             files = ();
-            inputPaths = ("$(SRCROOT)/Scripts/build-virtual-microphone.py", "$(SRCROOT)/Scripts/Audio/uninstall-microphone.sh", "$(SRCROOT)/VirtualMicrophoneDriver", "$(SRCROOT)/Services/Media/Audio");
+            inputPaths = ("$(SRCROOT)/Scripts/build-virtual-microphone.py",
+				"$(SRCROOT)/Configuration/DeviceIdentities.json", "$(SRCROOT)/Scripts/Audio/uninstall-microphone.sh", "$(SRCROOT)/VirtualMicrophoneDriver", "$(SRCROOT)/Services/Media/Audio");
             name = "Build Virtual Microphone Installer";
             outputPaths = ("$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophone.pkg", "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophoneUninstall.pkg");
             runOnlyForDeploymentPostprocessing = 0;
@@ -1537,7 +1615,8 @@
             alwaysOutOfDate = 1;
             buildActionMask = 2147483647;
             files = ();
-            inputPaths = ("$(SRCROOT)/Scripts/build-virtual-microphone.py", "$(SRCROOT)/Scripts/Audio/uninstall-microphone.sh", "$(SRCROOT)/VirtualMicrophoneDriver", "$(SRCROOT)/Services/Media/Audio");
+            inputPaths = ("$(SRCROOT)/Scripts/build-virtual-microphone.py",
+				"$(SRCROOT)/Configuration/DeviceIdentities.json", "$(SRCROOT)/Scripts/Audio/uninstall-microphone.sh", "$(SRCROOT)/VirtualMicrophoneDriver", "$(SRCROOT)/Services/Media/Audio");
             name = "Build Virtual Microphone Installer";
             outputPaths = ("$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophone.pkg", "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/FaceNowMicrophoneUninstall.pkg");
             runOnlyForDeploymentPostprocessing = 0;
@@ -1816,18 +1895,43 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 
+		38B6BE47771D418A891009D9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00B5CEDDFE9E4FACB348564E /* VideoFormat.swift in Sources */,
+				83AED43707E44DEFA973F53E /* CameraProvider.swift in Sources */,
+				9592A2A6D36A4EAC9C5DA1B1 /* CameraStreamSource.swift in Sources */,
+				A5199C5FB2434E0D831DBE39 /* main.swift in Sources */,
+				8E43F7E4344A49B78C684448 /* VirtualCameraConfiguration.swift in Sources */,
+				FD7DF257164744C889D7D08F /* VideoFrameRenderer.swift in Sources */,
+				76A1DA6EBF1943098F09A668 /* ScheduledFrameStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9479621123F54031BB5C9DC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				435BB331B8B54C6CAB6D01FC /* VideoFormat.swift in Sources */,
+				851D9E5B7CE04A94B1D57B33 /* main.swift in Sources */,
+				C2FAE0648079457FB68BFF92 /* VirtualCameraDiscovery.swift in Sources */,
+				5B2830B2B32442D9AA8C557E /* VirtualCameraConfiguration.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		48DAE2DDADEC9959A79CE0AB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = ED10A6000000000000000009 /* FaceNowCameraProbe */;
+			target = C74CDCA7BC55402487C08AAD /* FaceNowOverseaCameraProbe */;
 			targetProxy = E0D312DA1916FA19D381640B /* PBXContainerItemProxy */;
 		};
 		C2774EF49758B038BCBE6B7A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = XmaxCameraExtension;
-			target = BD76D3D724D4D028F97D966F /* XmaxCameraExtension */;
+			name = FaceNowOverseaCameraExtension;
+			target = F63E821F45674A28B652AC65 /* FaceNowOverseaCameraExtension */;
 			targetProxy = 1721F480970409E2CE3C6BF8 /* PBXContainerItemProxy */;
 		};
 		E37B833DC7CA2B736B60B5BA /* PBXTargetDependency */ = {
@@ -2225,6 +2329,112 @@
 			name = Release;
 		};
 
+		49467D7E37B1411C8CDFAC1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
+			buildSettings = {
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) OVERSEA";
+				FACENOW_EDITION = oversea;
+				FACENOW_LANGUAGE = en;
+				FACENOW_CAMERA_DEVICE_NAME = "FaceNow Virtual Camera";
+				FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION = "FaceNow uses FaceNow Virtual Camera to provide generated video to calling apps.";
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CameraExtension/CameraExtension.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = A84PZNYY82;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CameraExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.oversea.extension;
+				PRODUCT_NAME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+			};
+			name = Release;
+		};
+		8351EA121DA24079906F1B21 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
+			buildSettings = {
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) OVERSEA";
+				FACENOW_EDITION = oversea;
+				FACENOW_LANGUAGE = en;
+				FACENOW_CAMERA_DEVICE_NAME = "FaceNow Virtual Camera";
+				FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION = "FaceNow uses FaceNow Virtual Camera to provide generated video to calling apps.";
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CameraExtension/CameraExtension.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = A84PZNYY82;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CameraExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.oversea.extension;
+				PRODUCT_NAME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+			};
+			name = Debug;
+		};
+		98A2957755BB4FF088D11957 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
+			buildSettings = {
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) OVERSEA";
+				FACENOW_EDITION = oversea;
+				FACENOW_LANGUAGE = en;
+				FACENOW_CAMERA_DEVICE_NAME = "FaceNow Virtual Camera";
+				FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION = "FaceNow uses FaceNow Virtual Camera to provide generated video to calling apps.";
+				CODE_SIGN_ENTITLEMENTS = CameraProbe/FaceNowCameraProbe.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				DEVELOPMENT_TEAM = A84PZNYY82;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.oversea.probe;
+				PRODUCT_NAME = FaceNowOverseaCameraProbe;
+				REGISTER_APP_GROUPS = NO;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		3200C136C7094B95A2ED7D60 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6B2FFF3FC98C5BA4A4D85D0A /* Base.xcconfig */;
+			buildSettings = {
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) OVERSEA";
+				FACENOW_EDITION = oversea;
+				FACENOW_LANGUAGE = en;
+				FACENOW_CAMERA_DEVICE_NAME = "FaceNow Virtual Camera";
+				FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION = "FaceNow uses FaceNow Virtual Camera to provide generated video to calling apps.";
+				CODE_SIGN_ENTITLEMENTS = CameraProbe/FaceNowCameraProbe.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				DEVELOPMENT_TEAM = A84PZNYY82;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xmax.meeting.camera.oversea.probe;
+				PRODUCT_NAME = FaceNowOverseaCameraProbe;
+				REGISTER_APP_GROUPS = NO;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2283,6 +2493,24 @@
 			defaultConfigurationName = Release;
 		};
 
+		E7B6E775C0D944FDBD0BB73D /* Build configuration list for PBXNativeTarget "FaceNowOverseaCameraExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49467D7E37B1411C8CDFAC1A /* Release */,
+				8351EA121DA24079906F1B21 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CD5DD9140DC047BD9124BA9E /* Build configuration list for PBXNativeTarget "FaceNowOverseaCameraProbe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98A2957755BB4FF088D11957 /* Debug */,
+				3200C136C7094B95A2ED7D60 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */

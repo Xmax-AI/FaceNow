@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifndef FACENOW_DEVICE_UID
+#define FACENOW_DEVICE_UID "com.xmax.facenow.microphone.device"
+#endif
+#ifndef FACENOW_WRITER_UID
+#define FACENOW_WRITER_UID "com.xmax.facenow.microphone.writer"
+#endif
 struct MicrophoneReadProbe { AudioDeviceID device; AudioDeviceIOProcID proc; MicrophoneReadResult result; };
 static OSStatus readFrames(AudioDeviceID device, const AudioTimeStamp *now, const AudioBufferList *input, const AudioTimeStamp *inputTime, AudioBufferList *output, const AudioTimeStamp *outputTime, void *context) {
     MicrophoneReadProbe *probe = context;
@@ -25,7 +31,7 @@ static OSStatus readFrames(AudioDeviceID device, const AudioTimeStamp *now, cons
 }
 MicrophoneReadProbe *MicrophoneReadProbeStart(void) {
     MicrophoneReadProbe *probe=calloc(1,sizeof(*probe));
-    CFStringRef uid=CFSTR("com.xmax.facenow.microphone.device");
+    CFStringRef uid=CFSTR(FACENOW_DEVICE_UID);
     AudioObjectPropertyAddress a={kAudioHardwarePropertyTranslateUIDToDevice,kAudioObjectPropertyScopeGlobal,kAudioObjectPropertyElementMain};
     UInt32 size=sizeof(probe->device);
     probe->result.status=AudioObjectGetPropertyData(kAudioObjectSystemObject,&a,sizeof(uid),&uid,&size,&probe->device);
@@ -34,6 +40,17 @@ MicrophoneReadProbe *MicrophoneReadProbeStart(void) {
     UInt32 running=0; size=sizeof(running);
     probe->result.status=AudioObjectGetPropertyData(probe->device,&a,0,NULL,&size,&running);
     if (probe->result.status || running) { if (!probe->result.status) probe->result.status=-2; return probe; }
+    CFStringRef writerUID = CFSTR(FACENOW_WRITER_UID);
+    AudioDeviceID writer = kAudioObjectUnknown;
+    a.mSelector = kAudioHardwarePropertyTranslateUIDToDevice;
+    size = sizeof(writer);
+    OSStatus writerStatus = AudioObjectGetPropertyData(kAudioObjectSystemObject, &a, sizeof(writerUID), &writerUID, &size, &writer);
+    if (writerStatus == noErr && writer != kAudioObjectUnknown) {
+        a.mSelector = kAudioDevicePropertyDeviceIsRunningSomewhere;
+        size = sizeof(running);
+        probe->result.status = AudioObjectGetPropertyData(writer, &a, 0, NULL, &size, &running);
+        if (probe->result.status || running) { if (!probe->result.status) probe->result.status=-2; return probe; }
+    }
     probe->result.status=AudioDeviceCreateIOProcID(probe->device,readFrames,probe,&probe->proc);
     if (!probe->result.status) probe->result.status=AudioDeviceStart(probe->device,probe->proc);
     return probe;

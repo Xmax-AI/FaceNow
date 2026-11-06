@@ -15,8 +15,11 @@ import os
 /// Serializes device and converter ownership; only the C ring crosses into the realtime callback.
 final class VirtualMicrophoneOutput: @unchecked Sendable {
 
-    /// Stable identity shared by both app editions and preserved across driver upgrades.
-    static let deviceUID = "com.xmax.facenow.microphone.device"
+    /// Stable identity for this app edition, preserved across driver upgrades.
+    static let deviceUID = VirtualMicrophoneConfiguration.deviceUID
+
+    /// The hidden output endpoint used only to deliver generated audio to the public microphone.
+    static let writerDeviceUID = VirtualMicrophoneConfiguration.writerDeviceUID
 
     /// Retains native failure codes for troubleshooting without exposing PCM or account data.
     private let logger = Logger(
@@ -80,7 +83,30 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
 
     /// Returns the installed device by immutable UID without changing the system defaults.
     static func installedDevice() -> AudioDeviceID? {
-        var uid: CFString = deviceUID as CFString
+        device(withUID: deviceUID)
+    }
+
+    /// Uses the hidden writer, retaining compatibility until an installed duplex driver is upgraded.
+    static func installedWriterDevice() -> AudioDeviceID? {
+        if let writer = device(withUID: writerDeviceUID) { return writer }
+        guard let legacy = installedDevice() else { return nil }
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyStreams,
+            mScope: kAudioObjectPropertyScopeOutput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var size: UInt32 = 0
+        guard AudioObjectGetPropertyDataSize(legacy, &address, 0, nil, &size) == noErr,
+            size > 0
+        else { return nil }
+        return legacy
+    }
+
+    /// Resolves hidden devices through the system UID translation API instead of normal enumeration.
+    private static func device(
+        withUID identifier: String
+    ) -> AudioDeviceID? {
+        var uid: CFString = identifier as CFString
         var address = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyTranslateUIDToDevice,
             mScope: kAudioObjectPropertyScopeGlobal,
@@ -110,7 +136,7 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
             stopStatistics()
             stopUnit()
             self.producer = producer
-            self.playbackDelay = playbackDelay.isFinite ? min(2, max(0, playbackDelay)) : 0
+            self.playbackDelay = playbackDelay.isFinite ? min(5, max(0, playbackDelay)) : 0
             prepareOutput()
         }
     }
@@ -122,7 +148,7 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
     ) {
         worker.async { [self] in
             guard self.producer == producer else { return }
-            playbackDelay = delay.isFinite ? min(2, max(0, delay)) : 0
+            playbackDelay = delay.isFinite ? min(5, max(0, delay)) : 0
             AudioTimelineBufferSetPlaybackDelay(ring, playbackDelay)
         }
     }
@@ -311,7 +337,7 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
             _ = unit
             stopUnit()
         }
-        guard let device = Self.installedDevice() else { throw OutputError.notInstalled }
+        guard let device = Self.installedWriterDevice() else { throw OutputError.notInstalled }
         self.device = device
         var address = AudioObjectPropertyAddress(
             mSelector: kAudioDevicePropertyNominalSampleRate,

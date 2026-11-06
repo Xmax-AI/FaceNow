@@ -28,8 +28,8 @@ final class OnboardingLandingView: Canvas {
     /// Opens camera-permission guidance from the physical-input selector.
     var onShowCameraSetup: (() -> Void)?
 
-    /// Routes microphone privacy navigation to the home coordinator.
-    var onShowMicrophoneSettings: (() -> Void)?
+    /// Opens microphone-permission guidance through the home coordinator.
+    var onShowMicrophoneSetup: (() -> Void)?
 
     /// Shows confirmed permission or device failures above the camera canvas.
     private lazy var setupReminder: CameraStatusBannerView = {
@@ -90,7 +90,7 @@ final class OnboardingLandingView: Canvas {
     /// Selects the system microphone, a named input, or disabled capture before starting.
     private lazy var microphonePicker: HomeInputPickerView = {
         let view = HomeInputPickerView(input: .microphone)
-        view.onShowMicrophoneSettings = { [weak self] in self?.onShowMicrophoneSettings?() }
+        view.onShowMicrophoneSetup = { [weak self] in self?.onShowMicrophoneSetup?() }
         return view
     }()
 

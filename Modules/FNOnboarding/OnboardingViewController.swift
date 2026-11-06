@@ -84,6 +84,7 @@ final class OnboardingViewController: NSViewController {
     /// Binds system and repository changes without starting capture or generation.
     override func loadView() {
         view = guide
+        viewModel.virtualMicrophoneRepo.resetDeviceCheck()
         viewModel.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(in: &observations)
         viewModel.onboardingRepo.objectWillChange.sink { [weak self] in self?.scheduleRender() }.store(
             in: &observations
@@ -163,6 +164,7 @@ final class OnboardingViewController: NSViewController {
         actionTask = nil
         actionID = nil
         observations.removeAll()
+        viewModel.virtualMicrophoneRepo.resetDeviceCheck()
     }
 
     /// Owns the explicit action and suppresses navigation after the modal has been dismissed.

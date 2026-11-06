@@ -10,13 +10,12 @@ final class OnboardingRepositoryTests: XCTestCase {
         withRepository { _, _ in
             let repository = OnboardingRepository()
             repository.begin(at: .virtualCamera)
-            XCTAssertEqual(repository.step, .virtualCamera)
             repository.updateReadiness(camera: false, microphone: false, virtualMicrophone: false, virtualCamera: true)
             XCTAssertEqual(repository.step, .virtualCamera)
             repository.complete()
             XCTAssertFalse(repository.hasCompletedGuide)
             repository.advance()
-            XCTAssertEqual(repository.step, .microphone)
+            XCTAssertEqual(repository.step, .camera)
         }
     }
 
@@ -42,7 +41,7 @@ final class OnboardingRepositoryTests: XCTestCase {
             repository.begin(at: .virtualCamera)
             repository.dismiss()
             repository.begin(at: .videoCalls)
-            XCTAssertEqual(repository.step, .microphone)
+            XCTAssertEqual(repository.step, .camera)
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
             XCTAssertEqual(repository.step, .videoCalls)
         }
@@ -196,16 +195,12 @@ final class OnboardingRepositoryTests: XCTestCase {
         withRepository { repository, _ in
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
             repository.begin()
-            repository.previous()
-            XCTAssertEqual(repository.step, .virtualCamera)
-            repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
-            XCTAssertEqual(repository.step, .virtualCamera)
-            repository.previous()
-            XCTAssertEqual(repository.step, .camera)
-            repository.previous()
-            XCTAssertEqual(repository.step, .virtualMicrophone)
-            repository.previous()
-            XCTAssertEqual(repository.step, .microphone)
+            for expected: OnboardingRepository.Step in [.virtualMicrophone, .microphone, .virtualCamera, .camera] {
+                repository.previous()
+                XCTAssertEqual(repository.step, expected)
+                repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
+                XCTAssertEqual(repository.step, expected)
+            }
             repository.advance()
             XCTAssertEqual(repository.step, .videoCalls)
         }
@@ -245,7 +240,7 @@ final class OnboardingRepositoryTests: XCTestCase {
             XCTAssertTrue(reopened.hasShownGuide)
             XCTAssertFalse(reopened.hasCompletedGuide)
             reopened.begin()
-            XCTAssertEqual(reopened.step, .microphone)
+            XCTAssertEqual(reopened.step, .camera)
         }
     }
 
@@ -267,22 +262,17 @@ final class OnboardingRepositoryTests: XCTestCase {
         }
     }
 
-    func testReviewBeginsAtMicrophoneAndVisitsEveryReadyStep() {
+    func testReviewBeginsAtCameraAndVisitsEveryReadyPage() {
         withRepository { repository, _ in
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
             repository.begin(at: .virtualCamera, fromFirstStep: true)
-            XCTAssertEqual(repository.step, .microphone)
-            repository.advance()
-            XCTAssertEqual(repository.step, .virtualMicrophone)
-            repository.advance()
-            XCTAssertEqual(repository.step, .camera)
-            repository.advance()
-            XCTAssertEqual(repository.step, .virtualCamera)
-            repository.advance()
-            XCTAssertEqual(repository.step, .videoCalls)
+            for expected: OnboardingRepository.Step in [.camera, .virtualCamera, .microphone, .virtualMicrophone, .videoCalls] {
+                XCTAssertEqual(repository.step, expected)
+                if expected != .videoCalls { repository.advance() }
+            }
             repository.dismiss()
             repository.begin(fromFirstStep: true)
-            XCTAssertEqual(repository.step, .microphone)
+            XCTAssertEqual(repository.step, .camera)
         }
     }
 
@@ -290,12 +280,9 @@ final class OnboardingRepositoryTests: XCTestCase {
         withRepository { repository, _ in
             repository.begin(fromFirstStep: true)
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
-            XCTAssertEqual(repository.step, .microphone)
-            repository.advance()
-            XCTAssertEqual(repository.step, .virtualMicrophone)
-            repository.advance()
             XCTAssertEqual(repository.step, .camera)
             repository.advance()
+            XCTAssertEqual(repository.step, .virtualCamera)
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: false)
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
             XCTAssertEqual(repository.step, .virtualCamera)
@@ -335,7 +322,7 @@ final class OnboardingRepositoryTests: XCTestCase {
             repository.begin(fromFirstStep: true)
             repository.dismiss()
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true, cameraAccessJustGranted: true)
-            XCTAssertEqual(repository.step, .microphone)
+            XCTAssertEqual(repository.step, .camera)
             XCTAssertFalse(repository.isPresented)
         }
     }
@@ -352,14 +339,14 @@ final class OnboardingRepositoryTests: XCTestCase {
         }
     }
 
-    func testMicrophoneGrantAdvancesToRemainingPreparation() {
+    func testCameraPreparationPrecedesMicrophonePermission() {
         withRepository { repository, _ in
             repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: true, virtualCamera: false)
             repository.begin()
-            XCTAssertEqual(repository.step, .microphone)
-            repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: false, microphoneAccessJustGranted: true)
             XCTAssertEqual(repository.step, .virtualCamera)
-            repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
+            repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: true, virtualCamera: true)
+            XCTAssertEqual(repository.step, .microphone)
+            repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true, microphoneAccessJustGranted: true)
             XCTAssertEqual(repository.step, .videoCalls)
         }
     }
@@ -368,7 +355,7 @@ final class OnboardingRepositoryTests: XCTestCase {
         withRepository { repository, _ in
             repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: true, virtualCamera: true)
             repository.begin()
-            repository.skipMicrophone()
+            repository.skipAudio()
             XCTAssertEqual(repository.step, .videoCalls)
             XCTAssertFalse(repository.microphoneReady)
             XCTAssertTrue(repository.microphoneSkipped)
@@ -383,19 +370,17 @@ final class OnboardingRepositoryTests: XCTestCase {
         }
     }
 
-    func testMicrophoneSkipRetainsVirtualCameraRequirementAndCanBeRevisited() {
+    func testAudioSkipRetainsVirtualCameraRequirementAndCanBeRevisited() {
         withRepository { repository, _ in
-            repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: true, virtualCamera: false)
-            repository.begin()
-            repository.skipMicrophone()
+            repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: false, virtualCamera: false)
+            repository.begin(at: .microphone)
+            repository.skipAudio()
             XCTAssertEqual(repository.step, .virtualCamera)
             repository.complete()
             XCTAssertFalse(repository.hasCompletedGuide)
             repository.previous()
             XCTAssertEqual(repository.step, .camera)
-            repository.previous()
-            XCTAssertEqual(repository.step, .virtualMicrophone)
-            repository.previous()
+            repository.begin(at: .microphone)
             XCTAssertEqual(repository.step, .microphone)
             repository.advance()
             XCTAssertEqual(repository.step, .virtualCamera)
@@ -405,12 +390,12 @@ final class OnboardingRepositoryTests: XCTestCase {
     func testMicrophoneSkipCannotBypassCameraOrChangeADismissedGuide() {
         withRepository { repository, _ in
             repository.begin()
-            repository.skipMicrophone()
+            repository.skipAudio()
             XCTAssertEqual(repository.step, .camera)
             XCTAssertFalse(repository.microphoneSkipped)
             repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: true, virtualCamera: true)
             repository.dismiss()
-            repository.skipMicrophone()
+            repository.skipAudio()
             XCTAssertEqual(repository.step, .microphone)
             XCTAssertFalse(repository.microphoneSkipped)
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true, microphoneAccessJustGranted: true)
@@ -422,7 +407,7 @@ final class OnboardingRepositoryTests: XCTestCase {
         withRepository { repository, _ in
             repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: true, virtualCamera: true)
             repository.begin()
-            repository.skipMicrophone()
+            repository.skipAudio()
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
             XCTAssertFalse(repository.microphoneSkipped)
             repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: true, virtualCamera: true)
@@ -430,51 +415,49 @@ final class OnboardingRepositoryTests: XCTestCase {
         }
     }
 
-    func testFreshGuideProgressesFromAudioDecisionsToRequiredVideoPreparation() {
+    func testFreshGuidePreparesVideoBeforeOneOptionalAudioDecision() {
         withRepository { _, _ in
             let repository = OnboardingRepository()
             repository.begin()
-            XCTAssertEqual(repository.step, .microphone)
-            repository.advance()
-            XCTAssertEqual(repository.step, .microphone)
-            repository.skipMicrophone()
-            XCTAssertEqual(repository.step, .virtualMicrophone)
-            repository.advance()
-            XCTAssertEqual(repository.step, .virtualMicrophone)
-            repository.skipVirtualMicrophone()
             XCTAssertEqual(repository.step, .camera)
-            XCTAssertFalse(repository.microphoneReady)
-            XCTAssertFalse(repository.virtualMicrophoneReady)
-            repository.complete()
-            XCTAssertFalse(repository.hasCompletedGuide)
+            repository.skipAudio()
+            XCTAssertFalse(repository.microphoneSkipped)
             repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: false, virtualCamera: false)
             XCTAssertEqual(repository.step, .virtualCamera)
             repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: false, virtualCamera: true)
+            XCTAssertEqual(repository.step, .microphone)
+            repository.skipAudio()
             XCTAssertEqual(repository.step, .videoCalls)
+            XCTAssertTrue(repository.microphoneSkipped)
+            XCTAssertTrue(repository.virtualMicrophoneSkipped)
+            XCTAssertFalse(repository.microphoneReady)
+            XCTAssertFalse(repository.virtualMicrophoneReady)
+            XCTAssertFalse(repository.hasCompletedGuide)
             repository.complete()
             XCTAssertTrue(repository.hasCompletedGuide)
         }
     }
 
-    func testSkippingPhysicalPermissionStillOffersVirtualMicrophoneWithoutCameraAccess() {
+    func testSkippingAudioDoesNotOfferAnotherAudioPageAndPersistsBothDecisions() {
         withRepository { repository, _ in
-            repository.updateReadiness(camera: false, microphone: false, virtualMicrophone: false, virtualCamera: false)
+            repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: false, virtualCamera: true)
             repository.begin()
-            repository.skipMicrophone()
-            XCTAssertEqual(repository.step, .virtualMicrophone)
-            XCTAssertFalse(repository.virtualMicrophoneSkipped)
-            repository.updateReadiness(camera: false, microphone: false, virtualMicrophone: true, virtualCamera: false)
-            XCTAssertEqual(repository.step, .camera)
+            repository.skipAudio()
+            XCTAssertEqual(repository.step, .videoCalls)
             XCTAssertTrue(repository.microphoneSkipped)
-            XCTAssertFalse(repository.microphoneReady)
+            XCTAssertTrue(repository.virtualMicrophoneSkipped)
+            let reopened = OnboardingRepository()
+            reopened.updateReadiness(camera: true, microphone: false, virtualMicrophone: false, virtualCamera: true)
+            reopened.begin()
+            XCTAssertEqual(reopened.step, .videoCalls)
         }
     }
 
     func testSkippingVirtualMicrophonePreservesPhysicalPermissionAndCameraRequirement() {
         withRepository { repository, _ in
             repository.updateReadiness(camera: false, microphone: true, virtualMicrophone: false, virtualCamera: true)
-            repository.begin()
-            repository.skipVirtualMicrophone()
+            repository.begin(at: .virtualMicrophone)
+            repository.skipAudio()
             XCTAssertEqual(repository.step, .camera)
             XCTAssertTrue(repository.microphoneReady)
             XCTAssertFalse(repository.microphoneSkipped)
@@ -487,7 +470,7 @@ final class OnboardingRepositoryTests: XCTestCase {
         withRepository { repository, _ in
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: false, virtualCamera: true)
             repository.begin()
-            repository.skipVirtualMicrophone()
+            repository.skipAudio()
             XCTAssertFalse(repository.virtualMicrophoneReady)
             XCTAssertTrue(repository.virtualMicrophoneSkipped)
             repository.complete()
@@ -497,8 +480,6 @@ final class OnboardingRepositoryTests: XCTestCase {
             reopened.begin()
             XCTAssertEqual(reopened.step, .videoCalls)
             reopened.previous()
-            reopened.previous()
-            reopened.previous()
             XCTAssertEqual(reopened.step, .virtualMicrophone)
         }
     }
@@ -507,7 +488,7 @@ final class OnboardingRepositoryTests: XCTestCase {
         withRepository { repository, _ in
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: false, virtualCamera: true)
             repository.begin()
-            repository.skipVirtualMicrophone()
+            repository.skipAudio()
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: true, virtualCamera: true)
             XCTAssertFalse(repository.virtualMicrophoneSkipped)
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: false, virtualCamera: true)
@@ -520,7 +501,7 @@ final class OnboardingRepositoryTests: XCTestCase {
             repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: false, virtualCamera: true)
             repository.begin()
             repository.dismiss()
-            repository.skipVirtualMicrophone()
+            repository.skipAudio()
             XCTAssertFalse(repository.virtualMicrophoneSkipped)
             OnboardingRepository(processID: 101).prepareForRelaunch()
             let replacement = OnboardingRepository(processID: 202)
@@ -528,6 +509,40 @@ final class OnboardingRepositoryTests: XCTestCase {
             replacement.begin(at: replacement.resumeStepAfterRelaunch)
             XCTAssertEqual(replacement.step, .virtualMicrophone)
             XCTAssertFalse(replacement.hasCompletedGuide)
+        }
+    }
+
+    func testProgressGroupsBothAudioPagesIntoOneOptionalStage() {
+        XCTAssertEqual(OnboardingRepository.Stage.allCases, [.camera, .virtualCamera, .audio, .videoCalls])
+        XCTAssertEqual(OnboardingRepository.Step.microphone.stage, .audio)
+        XCTAssertEqual(OnboardingRepository.Step.virtualMicrophone.stage, .audio)
+    }
+
+    func testRelaunchAfterCameraRegistrationResumesUnfinishedAudioSetup() {
+        withRepository { _, _ in
+            OnboardingRepository(processID: 101).prepareForRelaunch()
+            let replacement = OnboardingRepository(processID: 202)
+            replacement.updateReadiness(camera: true, microphone: false, virtualMicrophone: false, virtualCamera: true)
+            replacement.begin(at: replacement.resumeStepAfterRelaunch)
+            XCTAssertEqual(replacement.step, .microphone)
+            replacement.recordPresentation()
+            XCTAssertNil(replacement.resumeStepAfterRelaunch)
+            replacement.skipAudio()
+            XCTAssertEqual(replacement.step, .videoCalls)
+            XCTAssertFalse(replacement.hasCompletedGuide)
+        }
+    }
+
+    func testDeferredAudioDoesNotReappearWhenPhysicalPermissionChanges() {
+        withRepository { repository, _ in
+            repository.updateReadiness(camera: true, microphone: true, virtualMicrophone: false, virtualCamera: true)
+            repository.begin()
+            repository.skipAudio()
+            XCTAssertEqual(repository.step, .videoCalls)
+            repository.updateReadiness(camera: true, microphone: false, virtualMicrophone: false, virtualCamera: true)
+            XCTAssertEqual(repository.step, .videoCalls)
+            XCTAssertFalse(repository.microphoneReady)
+            XCTAssertTrue(repository.virtualMicrophoneSkipped)
         }
     }
 

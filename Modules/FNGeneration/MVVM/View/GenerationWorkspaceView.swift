@@ -28,8 +28,8 @@ final class GenerationWorkspaceView: Canvas {
         return viewModel
     }()
 
-    /// Routes microphone privacy navigation to the shared home coordinator.
-    var onShowMicrophoneSettings: (() -> Void)?
+    /// Opens microphone-permission guidance through the shared home coordinator.
+    var onShowMicrophoneSetup: (() -> Void)?
 
     // MARK: - Views
 
@@ -55,7 +55,7 @@ final class GenerationWorkspaceView: Canvas {
     /// The audio control row shared by both video panels, outside their output pixels.
     private lazy var audioControls: GenerationAudioControlsView = {
         let view = GenerationAudioControlsView()
-        view.onShowMicrophoneSettings = { [weak self] in self?.onShowMicrophoneSettings?() }
+        view.onShowMicrophoneSetup = { [weak self] in self?.onShowMicrophoneSetup?() }
         return view
     }()
 

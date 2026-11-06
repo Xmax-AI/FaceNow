@@ -3,22 +3,22 @@ import CoreVideo
 @testable import CameraCore
 
 final class AudioVideoTimelineTests: XCTestCase {
-    func testTwoSecondVideoHoldPreservesAudioClockAndHighRateFrames() throws {
-        let store = ScheduledFrameStore(capacity: 320, maximumVideoDelay: 2)
+    func testFiveSecondVideoHoldPreservesAudioClockAndHighRateFrames() throws {
+        let store = ScheduledFrameStore(capacity: 720, maximumVideoDelay: 5)
         let producer = UUID()
-        store.reset(producer: producer, videoDelay: 2)
+        store.reset(producer: producer, videoDelay: 5)
         let pixels = try makePixels()
-        for index in 0..<240 {
+        for index in 0..<600 {
             let step = Double(index) / 120
             store.submit(pixels, producer: producer, timestamp: 10 + step, duration: 1.0 / 120, now: 100 + step)
         }
-        XCTAssertEqual(store.pendingFrameCount, 240)
-        XCTAssertNil(store.frame(now: 102))
-        let frame = try XCTUnwrap(store.frame(now: 102 + 1.0 / 30))
-        XCTAssertEqual(frame.presentationTime, 102 + 1.0 / 30, accuracy: 0.00001)
+        XCTAssertEqual(store.pendingFrameCount, 600)
+        XCTAssertNil(store.frame(now: 105))
+        let frame = try XCTUnwrap(store.frame(now: 105 + 1.0 / 30))
+        XCTAssertEqual(frame.presentationTime, 105 + 1.0 / 30, accuracy: 0.00001)
         XCTAssertEqual(
-            try XCTUnwrap(store.presentationTime(forSourceTimestamp: 11.99, producer: producer)),
-            100 + 1.0 / 30 + 1.99,
+            try XCTUnwrap(store.presentationTime(forSourceTimestamp: 14.99, producer: producer)),
+            100 + 1.0 / 30 + 4.99,
             accuracy: 0.00001
         )
         XCTAssertEqual(store.takeStatistics().overflow, 0)

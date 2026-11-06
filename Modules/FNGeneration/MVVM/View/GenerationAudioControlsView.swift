@@ -22,8 +22,8 @@ final class GenerationAudioControlsView: Canvas {
     /// The complete row height shared by workspace measurement and native constraints.
     static let preferredHeight = ToolbarControlMetrics.compactHeight + 2 * contentInset
 
-    /// Routes microphone privacy navigation through the owning workspace.
-    var onShowMicrophoneSettings: (() -> Void)?
+    /// Opens microphone-permission guidance through the owning workspace.
+    var onShowMicrophoneSetup: (() -> Void)?
 
     /// Derives presentation from the shared generation state.
     private let viewModel = GenerationAudioControlsViewModel()
@@ -31,7 +31,7 @@ final class GenerationAudioControlsView: Canvas {
     /// Selects physical microphone input through the existing native device list.
     private lazy var microphonePicker: HomeInputPickerView = {
         let view = HomeInputPickerView(input: .microphone, presentation: .toolbar)
-        view.onShowMicrophoneSettings = { [weak self] in self?.onShowMicrophoneSettings?() }
+        view.onShowMicrophoneSetup = { [weak self] in self?.onShowMicrophoneSetup?() }
         view.setContentCompressionResistancePriority(.required, for: .horizontal)
         return view
     }()

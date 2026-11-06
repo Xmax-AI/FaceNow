@@ -71,8 +71,8 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
     /// Opens camera preparation only after the user requests an unavailable selector.
     var onShowCameraSetup: (() -> Void)?
 
-    /// Routes unavailable microphone authorization to the shared home coordinator.
-    var onShowMicrophoneSettings: (() -> Void)?
+    /// Opens microphone-permission guidance through the shared home coordinator.
+    var onShowMicrophoneSetup: (() -> Void)?
 
     /// Supplies discovered inputs and their shared selection.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
@@ -105,7 +105,6 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
         }
         view.cornerRadius = 16
         view.showsShadow = false
-        view.setAccessibilityLabel(input == .camera ? HomeStrings.homeSelectCamera : HomeStrings.selectMicrophone)
         view.onClick = { [weak self] in self?.showPicker() }
         return view
     }()
@@ -122,7 +121,7 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
     /// Identifies device-list changes while a popover presents an earlier snapshot.
     private var inputSignature = ""
 
-    /// Keeps permission and device refresh attached to the visible selector's lifetime.
+    /// Keeps device refresh attached to the visible selector's lifetime.
     private var pickerTask: Task<Void, Never>?
 
     /// Cancels a view-owned selection request when its containing page is removed or hidden.
@@ -180,14 +179,15 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
                 popover.contentSize = content.fittingSize
             }
         }
-        let title =
-            devices.first { $0.id == selectedID }?.name
-            ?? (input == .camera ? HomeStrings.homeSelectCamera : HomeStrings.selectMicrophone)
+        let selectionTitle = input == .camera ? HomeStrings.homeSelectCamera : HomeStrings.selectMicrophone
+        let authorizationTitle = input == .camera ? HomeStrings.authorizeCamera : HomeStrings.authorizeMicrophone
+        let title = hasInputAccess ? devices.first { $0.id == selectedID }?.name ?? selectionTitle : authorizationTitle
         if button.title != title {
             button.title = title
             invalidateIntrinsicContentSize()
         }
         button.toolTip = title
+        button.setAccessibilityLabel(hasInputAccess ? selectionTitle : authorizationTitle)
         button.setAccessibilityValue(title)
         button.isEnabled = canSelect
         if presentation == .toolbar {
@@ -198,7 +198,7 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
         if inputPopover != nil, !button.isEnabled || !hasInputAccess { closePicker() }
     }
 
-    /// Opens current input choices, routing missing camera permission through the existing setup flow.
+    /// Opens current input choices or focused guidance when the input needs permission.
     func showPicker() {
         if inputPopover?.isShown == true {
             closePicker()
@@ -215,6 +215,11 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
             virtualCameraRepo.prepareCameraInputs()
             generationRepo.refreshCameras()
         } else {
+            generationRepo.synchronizeMicrophoneAuthorization()
+            guard hasInputAccess else {
+                onShowMicrophoneSetup?()
+                return
+            }
             guard pickerTask == nil else { return }
             pickerTask = Task { [weak self] in
                 guard let self else { return }
@@ -223,12 +228,6 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
                     update()
                 }
                 guard !Task.isCancelled, canSelect, window != nil, !isHiddenOrHasHiddenAncestor else { return }
-                let granted = await generationRepo.requestMicrophoneAccess()
-                guard !Task.isCancelled, canSelect, window != nil, !isHiddenOrHasHiddenAncestor else { return }
-                guard granted else {
-                    onShowMicrophoneSettings?()
-                    return
-                }
                 await generationRepo.refreshMicrophones()?.value
                 guard !Task.isCancelled else { return }
                 presentPicker()

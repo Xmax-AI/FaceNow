@@ -21,8 +21,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
     /// The timestamped, bounded entry point for generated frames.
     let frames = ScheduledFrameStore(
         staleInterval: VirtualCameraConfiguration.staleInterval,
-        capacity: 320,
-        maximumVideoDelay: 2,
+        capacity: 720,
+        maximumVideoDelay: 5,
         copiesFrames: true
     )
 
@@ -153,7 +153,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
                                 }
                                 let renderer = try VideoFrameRenderer(
                                     format: format,
-                                    overlay: overlay
+                                    overlay: overlay,
+                                    waitingArtwork: VirtualCameraConfiguration.waitingArtwork
                                 )
                                 self.renderer = renderer
                                 self.waitingBuffer = try renderer.waiting()

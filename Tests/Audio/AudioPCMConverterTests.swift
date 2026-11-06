@@ -23,21 +23,21 @@ final class AudioPCMConverterTests: XCTestCase {
         XCTAssertTrue(flags.contains(.unitRenderAction_OutputIsSilence))
     }
 
-    func testTwoSecondAudioHistoryAtEverySupportedDeviceRate() throws {
+    func testFiveSecondAudioHistoryAtEverySupportedDeviceRate() throws {
         for rate in [44_100.0, 48_000.0, 192_000.0] {
             let ring = try XCTUnwrap(AudioTimelineBufferCreate(rate))
             defer { AudioTimelineBufferDestroy(ring) }
-            AudioTimelineBufferSetPlaybackDelay(ring, 2)
-            let frames = UInt32(rate * 2.15)
+            AudioTimelineBufferSetPlaybackDelay(ring, 5)
+            let frames = UInt32(rate * 5.15)
             let stream = [Float](repeating: 0.5, count: Int(frames) * 2)
             stream.withUnsafeBufferPointer { pointer in
                 AudioTimelineBufferSchedule(ring, 100, pointer.baseAddress, frames)
             }
             XCTAssertTrue(render(ring, at: 100).allSatisfy { $0 == 0 })
-            let delayed = render(ring, at: 102)
+            let delayed = render(ring, at: 105)
             XCTAssertTrue(delayed.allSatisfy { abs($0 - 0.5) < 0.001 })
             AudioTimelineBufferReset(ring)
-            XCTAssertTrue(render(ring, at: 102).allSatisfy { $0 == 0 })
+            XCTAssertTrue(render(ring, at: 105).allSatisfy { $0 == 0 })
         }
     }
 

@@ -278,13 +278,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enable FaceNow - Xmax Virtual Camera in System Settings → General → Login Items & Extensions → Camera Extensions."
+            "value": "Enable %1$@ in System Settings → General → Login Items & Extensions → Camera Extensions."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在“系统设置 → 通用 → 登录项与扩展 → 摄像头扩展”中启用 FaceNow - Xmax Virtual Camera。"
+            "value": "请在“系统设置 → 通用 → 登录项与扩展 → 摄像头扩展”中启用 %1$@。"
           }
         }
       }

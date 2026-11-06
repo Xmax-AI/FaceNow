@@ -187,7 +187,7 @@ final class HomeViewController: NSViewController {
         let view = OnboardingLandingView()
         view.onStart = { [weak self] in self?.startCamera() }
         view.onShowCameraSetup = { [weak self] in self?.showOnboarding(at: .camera) }
-        view.onShowMicrophoneSettings = { [weak self] in self?.openMicrophoneSettings() }
+        view.onShowMicrophoneSetup = { [weak self] in self?.showOnboarding(at: .microphone) }
         view.onCameraAction = { [weak self] action in self?.performCameraNoticeAction(action) }
         return view
     }()
@@ -195,7 +195,7 @@ final class HomeViewController: NSViewController {
     /// The persistent generation workspace, mounted before camera readiness.
     private lazy var workspace: GenerationWorkspaceView = {
         let view = GenerationWorkspaceView()
-        view.onShowMicrophoneSettings = { [weak self] in self?.openMicrophoneSettings() }
+        view.onShowMicrophoneSetup = { [weak self] in self?.showOnboarding(at: .microphone) }
         return view
     }()
 
@@ -510,7 +510,7 @@ final class HomeViewController: NSViewController {
         }
     }
 
-    /// Opens the microphone privacy page after an explicit selector action cannot obtain permission.
+    /// Opens microphone privacy settings after the guide's explicit settings action.
     private func openMicrophoneSettings() {
         guard !isShuttingDown, !viewModel.needsLogin else { return }
         guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"),

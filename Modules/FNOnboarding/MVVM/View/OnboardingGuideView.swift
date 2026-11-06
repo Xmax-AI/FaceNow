@@ -154,25 +154,6 @@ final class OnboardingGuideView: Canvas {
         return view
     }()
 
-    /// Defers preparation while retaining the persistent home reminder.
-    private lazy var later: Button = {
-        let view = Button(OnboardingStrings.guideSetUpLater, style: .plain)
-        view.font = Typography.font(size: 13)
-        view.alignment = .left
-        view.onClick = { [weak self] in self?.onDismiss?() }
-        return view
-    }()
-
-    /// Left-aligns footer actions and removes the space occupied by hidden navigation buttons.
-    private lazy var footerNavigation: NSStackView = {
-        let view = NSStackView(views: [previous, later])
-        view.orientation = .horizontal
-        view.alignment = .centerY
-        view.spacing = 24
-        view.detachesHiddenViews = true
-        return view
-    }()
-
     /// Runs the explicit permission, installation, or completion action.
     private lazy var primary: Button = {
         let view = Button(style: .primary)
@@ -185,9 +166,9 @@ final class OnboardingGuideView: Canvas {
         return view
     }()
 
-    /// Offers optional audio deferral below the current setup action.
+    /// Offers optional audio deferral beside the current setup action.
     private lazy var skipAudio: Button = {
-        let view = Button(OnboardingStrings.skipMicrophone, style: .plain)
+        let view = Button(OnboardingStrings.skipAudioSetup, style: .plain)
         view.font = Typography.font(size: 12)
         view.foregroundColor = Palette.secondary
         view.alignment = .right
@@ -195,12 +176,12 @@ final class OnboardingGuideView: Canvas {
         return view
     }()
 
-    /// Keeps the primary action and optional skip link aligned to the bottom-right corner.
+    /// Places optional deferral to the left of the primary action in the footer.
     private lazy var footerActions: NSStackView = {
-        let view = NSStackView(views: [primary, skipAudio])
-        view.orientation = .vertical
-        view.alignment = .trailing
-        view.spacing = 8
+        let view = NSStackView(views: [skipAudio, primary])
+        view.orientation = .horizontal
+        view.alignment = .centerY
+        view.spacing = 16
         view.detachesHiddenViews = true
         return view
     }()
@@ -210,7 +191,7 @@ final class OnboardingGuideView: Canvas {
         super.init()
         addSubview(backdrop)
         addSubview(card)
-        [heading, closeButton, progress, scroll, divider, footerNavigation, footerActions].forEach(card.addSubview)
+        [heading, closeButton, progress, scroll, divider, previous, footerActions].forEach(card.addSubview)
         scroll.documentView = body
         [copy, illustration].forEach(body.addSubview)
         [title, subtitle, timeline].forEach {
@@ -321,8 +302,7 @@ final class OnboardingGuideView: Canvas {
             virtualMicrophoneSkipped: repo.virtualMicrophoneSkipped,
             virtualCameraReady: repo.virtualCameraReady
         )
-        previous.isHidden = repo.step == .microphone
-        later.isHidden = !model.showsSetupLater
+        previous.isHidden = repo.step == .camera
         skipAudio.isHidden = !model.showsAudioSkip
         skipAudio.isEnabled = model.canSkipAudio
         primary.title = model.primaryTitle
@@ -353,13 +333,15 @@ final class OnboardingGuideView: Canvas {
         }
         illustration.update(
             step: repo.step,
+            isComplete: model.isPreparationComplete,
             explanation: model.preparationExplanation,
             showsCameraPermissionPrompt: !model.needsCameraSettings,
+            showsMicrophonePermissionPrompt: !model.needsMicrophoneSettings,
             virtualCameraPages: model.virtualCameraGuidePages
         )
         let controls: [NSControl] =
             ([closeButton]
-            + illustration.navigationControls + [previous, later, primary, skipAudio])
+            + illustration.navigationControls + [previous, skipAudio, primary])
             .filter { !$0.isHidden && $0.isEnabled }
         for (index, control) in controls.enumerated() {
             control.nextKeyView = controls[(index + 1) % controls.count]
@@ -418,16 +400,11 @@ final class OnboardingGuideView: Canvas {
             make.leading.equalTo(copy.snp.trailing).offset(28)
             make.trailing.top.bottom.equalToSuperview()
         }
-        footerNavigation.snp.makeConstraints { make in
+        previous.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(28)
             make.centerY.equalTo(primary)
-            make.trailing.lessThanOrEqualTo(primary.snp.leading).offset(-24)
-        }
-        previous.snp.makeConstraints { make in
+            make.trailing.lessThanOrEqualTo(footerActions.snp.leading).offset(-24)
             make.size.equalTo(CGSize(width: 48, height: 32))
-        }
-        later.snp.makeConstraints { make in
-            make.size.equalTo(CGSize(width: 100, height: 32))
         }
         primary.snp.makeConstraints { make in
             make.height.equalTo(42)
@@ -557,7 +534,7 @@ private final class OnboardingProgressView: Canvas {
         addSubview(row)
         row.snp.makeConstraints { make in make.edges.equalToSuperview() }
         var previousConnector: Canvas?
-        for (index, step) in OnboardingRepository.Step.allCases.enumerated() {
+        for (index, stage) in OnboardingRepository.Stage.allCases.enumerated() {
             if index > 0 {
                 let connector = Canvas(color: Palette.accent.withAlphaComponent(0.16), radius: 0.5)
                 connector.setAccessibilityElement(false)
@@ -593,7 +570,7 @@ private final class OnboardingProgressView: Canvas {
                 make.size.equalTo(14)
             }
             let title = makeLabel(
-                step.title,
+                stage.title,
                 size: 14,
                 color: Palette.secondary,
                 weight: .medium
@@ -627,18 +604,16 @@ private final class OnboardingProgressView: Canvas {
         virtualMicrophoneSkipped: Bool,
         virtualCameraReady: Bool
     ) {
-        for (index, step) in OnboardingRepository.Step.allCases.enumerated() {
+        for (index, stage) in OnboardingRepository.Stage.allCases.enumerated() {
             let completed: Bool
-            switch step {
+            switch stage {
             case .camera: completed = cameraReady
-            case .microphone: completed = microphoneReady
-            case .virtualMicrophone: completed = virtualMicrophoneReady
             case .virtualCamera: completed = virtualCameraReady
+            case .audio: completed = microphoneReady && virtualMicrophoneReady
             case .videoCalls: completed = false
             }
-            let active = step == current
-            let skipped = (step == .microphone && microphoneSkipped)
-                || (step == .virtualMicrophone && virtualMicrophoneSkipped)
+            let active = stage == current.stage
+            let skipped = stage == .audio && (microphoneSkipped || virtualMicrophoneSkipped)
             let fill: NSColor = completed ? .systemGreen : active ? Palette.accent : Palette.border
             let numberColor: NSColor = completed || active ? .white : Palette.secondary
             let titleColor = active ? Palette.accent : Palette.secondary
@@ -657,7 +632,7 @@ private final class OnboardingProgressView: Canvas {
             }
             badges[index].setAccessibilityLabel(
                 OnboardingStrings.stepAccessibility(
-                    title: step.title,
+                    title: stage.title,
                     state: completed
                         ? OnboardingStrings.completed
                         : skipped ? OnboardingStrings.skipped
@@ -693,6 +668,16 @@ private final class OnboardingIllustrationView: Canvas {
         return view
     }()
 
+    /// The user-supplied microphone permission screenshot, displayed without cropping.
+    private lazy var microphoneScreenshot: OnboardingScreenshotView = {
+        let view = OnboardingScreenshotView(
+            resourceName: "OnboardingMicrophonePermission",
+            crop: NSRect(x: 0, y: 0, width: 1, height: 1)
+        )
+        view.setAccessibilityLabel(OnboardingStrings.microphonePermissionPrompt)
+        return view
+    }()
+
     /// The installation illustration and supplied macOS screenshots for the extension walkthrough.
     private lazy var screenshots: OnboardingVirtualCameraScreenshotsView = {
         let view = OnboardingVirtualCameraScreenshotsView()
@@ -714,9 +699,10 @@ private final class OnboardingIllustrationView: Canvas {
     /// Composes supplied screenshots and a text fallback without simulated controls.
     init() {
         super.init(color: Palette.surface, radius: 18)
-        [explanation, screenshots, cameraScreenshot, videoCalls].forEach(addSubview)
+        [explanation, screenshots, cameraScreenshot, microphoneScreenshot, videoCalls].forEach(addSubview)
         screenshots.snp.makeConstraints { make in make.edges.equalToSuperview().inset(16) }
         cameraScreenshot.snp.makeConstraints { make in make.edges.equalToSuperview().inset(24) }
+        microphoneScreenshot.snp.makeConstraints { make in make.edges.equalToSuperview().inset(24) }
         explanation.snp.makeConstraints { make in make.edges.equalToSuperview() }
         videoCalls.snp.makeConstraints { make in make.edges.equalToSuperview().inset(16) }
     }
@@ -729,8 +715,10 @@ private final class OnboardingIllustrationView: Canvas {
     /// Displays only the pages derived from the current preparation action.
     func update(
         step: OnboardingRepository.Step,
+        isComplete: Bool,
         explanation: String,
         showsCameraPermissionPrompt: Bool,
+        showsMicrophonePermissionPrompt: Bool,
         virtualCameraPages: [OnboardingFlowViewModel.VirtualCameraGuidePage]
     ) {
         if step == .virtualCamera {
@@ -738,16 +726,27 @@ private final class OnboardingIllustrationView: Canvas {
         }
         let showsScreenshots: Bool
         if #available(macOS 15, *) {
-            showsScreenshots = step == .virtualCamera && virtualCameraPages.count > 1
+            showsScreenshots = !isComplete && step == .virtualCamera && virtualCameraPages.count > 1
         } else {
             showsScreenshots = false
         }
         screenshots.isHidden = !showsScreenshots
-        let showsCameraScreenshot = step == .camera && showsCameraPermissionPrompt
+        let showsCameraScreenshot = !isComplete && step == .camera && showsCameraPermissionPrompt
         cameraScreenshot.isHidden = !showsCameraScreenshot
+        #if OVERSEA
+            let showsMicrophoneScreenshot = false
+        #else
+            let showsMicrophoneScreenshot = !isComplete && step == .microphone && showsMicrophonePermissionPrompt
+        #endif
+        microphoneScreenshot.isHidden = !showsMicrophoneScreenshot
         videoCalls.isHidden = step != .videoCalls
-        self.explanation.isHidden = showsScreenshots || showsCameraScreenshot || step == .videoCalls
-        if step != .videoCalls { self.explanation.update(explanation) }
+        self.explanation.isHidden = showsScreenshots || showsCameraScreenshot || showsMicrophoneScreenshot || step == .videoCalls
+        if step != .videoCalls {
+            self.explanation.update(
+                isComplete ? "-" : explanation,
+                alignment: isComplete ? .center : .left
+            )
+        }
     }
 }
 
@@ -990,10 +989,13 @@ private final class OnboardingExplanationView: Canvas {
 
     /// Updates complete paragraphs only when the presented state actually changes.
     func update(
-        _ explanation: String
+        _ explanation: String,
+        alignment: NSTextAlignment = .left
     ) {
-        guard text.stringValue != explanation else { return }
+        guard text.stringValue != explanation || text.alignment != alignment else { return }
+        text.alignment = alignment
         let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = alignment
         paragraph.lineSpacing = 5
         text.attributedStringValue = NSAttributedString(
             string: explanation,
