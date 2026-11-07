@@ -32,8 +32,12 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
     }()
 
     /// Closes the card without changing the active generation session.
-    private lazy var closeButton: ToolbarButton = {
-        let view = ToolbarButton(style: .plain, shape: .circle)
+    private lazy var closeButton: Button = {
+        let view = Button(style: .plain)
+        view.configureForToolbar(weight: .regular)
+        view.leadingPadding = 0
+        view.trailingPadding = 0
+        view.centersSymbolVisually = true
         view.symbolName = "xmark"
         view.iconSize = 16
         view.foregroundColor = Palette.secondary
@@ -153,8 +157,9 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
     }()
 
     /// Restores automatic alignment by clearing the additional offset.
-    private lazy var resetButton: ToolbarButton = {
-        let view = ToolbarButton(GenerationStrings.syncReset, style: .pill)
+    private lazy var resetButton: Button = {
+        let view = Button(GenerationStrings.syncReset)
+        view.configureForToolbar(weight: .regular)
         view.cornerRadius = 7
         view.showsShadow = false
         view.centersTitleVisually = true
@@ -201,7 +206,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         closeButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(18)
             make.centerY.equalTo(heading)
-            make.height.equalTo(30)
+            make.size.equalTo(30)
         }
         automaticTitle.snp.makeConstraints { make in
             make.top.equalTo(heading.snp.bottom).offset(30)

@@ -22,6 +22,14 @@ import os
 @MainActor
 final class GenerationRepository: ObservableObject {
 
+    /// The session-local state of the live translation toggle.
+    enum TranslationState {
+        case off
+        case waitingForMicrophone
+        case preparing
+        case listening
+    }
+
     /// The user settings supplying credentials when a session starts.
     @Injected(\.userRepo) private var userRepo: UserRepository
 
@@ -75,6 +83,32 @@ final class GenerationRepository: ObservableObject {
 
     /// The latest input strength, kept outside page-wide publications to avoid redrawing generation on every sample.
     private let microphoneLevelSubject = CurrentValueSubject<Float?, Never>(nil)
+
+    /// Translation starts only after an explicit request in the current session.
+    @Published private(set) var translationState: TranslationState = .off
+
+    /// Whether this system can start the speech capture used by live translation.
+    static var supportsTranslation: Bool {
+        if #available(macOS 27.0, *) { return true }
+        return false
+    }
+
+    /// Owns speech translation for the selected input while SDK microphone capture is active.
+    private lazy var microphoneTranslation: MicrophoneTranslation = {
+        let translation = MicrophoneTranslation { [weak self] event in self?.handleTranslationEvent(event) }
+        return translation
+    }()
+
+    /// Shares subtitle pixels with the preview independently of workspace-wide state changes.
+    private let subtitleSubject = CurrentValueSubject<CGImage?, Never>(nil)
+
+    /// Emits the latest subtitle or nil when the preview should clear it.
+    var subtitles: AnyPublisher<CGImage?, Never> {
+        subtitleSubject.eraseToAnyPublisher()
+    }
+
+    /// Clears a subtitle after five seconds without another translation.
+    private var subtitleExpiration: Task<Void, Never>?
 
     /// Emits current physical microphone strength on the main actor, independently of generated audio output.
     var microphoneLevels: AnyPublisher<Float?, Never> {
@@ -387,7 +421,13 @@ final class GenerationRepository: ObservableObject {
         let operation = lifecycleID
         let previous = microphoneID
         microphoneSwitching = true
-        defer { if lifecycleID == operation { microphoneSwitching = false } }
+        synchronizeMicrophoneTranslation()
+        defer {
+            if lifecycleID == operation {
+                microphoneSwitching = false
+                synchronizeMicrophoneTranslation()
+            }
+        }
         var routeChanged = false
         do {
             if id == Self.disabledMicrophoneID {
@@ -400,6 +440,7 @@ final class GenerationRepository: ObservableObject {
             }
             guard lifecycleID == operation, !isClosing else { return }
             microphoneID = id
+            if id == Self.disabledMicrophoneID { stopTranslation() }
         } catch {
             guard lifecycleID == operation, !isClosing else { return }
             if routeChanged, previous != Self.disabledMicrophoneID {
@@ -407,8 +448,92 @@ final class GenerationRepository: ObservableObject {
             }
             let enabled = await manager.isMicrophoneEnabled
             guard lifecycleID == operation, !isClosing else { return }
-            if !enabled { microphoneID = Self.disabledMicrophoneID }
+            if !enabled {
+                microphoneID = Self.disabledMicrophoneID
+                stopTranslation()
+            }
             errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Toggles English captions without changing the selected microphone or the session.
+    func toggleTranslation() {
+        guard sessionActive, !isClosing, Self.supportsTranslation else { return }
+        if translationState != .off {
+            stopTranslation()
+            return
+        }
+        guard case .device = selectedMicrophone else {
+            errorMessage = GenerationStrings.translationChooseMicrophone
+            return
+        }
+        guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
+            errorMessage = GenerationStrings.microphonePermissionRequired
+            return
+        }
+        if let errorMessage, [
+            GenerationStrings.translationChooseMicrophone,
+            GenerationStrings.translationUnavailable,
+            GenerationStrings.microphonePermissionRequired,
+        ].contains(errorMessage) {
+            self.errorMessage = nil
+        }
+        translationState = .waitingForMicrophone
+        synchronizeMicrophoneTranslation()
+    }
+
+    /// Follows microphone capture and route changes after the user turns translation on.
+    private func synchronizeMicrophoneTranslation() {
+        guard translationState != .off else { return }
+        guard sessionActive, !microphoneSwitching, microphoneLevelSubject.value != nil,
+            case let .device(id) = selectedMicrophone
+        else {
+            if translationState != .waitingForMicrophone { translationState = .waitingForMicrophone }
+            microphoneTranslation.setDevice(nil)
+            return
+        }
+        if translationState == .waitingForMicrophone { translationState = .preparing }
+        microphoneTranslation.setDevice(id)
+    }
+
+    /// Stops speech capture and clears subtitles from both outputs.
+    private func stopTranslation() {
+        guard translationState != .off else { return }
+        translationState = .off
+        microphoneTranslation.setDevice(nil)
+    }
+
+    /// Updates the toolbar and captions from the current speech capture.
+    private func handleTranslationEvent(
+        _ event: MicrophoneTranslation.Event
+    ) {
+        switch event {
+        case .ready:
+            if translationState == .preparing { translationState = .listening }
+        case let .subtitle(text):
+            if text == nil || translationState == .listening { updateSubtitle(text) }
+        case let .failed(message):
+            stopTranslation()
+            errorMessage = GenerationStrings.translationUnavailable
+            startupLogger.error("Live translation stopped: \(message, privacy: .private)")
+        }
+    }
+
+    /// Rasterizes each translated caption once for both the preview and virtual camera.
+    private func updateSubtitle(
+        _ text: String?
+    ) {
+        if text != nil, state.connectionState != .generating || remoteStream == nil { return }
+        subtitleExpiration?.cancel()
+        subtitleExpiration = nil
+        let image = text.flatMap { VideoSubtitle.makeImage(text: $0, format: VirtualCameraConfiguration.videoFormat) }
+        guard image != nil || subtitleSubject.value != nil else { return }
+        output.setSubtitle(image)
+        subtitleSubject.send(image)
+        guard image != nil else { return }
+        subtitleExpiration = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(5)) } catch { return }
+            self?.updateSubtitle(nil)
         }
     }
 
@@ -517,6 +642,7 @@ final class GenerationRepository: ObservableObject {
         await manager.setMicrophoneLevelListener { [weak self] level in
             guard let self, self.lifecycleID == operation, !self.isClosing else { return }
             self.microphoneLevelSubject.send(level)
+            self.synchronizeMicrophoneTranslation()
         }
         await manager.setLaunchTimingListener { [weak self] timing in
             guard let self, self.lifecycleID == operation else { return }
@@ -541,6 +667,7 @@ final class GenerationRepository: ObservableObject {
                 self.sessionStartedAt = Date()
             }
             if ![.connected, .generating].contains(state.connectionState) { self.remoteStream = nil }
+            if state.connectionState != .generating { self.updateSubtitle(nil) }
             if case let .failure(error) = state.reason {
                 self.handleGenerationFailure(error, endsSession: true)
                 return
@@ -1082,7 +1209,12 @@ final class GenerationRepository: ObservableObject {
                 message: error.localizedDescription
             )
         if endsSession || insufficientCredits { resetSession() }
-        errorMessage = insufficientCredits ? AccountStrings.insufficientCredits : error.localizedDescription
+        if insufficientCredits {
+            errorMessage = nil
+            userRepo.requestRechargeNotice()
+        } else {
+            errorMessage = error.localizedDescription
+        }
     }
 
     /// Clears the currently displayed setup or generation failure.
@@ -1127,6 +1259,7 @@ final class GenerationRepository: ObservableObject {
         testPatternActive = false
         lifecycleID = UUID()
         microphoneLevelSubject.send(nil)
+        stopTranslation()
         appLaunchTiming = AppLaunchTiming()
         let operation = lifecycleID
         selectionIntent = UUID()

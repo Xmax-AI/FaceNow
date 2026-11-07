@@ -63,11 +63,13 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     /// Opens the existing account menu from a circular text avatar.
     private lazy var button: ToolbarButton = {
         let button = ToolbarButton(
-            style: .primary,
-            shape: .circle,
-            weight: .semibold
+            content: .avatar(
+                initials: viewModel.avatarText,
+                accessibilityLabel: AccountStrings.accountAccessibility(name: userRepo.displayName)
+            ),
+            role: .menu,
+            tone: .filledAccent
         )
-        button.foregroundColor = .white
         button.onClick = { [weak self] in self?.showAccount() }
         return button
     }()
@@ -75,8 +77,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     /// Displays server-confirmed credits and opens the platform credit page.
     private lazy var creditsButton: ToolbarButton = {
         let button = ToolbarButton(
-            icon: .lightning,
-            weight: .medium
+            content: .labeled(viewModel.creditsText, icon: .vector(.lightning))
         )
         button.onClick = { [weak self] in
             guard let self else { return }
@@ -219,12 +220,12 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
 
     /// Updates the pill without replacing an active editor.
     func update() {
-        button.title = viewModel.avatarText
-        button.symbolName = button.title.isEmpty ? "person.fill" : nil
-        button.toolTip = nil
-        button.setAccessibilityLabel(AccountStrings.accountAccessibility(name: userRepo.displayName))
-        creditsButton.title = viewModel.creditsText
-        creditsButton.style = viewModel.showsLowCreditsWarning ? .destructive : .pill
+        button.content = .avatar(
+            initials: viewModel.avatarText,
+            accessibilityLabel: AccountStrings.accountAccessibility(name: userRepo.displayName)
+        )
+        creditsButton.content = .labeled(viewModel.creditsText, icon: .vector(.lightning))
+        creditsButton.tone = viewModel.showsLowCreditsWarning ? .danger : .neutral
         creditsButton.toolTip = viewModel.showsLowCreditsWarning ? nil : viewModel.creditsHelp
         creditsButton.setAccessibilityLabel(AccountStrings.balanceAccessibility(balance: viewModel.creditsText))
         creditsButton.setAccessibilityHelp(viewModel.creditsHelp)

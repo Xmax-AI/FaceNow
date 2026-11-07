@@ -17,6 +17,29 @@ def entitlements(bundle):
     return plistlib.loads(result.stdout)
 
 
+def verify_clearvision(bundle):
+    contents = bundle / "Contents"
+    worker = contents / "MacOS/XmaxRealtimeBeautyWorker"
+    clearvision = contents / "Frameworks/AgoraClearVisionExtension.framework/Versions/A/AgoraClearVisionExtension"
+    if not clearvision.is_file():
+        raise RuntimeError(f"Missing ClearVision executable in the beauty service: {clearvision}")
+
+    worker_architectures = subprocess.check_output(["/usr/bin/lipo", "-archs", str(worker)], text=True).split()
+    framework_architectures = subprocess.check_output(["/usr/bin/lipo", "-archs", str(clearvision)], text=True).split()
+    for architecture in worker_architectures:
+        if architecture not in framework_architectures:
+            raise RuntimeError(f"ClearVision is missing the beauty service's {architecture} architecture")
+        commands = subprocess.check_output(["/usr/bin/otool", "-arch", architecture, "-l", str(worker)], text=True)
+        if not any(
+            "cmd LC_RPATH" in command
+            and any(line.strip().startswith("path @executable_path/../Frameworks (offset ") for line in command.splitlines())
+            for command in commands.split("Load command ")
+        ):
+            raise RuntimeError(
+                f"The {architecture} beauty service must include @executable_path/../Frameworks in its runpaths"
+            )
+
+
 def main():
     source = Path(os.environ["FACENOW_SHARED_PRODUCTS_DIR"]) / "XmaxRealtimeBeautyWorker.xpc"
     destination = (
@@ -26,6 +49,7 @@ def main():
     )
     if source.resolve() == destination.resolve():
         raise RuntimeError("The beauty service source and destination must differ")
+    verify_clearvision(source)
     signed = os.environ.get("CODE_SIGNING_ALLOWED", "YES") != "NO"
     if signed:
         expected = entitlements(source)
@@ -41,7 +65,7 @@ def main():
         if entitlements(destination) != expected:
             raise RuntimeError("The embedded beauty service lost its signing entitlements")
         subprocess.run(["/usr/bin/codesign", "--verify", "--deep", "--strict", str(destination)], check=True)
-    print("Embedded beauty service with matching signature and configuration entitlements")
+    print("Embedded beauty service and verified ClearVision packaging")
 
 
 if __name__ == "__main__":

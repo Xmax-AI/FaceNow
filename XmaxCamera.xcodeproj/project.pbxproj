@@ -15,6 +15,10 @@
 		05E232EA82534CD6A3F74B3A /* VideoCallGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4472C395F34A648AA1A4A1 /* VideoCallGuide.swift */; };
 		060D9928F0C74649BB3193FE /* CameraOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84E9AAA419347F6A6936BF1 /* CameraOperation.swift */; };
 		072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E3DFFE1C574164B3087FA7 /* XmaxCameraApp.swift */; };
+		F66AA695D8E44066BD09CB02 /* MicrophoneTranslation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB01 /* MicrophoneTranslation.swift */; };
+		F66AA695D8E44066BD09CB03 /* MicrophoneTranslation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB01 /* MicrophoneTranslation.swift */; };
+		F66AA695D8E44066BD09CB05 /* VideoSubtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */; };
+		F66AA695D8E44066BD09CB06 /* VideoSubtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */; };
 		087C70DA6D2D8CF4C2C2C803 /* UserDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7CC7779097DC637510EFE9 /* UserDTO.swift */; };
 		087CBB224E4A4D81A74E387D /* CameraNoticePresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF937DDFB58473798EEE6F4 /* CameraNoticePresentation.swift */; };
 		08E19AFDB70BAB4F7BF8E719 /* ResponseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0E77F328EB384E0885F980 /* ResponseModel.swift */; };
@@ -314,6 +318,8 @@
 		851D9E5B7CE04A94B1D57B33 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A6000000000000000002 /* main.swift */; };
 		C2FAE0648079457FB68BFF92 /* VirtualCameraDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED10A1000000000000000002 /* VirtualCameraDiscovery.swift */; };
 		5B2830B2B32442D9AA8C557E /* VirtualCameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE595473F6330AEFFC852098 /* VirtualCameraConfiguration.swift */; };
+		DDC47C9D4593458CA68FE502 /* RechargeDialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC47C9D4593458CA68FE501 /* RechargeDialogView.swift */; };
+		DDC47C9D4593458CA68FE503 /* RechargeDialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC47C9D4593458CA68FE501 /* RechargeDialogView.swift */; };
 		010B442984F44348ABF18950 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
 		9FEB046115F549A983AF1470 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
 		9FAE18E9222E419291727849 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
@@ -419,6 +425,8 @@
 		1EDCBE0144F64CB9B1C528B9 /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		20CF603E942F85BA6C57484A /* OnboardingSetupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSetupViewModel.swift; sourceTree = "<group>"; };
 		218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VideoFrameRenderer.swift; sourceTree = "<group>"; };
+		F66AA695D8E44066BD09CB01 /* MicrophoneTranslation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneTranslation.swift; sourceTree = "<group>"; };
+		F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSubtitle.swift; sourceTree = "<group>"; };
 		25C9544BB828164310554C78 /* GenerationReferenceLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationReferenceLayout.swift; sourceTree = "<group>"; };
 		2B4EC551B300E50D51DFCD3E /* GenerationStatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationStatisticsViewModel.swift; sourceTree = "<group>"; };
 		2E4472C395F34A648AA1A4A1 /* VideoCallGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCallGuide.swift; sourceTree = "<group>"; };
@@ -566,6 +574,7 @@
 		B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAudioControlsViewModel.swift; sourceTree = "<group>"; };
 		23EE524E7A7F42AC97803C96 /* com.xmax.meeting.camera.oversea.extension.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.xmax.meeting.camera.oversea.extension.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF4B30260714AA0B8FD9928 /* FaceNowOverseaCameraProbe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FaceNowOverseaCameraProbe; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDC47C9D4593458CA68FE501 /* RechargeDialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RechargeDialogView.swift; sourceTree = "<group>"; };
 		5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FaceNowCameraPlaceholder.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -665,6 +674,7 @@
 			children = (
 				574BC78EAE1641B2A19738DB /* UserAccountPopoverView.swift */,
 				B90C2D6DFB324DEC9C679E38 /* UserCreditsPopoverView.swift */,
+				DDC47C9D4593458CA68FE501 /* RechargeDialogView.swift */,
 				38A97ED0F12177BE33625639 /* UserAPIKeyView.swift */,
 				E014FF6C6F121B6DC00BADC8 /* UserLoginFormView.swift */,
 				F98280DFBAE6460E870B6A27 /* UserLoginScenariosView.swift */,
@@ -1089,6 +1099,8 @@
 				8E8678811F8DC1AC2B52130C /* Audio */,
 				DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
+				F66AA695D8E44066BD09CB01 /* MicrophoneTranslation.swift */,
+				F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */,
 				5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */,
 			);
 			path = Media;
@@ -1710,6 +1722,7 @@
 				F789316A1C38A42F08DBEA69 /* OnboardingSetupView.swift in Sources */,
 				C2375A0A1EE67AB17928D22E /* UserAccountPopoverView.swift in Sources */,
 				806ECD918B2E3D254B566928 /* UserCreditsPopoverView.swift in Sources */,
+				DDC47C9D4593458CA68FE502 /* RechargeDialogView.swift in Sources */,
 				A2C6F984DD00088DACC2F292 /* UserAPIKeyView.swift in Sources */,
 				A359A2FC562FED3D20368B48 /* VirtualCameraRepository.swift in Sources */,
 				2E8270A051EAEEC64FA48DB0 /* VirtualCameraOutput.swift in Sources */,
@@ -1737,6 +1750,8 @@
 				A8E3E71A46A39A9CB9BA5B5D /* AppShutdownCoordinator.swift in Sources */,
 				5F14C58BFA3100710F59965A /* AppLaunchTiming.swift in Sources */,
 				73D18CE376E376C0E691134D /* XmaxCameraApp.swift in Sources */,
+				F66AA695D8E44066BD09CB02 /* MicrophoneTranslation.swift in Sources */,
+				F66AA695D8E44066BD09CB05 /* VideoSubtitle.swift in Sources */,
 				681D846BD11FADB799CE8535 /* VirtualCameraConfiguration.swift in Sources */,
 				65C6C412AAB6AFB9FA600929 /* VideoFrameRenderer.swift in Sources */,
 				7F10D4988EE9A6A193CC4E90 /* ScheduledFrameStore.swift in Sources */,
@@ -1852,6 +1867,7 @@
 				62BBF8A0DAB47DE0C69B7BB4 /* OnboardingSetupView.swift in Sources */,
 				E527DC19526C40BA8118BEC9 /* UserAccountPopoverView.swift in Sources */,
 				9C12CC5BEC5C4ADFB1DA9F13 /* UserCreditsPopoverView.swift in Sources */,
+				DDC47C9D4593458CA68FE503 /* RechargeDialogView.swift in Sources */,
 				0B0EA34AE7D986BD7A75F08A /* UserAPIKeyView.swift in Sources */,
 				99B6573E67E21FA86FBDC3A3 /* VirtualCameraRepository.swift in Sources */,
 				6242D52E5ADEF6CCA9A58154 /* VirtualCameraOutput.swift in Sources */,
@@ -1879,6 +1895,8 @@
 				ED10A3000000000000000001 /* AppShutdownCoordinator.swift in Sources */,
 				ED10A5000000000000000001 /* AppLaunchTiming.swift in Sources */,
 				072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */,
+				F66AA695D8E44066BD09CB03 /* MicrophoneTranslation.swift in Sources */,
+				F66AA695D8E44066BD09CB06 /* VideoSubtitle.swift in Sources */,
 				FBB1B12A3D6744AC6004BA41 /* VirtualCameraConfiguration.swift in Sources */,
 				CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */,
 				2C39C162ED9051E8FD5C7FEC /* ScheduledFrameStore.swift in Sources */,
@@ -2299,7 +2317,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.sdk.video-beauty;
 				PRODUCT_NAME = XmaxRealtimeBeautyWorker;
 				REGISTER_APP_GROUPS = NO;
-				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../../../../Frameworks", "@executable_path/../../..");
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", "@executable_path/../../../../Frameworks", "@executable_path/../../..");
 				SDKROOT = macosx;
 				INFOPLIST_FILE = BeautyWorker/Info.plist;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -2319,7 +2337,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = ai.xmax.sdk.video-beauty;
 				PRODUCT_NAME = XmaxRealtimeBeautyWorker;
 				REGISTER_APP_GROUPS = NO;
-				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../../../../Frameworks", "@executable_path/../../..");
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", "@executable_path/../../../../Frameworks", "@executable_path/../../..");
 				SDKROOT = macosx;
 				INFOPLIST_FILE = BeautyWorker/Info.plist;
 				GENERATE_INFOPLIST_FILE = NO;

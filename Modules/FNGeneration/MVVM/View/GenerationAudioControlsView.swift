@@ -51,18 +51,9 @@ final class GenerationAudioControlsView: Canvas {
     /// Opens the audio synchronization design in a native popover.
     private lazy var adjustmentButton: ToolbarButton = {
         let view = ToolbarButton(
-            GenerationStrings.audioVideoAdjustments,
-            style: .plain,
-            weight: .semibold
+            content: .labeled(GenerationStrings.audioVideoAdjustments, icon: .system("slider.horizontal.3")),
+            tone: .softAccent
         )
-        view.symbolName = "slider.horizontal.3"
-        view.foregroundColor = Palette.accent
-        view.restingBackgroundColor = Palette.accent.withAlphaComponent(0.12)
-        view.hoverBackgroundColor = Palette.accent.withAlphaComponent(0.18)
-        view.trailingPadding = ToolbarControlMetrics.trailingPadding
-        view.cornerRadius = 16
-        view.centersTitleVisually = true
-        view.setAccessibilityLabel(GenerationStrings.audioVideoAdjustments)
         view.onClick = { [weak self] in self?.showAdjustments() }
         return view
     }()

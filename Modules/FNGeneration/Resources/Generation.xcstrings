@@ -20,13 +20,13 @@
       }
     },
     "beauty.close": {
-      "comment": "Closes the result overlay without changing the active beauty effect.",
+      "comment": "Collapses the controls without changing the active beauty effect.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Close beauty controls"
+            "value": "Hide beauty controls"
           }
         },
         "zh-Hans": {
@@ -123,6 +123,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "锐化"
+          }
+        }
+      }
+    },
+    "beauty.show": {
+      "comment": "Expands the controls for the active beauty effect.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show beauty controls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展开美颜面板"
           }
         }
       }
@@ -2679,6 +2697,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "重置"
+          }
+        }
+      }
+    },
+    "translation.choose_microphone": {
+      "comment": "Prompts the user to select an input before enabling translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a microphone to turn on live translation."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先选择麦克风，再开启同声传译。"
+          }
+        }
+      }
+    },
+    "translation.listening": {
+      "comment": "Explains that live translation is listening and can be turned off.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening for Mandarin. Click to turn off."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在聆听普通话，点击关闭。"
+          }
+        }
+      }
+    },
+    "translation.off": {
+      "comment": "Explains the subtitle outputs and how to enable them.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to translate spoken Mandarin into English subtitles on the preview and virtual camera."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击开启，将普通话翻译成英文字幕，显示在结果预览和虚拟摄像头画面上。"
+          }
+        }
+      }
+    },
+    "translation.preparing": {
+      "comment": "Shows that speech and translation resources are being prepared.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing live translation. A system language download may be required. Click to cancel."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备同声传译，可能需要下载系统语言包。点击取消。"
+          }
+        }
+      }
+    },
+    "translation.requires_macos": {
+      "comment": "Explains the minimum system version for live translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live translation requires macOS 27 or later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同声传译需要 macOS 27 或更高版本。"
+          }
+        }
+      }
+    },
+    "translation.title": {
+      "comment": "Names the live translation toggle.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Translation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同声传译"
+          }
+        }
+      }
+    },
+    "translation.unavailable": {
+      "comment": "Explains a recoverable failure of live translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live translation has stopped. Check your microphone and system language downloads, then try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同声传译已停止。请检查麦克风和系统语言包后重试。"
+          }
+        }
+      }
+    },
+    "translation.waiting_for_microphone": {
+      "comment": "Shows that live translation is waiting for the chosen input.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the microphone. Click to cancel."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待麦克风，点击取消。"
           }
         }
       }

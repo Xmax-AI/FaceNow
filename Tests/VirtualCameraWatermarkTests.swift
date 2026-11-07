@@ -108,6 +108,22 @@ final class VirtualCameraWatermarkTests: XCTestCase {
         XCTAssertEqual(luma(try clean.testPattern(at: 0.5)), luma(try marked.testPattern(at: 0.5)))
     }
 
+    func testSubtitleChangesAndClearsOnTheSameSourceFrame() throws {
+        let input = try VideoFrameRenderer(format: format).testPattern(at: 0)
+        let renderer = try makeRenderer()
+        let clean = luma(try renderer.normalize(input))
+        let first = try XCTUnwrap(VideoSubtitle.makeImage(text: "Hello, everyone.", format: format))
+        let second = try XCTUnwrap(VideoSubtitle.makeImage(text: "Welcome to FaceNow.", format: format))
+        let firstOutput = luma(try renderer.normalize(input, subtitle: CIImage(cgImage: first)))
+        let secondOutput = luma(try renderer.normalize(input, subtitle: CIImage(cgImage: second)))
+        let bottom = CGRect(x: 0, y: 0, width: 640, height: 64)
+        let upper = CGRect(x: 0, y: 64, width: 640, height: 296)
+        XCTAssertGreaterThan(changedPixels(clean, firstOutput, region: bottom), 100)
+        XCTAssertGreaterThan(changedPixels(firstOutput, secondOutput, region: bottom), 100)
+        XCTAssertEqual(changedPixels(clean, firstOutput, region: upper), 0)
+        XCTAssertEqual(luma(try renderer.normalize(input)), clean)
+    }
+
     func testBoundedPoolPreservesHeldWatermarkedFrames() throws {
         let input = try VideoFrameRenderer(format: format).waiting()
         let renderer = try makeRenderer()

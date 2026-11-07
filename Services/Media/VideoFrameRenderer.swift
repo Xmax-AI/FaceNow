@@ -101,9 +101,10 @@ final class VideoFrameRenderer {
     /// Reuses compatible buffers only without artwork; otherwise normalizes and composites into owned output.
     /// Format matching includes color, aperture and aspect-ratio metadata without modifying the input.
     func normalize(
-        _ pixelBuffer: CVPixelBuffer
+        _ pixelBuffer: CVPixelBuffer,
+        subtitle: CIImage? = nil
     ) throws -> CVPixelBuffer {
-        if overlay == nil,
+        if overlay == nil, subtitle == nil,
             CVPixelBufferGetWidth(pixelBuffer) == format.width,
             CVPixelBufferGetHeight(pixelBuffer) == format.height,
             CVPixelBufferGetPixelFormatType(pixelBuffer) == format.pixelFormat,
@@ -123,7 +124,8 @@ final class VideoFrameRenderer {
                 y: bounds.height / image.extent.height
             )
         )
-        return try render(overlay?.composited(over: resized) ?? resized)
+        let branded = overlay?.composited(over: resized) ?? resized
+        return try render(subtitle?.composited(over: branded) ?? branded)
     }
 
     /// Returns the cached offline artwork when generated video is unavailable.

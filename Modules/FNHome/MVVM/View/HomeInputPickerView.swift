@@ -81,11 +81,10 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
     @Injected(\.virtualCameraRepo) private var virtualCameraRepo: VirtualCameraRepository
 
     /// The translucent capsule matches the compact input controls beneath Start Camera.
-    private lazy var button: ToolbarButton = {
-        let view = ToolbarButton(
-            style: presentation == .toolbar ? .pill : .plain,
-            chevron: true
-        )
+    private lazy var button: Button = {
+        let view = Button(style: presentation == .toolbar ? .pill : .plain)
+        view.chevron = true
+        view.configureForToolbar(weight: .regular)
         view.font =
             presentation == .toolbar
             ? .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold) : Typography.font(size: 13)

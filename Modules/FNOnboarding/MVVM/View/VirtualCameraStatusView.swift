@@ -22,13 +22,13 @@ final class VirtualCameraStatusView: Canvas {
     private var displayedState: CameraStatusViewModel.VirtualCameraIndicator?
 
     /// Uses the same fill, outline, shadow, typography metrics, and motion as Stop Session.
-    private lazy var capsule: ToolbarButton = {
-        let view = ToolbarButton(
+    private lazy var capsule: Button = {
+        let view = Button(
             OnboardingStrings.virtualCamera,
-            style: .destructive,
-            chevron: true,
-            weight: .semibold
+            style: .destructive
         )
+        view.chevron = true
+        view.configureForToolbar(weight: .semibold)
         view.usesStatusAppearance = true
         view.leadingPadding = 16
         view.chevronTrailingPadding = 14

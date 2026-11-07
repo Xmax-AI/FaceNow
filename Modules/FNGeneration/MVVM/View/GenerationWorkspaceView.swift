@@ -19,6 +19,20 @@ import Combine
 @MainActor
 final class GenerationWorkspaceView: Canvas {
 
+    /// Displays caption artwork while letting pointer events reach the video and controls.
+    private final class SubtitleImageView: NSImageView {
+
+        /// Lets the video panel size the view independently of the artwork's pixel dimensions.
+        override var intrinsicContentSize: NSSize {
+            NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
+        }
+
+        /// Keeps the caption decorative and noninteractive.
+        override func hitTest(
+            _ point: NSPoint
+        ) -> NSView? { nil }
+    }
+
     /// The generation state rendered by the persistent controls.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
 
@@ -47,10 +61,22 @@ final class GenerationWorkspaceView: Canvas {
         let view = GenerationVideoPanel(
             title: GenerationStrings.controlsResult,
             statistics: statistics.remoteStatisticsPanels,
-            showsWatermark: true
+            showsTitleBadge: false
         )
         return view
     }()
+
+    /// The latest English subtitle, oriented independently of the mirrored video.
+    private lazy var subtitleOverlay: SubtitleImageView = {
+        let view = SubtitleImageView()
+        view.imageScaling = .scaleProportionallyUpOrDown
+        view.imageAlignment = .alignBottom
+        view.isHidden = true
+        return view
+    }()
+
+    /// Binds subtitle changes without refreshing the rest of the workspace.
+    private var subtitleObservation: AnyCancellable?
 
     /// The audio control row shared by both video panels, outside their output pixels.
     private lazy var audioControls: GenerationAudioControlsView = {
@@ -59,7 +85,7 @@ final class GenerationWorkspaceView: Canvas {
         return view
     }()
 
-    /// Uses the same painted Canvas surface as statistics for the lower-right result controls.
+    /// Uses the same painted Canvas surface as statistics for the upper-right result controls.
     private lazy var beautyOverlay: GenerationBeautyPanelView = {
         let view = GenerationBeautyPanelView()
         view.isHidden = true
@@ -352,10 +378,14 @@ final class GenerationWorkspaceView: Canvas {
             make.height.equalTo(GenerationAudioControlsView.preferredHeight)
         }
         beautyOverlay.snp.makeConstraints { make in
-            make.trailing.bottom.equalTo(resultPanel).inset(12)
-            make.width.equalTo(beautyOverlay.preferredWidth).priority(490)
+            make.trailing.top.equalTo(resultPanel).inset(12)
             make.width.lessThanOrEqualTo(resultPanel.snp.width).offset(-24)
             make.height.lessThanOrEqualTo(resultPanel.snp.height).offset(-24).priority(490)
+        }
+        subtitleOverlay.snp.makeConstraints { make in
+            make.centerX.bottom.equalTo(resultPanel)
+            make.width.equalTo(resultPanel)
+            make.height.equalTo(resultPanel.snp.height).multipliedBy(VideoSubtitle.heightRatio)
         }
         tabs.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -407,6 +437,7 @@ final class GenerationWorkspaceView: Canvas {
     /// Builds persistent generation controls and binds their mode-specific actions.
     private func configureWorkspace() {
         [localPanel, resultPanel, audioControls, tabs, promptContainer].forEach(addSubview)
+        resultPanel.addSubview(subtitleOverlay)
         resultPanel.addSubview(beautyOverlay)
         for mode in GenerationMode.allCases {
             if mode != .free {
@@ -424,6 +455,11 @@ final class GenerationWorkspaceView: Canvas {
         // Keep a 32pt hit area around the smaller 20pt circular background.
         removeReference.isBordered = true
         configureLayout()
+        subtitleObservation = generationRepo.subtitles.sink { [weak self] image in
+            guard let self else { return }
+            self.subtitleOverlay.image = image.map { NSImage(cgImage: $0, size: .zero) }
+            self.subtitleOverlay.isHidden = image == nil
+        }
     }
 
     /// Opens a single-image picker and forwards the selected security-scoped file for upload.
@@ -448,7 +484,7 @@ final class GenerationWorkspaceView: Canvas {
 
 }
 
-/// Presents only the four result strengths over the shared translucent video surface.
+/// Presents collapsible result beauty controls over the shared translucent video surface.
 @MainActor
 private final class GenerationBeautyPanelView: Canvas {
 
@@ -466,11 +502,53 @@ private final class GenerationBeautyPanelView: Canvas {
         (GenerationStrings.beautyRedness, \.redness),
     ]
 
-    /// Fits localized labels, a 90-point slider track, percentages, gaps, and surface padding.
-    let preferredWidth: CGFloat
-
     /// Reserves one shared label width so the four slider tracks align.
     private let labelWidth: CGFloat
+
+    private let panelInset: CGFloat = 8
+    private let disclosureSize: CGFloat = 22
+    private let titleSpacing: CGFloat = 4
+
+    /// Fits localized slider labels, tracks, percentages, gaps, and surface padding.
+    private var expandedWidth: CGFloat { labelWidth + 148 }
+
+    /// Fits the localized title and disclosure button with only their standard gap.
+    private var collapsedWidth: CGFloat {
+        ceil(titleLabel.intrinsicContentSize.width) + titleSpacing + disclosureSize + 2 * panelInset
+    }
+
+    /// Names the effect while its strength controls are expanded or collapsed.
+    private lazy var titleLabel: NSTextField = {
+        let view = NSTextField(labelWithString: GenerationStrings.beauty)
+        view.font = .systemFont(ofSize: 12, weight: .semibold)
+        view.textColor = .white.withAlphaComponent(0.9)
+        return view
+    }()
+
+    /// Toggles the strength controls independently of the effect.
+    private lazy var disclosureButton: Button = {
+        let view = Button(style: .plain)
+        view.symbolName = "chevron.up"
+        view.iconSize = 10
+        view.centersSymbolVisually = true
+        view.foregroundColor = .white.withAlphaComponent(0.9)
+        view.hoverBackgroundColor = .white.withAlphaComponent(0.12)
+        view.cornerRadius = 4
+        view.showsShadow = false
+        view.toolTip = GenerationStrings.beautyClose
+        view.setAccessibilityLabel(GenerationStrings.beautyClose)
+        view.onClick = { [weak self] in self?.toggleSliders() }
+        return view
+    }()
+
+    /// The panel width changes while its upper-right anchor stays fixed.
+    private var panelWidth: Constraint?
+
+    /// The expanded slider section follows the panel edges only while visible.
+    private var expandedSliderEdges: [Constraint] = []
+
+    /// Shrinks the hidden slider section to zero height.
+    private var collapsedSliderHeight: Constraint?
 
     /// Aligns all slider tracks after the widest localized strength label.
     private lazy var rows: [(WritableKeyPath<RealtimeVideoBeautyOptions, Float>, GenerationBeautySliderRow)] = {
@@ -486,30 +564,23 @@ private final class GenerationBeautyPanelView: Canvas {
         }
     }()
 
+    /// Hides the four sliders together without detaching them or their constraints.
+    private lazy var sliders: Canvas = {
+        let view = Canvas()
+        return view
+    }()
+
     /// Paints the same rounded translucent black surface as the statistics overlays.
     init() {
         let font = NSFont.systemFont(ofSize: 11)
         labelWidth = ceil(Self.settings.map { Typography.size($0.0, font: font).width }.max() ?? 0)
-        preferredWidth = labelWidth + 148
         super.init(color: .black.withAlphaComponent(0.6), radius: 8)
         appearance = NSAppearance(named: .darkAqua)
         layer?.borderWidth = 1
         layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
-        rows.forEach { addSubview($0.1) }
-        var previous: NSView?
-        for (_, row) in rows {
-            row.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(8)
-                make.height.equalTo(22)
-                if let previous {
-                    make.top.equalTo(previous.snp.bottom).offset(2)
-                } else {
-                    make.top.equalToSuperview().inset(8)
-                }
-            }
-            previous = row
-        }
-        previous?.snp.makeConstraints { make in make.bottom.equalToSuperview().inset(8) }
+        [titleLabel, disclosureButton, sliders].forEach(addSubview)
+        rows.forEach { sliders.addSubview($0.1) }
+        configureLayout()
         observation = generationRepo.objectWillChange.sink { [weak self] in
             Task { @MainActor [weak self] in self?.update() }
         }
@@ -520,6 +591,65 @@ private final class GenerationBeautyPanelView: Canvas {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
+
+    /// Aligns the header and slider tracks within the panel padding.
+    private func configureLayout() {
+        snp.makeConstraints { make in
+            panelWidth = make.width.equalTo(expandedWidth).priority(490).constraint
+        }
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(panelInset)
+            make.centerY.equalTo(disclosureButton)
+            make.trailing.lessThanOrEqualTo(disclosureButton.snp.leading).offset(-titleSpacing)
+        }
+        disclosureButton.snp.makeConstraints { make in
+            make.trailing.top.equalToSuperview().inset(panelInset)
+            make.size.equalTo(disclosureSize)
+        }
+        sliders.snp.makeConstraints { make in
+            make.top.equalTo(disclosureButton.snp.bottom)
+            make.leading.bottom.equalToSuperview().inset(panelInset)
+            make.width.equalTo(expandedWidth - 2 * panelInset).priority(490)
+            expandedSliderEdges.append(make.trailing.equalToSuperview().inset(panelInset).constraint)
+        }
+        collapsedSliderHeight = sliders.snp.prepareConstraints { make in
+            make.height.equalTo(0)
+        }.first
+        var previous: GenerationBeautySliderRow?
+        for (_, row) in rows {
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(22)
+                if let previous {
+                    make.top.equalTo(previous.snp.bottom).offset(2)
+                } else {
+                    make.top.equalToSuperview().offset(4)
+                }
+            }
+            previous = row
+        }
+        previous?.snp.makeConstraints { make in
+            expandedSliderEdges.append(make.bottom.equalToSuperview().constraint)
+        }
+    }
+
+    /// Collapses or expands the controls while preserving the current strengths.
+    private func toggleSliders() {
+        let collapsed = !sliders.isHidden
+        if collapsed {
+            expandedSliderEdges.forEach { $0.deactivate() }
+            collapsedSliderHeight?.activate()
+        } else {
+            collapsedSliderHeight?.deactivate()
+            expandedSliderEdges.forEach { $0.activate() }
+        }
+        panelWidth?.update(offset: collapsed ? collapsedWidth : expandedWidth)
+        sliders.isHidden = collapsed
+        disclosureButton.symbolName = collapsed ? "chevron.down" : "chevron.up"
+        let action = collapsed ? GenerationStrings.beautyShow : GenerationStrings.beautyClose
+        disclosureButton.toolTip = action
+        disclosureButton.setAccessibilityLabel(action)
+    }
 
     /// Reflects strengths without allowing a fading control to reactivate a disabled effect.
     private func update() {

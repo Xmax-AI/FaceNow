@@ -15,7 +15,7 @@ import AppKit
 enum Icon {
 
     /// The vector glyphs supported by the shared native controls.
-    enum Kind {
+    enum Kind: Equatable {
 
         /// The display glyph representing virtual camera and microphone devices.
         case display
@@ -86,15 +86,48 @@ enum Icon {
         context.addPath(path(kind))
         context.setFillColor(color.cgColor)
         context.setStrokeColor(color.cgColor)
-        context.setLineWidth(kind == .arrow || kind == .close ? 3 : kind == .plus || kind == .microphone ? 2 : 1.8)
+        context.setLineWidth(strokeWidth(for: kind))
         context.setLineCap(.round)
         context.setLineJoin(.round)
-        if kind == .lightning || kind == .socialX || kind == .wechat || kind == .stop {
+        if isFilled(kind) {
             context.drawPath(using: .eoFill)
         } else {
             context.strokePath()
         }
         context.restoreGState()
+    }
+
+    /// Measures the painted glyph in unit coordinates, including its outline.
+    static func visibleBounds(
+        for kind: Kind
+    ) -> CGRect {
+        let glyph = path(kind)
+        let painted = isFilled(kind) ? glyph : glyph.copy(
+            strokingWithWidth: strokeWidth(for: kind),
+            lineCap: .round,
+            lineJoin: .round,
+            miterLimit: 10
+        )
+        let bounds = painted.boundingBoxOfPath
+        return CGRect(x: bounds.minX / 24, y: bounds.minY / 24, width: bounds.width / 24, height: bounds.height / 24)
+    }
+
+    /// Identifies glyphs whose path is filled when drawn.
+    private static func isFilled(
+        _ kind: Kind
+    ) -> Bool {
+        kind == .lightning || kind == .socialX || kind == .wechat || kind == .stop
+    }
+
+    /// Shares outline widths between drawing and layout measurement.
+    private static func strokeWidth(
+        for kind: Kind
+    ) -> CGFloat {
+        switch kind {
+        case .arrow, .close: 3
+        case .plus, .microphone: 2
+        default: 1.8
+        }
     }
 
     /// Builds the selected glyph in its shared 24-point coordinate space.

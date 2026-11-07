@@ -82,6 +82,12 @@ class Button: NSButton {
     /// The square glyph size, in points.
     var iconSize: CGFloat = 18
 
+    /// The vertical offset that centers a glyph's painted area within its slot.
+    var iconVerticalOffset: CGFloat = 0
+
+    /// An optional fixed size for the activity ring that replaces the glyph.
+    var loadingIconSize: CGFloat?
+
     /// The gap between an icon and a nonempty title, in points.
     var iconSpacing: CGFloat = 8
 
@@ -145,8 +151,8 @@ class Button: NSButton {
     /// Keeps layout-driven hover synchronization separate from intentional pointer interaction.
     private var pointerHovered = false
 
-    /// Caches normalized visible centers so symbol alignment never scans pixels during repeated draws.
-    private static var symbolCenters: [String: NSPoint] = [:]
+    /// Caches normalized symbol bounds so alignment never scans pixels during repeated draws.
+    private static var symbolBounds: [String: NSRect] = [:]
 
     /// The current visible-bounds tracking area.
     private var hoverArea: NSTrackingArea?
@@ -532,20 +538,28 @@ class Button: NSButton {
         default:
             x = leadingPadding + (bounds.width - leadingPadding - trailingPadding - total) / 2
         }
+        let originX = alignedContentOriginX(x)
         return (
             NSRect(
-                x: x,
-                y: (bounds.height - iconSize) / 2,
+                x: originX,
+                y: (bounds.height - iconSize) / 2 + iconVerticalOffset,
                 width: iconSize,
                 height: iconSize
             ),
             NSRect(
-                x: x + iconWidth,
+                x: originX + iconWidth,
                 y: 0,
                 width: textWidth,
                 height: bounds.height
             )
         )
+    }
+
+    /// Lets a toolbar control align its content to the drawing surface's pixels.
+    func alignedContentOriginX(
+        _ x: CGFloat
+    ) -> CGFloat {
+        x
     }
 
     /// Aligns visible title glyphs with the icon center instead of relying on a fallback font's line box.
@@ -576,48 +590,90 @@ class Button: NSButton {
         context.restoreGState()
     }
 
-    /// Preserves symbol size while aligning its visible silhouette with the center of the icon slot.
+    /// Measures the visible silhouette in the symbol image's unit coordinate space.
+    private static func normalizedSymbolBounds(
+        _ image: NSImage,
+        named name: String
+    ) -> NSRect? {
+        if let cached = symbolBounds[name] { return cached }
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        let bitmap = NSBitmapImageRep(cgImage: cgImage)
+        var minX = bitmap.pixelsWide, minY = bitmap.pixelsHigh
+        var maxX = -1, maxY = -1
+        for y in 0..<bitmap.pixelsHigh {
+            for x in 0..<bitmap.pixelsWide {
+                guard (bitmap.colorAt(x: x, y: y)?.alphaComponent ?? 0) > 0 else { continue }
+                minX = min(minX, x)
+                minY = min(minY, y)
+                maxX = max(maxX, x)
+                maxY = max(maxY, y)
+            }
+        }
+        guard maxX >= minX, maxY >= minY else { return nil }
+        let width = CGFloat(bitmap.pixelsWide)
+        let height = CGFloat(bitmap.pixelsHigh)
+        let bounds = NSRect(
+            x: CGFloat(minX) / width,
+            y: CGFloat(minY) / height,
+            width: CGFloat(maxX - minX + 1) / width,
+            height: CGFloat(maxY - minY + 1) / height
+        )
+        symbolBounds[name] = bounds
+        return bounds
+    }
+
+    /// Uses the same aspect-fit rectangle for symbol measurement and drawing.
+    private static func fittedSymbolRect(
+        _ image: NSImage,
+        in rect: NSRect
+    ) -> NSRect {
+        let scale = min(rect.width / max(1, image.size.width), rect.height / max(1, image.size.height))
+        let width = image.size.width * scale
+        let height = image.size.height * scale
+        return NSRect(
+            x: rect.midX - width / 2,
+            y: rect.midY - height / 2,
+            width: width,
+            height: height
+        )
+    }
+
+    /// Measures the painted symbol in a square unit slot.
+    static func visibleSymbolBounds(
+        named name: String
+    ) -> NSRect? {
+        guard let image = NSImage(systemSymbolName: name, accessibilityDescription: nil),
+            let bounds = normalizedSymbolBounds(image, named: name)
+        else { return nil }
+        let fitted = fittedSymbolRect(image, in: NSRect(x: 0, y: 0, width: 1, height: 1))
+        return NSRect(
+            x: fitted.minX + bounds.minX * fitted.width,
+            y: fitted.minY + bounds.minY * fitted.height,
+            width: bounds.width * fitted.width,
+            height: bounds.height * fitted.height
+        )
+    }
+
+    /// Preserves symbol size while centering its visible silhouette in the icon slot.
     private static func visuallyCenteredSymbolRect(
         _ image: NSImage,
         named name: String,
         in rect: NSRect
     ) -> NSRect {
-        let center: NSPoint
-        if let cached = symbolCenters[name] {
-            center = cached
-        } else {
-            guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return rect }
-            let bitmap = NSBitmapImageRep(cgImage: cgImage)
-            var minX = bitmap.pixelsWide, minY = bitmap.pixelsHigh
-            var maxX = -1, maxY = -1
-            for y in 0..<bitmap.pixelsHigh {
-                for x in 0..<bitmap.pixelsWide {
-                    guard (bitmap.colorAt(x: x, y: y)?.alphaComponent ?? 0) > 0 else { continue }
-                    minX = min(minX, x)
-                    minY = min(minY, y)
-                    maxX = max(maxX, x)
-                    maxY = max(maxY, y)
-                }
-            }
-            guard maxX >= minX, maxY >= minY else { return rect }
-            center = NSPoint(
-                x: CGFloat(minX + maxX + 1) / (2 * CGFloat(bitmap.pixelsWide)),
-                y: CGFloat(minY + maxY + 1) / (2 * CGFloat(bitmap.pixelsHigh))
-            )
-            symbolCenters[name] = center
-        }
+        guard let bounds = normalizedSymbolBounds(image, named: name) else { return rect }
         return rect.offsetBy(
-            dx: (0.5 - center.x) * rect.width,
-            dy: (0.5 - center.y) * rect.height
+            dx: (0.5 - bounds.midX) * rect.width,
+            dy: (0.5 - bounds.midY) * rect.height
         )
     }
 
     /// Places the retained activity ring at the measured icon position.
     override func layout() {
         let iconRect = contentFrames().0
+        let size = loadingIconSize ?? iconSize
         spinner.snp.updateConstraints { make in
-            make.leading.equalToSuperview().offset(iconRect.minX)
-            make.size.equalTo(iconSize)
+            make.leading.equalToSuperview().offset(iconRect.midX - size / 2)
+            make.size.equalTo(size)
         }
         super.layout()
     }
@@ -861,18 +917,7 @@ class Button: NSButton {
             )?
             .withSymbolConfiguration(.init(paletteColors: [visual.foreground]))
         {
-            let scale = min(
-                iconRect.width / max(1, symbol.size.width),
-                iconRect.height / max(1, symbol.size.height)
-            )
-            let width = symbol.size.width * scale
-            let height = symbol.size.height * scale
-            let fittedRect = NSRect(
-                x: iconRect.midX - width / 2,
-                y: iconRect.midY - height / 2,
-                width: width,
-                height: height
-            )
+            let fittedRect = Self.fittedSymbolRect(symbol, in: iconRect)
             let rect =
                 centersSymbolVisually && title.isEmpty
                 ? Self.visuallyCenteredSymbolRect(
@@ -889,60 +934,70 @@ class Button: NSButton {
                 hints: nil
             )
         }
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.lineBreakMode = .byTruncatingTail
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: font ?? Typography.font(size: 13), .foregroundColor: visual.foreground, .paragraphStyle: paragraph,
-            .kern: tracking,
-        ]
-        if centersTitleVisually {
-            drawVisuallyCenteredTitle(
-                in: textRect,
-                color: visual.foreground
-            )
-        } else {
-            let height = (title as NSString).size(withAttributes: attributes).height
-            (title as NSString).draw(
-                in: NSRect(
-                    x: textRect.minX,
-                    y: (bounds.height - height) / 2,
-                    width: textRect.width,
-                    height: height
-                ),
-                withAttributes: attributes
-            )
-        }
+        drawTitle(in: textRect, color: visual.foreground)
         if chevron {
             let arrow = NSBezierPath()
-            let x =
-                usesToolbarAppearance
-                ? bounds.width - chevronTrailingPadding - ToolbarControlMetrics.disclosureWidth / 2
-                : bounds.width - 20
+            let x = disclosureCenterX(after: textRect)
             let y = bounds.midY
+            let halfWidth = ToolbarControlMetrics.disclosureWidth / 2
+            let halfHeight = halfWidth / 2
             arrow.move(
                 to: NSPoint(
-                    x: x - 3,
-                    y: y - 1.5
+                    x: x - halfWidth,
+                    y: y - halfHeight
                 )
             )
 
             arrow.line(
                 to: NSPoint(
                     x: x,
-                    y: y + 1.5
+                    y: y + halfHeight
                 )
             )
 
             arrow.line(
                 to: NSPoint(
-                    x: x + 3,
-                    y: y - 1.5
+                    x: x + halfWidth,
+                    y: y - halfHeight
                 )
             )
             (usesToolbarAppearance ? visual.foreground : Palette.secondary).setStroke()
-            arrow.lineWidth = 1
+            arrow.lineWidth = ToolbarControlMetrics.disclosureStrokeWidth
             arrow.stroke()
         }
+    }
+
+    /// Places the disclosure glyph at the trailing inset for standard buttons.
+    func disclosureCenterX(
+        after titleRect: NSRect
+    ) -> CGFloat {
+        usesToolbarAppearance
+            ? bounds.width - chevronTrailingPadding - ToolbarControlMetrics.disclosureWidth / 2
+            : bounds.width - 20
+    }
+
+    /// Draws the label within the space allocated by the button's content layout.
+    func drawTitle(
+        in rect: NSRect,
+        color: NSColor
+    ) {
+        if centersTitleVisually {
+            drawVisuallyCenteredTitle(in: rect, color: color)
+            return
+        }
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineBreakMode = .byTruncatingTail
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font ?? Typography.font(size: 13),
+            .foregroundColor: color,
+            .paragraphStyle: paragraph,
+            .kern: tracking,
+        ]
+        let height = (title as NSString).size(withAttributes: attributes).height
+        (title as NSString).draw(
+            in: NSRect(x: rect.minX, y: rect.midY - height / 2, width: rect.width, height: height),
+            withAttributes: attributes
+        )
     }
 }
 

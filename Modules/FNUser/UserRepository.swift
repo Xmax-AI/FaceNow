@@ -100,6 +100,23 @@ final class UserRepository: ObservableObject {
     /// Blocks explicit camera startup only when the in-memory balance is known to be empty.
     var hasInsufficientCredits: Bool { remainingCredits.map { $0 <= 0 } ?? false }
 
+    /// Identifies an unacknowledged credit failure independently of the last polled balance.
+    @Published private(set) var rechargeNoticeID: UUID?
+
+    /// Coalesces startup and runtime credit failures into one account notice.
+    func requestRechargeNotice() {
+        guard canAccessHome, rechargeNoticeID == nil else { return }
+        rechargeNoticeID = UUID()
+    }
+
+    /// A stale dialog completion must not dismiss a newer account notice.
+    func dismissRechargeNotice(
+        id: UUID
+    ) {
+        guard rechargeNoticeID == id else { return }
+        rechargeNoticeID = nil
+    }
+
     /// Whether a balance request is already in flight.
     @Published private(set) var isLoadingCredits = false
 
@@ -608,6 +625,7 @@ final class UserRepository: ObservableObject {
 
     /// Removes the previous account's balance and invalidates its refresh state.
     private func clearCredits() {
+        rechargeNoticeID = nil
         remainingCredits = nil
         creditsErrorMessage = nil
         creditsRefreshedAt = nil

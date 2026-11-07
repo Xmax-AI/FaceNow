@@ -126,8 +126,8 @@ enum ToolbarControlMetrics {
     /// The common icon slot size.
     static let iconSize: CGFloat = 16
 
-    /// The gap between an icon and its title.
-    static let contentSpacing: CGFloat = 4
+    /// The shared gap between adjacent icon, title, and disclosure content.
+    static let contentSpacing: CGFloat = 7
 
     /// The shared leading content inset for a pill.
     static let leadingPadding: CGFloat = 12
@@ -138,11 +138,11 @@ enum ToolbarControlMetrics {
     /// The width reserved for a disclosure chevron.
     static let disclosureWidth: CGFloat = 6
 
-    /// The title-to-chevron gap, independent of icon-to-title spacing.
-    static let disclosureSpacing: CGFloat = 8
+    /// The stroke width of the disclosure chevron.
+    static let disclosureStrokeWidth: CGFloat = 1
 
     /// The trailing inset including the title-to-chevron gap and chevron itself.
-    static let disclosurePadding = trailingPadding + disclosureSpacing + disclosureWidth
+    static let disclosurePadding = trailingPadding + contentSpacing + disclosureWidth
 
     /// The common responsive height used for measuring and constraining toolbar controls.
     static func height(

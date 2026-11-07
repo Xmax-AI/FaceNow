@@ -30,16 +30,9 @@ final class HomeCameraControlsView: Canvas {
     /// Preserves the shared toolbar surface without coloring it by device status.
     private lazy var devicesButton: ToolbarButton = {
         let view = ToolbarButton(
-            HomeStrings.virtualDevices,
-            icon: .display,
-            chevron: true,
-            weight: .semibold
+            content: .labeled(HomeStrings.virtualDevices, icon: .vector(.display)),
+            role: .menu
         )
-        view.foregroundColor = Palette.softText
-        view.leadingPadding = 16
-        view.chevronTrailingPadding = 14
-        view.trailingPadding = view.chevronTrailingPadding + ToolbarControlMetrics.disclosureWidth + 6
-        view.setAccessibilityLabel(HomeStrings.virtualDevices)
         view.onClick = { [weak self] in self?.togglePopover() }
         return view
     }()

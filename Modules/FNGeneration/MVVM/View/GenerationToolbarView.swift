@@ -25,11 +25,14 @@ final class GenerationToolbarView: Canvas {
     /// Lets the header place statistics at the start of the generation controls.
     var statisticsControl: NSView { statisticsButton }
 
-    /// Lets the header place interpolation before beauty and the credit capsule.
+    /// Lets the header place interpolation before the other result controls.
     var interpolationControl: ToolbarButton { interpolationButton }
 
-    /// Lets the header place beauty immediately before the separately owned credit capsule.
+    /// Lets the header place beauty between interpolation and live translation.
     var beautyControl: ToolbarButton { beautyButton }
+
+    /// Lets the header place live translation before the credit capsule.
+    var translationControl: ToolbarButton { translationButton }
 
     /// The generation state and commands represented by this toolbar.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
@@ -37,12 +40,10 @@ final class GenerationToolbarView: Canvas {
     /// Toggles statistics visibility without stopping metric collection.
     private lazy var statisticsButton: ToolbarButton = {
         let view = ToolbarButton(
-            icon: .statistics,
-            style: .statistics,
-            shape: .circle
+            content: .icon(.vector(.statistics), accessibilityLabel: GenerationStrings.controlsShowStatistics),
+            role: .toggle,
+            tone: .accent
         )
-        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
-        view.setAccessibilityLabel(GenerationStrings.controlsShowStatistics)
         view.onClick = { [weak self] in self?.generationRepo.statisticsVisible.toggle() }
         return view
     }()
@@ -50,11 +51,10 @@ final class GenerationToolbarView: Canvas {
     /// Toggles SDK frame interpolation and displays its pending state.
     private lazy var interpolationButton: ToolbarButton = {
         let view = ToolbarButton(
-            GenerationStrings.controls2x,
-            icon: .lightning,
-            style: .interpolation
+            content: .labeled(GenerationStrings.controls2x, icon: .vector(.lightning)),
+            role: .toggle,
+            tone: .warm
         )
-        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
         view.setAccessibilityLabel(GenerationStrings.controlsFrameInterpolation)
         view.onClick = { [weak self] in
             Task { [weak self] in await self?.generationRepo.toggleInterpolation() }
@@ -65,33 +65,37 @@ final class GenerationToolbarView: Canvas {
     /// Opens result beauty controls without changing generation or camera input.
     private lazy var beautyButton: ToolbarButton = {
         let view = ToolbarButton(
-            GenerationStrings.beauty,
-            style: .interpolation
+            content: .labeled(GenerationStrings.beauty, icon: .system("sparkles")),
+            role: .toggle,
+            tone: .warm
         )
-        view.symbolName = "sparkles"
-        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
-        view.setAccessibilityLabel(GenerationStrings.beauty)
         view.onClick = { [weak self] in self?.onToggleBeauty?() }
+        return view
+    }()
+
+    /// Toggles English subtitles for the result preview and virtual camera.
+    private lazy var translationButton: ToolbarButton = {
+        let view = ToolbarButton(
+            content: .labeled(GenerationStrings.translation, icon: .system("captions.bubble")),
+            role: .toggle,
+            tone: .warm
+        )
+        view.onClick = { [weak self] in self?.generationRepo.toggleTranslation() }
         return view
     }()
 
     /// The passive elapsed-session label using the same proportional font as the toolbar.
     private lazy var elapsed: ToolbarButton = {
-        let view = ToolbarButton("00:00")
-        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .medium)
-        view.passive = true
-        view.isEnabled = false
+        let view = ToolbarButton(content: .text("00:00"), role: .status)
         return view
     }()
 
     /// Closes the active session and reflects asynchronous cleanup.
     private lazy var stopButton: ToolbarButton = {
         let view = ToolbarButton(
-            GenerationStrings.controlsStopSession,
-            icon: .stop,
-            style: .destructive
+            content: .labeled(GenerationStrings.controlsStopSession, icon: .vector(.stop)),
+            tone: .danger
         )
-        view.font = .systemFont(ofSize: ToolbarControlMetrics.fontSize, weight: .semibold)
         view.onClick = { [weak self] in Task { [weak self] in await self?.generationRepo.close() } }
         return view
     }()
@@ -104,9 +108,7 @@ final class GenerationToolbarView: Canvas {
         for button in controls {
             button.snp.makeConstraints { make in
                 make.top.bottom.equalToSuperview()
-                if button.shape == .capsule {
-                    make.width.equalTo(preferredWidth(for: button))
-                }
+                make.width.equalTo(button.preferredWidth)
                 if let previous {
                     make.leading.equalTo(previous.snp.trailing).offset(ToolbarControlMetrics.spacing)
                 } else {
@@ -127,37 +129,19 @@ final class GenerationToolbarView: Canvas {
         [elapsed, stopButton]
     }
 
-    /// Reserves a stable stop-action width using the component's own label measurement.
-    private func preferredWidth(
-        for button: ToolbarButton
-    ) -> CGFloat {
-        if button === stopButton {
-            return max(
-                button.preferredWidth(for: GenerationStrings.controlsStopSession),
-                button.preferredWidth(for: GenerationStrings.controlsStopping)
-            )
-        }
-        return button.preferredWidth
-    }
-
     /// The complete action row width including the gaps between controls.
-    func preferredWidth(
-        controlHeight: CGFloat
-    ) -> CGFloat {
-        controls.reduce(CGFloat(0)) { width, button in
-            width
-                + (button.shape == .circle
-                    ? button.preferredWidth(controlHeight: controlHeight) : preferredWidth(for: button))
-        } + CGFloat(controls.count - 1) * ToolbarControlMetrics.spacing
+    var preferredWidth: CGFloat {
+        elapsed.preferredWidth + ToolbarControlMetrics.spacing + stopButton.preferredWidth
     }
 
     /// Applies the latest generation state without replacing controls.
     func update() {
-        beautyButton.selected = generationRepo.beautyEnabled
+        let previousWidth = preferredWidth
+        beautyButton.isSelected = generationRepo.beautyEnabled
         beautyButton.isEnabled = generationRepo.sessionActive && !generationRepo.isClosing
         beautyButton.toolTip = GenerationStrings.beautyDescription
         beautyButton.setAccessibilityValue(generationRepo.beautyEnabled ? GenerationStrings.on : GenerationStrings.off)
-        statisticsButton.selected = generationRepo.statisticsVisible
+        statisticsButton.isSelected = generationRepo.statisticsVisible
         statisticsButton.toolTip =
             generationRepo.statisticsVisible
             ? GenerationStrings.controlsHideStatisticsCollectionAndLoggingContinue
@@ -165,8 +149,8 @@ final class GenerationToolbarView: Canvas {
         statisticsButton.setAccessibilityValue(
             generationRepo.statisticsVisible ? GenerationStrings.on : GenerationStrings.off
         )
-        interpolationButton.selected = generationRepo.interpolationEnabled
-        interpolationButton.loading = generationRepo.interpolationSwitching
+        interpolationButton.isSelected = generationRepo.interpolationEnabled
+        interpolationButton.isLoading = generationRepo.interpolationSwitching
         interpolationButton.isEnabled = !generationRepo.isBusy
         interpolationButton.toolTip =
             generationRepo.interpolationSwitching
@@ -179,24 +163,50 @@ final class GenerationToolbarView: Canvas {
                 ? GenerationStrings.controlsSwitching
                 : generationRepo.interpolationEnabled ? GenerationStrings.on : GenerationStrings.off
         )
-        stopButton.title =
+        updateTranslation()
+        let stopTitle =
             generationRepo.isClosing ? GenerationStrings.controlsStopping : GenerationStrings.controlsStopSession
-        stopButton.loading = generationRepo.isClosing
+        stopButton.content = .labeled(stopTitle, icon: .vector(.stop))
+        stopButton.isLoading = generationRepo.isClosing
         stopButton.isEnabled = !generationRepo.isClosing
         updateElapsed()
         needsLayout = true
+        if preferredWidth != previousWidth {
+            onWidthChange?()
+        }
+    }
 
+    /// Shows setup progress while keeping the toggle available for cancellation.
+    private func updateTranslation() {
+        let state = generationRepo.translationState
+        let supported = GenerationRepository.supportsTranslation
+        translationButton.isEnabled = supported && generationRepo.sessionActive && !generationRepo.isClosing
+        translationButton.isSelected = state != .off
+        translationButton.isLoading = state == .preparing || state == .waitingForMicrophone
+        let status: String
+        switch state {
+        case .off:
+            status = supported ? GenerationStrings.translationOff : GenerationStrings.translationRequiresMacOS
+        case .waitingForMicrophone:
+            status = GenerationStrings.translationWaitingForMicrophone
+        case .preparing:
+            status = GenerationStrings.translationPreparing
+        case .listening:
+            status = GenerationStrings.translationListening
+        }
+        translationButton.toolTip = status
+        translationButton.setAccessibilityValue(status)
     }
 
     /// Places the controls within the header-provided action row.
     override func layout() {
-        for button in controls where button.shape == .capsule {
-            button.snp.updateConstraints { make in make.width.equalTo(preferredWidth(for: button)) }
+        for button in controls {
+            button.snp.updateConstraints { make in make.width.equalTo(button.preferredWidth) }
         }
         super.layout()
     }
 
-    /// Refreshes elapsed time and requests parent layout when its measured width changes.
+    /// Refreshes the elapsed-session label using the current start time.
     private func updateElapsed() {
         let seconds = max(0, Int(Date().timeIntervalSince(generationRepo.sessionStartedAt ?? Date())))
         let title = String(
@@ -204,11 +214,7 @@ final class GenerationToolbarView: Canvas {
             seconds / 60,
             seconds % 60
         )
-        if elapsed.title != title {
-            let previousWidth = elapsed.preferredWidth
-            elapsed.title = title
-            if previousWidth != elapsed.preferredWidth { onWidthChange?() }
-        }
+        elapsed.content = .text(title)
     }
 
 }

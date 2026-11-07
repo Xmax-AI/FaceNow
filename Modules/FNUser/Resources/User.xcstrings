@@ -2,19 +2,55 @@
   "sourceLanguage" : "en",
   "strings" : {
     "account.insufficient_credits": {
-      "comment": "Shared credit-exhaustion notice for camera startup and active generation.",
+      "comment": "Complete heading of the credit-exhaustion dialog for camera startup and active generation.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Insufficient credits. Please top up on the Xmax Open Platform first."
+            "value": "Insufficient credits. Top up to continue."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "积分不足，请先前往 Xmax 开放平台进行充值"
+            "value": "积分不足，充值后可继续"
+          }
+        }
+      }
+    },
+    "account.recharge_now" : {
+      "comment" : "Opens the existing platform credit page from the insufficient-credit dialog.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top Up"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去充值"
+          }
+        }
+      }
+    },
+    "account.recharge_later" : {
+      "comment" : "Dismisses the insufficient-credit dialog without resuming generation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Now"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂不充值"
           }
         }
       }
@@ -698,7 +734,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "相见 不止一面"
+            "value" : "相见，不止一面。"
           }
         }
       }

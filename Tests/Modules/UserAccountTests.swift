@@ -9,6 +9,48 @@ import Storage
 @MainActor
 final class UserAccountTests: XCTestCase {
 
+    func testRechargeNoticesCoalesceAndIgnoreOldDialogCompletions() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+        ])
+        defer { context.cleanup() }
+        try await context.account.signIn(apiKey: activeAPIKey)
+        XCTAssertNil(context.account.remainingCredits)
+        context.account.requestRechargeNotice()
+        let first = try XCTUnwrap(context.account.rechargeNoticeID)
+        context.account.requestRechargeNotice()
+        XCTAssertEqual(context.account.rechargeNoticeID, first)
+        context.account.dismissRechargeNotice(id: first)
+        XCTAssertNil(context.account.rechargeNoticeID)
+        context.account.requestRechargeNotice()
+        let second = try XCTUnwrap(context.account.rechargeNoticeID)
+        XCTAssertNotEqual(first, second)
+        context.account.dismissRechargeNotice(id: first)
+        XCTAssertEqual(context.account.rechargeNoticeID, second)
+    }
+
+    func testRuntimeRechargeNoticePreservesBalanceAndIsClearedOnSignOut() async throws {
+        let context = makeContext(routes: [
+            "/baas/api/user/apikey/list": activeAPIKeyResponse,
+            "/baas/api/user/info": apiKeyProfileResponse,
+            "/open/api/v1/points/balance": #"{"success":true,"code":200,"data":{"currentBalance":1250}}"#,
+        ])
+        defer { context.cleanup() }
+        context.account.requestRechargeNotice()
+        XCTAssertNil(context.account.rechargeNoticeID)
+        try await context.account.signIn(apiKey: activeAPIKey)
+        await context.account.refreshCredits()
+        context.account.requestRechargeNotice()
+        XCTAssertNotNil(context.account.rechargeNoticeID)
+        XCTAssertEqual(context.account.remainingCredits, 1250)
+        XCTAssertEqual(context.account.apiKey, activeAPIKey)
+        try await context.account.signOut()
+        XCTAssertNil(context.account.rechargeNoticeID)
+        context.account.requestRechargeNotice()
+        XCTAssertNil(context.account.rechargeNoticeID)
+    }
+
     func testVerifiedAPIKeyCanLoadCreditsWithoutChangingGenerationCredential() async throws {
         let context = makeContext(routes: [
             "/baas/api/user/apikey/list": activeAPIKeyResponse,

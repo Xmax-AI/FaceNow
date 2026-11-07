@@ -12,10 +12,11 @@
 @preconcurrency import AVFoundation
 import Foundation
 import CoreGraphics
+import CoreImage
 import os
 
 /// Produces fixed-rate camera frames without queuing work on the SDK callback thread.
-/// Transport state is confined to the worker queue; the frame scheduler alone crosses queues.
+/// Transport state is confined to the worker queue; frame and subtitle inputs can cross queues.
 final class VirtualCameraOutput: @unchecked Sendable {
 
     /// The timestamped, bounded entry point for generated frames.
@@ -43,6 +44,12 @@ final class VirtualCameraOutput: @unchecked Sendable {
 
     /// The reusable normalized output for the most recent source buffer.
     private var renderedOutput: CVPixelBuffer?
+
+    /// The latest immutable caption in output pixel coordinates, shared with the worker.
+    private let subtitle = OSAllocatedUnfairLock<CIImage?>(initialState: nil)
+
+    /// The caption already composited into the cached output buffer.
+    private var renderedSubtitle: CIImage?
 
     /// The active CMIO sink and system-owned consumption queue.
     private var deviceID: CMIODeviceID = 0
@@ -92,6 +99,14 @@ final class VirtualCameraOutput: @unchecked Sendable {
 
     /// Protects startup ownership independently of the worker-confined media resources.
     private let startState = OSAllocatedUnfairLock(initialState: StartState())
+
+    /// Replaces the bottom-aligned caption for the next generated frame, even when its source is repeated.
+    func setSubtitle(
+        _ image: CGImage?
+    ) {
+        let overlay = image.map { CIImage(cgImage: $0) }
+        subtitle.withLock { $0 = overlay }
+    }
 
     /// Waits for a usable sink and rejects late discovery results after stop or a newer start.
     /// The caller supplies the localized video badge; diagnostic color bars omit product artwork.
@@ -252,16 +267,22 @@ final class VirtualCameraOutput: @unchecked Sendable {
                 buffer = try renderer.testPattern(at: time.seconds)
                 isNewFrame = true
             } else if let frame = frames.frame(now: time.seconds) {
-                if renderedInput !== frame.pixelBuffer {
-                    renderedOutput = try renderer.normalize(frame.pixelBuffer)
+                let caption = subtitle.withLock { $0 }
+                isNewFrame = renderedInput !== frame.pixelBuffer
+                if isNewFrame || renderedSubtitle !== caption {
+                    renderedOutput = try renderer.normalize(
+                        frame.pixelBuffer,
+                        subtitle: caption
+                    )
                     renderedInput = frame.pixelBuffer
-                    isNewFrame = true
+                    renderedSubtitle = caption
                 }
                 guard let renderedOutput else { return }
                 buffer = renderedOutput
             } else if let waitingBuffer {
                 renderedInput = nil
                 renderedOutput = nil
+                renderedSubtitle = nil
                 buffer = waitingBuffer
             } else {
                 return
@@ -347,6 +368,7 @@ final class VirtualCameraOutput: @unchecked Sendable {
         streamID = 0
         renderedInput = nil
         renderedOutput = nil
+        renderedSubtitle = nil
         renderer = nil
         waitingBuffer = nil
         statisticsStart = nil

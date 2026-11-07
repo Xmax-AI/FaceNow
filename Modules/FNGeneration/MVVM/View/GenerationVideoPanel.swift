@@ -43,8 +43,8 @@ final class GenerationVideoPanel: Canvas {
     /// The immutable Local or Result caption supplied by the workspace.
     private let title: String
 
-    /// Whether this panel presents the result-only product watermark.
-    private let showsWatermark: Bool
+    /// Whether this panel displays its title in a corner badge.
+    private let showsTitleBadge: Bool
 
     /// The lazily created native panel-title label.
     private lazy var caption: NSTextField = {
@@ -66,30 +66,17 @@ final class GenerationVideoPanel: Canvas {
         return view
     }()
 
-    /// The normally oriented FaceNow watermark at the result's upper-left corner.
-    private lazy var leftWatermark: NSTextField = {
-        let view = makeLabel(
-            "✦ FaceNow",
-            size: 13,
-            color: .white.withAlphaComponent(0.8),
-            weight: .semibold
-        )
-        view.font = .systemFont(ofSize: 13, weight: .semibold)
-        view.isHidden = !showsWatermark
-        return view
-    }()
-
     /// The persistent overlays for the panel's metric groups.
     private var panels: [GenerationStatisticsPanel] = []
 
-    /// Creates the persistent SDK preview and its caption, watermark, and statistics overlays.
+    /// Creates the persistent SDK preview and its caption and statistics overlays.
     init(
         title: String,
         statistics: [GenerationStatisticsGroup],
-        showsWatermark: Bool = false
+        showsTitleBadge: Bool = true
     ) {
         self.title = title
-        self.showsWatermark = showsWatermark
+        self.showsTitleBadge = showsTitleBadge
         super.init(
             color: .black,
             radius: 24
@@ -103,9 +90,10 @@ final class GenerationVideoPanel: Canvas {
             panels.append(panel)
             addSubview(panel)
         }
-        addSubview(captionBackground)
-        captionBackground.addSubview(caption)
-        addSubview(leftWatermark)
+        if showsTitleBadge {
+            addSubview(captionBackground)
+            captionBackground.addSubview(caption)
+        }
         setAccessibilityLabel(title)
         configureLayout()
     }
@@ -125,7 +113,6 @@ final class GenerationVideoPanel: Canvas {
         video.track = track
         if placeholder.stringValue != message { placeholder.stringValue = message }
         placeholder.isHidden = message.isEmpty
-        leftWatermark.isHidden = !showsWatermark || visible
         for (panel, group) in zip(
             panels,
             statistics
@@ -144,16 +131,14 @@ final class GenerationVideoPanel: Canvas {
             make.centerY.equalToSuperview()
             make.height.equalTo(20)
         }
-        captionBackground.snp.makeConstraints { make in
-            make.trailing.top.equalToSuperview().inset(12)
-        }
-        caption.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(6)
-            make.top.bottom.equalToSuperview().inset(3)
-        }
-        leftWatermark.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(12)
-            make.leading.equalToSuperview().inset(12)
+        if showsTitleBadge {
+            captionBackground.snp.makeConstraints { make in
+                make.trailing.top.equalToSuperview().inset(12)
+            }
+            caption.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(6)
+                make.top.bottom.equalToSuperview().inset(3)
+            }
         }
         var previous: GenerationStatisticsPanel?
         for panel in panels {

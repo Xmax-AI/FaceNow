@@ -47,6 +47,7 @@ final class HomeViewController: NSViewController {
     /// Allows application installation only after capture, generation, and native camera work stop.
     var canInstallApplicationUpdate: Bool {
         !isShuttingDown && !generationRepo.settingsLocked && !generationRepo.isClosing
+            && rechargeDialog == nil && userRepo.rechargeNoticeID == nil
             && !virtualCameraRepo.isBusy && !virtualCameraRepo.hasPendingSystemRequest
             && !virtualCameraRepo.isRequestingCameraAccess
             && virtualCameraRepo.operation == nil && cameraStartTask == nil && cameraNoticeTask == nil
@@ -75,6 +76,12 @@ final class HomeViewController: NSViewController {
 
     /// The company and model information modal, mutually exclusive with onboarding.
     private var aboutPage: AboutViewController?
+
+    /// Retains one credit overlay and the account notice it acknowledges.
+    private var rechargeDialog: (id: UUID, view: RechargeDialogView)?
+
+    /// Restores the covered page's focus without repeating its presentation or business actions.
+    private weak var rechargePreviousResponder: NSResponder?
 
     /// Limits automatic presentation to one attempt per authenticated visit to home.
     private var onboardingAutoPresented = false
@@ -266,8 +273,8 @@ final class HomeViewController: NSViewController {
         scroll.documentView = document
         [header, landing, workspace, footer].forEach(document.addSubview)
         [
-            logo, homeControls, toolbar.statisticsControl, toolbar.interpolationControl, toolbar.beautyControl, toolbar,
-            userView,
+            logo, homeControls, toolbar.statisticsControl, toolbar.interpolationControl, toolbar.beautyControl,
+            toolbar.translationControl, toolbar, userView,
         ].forEach(
             header.addSubview
         )
@@ -292,6 +299,9 @@ final class HomeViewController: NSViewController {
             // The profile's queued render finishes the login-to-home transition first.
             DispatchQueue.main.async { [weak self] in self?.showSignInToast() }
         }.store(in: &observations)
+        NotificationCenter.default.publisher(for: NSWindow.didEndSheetNotification)
+            .sink { [weak self] _ in self?.scheduleRender() }
+            .store(in: &observations)
         render()
         accountRestore = Task { [weak self] in await self?.userRepo.restore() }
     }
@@ -301,6 +311,7 @@ final class HomeViewController: NSViewController {
         super.viewDidAppear()
         synchronizeCameraSelection()
         synchronizeOnboarding()
+        updateRechargeDialog()
         guard ticker == nil else { return }
         ticker = Task { [weak self] in
             while !Task.isCancelled {
@@ -320,6 +331,7 @@ final class HomeViewController: NSViewController {
     /// Stops view work before awaiting generation and virtual-output cleanup.
     func shutdown() async {
         isShuttingDown = true
+        dismissRechargeDialog()
         cameraNoticeTask?.cancel()
         cameraNoticeTask = nil
         virtualCameraRepo.cancelPendingOperations()
@@ -366,8 +378,7 @@ final class HomeViewController: NSViewController {
             return
         }
         guard !userRepo.hasInsufficientCredits else {
-            generationRepo.showSetupError(AccountStrings.insufficientCredits)
-            userView.showCreditsWarning()
+            userRepo.requestRechargeNotice()
             return
         }
         let requestedAt = DispatchTime.now().uptimeNanoseconds
@@ -427,6 +438,7 @@ final class HomeViewController: NSViewController {
         toolbar.statisticsControl.isHidden = !active
         toolbar.interpolationControl.isHidden = !active
         toolbar.beautyControl.isHidden = !active
+        toolbar.translationControl.isHidden = !active
         toolbar.isHidden = !active
         landing.isHidden = active
         footer.isHidden = active
@@ -452,7 +464,89 @@ final class HomeViewController: NSViewController {
         synchronizeOnboarding()
         synchronizeAccountRefresh()
         updateError()
+        updateRechargeDialog()
         onUpdateInstallationAvailabilityChanged?()
+    }
+
+    /// Presents the same centered credit dialog for rejected startup and exhausted generation.
+    private func updateRechargeDialog() {
+        guard !isShuttingDown, !viewModel.needsLogin, let noticeID = userRepo.rechargeNoticeID else {
+            dismissRechargeDialog()
+            return
+        }
+        if let presented = rechargeDialog {
+            if presented.id == noticeID {
+                let responder = view.window?.firstResponder as? NSView
+                if responder?.isDescendant(of: presented.view) != true { presented.view.focus() }
+                return
+            }
+            dismissRechargeDialog()
+        }
+        guard let window = view.window, window.isVisible, window.attachedSheet == nil else { return }
+        landing.closeCameraPicker()
+        cameraControls.closePopover()
+        userView.closePopover()
+        footer.closePopover()
+        landing.setServiceNoticeInteractionEnabled(false)
+        dismissSignInToast()
+        let dialog = RechargeDialogView()
+        dialog.onRecharge = { [weak self] in
+            self?.resolveRechargeDialog(
+                id: noticeID,
+                opensCredits: true
+            )
+        }
+        dialog.onDismiss = { [weak self] in
+            self?.resolveRechargeDialog(
+                id: noticeID,
+                opensCredits: false
+            )
+        }
+        rechargePreviousResponder = window.firstResponder
+        rechargeDialog = (noticeID, dialog)
+        root.addSubview(dialog)
+        dialog.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        root.layoutSubtreeIfNeeded()
+        dialog.present()
+    }
+
+    /// Acknowledges only the current notice and opens the regional credit page after an explicit choice.
+    private func resolveRechargeDialog(
+        id: UUID,
+        opensCredits: Bool
+    ) {
+        guard let presented = rechargeDialog, presented.id == id, !presented.view.isDismissing else { return }
+        let isCurrent = userRepo.rechargeNoticeID == id
+        dismissRechargeDialog(animated: true)
+        if isCurrent, opensCredits, !isShuttingDown, !viewModel.needsLogin {
+            NSWorkspace.shared.open(userRepo.creditsURL)
+        }
+    }
+
+    /// Removes stale overlays immediately on lifecycle changes or after the user's dismissal fade.
+    private func dismissRechargeDialog(
+        animated: Bool = false
+    ) {
+        guard let presented = rechargeDialog else { return }
+        let noticeID = presented.id
+        presented.view.dismiss(animated: animated) { [weak self, weak dialog = presented.view] in
+            guard let self, let dialog, self.rechargeDialog?.view === dialog else { return }
+            dialog.shutdown()
+            dialog.removeFromSuperview()
+            self.rechargeDialog = nil
+            self.userRepo.dismissRechargeNotice(id: noticeID)
+            self.landing.setServiceNoticeInteractionEnabled(self.onboardingPage == nil && self.aboutPage == nil)
+            if !self.isShuttingDown, !self.viewModel.needsLogin,
+                let previous = self.rechargePreviousResponder as? NSView,
+                previous.window === self.view.window, !previous.isHiddenOrHasHiddenAncestor
+            {
+                self.view.window?.makeFirstResponder(previous)
+            } else {
+                self.view.window?.makeFirstResponder(nil)
+            }
+            self.rechargePreviousResponder = nil
+            self.scheduleRender()
+        }
     }
 
     /// Schedules first presentation or a pending relaunch continuation after verified home readiness.
@@ -466,6 +560,7 @@ final class HomeViewController: NSViewController {
         let resumeStep = onboardingModel.onboardingRepo.resumeStepAfterRelaunch
         guard userRepo.hasVerifiedSession, view.window != nil, !generationRepo.sessionActive,
             !generationRepo.settingsLocked, aboutPage == nil, onboardingPage == nil,
+            rechargeDialog == nil, userRepo.rechargeNoticeID == nil,
             onboardingPresentationTask == nil, !onboardingAutoPresented || resumeStep != nil
         else { return }
         if resumeStep != nil, case .checking = virtualCameraRepo.readiness { return }
@@ -477,7 +572,8 @@ final class HomeViewController: NSViewController {
             self.onboardingPresentationTask = nil
             guard !self.isShuttingDown, self.userRepo.hasVerifiedSession, !self.viewModel.needsLogin,
                 self.loginPage == nil, self.view.window != nil, !self.generationRepo.settingsLocked,
-                self.onboardingPage == nil, self.aboutPage == nil
+                self.onboardingPage == nil, self.aboutPage == nil,
+                self.rechargeDialog == nil, self.userRepo.rechargeNoticeID == nil
             else { return }
             let resumeStep = self.onboardingModel.onboardingRepo.resumeStepAfterRelaunch
             guard resumeStep != nil || !self.onboardingModel.onboardingRepo.hasShownGuide else { return }
@@ -865,15 +961,21 @@ final class HomeViewController: NSViewController {
             make.width.equalTo(toolbar.interpolationControl.preferredWidth)
         }
         toolbar.beautyControl.snp.makeConstraints { make in
-            make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            make.trailing.equalTo(toolbar.translationControl.snp.leading).offset(-ToolbarControlMetrics.spacing)
             make.centerY.equalTo(logo)
             make.height.equalTo(userView)
             make.width.equalTo(toolbar.beautyControl.preferredWidth)
         }
+        toolbar.translationControl.snp.makeConstraints { make in
+            make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            make.centerY.equalTo(logo)
+            make.height.equalTo(userView)
+            make.width.equalTo(toolbar.translationControl.preferredWidth)
+        }
         toolbar.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
             make.centerY.equalTo(logo)
-            make.width.equalTo(toolbar.preferredWidth(controlHeight: 36))
+            make.width.equalTo(toolbar.preferredWidth)
             make.height.equalTo(userView)
         }
     }
@@ -888,7 +990,7 @@ final class HomeViewController: NSViewController {
         let controlHeight = ToolbarControlMetrics.compactHeight
         let cameraWidth = cameraControls.preferredWidth
         let userWidth = userView.preferredWidth(controlHeight: controlHeight)
-        let toolbarWidth = toolbar.preferredWidth(controlHeight: controlHeight)
+        let toolbarWidth = toolbar.preferredWidth
         let interpolationWidth = toolbar.interpolationControl.preferredWidth
         let beautyWidth = toolbar.beautyControl.preferredWidth
         let signature =

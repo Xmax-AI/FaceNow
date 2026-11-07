@@ -25,6 +25,78 @@ enum GenerationStrings {
         )
     }
 
+    /// Names the live translation toggle.
+    static var translation: String {
+        Localization.string(
+            "translation.title",
+            table: "Generation",
+            defaultValue: "Live Translation"
+        )
+    }
+
+    /// Prompts the user to select an input before enabling translation.
+    static var translationChooseMicrophone: String {
+        Localization.string(
+            "translation.choose_microphone",
+            table: "Generation",
+            defaultValue: "Select a microphone to turn on live translation."
+        )
+    }
+
+    /// Explains that live translation is listening and can be turned off.
+    static var translationListening: String {
+        Localization.string(
+            "translation.listening",
+            table: "Generation",
+            defaultValue: "Listening for Mandarin. Click to turn off."
+        )
+    }
+
+    /// Explains the subtitle outputs and how to enable them.
+    static var translationOff: String {
+        Localization.string(
+            "translation.off",
+            table: "Generation",
+            defaultValue: "Click to translate spoken Mandarin into English subtitles on the preview and virtual camera."
+        )
+    }
+
+    /// Shows that speech and translation resources are being prepared.
+    static var translationPreparing: String {
+        Localization.string(
+            "translation.preparing",
+            table: "Generation",
+            defaultValue: "Preparing live translation. A system language download may be required. Click to cancel."
+        )
+    }
+
+    /// Explains the minimum system version for live translation.
+    static var translationRequiresMacOS: String {
+        Localization.string(
+            "translation.requires_macos",
+            table: "Generation",
+            defaultValue: "Live translation requires macOS 27 or later."
+        )
+    }
+
+    /// Explains a recoverable failure of live translation.
+    static var translationUnavailable: String {
+        Localization.string(
+            "translation.unavailable",
+            table: "Generation",
+            defaultValue: "Live translation has stopped. Check your microphone and system language downloads, then try again."
+        )
+    }
+
+    /// Shows that live translation is waiting for the chosen input.
+    static var translationWaitingForMicrophone: String {
+        Localization.string(
+            "translation.waiting_for_microphone",
+            table: "Generation",
+            defaultValue: "Waiting for the microphone. Click to cancel."
+        )
+    }
+
     /// Opens the audio and video synchronization settings card.
     static var audioVideoAdjustments: String {
         Localization.string(
@@ -181,12 +253,21 @@ enum GenerationStrings {
         )
     }
 
-    /// Closes the result overlay without changing the active beauty effect.
+    /// Collapses the controls without changing the active beauty effect.
     static var beautyClose: String {
         Localization.string(
             "beauty.close",
             table: "Generation",
-            defaultValue: "Close beauty controls"
+            defaultValue: "Hide beauty controls"
+        )
+    }
+
+    /// Expands the controls for the active beauty effect.
+    static var beautyShow: String {
+        Localization.string(
+            "beauty.show",
+            table: "Generation",
+            defaultValue: "Show beauty controls"
         )
     }
 
