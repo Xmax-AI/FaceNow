@@ -13,7 +13,7 @@ namespace FaceNow.App.Controls;
 
 internal enum ToastStyle { Error, Success }
 
-/// <summary>Matches the macOS ToastView geometry, timing and notification semantics.</summary>
+/// <summary>Displays transient notifications with consistent positioning and timing.</summary>
 internal sealed class ToastView : Grid
 {
     private readonly Border surface = new()

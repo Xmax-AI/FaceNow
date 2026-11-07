@@ -1,6 +1,6 @@
 namespace FaceNow.Core.User;
 
-/// <summary>Matches macOS startup checks against the last confirmed, in-memory balance.</summary>
+/// <summary>Checks the last confirmed in-memory balance before starting generation.</summary>
 public static class CreditPolicy
 {
     public const int InsufficientCode = 43001;

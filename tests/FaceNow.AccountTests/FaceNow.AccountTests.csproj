@@ -7,6 +7,7 @@
     <ProjectReference Include="../../src/FaceNow.Core/FaceNow.Core.csproj" />
     <Compile Include="../../src/FaceNow.Windows/Network/AccountApi.cs" Link="AccountApi.cs" />
     <Compile Include="../../src/FaceNow.App/User/LoginViewModel.cs" Link="LoginViewModel.cs" />
+    <Compile Include="../../src/FaceNow.App/User/CaptchaStartupPolicy.cs" Link="CaptchaStartupPolicy.cs" />
     <Compile Include="../../src/FaceNow.App/User/AccountPresentation.cs" Link="AccountPresentation.cs" />
   </ItemGroup>
 </Project>

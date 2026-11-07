@@ -1,3 +1,13 @@
+//
+//  MainViewModel.Presentation.cs
+//  FaceNow
+//
+//  Author: 翁跃庭 (Yueting Weng)
+//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
+//
+//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -10,26 +20,27 @@ namespace FaceNow.Windows.Studio.ViewModels;
 
 internal sealed partial class MainViewModel
 {
-    private bool active, statisticsVisible, remoteReady, preview;
+    private bool active, statisticsVisible, preview;
     private string selectedMode = "charx";
     private long intent;
     private DateTimeOffset? startedAt;
     private readonly IUiTimer elapsedTimer;
-    private (GenerationContext Context, long Intent, int Revision)? pendingConditions;
+    private (GenerationContext Context, bool FaceRestoration, long Intent, int Revision)? pendingConditions;
     private Task? updateTask;
     internal Task WaitForConditionsAsync() => updateTask ?? Task.CompletedTask;
     private readonly Dictionary<ReferenceItem, CancellationTokenSource> uploadCancellations = [];
     public bool Active { get => active; private set { if (active == value) return; active = value; Changed(); Changed(nameof(StartLabel)); } }
     public bool IsPreview { get => preview; private set { preview = value; Changed(); Changed(nameof(StartLabel)); Changed(nameof(StopLabel)); Changed(nameof(Elapsed)); Changed(nameof(LocalPlaceholder)); } }
     public bool CanEdit => !Busy;
-    public bool RemoteReady { get => remoteReady; private set { remoteReady = value; Changed(); Changed(nameof(ResultPlaceholder)); } }
     public string LocalPlaceholder => IsPreview ? AppText.Get("UI Preview\nCamera is disabled") : "";
-    public string ResultPlaceholder => AppText.Get(IsPreview ? "UI Preview\nGeneration is disabled" : RemoteReady ? "" : State == RealtimeState.Connected ? "Generating…" : "Select a reference to generate…");
+    public string ResultPlaceholder => AppText.Get(IsPreview ? "UI Preview\nGeneration is disabled" :
+        RemoteReady && RemoteVideo is not null ? "" :
+        State is RealtimeConnectionState.Connected or RealtimeConnectionState.Generating ? "Generating…" : "Waiting for connection…");
     public string LocalTitle => IsPreview || string.IsNullOrEmpty(SelectedCamera?.Name) ? AppText.Get("Local") : AppText.Get("Local · ") + SelectedCamera.Name;
     public string KeyLabel => ApiKey.Length == 0 ? "" : "****************";
     public string StartLabel => IsClosing ? "Stopping…" : Busy ? "Starting…" : IsPreview ? "Preview UI" : "Start Camera";
     public string StopLabel => IsPreview ? "Exit Preview" : "Stop Session";
-    public string Elapsed => IsPreview ? "Preview" : (DateTimeOffset.UtcNow - (startedAt ?? DateTimeOffset.UtcNow)).ToString(@"mm\:ss");
+    public string Elapsed => IsPreview ? "Preview" : startedAt is { } start ? (DateTimeOffset.UtcNow - start).ToString(@"mm\:ss") : "00:00";
     public bool StatisticsVisible { get => statisticsVisible; set { statisticsVisible = value; Changed(); } }
     public string SelectedMode
     {
@@ -39,6 +50,7 @@ internal sealed partial class MainViewModel
     public ObservableCollection<ReferenceItem> CharacterReferences { get; } = [];
     public ObservableCollection<ReferenceItem> ClothingReferences { get; } = [];
     public ObservableCollection<ReferenceItem> StyleReferences { get; } = [];
+    public ObservableCollection<ReferenceItem> SummonReferences { get; } = [];
     private ReferenceItem? freeReference;
     public ReferenceItem? FreeReference
     {
@@ -66,7 +78,7 @@ internal sealed partial class MainViewModel
     public event Action? CreditsRequired;
     private void InitializePresentation()
     {
-        foreach (string mode in new[] { "charx", "clothx", "vibex" }) References(mode).Add(new() { IsUpload = true, Mode = mode, Name = AppText.Get("Upload") });
+        foreach (string mode in new[] { "charx", "clothx", "vibex", "dimx" }) References(mode).Add(new() { IsUpload = true, Mode = mode, Name = AppText.Get("Upload") });
         foreach (var item in ReferenceCatalog.Load()) References(item.Mode).Add(item);
         StartCommand = new(() => GuardAsync(StartLandingAsync), () => !Busy);
         SubmitPromptCommand = new(() => GuardAsync(SubmitPromptAsync), CanSubmitPrompt);
@@ -90,7 +102,8 @@ internal sealed partial class MainViewModel
         SelectedMode = "charx";
         MarkSelected(first);
         string freePrompt = Prompt;
-        Prompt = ModePrompt("charx"); ReferenceImage = first.ReferenceUrl; FaceRestoration = false;
+        var context = ReferenceContext(first);
+        Prompt = context.Prompt; ReferenceImage = context.ReferencePath ?? ""; FaceRestoration = first.Mode == "clothx";
         try { await GenerateAsync(); }
         finally { Prompt = freePrompt; Changed(nameof(Prompt)); }
     }
@@ -112,22 +125,34 @@ internal sealed partial class MainViewModel
         CameraRequired?.Invoke();
     }
     private void BeginElapsed()
-    { if (startedAt is null || !elapsedTimer.IsEnabled) startedAt = DateTimeOffset.UtcNow; elapsedTimer.Start(); Changed(nameof(Elapsed)); }
+    {
+        if (State != RealtimeConnectionState.Generating || elapsedTimer.IsEnabled) return;
+        startedAt = DateTimeOffset.UtcNow;
+        elapsedTimer.Start();
+        Changed(nameof(Elapsed));
+    }
     public void ClearError() => Error = "";
-    private ObservableCollection<ReferenceItem> References(string mode) => mode switch { "charx" => CharacterReferences, "clothx" => ClothingReferences, _ => StyleReferences };
-    private IEnumerable<ReferenceItem> AllReferences => CharacterReferences.Concat(ClothingReferences).Concat(StyleReferences).Concat(FreeReference is { } reference ? new[] { reference } : []);
+    private ObservableCollection<ReferenceItem> References(string mode) => mode switch
+    {
+        "charx" => CharacterReferences, "clothx" => ClothingReferences, "vibex" => StyleReferences, "dimx" => SummonReferences,
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "This mode does not have a reference list.")
+    };
+    private IEnumerable<ReferenceItem> AllReferences => CharacterReferences.Concat(ClothingReferences).Concat(StyleReferences).Concat(SummonReferences).Concat(FreeReference is { } reference ? new[] { reference } : []);
     private void MarkSelected(ReferenceItem selected)
     { foreach (var item in AllReferences) item.IsSelected = item == selected; }
     private static string ModePrompt(string mode) => FaceNow.Core.Product.GenerationPrompts.ForMode(mode);
+    internal GenerationContext ReferenceContext(ReferenceItem item) => new(
+        item.Prompt ?? (item.Mode == "free" ? Prompt : ModePrompt(item.Mode)),
+        item.ReferenceUrl);
     public async Task SelectReferenceAsync(ReferenceItem item)
     {
         if (item.IsUpload || item.IsUploading || !Active) return;
         ClearError();
         MarkSelected(item);
+        if (item.Mode == "free" && item.Prompt is { } freePrompt) { Prompt = freePrompt; Changed(nameof(Prompt)); }
         if (IsPreview) return;
         if (string.IsNullOrWhiteSpace(ApiKey)) { RequireKey(); return; }
-        string text = item.Mode == "free" ? Prompt : ModePrompt(item.Mode);
-        await QueueConditionsAsync(new(text, item.ReferenceUrl, item.Mode == "clothx"));
+        await QueueConditionsAsync(ReferenceContext(item), faceRestoration: item.Mode == "clothx");
     }
     public async Task SubmitPromptAsync()
     {
@@ -139,9 +164,9 @@ internal sealed partial class MainViewModel
     }
     private bool FreeReferenceReady => FreeReference is null || !FreeReference.IsUploading && !FreeReference.HasError && FreeReference.ReferenceUrl.Length > 0;
     private bool CanSubmitPrompt() => !Busy && FreeReferenceReady;
-    private Task QueueConditionsAsync(GenerationContext context)
+    private Task QueueConditionsAsync(GenerationContext context, bool faceRestoration = false)
     {
-        pendingConditions = (context, ++intent, revision);
+        pendingConditions = (context, faceRestoration, ++intent, revision);
         if (updateTask is null || updateTask.IsCompleted) updateTask = ApplyConditionsAsync();
         return updateTask;
     }
@@ -154,9 +179,7 @@ internal sealed partial class MainViewModel
             if (current is null || pending.Revision != revision) continue;
             try
             {
-                if (State == RealtimeState.Generating) await current.UpdateAsync(pending.Context);
-                else { await EnsureCameraOutputAsync(current, pending.Revision); await current.StartAsync(pending.Context, microphone: false); }
-                if (pending.Revision == revision) { State = RealtimeState.Generating; RemoteReady = true; }
+                await GenerateOnStreamAsync(current, pending.Context, pending.FaceRestoration, pending.Revision);
             }
             catch (Exception failure) when (pending.Revision == revision)
             {
@@ -168,10 +191,12 @@ internal sealed partial class MainViewModel
     public async Task UploadReferenceAsync(string path, ReferenceItem? existing = null)
     {
         if (existing?.IsUploading == true) return;
-        string mode = SelectedMode;
+        string mode = existing?.Mode ?? SelectedMode;
         if (IsPreview) { Error = "Reference uploads require a live session."; return; }
         if (string.IsNullOrWhiteSpace(ApiKey)) { RequireKey(); return; }
-        var item = existing ?? new ReferenceItem { Id = Guid.NewGuid().ToString("N"), Name = System.IO.Path.GetFileNameWithoutExtension(path), Mode = mode, ThumbnailUrl = path, LocalPath = path };
+        var item = existing ?? ReferenceItem.FromUpload(path, mode, Prompt);
+        long uploadIntent = ++intent;
+        pendingConditions = null;
         item.UploadProgress = null; item.IsUploading = true; item.HasError = false;
         if (existing is null)
         {
@@ -186,30 +211,21 @@ internal sealed partial class MainViewModel
             try { item.Thumbnail = await thumbnails.LoadAsync(path); } catch (Exception) { /* uploads can still accept encoded WebP without a local codec */ }
             using var client = new XmaxClient(new() { ApiKey = sessionKey, Environment = ServiceEnvironment });
             await using var storage = client.CreateStorage();
-            var progressTimer = dispatcher.CreateTimer(TimeSpan.FromMilliseconds(100));
-            void ReadProgress(object? sender, EventArgs args)
+            var progress = new Progress<TransferProgress>(value =>
             {
-                try
-                {
-                    var progress = storage.GetProgress();
-                    if (progress.Total > 0)
-                        item.UploadProgress = Math.Clamp((double)progress.Completed / progress.Total, 0, 1);
-                }
-                catch (XmaxException) { /* Keep the last snapshot; the upload task reports transfer failures. */ }
-            }
-            progressTimer.Tick += ReadProgress;
-            progressTimer.Start();
-            UploadedFile uploaded;
-            try { uploaded = await storage.UploadFileAsync(path, cancellationToken: cancellation.Token); }
-            finally { progressTimer.Stop(); progressTimer.Tick -= ReadProgress; }
+                if (item.IsUploading && !cancellation.IsCancellationRequested && value.Total > 0)
+                    item.UploadProgress = Math.Clamp((double)value.Completed / value.Total, 0, 1);
+            });
+            var uploaded = await storage.UploadImageWithSafetyCheckAsync(
+                path, progress: progress, cancellationToken: cancellation.Token);
             item.ReferenceUrl = uploaded.Url; item.UploadProgress = 1; item.IsUploading = false;
-            if (current == revision && mode == SelectedMode && (mode != "free" || FreeReference == item)) await SelectReferenceAsync(item);
+            if (current == revision && uploadIntent == intent && mode == SelectedMode && (mode != "free" || FreeReference == item)) await SelectReferenceAsync(item);
         }
         catch (OperationCanceledException) { item.IsUploading = false; item.HasError = true; item.Error = "Upload canceled — click to retry."; }
         catch (Exception failure)
         {
             item.IsUploading = false; item.HasError = true; item.Error = failure.Message;
-            if (current == revision) ReportError(failure);
+            if (current == revision && uploadIntent == intent) ReportError(failure);
         }
         finally { uploadCancellations.Remove(item); cancellation.Dispose(); }
     }
@@ -218,22 +234,5 @@ internal sealed partial class MainViewModel
         if (FreeReference is { } item && uploadCancellations.TryGetValue(item, out var cancellation)) cancellation.Cancel();
         FreeReference = null;
         ++intent; pendingConditions = null;
-    }
-    private void UpdateMetricRows(RealtimeEvent item)
-    {
-        if (item.Type == RealtimeEventType.Timing)
-        {
-            double[] values = [item.SessionMilliseconds, item.JoinMilliseconds, item.PublishMilliseconds, item.FirstFrameMilliseconds, item.TotalMilliseconds];
-            for (int i = 0; i < values.Length; ++i) TimingRows[i].Value = values[i] < 0 ? "—" : $"{values[i]:F1} ms";
-        }
-        if (item.Type != RealtimeEventType.Statistics) return;
-        var video = item.Direction == 0 ? UplinkRows : DownlinkRows;
-        var network = item.Direction == 0 ? UplinkNetworkRows : DownlinkNetworkRows;
-        if (item.Width > 0 && item.Height > 0) video[0].Value = $"{item.Width}×{item.Height}";
-        if (item.FramesPerSecond >= 0) video[1].Value = $"{item.FramesPerSecond} fps";
-        if (item.BitrateKbps >= 0) video[2].Value = $"{item.BitrateKbps} kbps";
-        if (item.PacketLossPercent >= 0) network[item.Direction == 0 ? 0 : 1].Value = $"{item.PacketLossPercent}%";
-        if (item.Quality >= 0) network[item.Direction == 0 ? 1 : 2].Value = item.Quality.ToString();
-        if (item.Direction == 1 && item.EndToEndMilliseconds >= 0) network[4].Value = $"{item.EndToEndMilliseconds} ms";
     }
 }

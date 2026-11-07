@@ -30,7 +30,7 @@ public partial class App : Application
         string? mode = arguments.FirstOrDefault(value => value.StartsWith("--smoke-test"));
         bool setupPreview = arguments.Contains("--preview-camera-setup") || mode == "--smoke-test-camera-setup";
         bool loginPreview = arguments.Contains("--preview-login") || mode is "--smoke-test-account" or "--smoke-test-login-layout" or "--smoke-test-signout" or "--smoke-test-signout-cached";
-        bool preview = loginPreview || setupPreview || arguments.Contains("--preview") || arguments.Contains("--preview-session") || mode is "--smoke-test-ui" or "--smoke-test-frames";
+        bool preview = loginPreview || setupPreview || arguments.Contains("--preview") || arguments.Contains("--preview-session") || mode is "--smoke-test-ui" or "--smoke-test-frames" or "--smoke-test-presets" or "--smoke-test-virtual-devices";
         ApiKeyStore? store = !preview && mode is null ? new() : null;
         if (mode?.StartsWith("--smoke-test-key-memory-") == true)
             store = new ApiKeyStore("XMAX.AI/FaceNow/ApiKey.Smoke." + Guid.Parse(Environment.GetEnvironmentVariable("FACENOW_SMOKE_CREDENTIAL_ID") ?? "").ToString("N"));

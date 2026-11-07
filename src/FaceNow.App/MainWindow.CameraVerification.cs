@@ -112,12 +112,12 @@ public sealed partial class MainWindow
             await sending.CancelAsync(); await producer;
             await Task.Delay(1800);
             var expired = await CaptureCameraDiagnosticAsync("camera-relay-expired");
-            Check(IsWaitingCanvas(expired.Pixels), "Producer silence did not select the plain macOS gray waiting canvas.");
+            Check(IsWaitingCanvas(expired.Pixels), "Producer silence did not select the plain gray waiting canvas.");
             await UntilAsync(() => virtualCameraOutput.Status.State == CameraOutputState.Stopped);
             await virtualCameraOutput.StopAsync();
             Check(!virtualCameraOutput.TrySubmit(new(pixels, width, height, stride, 0, first)), "A stopped output accepted a frame.");
             var stopped = await CaptureCameraDiagnosticAsync("camera-relay-stopped");
-            Check(IsWaitingCanvas(stopped.Pixels), "Stopped camera output did not select the plain macOS gray waiting canvas.");
+            Check(IsWaitingCanvas(stopped.Pixels), "Stopped camera output did not select the plain gray waiting canvas.");
             Guid second = Guid.NewGuid();
             await virtualCameraOutput.StartAsync(new(1920, 1080, 30, second));
             Check(!virtualCameraOutput.TrySubmit(new(pixels, width, height, stride, 0, first)), "A previous session was accepted after restart.");

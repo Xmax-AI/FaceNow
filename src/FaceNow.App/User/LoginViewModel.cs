@@ -26,15 +26,24 @@ internal sealed class LoginViewModel
     public string Code { get; private set; } = "";
     public string ApiKey { get; set; } = "";
     public bool IsBusy { get; set; }
+    public bool ConfigurationFailed { get; set; }
     public string? Error { get; set; }
     public int CodeLength => Configuration?.CodeLength(Method) ?? 6;
-    public bool ValidAccount => Account.Length <= 254 && Regex.IsMatch(Account.Trim(), Method == LoginMethod.Sms
+    public bool ValidAccount => Account.Trim().Length <= 254 && Regex.IsMatch(Account.Trim(), Method == LoginMethod.Sms
         ? @"^1[3-9][0-9]{9}$" : @"^[^\s@]+@[^\s@]+\.[^\s@]+$", RegexOptions.CultureInvariant);
     public int Cooldown => deadlines.TryGetValue(DestinationKey(Method, Account), out long deadline)
         ? (int)Math.Max(0, Math.Ceiling((deadline - milliseconds()) / 1000d)) : 0;
-    public bool CanSendCode => !IsBusy && !UsesApiKey && IsChannelVisible(Method == LoginMethod.Sms ? 0 : 1) && Configuration?.Supports(Method) == true && ValidAccount && Cooldown == 0;
-    public bool CanSubmit => !IsBusy && (UsesApiKey ? ApiKey.Trim().StartsWith("uk-", StringComparison.Ordinal) && ApiKey.Trim().Length > 3
-        : IsChannelVisible(Method == LoginMethod.Sms ? 0 : 1) && Configuration?.Supports(Method) == true && ValidAccount && Code.Length == CodeLength);
+    public bool CanSendCode => !IsBusy && !UsesApiKey && IsChannelVisible(Method == LoginMethod.Sms ? 0 : 1)
+        && (Configuration?.Supports(Method) == true || ConfigurationFailed) && ValidAccount && Cooldown == 0;
+    public bool CanSubmit => !IsBusy && (UsesApiKey ? !string.IsNullOrWhiteSpace(ApiKey)
+        : IsChannelVisible(Method == LoginMethod.Sms ? 0 : 1) && (Configuration?.Supports(Method) == true || ConfigurationFailed) && ValidAccount && Code.Length == CodeLength);
+    public static string SignInErrorMessage(Exception error, bool usingApiKey)
+    {
+        if (usingApiKey && error is AccountException failure && failure.Code != 429
+            && (failure.IsUnauthorized || failure.Code is >= 400 and <= 499))
+            return "Invalid API key. Check it and try again.";
+        return error.Message;
+    }
     public void SetAccount(string value) { if (Account != value) { Account = value; Code = ""; Error = null; } }
     public void SetCode(string value) { Code = new(value.Where(c => c is >= '0' and <= '9').Take(CodeLength).ToArray()); Error = null; }
     public void Select(int index)
@@ -59,7 +68,7 @@ internal sealed class LoginViewModel
     public void ResetAfterSignIn()
     {
         drafts.Clear(); deadlines.Clear();
-        Account = Code = ApiKey = ""; Error = null;
+        Account = Code = ApiKey = ""; Error = null; ConfigurationFailed = false;
         Method = DefaultIndex == 0 ? LoginMethod.Sms : LoginMethod.Email;
         UsesApiKey = Configuration?.Supports(Method) == false;
         // The in-flight request still owns IsBusy until its finally block completes.

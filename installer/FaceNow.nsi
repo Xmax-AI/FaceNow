@@ -3,9 +3,14 @@
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
 !include "x64.nsh"
+!include "WordFunc.nsh"
+!insertmacro VersionCompare
 
 !ifndef PAYLOAD
   !error "Define PAYLOAD, OUTPUT, VERSION, SIZE_KB and UNINSTALL_MANIFEST."
+!endif
+!ifndef WEBVIEW2_BOOTSTRAPPER
+  !error "Define WEBVIEW2_BOOTSTRAPPER using the verified Microsoft Evergreen bootstrapper."
 !endif
 !ifdef OVERSEAS
 !define PRODUCT "FaceNow Overseas"
@@ -17,6 +22,8 @@
 !define CLOSE_FIRST "Please close FaceNow before continuing."
 !define REMOVE_FAILED "The virtual camera could not be removed. Close apps using FaceNow, then try again."
 !define LAUNCH_LABEL "Launch FaceNow"
+!define WEBVIEW2_PROGRESS "Installing the security verification component..."
+!define WEBVIEW2_FAILED "WebView2 could not be installed. FaceNow can still be installed. Download WebView2 from the sign-in dialog or sign in with an API Key."
 !else
 !define PRODUCT "FaceNow"
 !define PRODUCT_ID "FaceNow"
@@ -27,6 +34,8 @@
 !define CLOSE_FIRST "请先关闭 FaceNow 后继续。"
 !define REMOVE_FAILED "无法移除虚拟摄像头，请关闭正在使用它的应用后重试。"
 !define LAUNCH_LABEL "启动 FaceNow"
+!define WEBVIEW2_PROGRESS "正在安装安全验证组件…"
+!define WEBVIEW2_FAILED "未能安装 WebView2，FaceNow 将继续安装。你可以从登录页弹窗前往官网下载 WebView2，或使用 API Key 登录。"
 !endif
 !define REGKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_ID}"
 Name "${PRODUCT}"
@@ -61,6 +70,46 @@ VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright 2026 XMAX.AI PTE. LTD."
 !insertmacro MUI_LANGUAGE "SimpChinese"
 !endif
 !include "${UNINSTALL_MANIFEST}"
+Var WebView2Present
+
+; Microsoft documents these per-user and per-machine Evergreen registration locations.
+Function CheckWebView2Version
+  ${VersionCompare} "$0" "0.0.0.0" $1
+  ${If} $0 != ""
+  ${AndIf} $1 == 1
+    StrCpy $WebView2Present 1
+  ${EndIf}
+FunctionEnd
+
+Function DetectWebView2
+  StrCpy $WebView2Present 0
+  SetRegView 32
+  ReadRegStr $0 HKLM "Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" "pv"
+  Call CheckWebView2Version
+  ReadRegStr $0 HKCU "Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" "pv"
+  Call CheckWebView2Version
+  SetRegView 64
+  ReadRegStr $0 HKCU "Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" "pv"
+  Call CheckWebView2Version
+FunctionEnd
+
+Function EnsureWebView2
+  Call DetectWebView2
+  ${If} $WebView2Present == 1
+    Return
+  ${EndIf}
+  DetailPrint "${WEBVIEW2_PROGRESS}"
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  File /oname=MicrosoftEdgeWebview2Setup.exe "${WEBVIEW2_BOOTSTRAPPER}"
+  ClearErrors
+  ExecWait '$\"$PLUGINSDIR\MicrosoftEdgeWebview2Setup.exe$\" /silent /install' $2
+  ; Verify registration instead of treating a successful process exit as installed.
+  Call DetectWebView2
+  ${If} $WebView2Present != 1
+    DetailPrint "${WEBVIEW2_FAILED}"
+  ${EndIf}
+FunctionEnd
 
 Function .onInit
   ${IfNot} ${RunningX64}
@@ -95,8 +144,12 @@ FunctionEnd
 !insertmacro CheckRunning "un."
 
 Section "FaceNow"
+  Call EnsureWebView2
   SetOutPath "$INSTDIR"
   SetOverwrite on
+  ; Remove the application-owned helper when upgrading to SDK beauty.
+  Delete "$INSTDIR\FaceNow.BeautyWorker.exe"
+  ClearErrors
   File /r "${PAYLOAD}\*"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateShortCut "$SMPROGRAMS\${PRODUCT}.lnk" "$INSTDIR\FaceNow.exe" "" "$INSTDIR\Assets\FaceNow.ico"

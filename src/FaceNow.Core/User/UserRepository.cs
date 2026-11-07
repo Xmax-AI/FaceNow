@@ -84,7 +84,7 @@ public sealed class UserRepository(IAccountApi api, IAccountStorage storage) : I
     {
         var key = value.Trim();
         if (!key.StartsWith("uk-", StringComparison.Ordinal) || key.Length <= 3)
-            throw new AccountException("Enter an active Xmax API key.");
+            throw new AccountException("Invalid API key. Check it and try again.", 400);
         await SignInAsync(new() { Kind = CredentialKind.ApiKey, Value = key }, token);
     }
 

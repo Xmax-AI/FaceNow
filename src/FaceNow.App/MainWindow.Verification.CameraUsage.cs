@@ -1,4 +1,5 @@
 using FaceNow.Core.VirtualCamera;
+using FaceNow.Windows.Studio.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
@@ -15,44 +16,90 @@ public sealed partial class MainWindow
         // Render state fixtures without installing, removing, or starting a camera.
         foreach (var (name, registration, state, canInstall, expectedTitle, setupEnabled) in new[]
         {
-            ("ready", CameraRegistrationState.Registered, CameraOutputState.Stopped, true, "Ready to use", (bool?)null),
-            ("video-ready", CameraRegistrationState.Registered, CameraOutputState.Running, false, "Ready to use", (bool?)null),
-            ("waiting", CameraRegistrationState.Registered, CameraOutputState.Stopped, false, "Ready to use", (bool?)null),
-            ("setup", CameraRegistrationState.NotRegistered, CameraOutputState.Stopped, true, "Setup needed", (bool?)true),
-            ("repair", CameraRegistrationState.Registered, CameraOutputState.Faulted, true, "Setup needed", (bool?)true),
+            ("ready", CameraRegistrationState.Registered, CameraOutputState.Stopped, true, "Enabled", (bool?)true),
+            ("video-ready", CameraRegistrationState.Registered, CameraOutputState.Running, false, "Enabled", (bool?)true),
+            ("waiting", CameraRegistrationState.Registered, CameraOutputState.Stopped, false, "Enabled", (bool?)true),
+            ("setup", CameraRegistrationState.NotRegistered, CameraOutputState.Stopped, true, "Not Installed", (bool?)true),
+            ("repair", CameraRegistrationState.Registered, CameraOutputState.Faulted, true, "Needs Setup", (bool?)true),
             ("stop-before-repair", CameraRegistrationState.Registered, CameraOutputState.Faulted, false, "Unavailable", (bool?)null),
             ("unsupported", CameraRegistrationState.Unsupported, CameraOutputState.Unavailable, false, "Unavailable", (bool?)null),
             ("missing", CameraRegistrationState.ComponentMissing, CameraOutputState.Unavailable, false, "Unavailable", (bool?)null)
         })
         {
-            var panel = BuildCameraUsagePanel(new(state, "Internal diagnostic detail", registration), canInstall, homeVirtualCamera);
-            var popup = OpenPopup(homeVirtualCamera, panel, 360, 20);
+            var panel = BuildVirtualDevicesPanel(new(state, "Internal diagnostic detail", registration), canInstall, homeVirtualCamera);
+            var popup = OpenPopup(homeVirtualCamera, panel, 400, 0);
             await UntilAsync(() => panel.IsLoaded);
             root.UpdateLayout();
             var elements = CameraUsageDescendants(panel).ToArray();
             var texts = elements.OfType<TextBlock>().Select(text => text.Text).ToArray();
-            Check(texts.Contains(expectedTitle) && !texts.Contains("Internal diagnostic detail"), "Camera usage exposes an internal status or omits the next step: " + name);
+            Check(texts.Contains(AppText.Get(expectedTitle)) && !texts.Contains("Internal diagnostic detail"), "Camera usage exposes an internal status or omits the next step: " + name);
             var setup = elements.OfType<Button>().SingleOrDefault(button => AutomationProperties.GetAutomationId(button) == "camera_setup");
             Check(setupEnabled is null ? setup is null : setup is not null && setup.IsEnabled == setupEnabled,
                 "Setup must only be offered when needed and available: " + name);
+            var microphone = elements.OfType<Button>().Single(button => AutomationProperties.GetAutomationId(button) == "microphone_setup");
+            Check(microphone.IsEnabled && microphone.Content is TextBlock { Text: var linkText } && linkText == AppText.Get("Set Up"),
+                "The microphone must open setup even when the driver is missing.");
             Check(!texts.Any(text => text is "Install & Enable" or "Remove Camera" or "Refresh Status" or "Registered"), "Maintenance controls are exposed in the camera usage panel.");
-            if (name == "stop-before-repair") Check(texts.Any(text => text.Contains("Stop your AI video")), "Unavailable setup does not explain how to continue.");
-            if (name == "unsupported") Check(texts.Any(text => text.Contains("requires Windows 11")), "Unsupported setup does not explain the system requirement.");
-            if (name == "missing") Check(texts.Any(text => text.Contains("Reinstall the full app")), "Missing components do not explain how to continue.");
+            if (name is "setup" or "video-ready" or "repair" or "unsupported" or "missing" or "stop-before-repair")
+                await SaveScreenshotAsync("camera-usage-" + name, (FrameworkElement)popup.Child);
+
+            var guide = elements.OfType<Button>().Single(button => AutomationProperties.GetAutomationId(button) == "camera_help");
+            var guideContent = panel.Children.OfType<StackPanel>().Last();
+            Check(guideContent.Visibility == Visibility.Collapsed, "The integration guide should start collapsed.");
+            ((IInvokeProvider)FrameworkElementAutomationPeer.CreatePeerForElement(guide)!.GetPattern(PatternInterface.Invoke)).Invoke();
+            await UntilAsync(() => guideContent.Visibility == Visibility.Visible);
+            texts = CameraUsageDescendants(guideContent).OfType<TextBlock>().Select(text => text.Text).ToArray();
+            if (name == "stop-before-repair") Check(texts.Contains(AppText.Get("Your AI video is still using the camera. Stop your AI video, then set up the camera again.")), "Unavailable setup does not explain how to continue.");
+            if (name == "unsupported") Check(texts.Contains(AppText.Get("This feature requires Windows 11. Use FaceNow on a Windows 11 computer to continue.")), "Unsupported setup does not explain the system requirement.");
+            if (name == "missing") Check(texts.Contains(AppText.Get("The camera feature is missing from this copy of FaceNow. Reinstall the full app, then try again.")), "Missing components do not explain how to continue.");
             if (name == "ready")
             {
                 Check(texts.Contains(FaceNowCameraName), "The camera name users need to select is missing.");
-                var help = elements.OfType<Button>().Single(button => AutomationProperties.GetAutomationId(button) == "camera_help");
-                var helpContent = panel.Children.OfType<StackPanel>().Last();
-                Check(helpContent.Visibility == Visibility.Collapsed, "Troubleshooting should start collapsed.");
-                ((IInvokeProvider)FrameworkElementAutomationPeer.CreatePeerForElement(help)!.GetPattern(PatternInterface.Invoke)).Invoke();
-                await UntilAsync(() => helpContent.Visibility == Visibility.Visible);
                 await SaveScreenshotAsync("camera-usage-help", (FrameworkElement)popup.Child);
             }
-            if (name is "setup" or "video-ready" or "repair" or "unsupported" or "missing" or "stop-before-repair") await SaveScreenshotAsync("camera-usage-" + name, (FrameworkElement)popup.Child);
             ClosePopups();
         }
         Check(Model.Session is null, "Camera usage verification created an AI session.");
+    }
+
+    private async Task VerifyVirtualMicrophoneSetupAsync()
+    {
+        var panel = BuildVirtualDevicesPanel(new(CameraOutputState.Stopped, "", CameraRegistrationState.Registered),
+            false, homeVirtualCamera, VirtualMicrophoneState.Disabled);
+        var popup = OpenPopup(homeVirtualCamera, panel, 400, 0);
+        await UntilAsync(() => panel.IsLoaded);
+        await SaveScreenshotAsync("virtual-microphone-popover", (FrameworkElement)popup.Child, 2);
+        var setup = CameraUsageDescendants(panel).OfType<Button>()
+            .Single(button => AutomationProperties.GetAutomationId(button) == "microphone_setup");
+        ((IInvokeProvider)FrameworkElementAutomationPeer.CreatePeerForElement(setup)!.GetPattern(PatternInterface.Invoke)).Invoke();
+        await UntilAsync(() => virtualMicrophoneDialog is { IsLoaded: true });
+        Check(!popup.IsOpen && AutomationProperties.GetName(virtualMicrophoneDialog!) == AppText.Get("Virtual Microphone"),
+            "The setup action must close the device list and open a microphone dialog.");
+        virtualMicrophoneDialog!.Hide();
+        await UntilAsync(() => virtualMicrophoneDialog is null);
+
+        foreach (var (state, action) in new[]
+        {
+            (VirtualMicrophoneState.NotInstalled, "Install"), (VirtualMicrophoneState.Pending, "Recheck Virtual Microphone"),
+            (VirtualMicrophoneState.Disabled, "Enable"), (VirtualMicrophoneState.Enabled, "Disable"),
+            (VirtualMicrophoneState.Failed, "Recheck Virtual Microphone")
+        })
+        {
+            var dialog = CreateVirtualMicrophoneDialog(state);
+            var card = (Border)dialog.Content;
+            var showing = dialog.ShowAsync();
+            try
+            {
+                await UntilAsync(() => card.IsLoaded && card.ActualWidth > 0);
+                var buttons = CameraUsageDescendants(card).OfType<Button>().ToArray();
+                Check(buttons.Select(AutomationProperties.GetAutomationId).SequenceEqual(new[] { "microphone_primary", "microphone_close", "microphone_sound_settings" }) &&
+                    AutomationProperties.GetName(buttons[0]) == AppText.Get(action), "Unexpected microphone setup actions for " + state);
+                if (state is VirtualMicrophoneState.Disabled or VirtualMicrophoneState.NotInstalled)
+                    await SaveScreenshotAsync("virtual-microphone-" + state.ToString().ToLowerInvariant(), card, 2);
+            }
+            finally { dialog.Hide(); await showing; }
+        }
+        Check(Model.Session is null, "Microphone setup verification started a session.");
     }
     private static IEnumerable<DependencyObject> CameraUsageDescendants(DependencyObject parent)
     {

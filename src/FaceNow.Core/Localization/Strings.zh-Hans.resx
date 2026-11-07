@@ -254,9 +254,9 @@
     <value>美颜暂不可用，已恢复原始画面。</value>
     <comment>Beauty unavailable. Original video has been restored.</comment>
   </data>
-  <data xml:space="preserve" name="Text_B70C658EF6E960F8">
-    <value>从视频通话，到更多应用场景</value>
-    <comment>Beyond Video Calls</comment>
+  <data xml:space="preserve" name="Text_D19AE28DBE4EBCEF">
+    <value>把实时视频生成接入你的应用</value>
+    <comment>Bring Real-Time Video to Your App</comment>
   </data>
   <data xml:space="preserve" name="Text_B4569967B99A6CC7">
     <value>黑领学院装</value>
@@ -279,16 +279,16 @@
     <comment>Bring Your Look To Video Calls</comment>
   </data>
   <data xml:space="preserve" name="Text_081CBDE105C978EC">
-    <value>让你以全新形象开启视频通话</value>
+    <value>今天，哪一面的你出镜？</value>
     <comment>Bringing Your New Look into Video Calls</comment>
   </data>
   <data xml:space="preserve" name="Text_BBAF8F75A97A6929">
     <value>棕色文艺装</value>
     <comment>Brown Artsy Outfit</comment>
   </data>
-  <data xml:space="preserve" name="Text_90433A9B4D3447EA">
-    <value>让实时互动更流畅</value>
-    <comment>Built for real-world interaction</comment>
+  <data xml:space="preserve" name="Text_217637909A13C689">
+    <value>为什么选择 Xmax？</value>
+    <comment>Why Xmax?</comment>
   </data>
   <data xml:space="preserve" name="Text_864B593361574D32">
     <value>removed preset 12</value>
@@ -614,9 +614,9 @@
     <value>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</value>
     <comment>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</comment>
   </data>
-  <data xml:space="preserve" name="Text_C054F138D15738C6">
-    <value>低成本</value>
-    <comment>Cost Efficiency</comment>
+  <data xml:space="preserve" name="Text_C7CBD74DD1909E3A">
+    <value>同类最低价</value>
+    <comment>Lowest Price</comment>
   </data>
   <data xml:space="preserve" name="Text_98CB406B0173BC55">
     <value>无法启动摄像头安装程序。</value>
@@ -790,9 +790,9 @@
     <value>启用虚拟摄像头</value>
     <comment>Enable Virtual Camera</comment>
   </data>
-  <data xml:space="preserve" name="Text_E0C8BA38CE7AF5AF">
-    <value>端到端延迟为百毫秒级，首帧生成与效果切换均可实现秒级响应，响应速度显著优于同类方案。</value>
-    <comment>End-to-end latency is measured in hundreds of milliseconds, ensuring that updates to generation conditions and interaction controls are reflected instantly.</comment>
+  <data xml:space="preserve" name="Text_36B1EB49D896D318">
+    <value>极低的端到端延迟，让动作与效果都能实时呈现，带来秒开秒换的流畅体验。</value>
+    <comment>Ultra-low end-to-end latency brings movements and effects to the screen in real time, with fast startup and smooth effect switching.</comment>
   </data>
   <data xml:space="preserve" name="Text_8A966AF884A06484">
     <value>请输入有效的邮箱地址。</value>
@@ -838,9 +838,9 @@
     <value>FaceNow 想访问摄像头</value>
     <comment>FaceNow Would Like to Access the Camera</comment>
   </data>
-  <data xml:space="preserve" name="Text_715B26C9164A9B2F">
-    <value>通过 FaceNow 虚拟摄像头，你可以用全新形象参与视频会议、直播等活动。Xmax X2.1 的能力还可用于虚拟试穿、互动应用等更多场景。如果你正在探索相关产品或商业应用，欢迎联系我们，一起讨论需求和落地方案。我们也可以提供体验设计与技术支持。</value>
-    <comment>FaceNow brings your new look into video meetings, live streams, and more through a virtual camera. The same technology also powers other commercial experiences, including virtual try-on and interactive applications. If you are exploring a business use case, contact us to discuss a solution together. We can help you shape the experience and provide technical support.</comment>
+  <data xml:space="preserve" name="Text_56EB0247F17039DF">
+    <value>除了视频会议，Xmax X2.1 还可用于直播、电商试穿及其他视频互动产品，相关应用已在行业展示与合作伙伴中获得积极反馈。如果你希望将实时视频生成能力接入自己的应用，欢迎联系我们，了解接入方案与技术支持服务。</value>
+    <comment>Beyond video meetings, Xmax X2.1 can power live streaming, virtual try-on for e-commerce, and other interactive video products. Related applications have received positive feedback at industry showcases and from partners. If you would like to integrate real-time video generation into your own app, contact us to learn about integration options and technical support.</comment>
   </data>
   <data xml:space="preserve" name="Text_7A0EF098AB19C4FE">
     <value>FaceNow 无法自动移除旧的相机扩展。请在系统设置中将其移除后继续。</value>
@@ -931,7 +931,7 @@ Please wait. This page will update automatically when the check finishes.</comme
     <comment>FaceNow 需要访问你的摄像头。</comment>
   </data>
   <data xml:space="preserve" name="Text_AAC77DF347205252">
-    <value>反馈</value>
+    <value>意见反馈</value>
     <comment>Feedback</comment>
   </data>
   <data xml:space="preserve" name="Text_70C0E501E54DEAC9">
@@ -1120,9 +1120,9 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <value>启动耗时</value>
     <comment>Launch timing</comment>
   </data>
-  <data xml:space="preserve" name="Text_B0AE4D06EFC61222">
-    <value>一起把你的创意变成实时互动体验。</value>
-    <comment>Let’s build your next real-time experience.</comment>
+  <data xml:space="preserve" name="Text_63460B9234D26BD4">
+    <value>聊聊你的应用场景和接入需求。</value>
+    <comment>Tell us about your use case and integration needs.</comment>
   </data>
   <data xml:space="preserve" name="Text_5E6F862CAD47AB4A">
     <value>美白</value>
@@ -1181,7 +1181,7 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <comment>removed preset 8</comment>
   </data>
   <data xml:space="preserve" name="Text_54134D6695BEC69F">
-    <value>了解 Xmax X2.1</value>
+    <value>认识 Xmax X2.1</value>
     <comment>Meet Xmax X2.1</comment>
   </data>
   <data xml:space="preserve" name="Text_186352A881D0550E">
@@ -1297,7 +1297,7 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <comment>Penguin Doll</comment>
   </data>
   <data xml:space="preserve" name="Text_63DCEB8800B2DD4A">
-    <value>手机号</value>
+    <value>手机</value>
     <comment>Phone</comment>
   </data>
   <data xml:space="preserve" name="Text_306F1BB20677A622">
@@ -1398,9 +1398,9 @@ Allow the FaceNow system extension</comment>
     <value>已就绪</value>
     <comment>Ready to use</comment>
   </data>
-  <data xml:space="preserve" name="Text_A749F2A63EF7F01E">
-    <value>清晰呈现人物、服装与纹理细节，更好地还原参考图中的外观和风格。</value>
-    <comment>Real-time 1080P output preserves fine details and textures, with greater fidelity to the characters, clothing, and style in your reference images.</comment>
+  <data xml:space="preserve" name="Text_564B4BEF95D75BC0">
+    <value>高保真还原人物与服装的细节纹理，使生成结果更契合预期的形象与风格。</value>
+    <comment>Faithfully reproduces the details and textures of characters and clothing, bringing generated results closer to the intended look and style.</comment>
   </data>
   <data xml:space="preserve" name="Text_AF1E5DF8C8CA8744">
     <value>红润</value>
@@ -1495,7 +1495,7 @@ Allow the FaceNow system extension</comment>
     <comment>Resend (%llds)</comment>
   </data>
   <data xml:space="preserve" name="Text_0C94654C9E229610">
-    <value>重新发送（{0}秒）</value>
+    <value>重新发送 ({0}秒)</value>
     <comment>Resend ({0}s)</comment>
   </data>
   <data xml:space="preserve" name="Text_DAEE7606B339F3C3">
@@ -1550,16 +1550,16 @@ Allow the FaceNow system extension</comment>
     <value>红润</value>
     <comment>Rosiness</comment>
   </data>
-  <data xml:space="preserve" name="Text_2F265CE106F41356">
-    <value>支持消费级 GPU，降低硬件门槛和运行成本，让大规模部署更容易落地。</value>
-    <comment>Runs on consumer-grade GPUs, with costs several to tens of times lower than alternative solutions.</comment>
+  <data xml:space="preserve" name="Text_282113EF98C3B854">
+    <value>价格仅为竞品的几分之一，大幅降低实时视频生成成本。</value>
+    <comment>At a fraction of the price of competing products, it significantly lowers the cost of real-time video generation.</comment>
   </data>
   <data xml:space="preserve" name="Text_A42A3E55527D2993">
-    <value>用微信扫码关注我们</value>
+    <value>使用微信扫码关注我们</value>
     <comment>Scan with WeChat to follow us</comment>
   </data>
   <data xml:space="preserve" name="Text_72FA5509B2F9133A">
-    <value>适用场景</value>
+    <value>应用场景</value>
     <comment>Scenarios</comment>
   </data>
   <data xml:space="preserve" name="Text_FF73D328E762D2C7">
@@ -1915,7 +1915,7 @@ Allow the FaceNow system extension</comment>
     <comment>removed preset 11</comment>
   </data>
   <data xml:space="preserve" name="Text_DD52A3DEF116A271">
-    <value>使用指南</value>
+    <value>故障排查</value>
     <comment>TroubleShooting</comment>
   </data>
   <data xml:space="preserve" name="Text_7CBFB2571FD7D7B3">
@@ -2190,6 +2190,10 @@ Allow the FaceNow system extension</comment>
     <value>我们会依照《%1$@》和《%2$@》使用你的摄像头。</value>
     <comment>We access your camera in accordance with our %1$@ and %2$@.</comment>
   </data>
+  <data xml:space="preserve" name="Text_26061BC9B2313ECD">
+    <value>我们会依照《{0}》和《{1}》使用你的摄像头和麦克风。</value>
+    <comment>We access your camera and, when enabled, microphone in accordance with our {0} and {1}.</comment>
+  </data>
   <data xml:space="preserve" name="Text_B5A229AC8BECC603">
     <value>官方网站</value>
     <comment>Website</comment>
@@ -2214,9 +2218,9 @@ Allow the FaceNow system extension</comment>
     <value>Xmax 开放平台</value>
     <comment>Xmax Open Platform</comment>
   </data>
-  <data xml:space="preserve" name="Text_CE6FD304C9D05864">
-    <value>Xmax X2.1 是一款面向实时互动与视频编辑的模型，支持角色替换、虚拟试穿、风格迁移、触控交互等功能。它可以以比竞品便宜数倍到数十倍的成本生成清晰、流畅的视频，为可商用的实时互动应用提供支持。</value>
-    <comment>Xmax X2.1 is a world-leading general-purpose model for real-time interaction and video editing. A single model supports character swapping, virtual try-on, free-form editing, touch interaction, and interactions between virtual elements and the physical world. It generates 1080P video with approximately 200 ms of end-to-end latency and runs on consumer-grade GPUs, reducing reliance on costly data center GPUs. At approximately $0.001667 per second (about $6 per hour), X2.1 delivers these capabilities at a fraction of the cost of comparable solutions, making large-scale commercial deployment economically viable.</comment>
+  <data xml:space="preserve" name="Text_CA7F85EB030A26AF">
+    <value>Xmax X2.1 是 FaceNow 背后的实时视频生成模型，也是目前世界领先的通用视频编辑模型。它能够实时重塑视频中的人物形象、服装穿搭与视觉风格，在保持高保真画质的同时，兼具同类最快的响应速度与最低的使用成本，让实时视频应用的规模化商用成为可能。</value>
+    <comment>Xmax X2.1 is the real-time video generation model behind FaceNow and one of the world's leading general-purpose video editing models. It can reshape character appearances, outfits, and visual styles in real time, combining high-fidelity visuals with the fastest response and lowest usage costs in its class to make real-time video applications commercially viable at scale.</comment>
   </data>
   <data xml:space="preserve" name="Text_326579D6E5A47202">
     <value>Xmax X2.1 是一款面向实时互动与视频编辑的模型，支持角色替换、虚拟试穿、风格迁移、触控交互等功能。它可以以比竞品便宜数倍到数十倍的成本生成清晰、流畅的视频，为可商用的实时互动应用提供支持。</value>
@@ -2239,7 +2243,7 @@ Allow the FaceNow system extension</comment>
     <comment>Your camera needs to be set up again before FaceNow can be used in other apps.</comment>
   </data>
   <data xml:space="preserve" name="Text_AA4A54E3093FE546">
-    <value>让每个镜头时刻都焕然一新</value>
+    <value>相见，不止一面。</value>
     <comment>Your new look for every camera moment</comment>
   </data>
   <data xml:space="preserve" name="Text_67F10C979199F170">
@@ -2331,12 +2335,12 @@ Allow the FaceNow system extension</comment>
     <comment>upcoming</comment>
   </data>
   <data xml:space="preserve" name="Text_DEDA168503296C7D">
-    <value>约 6 美元 / 小时</value>
+    <value>20 元 / 小时</value>
     <comment>~$6 / hour</comment>
   </data>
-  <data xml:space="preserve" name="Text_D93689548236C5F1">
-    <value>约 200 毫秒</value>
-    <comment>~200 ms</comment>
+  <data xml:space="preserve" name="Text_CF39597101B4BC2F">
+    <value>毫秒级延迟</value>
+    <comment>Millisecond Scale</comment>
   </data>
   <data xml:space="preserve" name="Text_37F75D61C993BE03">
     <value>①  摄像头  ⌄
@@ -3767,7 +3771,7 @@ Choose your video input</comment>
     <comment>约 200 毫秒</comment>
   </data>
   <data xml:space="preserve" name="Text_A6AE10F8314521D1">
-    <value>约 6 美元 / 小时</value>
+    <value>20 人民币 / 小时</value>
     <comment>约 6 美元 / 小时</comment>
   </data>
   <data xml:space="preserve" name="Text_7C9691192F1B7340">
@@ -4577,5 +4581,177 @@ Camera is disabled</comment>
 生成已禁用</value>
     <comment>UI Preview
 Generation is disabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0A72ABC98B164E3F">
+    <value>登录即表示你同意{0}和{1}。</value>
+    <comment>By signing in, you are agreeing to the {0} and {1}.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_916F1037409AA661">
+    <value>安全验证组件不完整，请重新安装 FaceNow 后重试。</value>
+    <comment>The verification component is incomplete. Reinstall FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_731ED0E551B56E3D">
+    <value>安全验证无法访问数据目录。请检查 Windows 权限，或联系管理员。</value>
+    <comment>Security verification cannot access its data folder. Check your Windows permissions or contact your administrator.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8DF81CD3CAFEDC6F">
+    <value>请关闭其他 FaceNow 窗口，再重试安全验证。</value>
+    <comment>Close other FaceNow windows, then try security verification again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2625E9ADFB2E9F49">
+    <value>请更新 Microsoft Edge WebView2 Runtime，然后重启 FaceNow 并重试。</value>
+    <comment>Update Microsoft Edge WebView2 Runtime, then restart FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_588122ACBF37D56E">
+    <value>无法启动安全验证。请重启 FaceNow 后重试。</value>
+    <comment>Security verification could not be started. Restart FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2BCE43A9DAC71B50">
+    <value>无法打开微软下载页面。请安装 Microsoft Edge WebView2 Runtime 后重试。</value>
+    <comment>The Microsoft download page could not be opened. Install Microsoft Edge WebView2 Runtime and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D1E06676CB50F6C1">
+    <value>安全验证需要 WebView2</value>
+    <comment>Security verification needs WebView2</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1B5F74CA77354F5D">
+    <value>请从微软官网下载并安装 Microsoft Edge WebView2 Runtime，然后重启 FaceNow。</value>
+    <comment>Download and install Microsoft Edge WebView2 Runtime from Microsoft, then restart FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC674B0964E7849E">
+    <value>如果你已有 Xmax API Key，也可以用它登录。</value>
+    <comment>You can also sign in with an existing Xmax API key.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8EB85F8A7E66F4B7">
+    <value>下载 WebView2</value>
+    <comment>Download WebView2</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7DA0CBFF274E0939">
+    <value>使用 API Key 登录</value>
+    <comment>Sign in with API Key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A3B7AE63D9580C6F">
+    <value>还没有 API Key？</value>
+    <comment>Need an API Key? </comment>
+  </data>
+  <data xml:space="preserve" name="Text_D55280814974F3AB">
+    <value>前往 Xmax 开放平台创建 ↗</value>
+    <comment>Create one on the Xmax API Platform ↗</comment>
+  </data>
+  <data xml:space="preserve" name="Text_520A1B90EAE0AD7D">
+    <value>虚拟设备</value>
+    <comment>Virtual Devices</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CA184496974204A0">
+    <value>不可用</value>
+    <comment>Unavailable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0DFE1D63C9D86896">
+    <value>检测中</value>
+    <comment>Checking</comment>
+  </data>
+  <data xml:space="preserve" name="Text_92C1CDFDF4CB9CF6">
+    <value>已启用</value>
+    <comment>Enabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F0CAE79A3657C1DB">
+    <value>待设置</value>
+    <comment>Needs Setup</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D08041A732AD8496">
+    <value>未安装</value>
+    <comment>Not Installed</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75F9C095D51E9418">
+    <value>去设置</value>
+    <comment>Set Up</comment>
+  </data>
+  <data xml:space="preserve" name="Text_94FE00057ABCB088">
+    <value>查看接入教程</value>
+    <comment>View Integration Guide</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C55A4E6D0A2F5B05">
+    <value>虚拟麦克风</value>
+    <comment>Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_397A58050E15207D">
+    <value>设置虚拟麦克风</value>
+    <comment>Set Up Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BE10B2F905F868ED">
+    <value>暂未开放</value>
+    <comment>Coming Soon</comment>
+  </data>
+  <data name="Text_BD1F2D8DC29BC6AE" xml:space="preserve">
+    <value>关闭麦克风</value>
+    <comment>Microphone Off</comment>
+  </data>
+  <data name="Text_F48CDF65F0DA936F" xml:space="preserve">
+    <value>系统默认麦克风</value>
+    <comment>System Default Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B5B849B5DB9C8B40">
+    <value>虚拟麦克风输出失败，请确认 VB-CABLE 可用。</value>
+    <comment>Virtual microphone output failed. Check that VB-CABLE is available.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5342E09F2729FBC6">
+    <value>启用</value>
+    <comment>Enable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B7E3E4AA4257B9A1">
+    <value>关闭</value>
+    <comment>Disable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75081B593D15CF6E">
+    <value>已关闭</value>
+    <comment>Disabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_331551B0DE4157C9">
+    <value>待生效</value>
+    <comment>Pending</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54A0E8C17EBB21A1">
+    <value>异常</value>
+    <comment>Error</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6BA2D782CB45C511">
+    <value>声音设置</value>
+    <comment>Sound Settings</comment>
+  </data>
+  <data xml:space="preserve" name="Text_32FD144C1F4B399D">
+    <value>关闭窗口</value>
+    <comment>Close Window</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62332DF601467622">
+    <value>重新检测</value>
+    <comment>Recheck Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5F814B2A9C81684E">
+    <value>请在会议软件中选择「{0}」作为麦克风。本机监听音量不影响此输出。没有音频时，虚拟麦克风保持静音。</value>
+    <comment>In your meeting app, select “{0}” as the microphone. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_645F8CFA55041549">
+    <value>如需显示为「{0}」，请打开声音设置，在「输入」下选择「{1}」并重命名。</value>
+    <comment>To show it as “{0}”, open Sound Settings, choose “{1}” under Input, and rename it.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_950C9C08767AFEAC">
+    <value>FaceNow 虚拟麦克风</value>
+    <comment>FaceNow Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_85AD8EB6EB07D806">
+    <value>安装 VB-CABLE 音频驱动需要管理员授权。安装完成后，请返回此处启用虚拟麦克风。</value>
+    <comment>Install the VB-CABLE audio driver. Administrator authorization is required. After installation, return here to enable the virtual microphone.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2296A7CD3F8ACD86">
+    <value>驱动已安装，Windows 尚未提供可用的虚拟麦克风。请在声音设置中确认设备状态，再返回此处重新检测。</value>
+    <comment>The audio driver is installed, but Windows has not made the virtual microphone available. Check Sound Settings, then check again.</comment>
+  </data>
+  <data name="Text_6CB6ABD496FB7618" xml:space="preserve">
+    <value>选择麦克风</value>
+    <comment>Select Microphone</comment>
+  </data>
+  <data name="Text_7657E870E41230B0" xml:space="preserve">
+    <value>输入音量</value>
+    <comment>Input Level</comment>
   </data>
 </root>

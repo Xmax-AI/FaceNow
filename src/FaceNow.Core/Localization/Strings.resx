@@ -254,9 +254,9 @@
     <value>Beauty unavailable. Original video has been restored.</value>
     <comment>Beauty unavailable. Original video has been restored.</comment>
   </data>
-  <data xml:space="preserve" name="Text_B70C658EF6E960F8">
-    <value>Beyond Video Calls</value>
-    <comment>Beyond Video Calls</comment>
+  <data xml:space="preserve" name="Text_D19AE28DBE4EBCEF">
+    <value>Bring Real-Time Video to Your App</value>
+    <comment>Bring Real-Time Video to Your App</comment>
   </data>
   <data xml:space="preserve" name="Text_B4569967B99A6CC7">
     <value>Black-Collared Preppy Outfit</value>
@@ -286,9 +286,9 @@
     <value>Brown Artsy Outfit</value>
     <comment>Brown Artsy Outfit</comment>
   </data>
-  <data xml:space="preserve" name="Text_90433A9B4D3447EA">
-    <value>Built for real-world interaction</value>
-    <comment>Built for real-world interaction</comment>
+  <data xml:space="preserve" name="Text_217637909A13C689">
+    <value>Why Xmax?</value>
+    <comment>Why Xmax?</comment>
   </data>
   <data xml:space="preserve" name="Text_864B593361574D32">
     <value>removed preset 6</value>
@@ -614,9 +614,9 @@
     <value>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</value>
     <comment>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</comment>
   </data>
-  <data xml:space="preserve" name="Text_C054F138D15738C6">
-    <value>Cost Efficiency</value>
-    <comment>Cost Efficiency</comment>
+  <data xml:space="preserve" name="Text_C7CBD74DD1909E3A">
+    <value>Lowest Price</value>
+    <comment>Lowest Price</comment>
   </data>
   <data xml:space="preserve" name="Text_98CB406B0173BC55">
     <value>Could not start the camera installer.</value>
@@ -790,9 +790,9 @@
     <value>Enable Virtual Camera</value>
     <comment>Enable Virtual Camera</comment>
   </data>
-  <data xml:space="preserve" name="Text_E0C8BA38CE7AF5AF">
-    <value>End-to-end latency is measured in hundreds of milliseconds, ensuring that updates to generation conditions and interaction controls are reflected instantly.</value>
-    <comment>End-to-end latency is measured in hundreds of milliseconds, ensuring that updates to generation conditions and interaction controls are reflected instantly.</comment>
+  <data xml:space="preserve" name="Text_36B1EB49D896D318">
+    <value>Ultra-low end-to-end latency brings movements and effects to the screen in real time, with fast startup and smooth effect switching.</value>
+    <comment>Ultra-low end-to-end latency brings movements and effects to the screen in real time, with fast startup and smooth effect switching.</comment>
   </data>
   <data xml:space="preserve" name="Text_8A966AF884A06484">
     <value>Enter a valid email address.</value>
@@ -838,9 +838,9 @@
     <value>FaceNow Would Like to Access the Camera</value>
     <comment>FaceNow Would Like to Access the Camera</comment>
   </data>
-  <data xml:space="preserve" name="Text_715B26C9164A9B2F">
-    <value>FaceNow brings your new look into video meetings, live streams, and more through a virtual camera. The same technology also powers other commercial experiences, including virtual try-on and interactive applications. If you are exploring a business use case, contact us to discuss a solution together. We can help you shape the experience and provide technical support.</value>
-    <comment>FaceNow brings your new look into video meetings, live streams, and more through a virtual camera. The same technology also powers other commercial experiences, including virtual try-on and interactive applications. If you are exploring a business use case, contact us to discuss a solution together. We can help you shape the experience and provide technical support.</comment>
+  <data xml:space="preserve" name="Text_56EB0247F17039DF">
+    <value>Beyond video meetings, Xmax X2.1 can power live streaming, virtual try-on for e-commerce, and other interactive video products. Related applications have received positive feedback at industry showcases and from partners. If you would like to integrate real-time video generation into your own app, contact us to learn about integration options and technical support.</value>
+    <comment>Beyond video meetings, Xmax X2.1 can power live streaming, virtual try-on for e-commerce, and other interactive video products. Related applications have received positive feedback at industry showcases and from partners. If you would like to integrate real-time video generation into your own app, contact us to learn about integration options and technical support.</comment>
   </data>
   <data xml:space="preserve" name="Text_7A0EF098AB19C4FE">
     <value>FaceNow couldn’t remove the previous camera extension automatically. Remove it in System Settings to continue.</value>
@@ -1120,9 +1120,9 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <value>Launch timing</value>
     <comment>Launch timing</comment>
   </data>
-  <data xml:space="preserve" name="Text_B0AE4D06EFC61222">
-    <value>Let’s build your next real-time experience.</value>
-    <comment>Let’s build your next real-time experience.</comment>
+  <data xml:space="preserve" name="Text_63460B9234D26BD4">
+    <value>Tell us about your use case and integration needs.</value>
+    <comment>Tell us about your use case and integration needs.</comment>
   </data>
   <data xml:space="preserve" name="Text_5E6F862CAD47AB4A">
     <value>Lightening</value>
@@ -1398,9 +1398,9 @@ Allow the FaceNow system extension</comment>
     <value>Ready to use</value>
     <comment>Ready to use</comment>
   </data>
-  <data xml:space="preserve" name="Text_A749F2A63EF7F01E">
-    <value>Real-time 1080P output preserves fine details and textures, with greater fidelity to the characters, clothing, and style in your reference images.</value>
-    <comment>Real-time 1080P output preserves fine details and textures, with greater fidelity to the characters, clothing, and style in your reference images.</comment>
+  <data xml:space="preserve" name="Text_564B4BEF95D75BC0">
+    <value>Faithfully reproduces the details and textures of characters and clothing, bringing generated results closer to the intended look and style.</value>
+    <comment>Faithfully reproduces the details and textures of characters and clothing, bringing generated results closer to the intended look and style.</comment>
   </data>
   <data xml:space="preserve" name="Text_AF1E5DF8C8CA8744">
     <value>Redness</value>
@@ -1550,9 +1550,9 @@ Allow the FaceNow system extension</comment>
     <value>Rosiness</value>
     <comment>Rosiness</comment>
   </data>
-  <data xml:space="preserve" name="Text_2F265CE106F41356">
-    <value>Runs on consumer-grade GPUs, with costs several to tens of times lower than alternative solutions.</value>
-    <comment>Runs on consumer-grade GPUs, with costs several to tens of times lower than alternative solutions.</comment>
+  <data xml:space="preserve" name="Text_282113EF98C3B854">
+    <value>At a fraction of the price of competing products, it significantly lowers the cost of real-time video generation.</value>
+    <comment>At a fraction of the price of competing products, it significantly lowers the cost of real-time video generation.</comment>
   </data>
   <data xml:space="preserve" name="Text_A42A3E55527D2993">
     <value>Scan with WeChat to follow us</value>
@@ -2190,6 +2190,10 @@ Allow the FaceNow system extension</comment>
     <value>We access your camera in accordance with our %1$@ and %2$@.</value>
     <comment>We access your camera in accordance with our %1$@ and %2$@.</comment>
   </data>
+  <data xml:space="preserve" name="Text_26061BC9B2313ECD">
+    <value>We access your camera and, when enabled, microphone in accordance with our {0} and {1}.</value>
+    <comment>We access your camera and, when enabled, microphone in accordance with our {0} and {1}.</comment>
+  </data>
   <data xml:space="preserve" name="Text_B5A229AC8BECC603">
     <value>Website</value>
     <comment>Website</comment>
@@ -2214,9 +2218,9 @@ Allow the FaceNow system extension</comment>
     <value>Xmax Open Platform</value>
     <comment>Xmax Open Platform</comment>
   </data>
-  <data xml:space="preserve" name="Text_CE6FD304C9D05864">
-    <value>Xmax X2.1 is a world-leading general-purpose model for real-time interaction and video editing. A single model supports character swapping, virtual try-on, free-form editing, touch interaction, and interactions between virtual elements and the physical world. It generates 1080P video with approximately 200 ms of end-to-end latency and runs on consumer-grade GPUs, reducing reliance on costly data center GPUs. At approximately $0.001667 per second (about $6 per hour), X2.1 delivers these capabilities at a fraction of the cost of comparable solutions, making large-scale commercial deployment economically viable.</value>
-    <comment>Xmax X2.1 is a world-leading general-purpose model for real-time interaction and video editing. A single model supports character swapping, virtual try-on, free-form editing, touch interaction, and interactions between virtual elements and the physical world. It generates 1080P video with approximately 200 ms of end-to-end latency and runs on consumer-grade GPUs, reducing reliance on costly data center GPUs. At approximately $0.001667 per second (about $6 per hour), X2.1 delivers these capabilities at a fraction of the cost of comparable solutions, making large-scale commercial deployment economically viable.</comment>
+  <data xml:space="preserve" name="Text_CA7F85EB030A26AF">
+    <value>Xmax X2.1 is the real-time video generation model behind FaceNow and one of the world's leading general-purpose video editing models. It can reshape character appearances, outfits, and visual styles in real time, combining high-fidelity visuals with the fastest response and lowest usage costs in its class to make real-time video applications commercially viable at scale.</value>
+    <comment>Xmax X2.1 is the real-time video generation model behind FaceNow and one of the world's leading general-purpose video editing models. It can reshape character appearances, outfits, and visual styles in real time, combining high-fidelity visuals with the fastest response and lowest usage costs in its class to make real-time video applications commercially viable at scale.</comment>
   </data>
   <data xml:space="preserve" name="Text_326579D6E5A47202">
     <value>Xmax X2.1 is a world-leading general-purpose model for real-time interaction and video editing. A single model supports character swapping, virtual try-on, free-form editing, touch interaction, and interactions between virtual elements and the physical world. It generates 1080P video with approximately 200 ms of end-to-end latency and runs on consumer-grade GPUs, reducing reliance on costly data center GPUs. At approximately $0.001667 per second (about $6 per hour), X2.1 delivers these capabilities at a fraction of the cost of comparable solutions, making large-scale commercial deployment economically viable.</value>
@@ -2334,9 +2338,9 @@ Allow the FaceNow system extension</comment>
     <value>~$6 / hour</value>
     <comment>~$6 / hour</comment>
   </data>
-  <data xml:space="preserve" name="Text_D93689548236C5F1">
-    <value>~200 ms</value>
-    <comment>~200 ms</comment>
+  <data xml:space="preserve" name="Text_CF39597101B4BC2F">
+    <value>Millisecond Scale</value>
+    <comment>Millisecond Scale</comment>
   </data>
   <data xml:space="preserve" name="Text_37F75D61C993BE03">
     <value>①  Camera  ⌄
@@ -4577,5 +4581,177 @@ Camera is disabled</comment>
 Generation is disabled</value>
     <comment>UI Preview
 Generation is disabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0A72ABC98B164E3F">
+    <value>By signing in, you are agreeing to the {0} and {1}.</value>
+    <comment>By signing in, you are agreeing to the {0} and {1}.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_916F1037409AA661">
+    <value>The verification component is incomplete. Reinstall FaceNow and try again.</value>
+    <comment>The verification component is incomplete. Reinstall FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_731ED0E551B56E3D">
+    <value>Security verification cannot access its data folder. Check your Windows permissions or contact your administrator.</value>
+    <comment>Security verification cannot access its data folder. Check your Windows permissions or contact your administrator.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8DF81CD3CAFEDC6F">
+    <value>Close other FaceNow windows, then try security verification again.</value>
+    <comment>Close other FaceNow windows, then try security verification again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2625E9ADFB2E9F49">
+    <value>Update Microsoft Edge WebView2 Runtime, then restart FaceNow and try again.</value>
+    <comment>Update Microsoft Edge WebView2 Runtime, then restart FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_588122ACBF37D56E">
+    <value>Security verification could not be started. Restart FaceNow and try again.</value>
+    <comment>Security verification could not be started. Restart FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2BCE43A9DAC71B50">
+    <value>The Microsoft download page could not be opened. Install Microsoft Edge WebView2 Runtime and try again.</value>
+    <comment>The Microsoft download page could not be opened. Install Microsoft Edge WebView2 Runtime and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D1E06676CB50F6C1">
+    <value>Security verification needs WebView2</value>
+    <comment>Security verification needs WebView2</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1B5F74CA77354F5D">
+    <value>Download and install Microsoft Edge WebView2 Runtime from Microsoft, then restart FaceNow.</value>
+    <comment>Download and install Microsoft Edge WebView2 Runtime from Microsoft, then restart FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC674B0964E7849E">
+    <value>You can also sign in with an existing Xmax API key.</value>
+    <comment>You can also sign in with an existing Xmax API key.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8EB85F8A7E66F4B7">
+    <value>Download WebView2</value>
+    <comment>Download WebView2</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7DA0CBFF274E0939">
+    <value>Sign in with API Key</value>
+    <comment>Sign in with API Key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A3B7AE63D9580C6F">
+    <value>Need an API Key? </value>
+    <comment>Need an API Key? </comment>
+  </data>
+  <data xml:space="preserve" name="Text_D55280814974F3AB">
+    <value>Create one on the Xmax API Platform ↗</value>
+    <comment>Create one on the Xmax API Platform ↗</comment>
+  </data>
+  <data xml:space="preserve" name="Text_520A1B90EAE0AD7D">
+    <value>Virtual Devices</value>
+    <comment>Virtual Devices</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CA184496974204A0">
+    <value>Unavailable</value>
+    <comment>Unavailable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0DFE1D63C9D86896">
+    <value>Checking</value>
+    <comment>Checking</comment>
+  </data>
+  <data xml:space="preserve" name="Text_92C1CDFDF4CB9CF6">
+    <value>Enabled</value>
+    <comment>Enabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F0CAE79A3657C1DB">
+    <value>Needs Setup</value>
+    <comment>Needs Setup</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D08041A732AD8496">
+    <value>Not Installed</value>
+    <comment>Not Installed</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75F9C095D51E9418">
+    <value>Set Up</value>
+    <comment>Set Up</comment>
+  </data>
+  <data xml:space="preserve" name="Text_94FE00057ABCB088">
+    <value>View Integration Guide</value>
+    <comment>View Integration Guide</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C55A4E6D0A2F5B05">
+    <value>Virtual Microphone</value>
+    <comment>Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_397A58050E15207D">
+    <value>Set Up Virtual Microphone</value>
+    <comment>Set Up Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BE10B2F905F868ED">
+    <value>Coming Soon</value>
+    <comment>Coming Soon</comment>
+  </data>
+  <data name="Text_BD1F2D8DC29BC6AE" xml:space="preserve">
+    <value>Microphone Off</value>
+    <comment>Microphone Off</comment>
+  </data>
+  <data name="Text_F48CDF65F0DA936F" xml:space="preserve">
+    <value>System Default Microphone</value>
+    <comment>System Default Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B5B849B5DB9C8B40">
+    <value>Virtual microphone output failed. Check that VB-CABLE is available.</value>
+    <comment>Virtual microphone output failed. Check that VB-CABLE is available.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5342E09F2729FBC6">
+    <value>Enable</value>
+    <comment>Enable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B7E3E4AA4257B9A1">
+    <value>Disable</value>
+    <comment>Disable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75081B593D15CF6E">
+    <value>Disabled</value>
+    <comment>Disabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_331551B0DE4157C9">
+    <value>Pending</value>
+    <comment>Pending</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54A0E8C17EBB21A1">
+    <value>Error</value>
+    <comment>Error</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6BA2D782CB45C511">
+    <value>Sound Settings</value>
+    <comment>Sound Settings</comment>
+  </data>
+  <data xml:space="preserve" name="Text_32FD144C1F4B399D">
+    <value>Close</value>
+    <comment>Close Window</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62332DF601467622">
+    <value>Check Again</value>
+    <comment>Recheck Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5F814B2A9C81684E">
+    <value>In your meeting app, select “{0}” as the microphone. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.</value>
+    <comment>In your meeting app, select “{0}” as the microphone. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_645F8CFA55041549">
+    <value>To show it as “{0}”, open Sound Settings, choose “{1}” under Input, and rename it.</value>
+    <comment>To show it as “{0}”, open Sound Settings, choose “{1}” under Input, and rename it.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_950C9C08767AFEAC">
+    <value>FaceNow Virtual Microphone</value>
+    <comment>FaceNow Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_85AD8EB6EB07D806">
+    <value>Install the VB-CABLE audio driver. Administrator authorization is required. After installation, return here to enable the virtual microphone.</value>
+    <comment>Install the VB-CABLE audio driver. Administrator authorization is required. After installation, return here to enable the virtual microphone.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2296A7CD3F8ACD86">
+    <value>The audio driver is installed, but Windows has not made the virtual microphone available. Check Sound Settings, then check again.</value>
+    <comment>The audio driver is installed, but Windows has not made the virtual microphone available. Check Sound Settings, then check again.</comment>
+  </data>
+  <data name="Text_6CB6ABD496FB7618" xml:space="preserve">
+    <value>Select Microphone</value>
+    <comment>Select Microphone</comment>
+  </data>
+  <data name="Text_7657E870E41230B0" xml:space="preserve">
+    <value>Input Level</value>
+    <comment>Input Level</comment>
   </data>
 </root>

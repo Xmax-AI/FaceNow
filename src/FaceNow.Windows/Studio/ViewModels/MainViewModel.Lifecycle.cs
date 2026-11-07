@@ -1,3 +1,13 @@
+//
+//  MainViewModel.Lifecycle.cs
+//  FaceNow
+//
+//  Author: 翁跃庭 (Yueting Weng)
+//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
+//
+//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+
 using FaceNow.Core.User;
 using FaceNow.Windows.VirtualCamera;
 using Xmax.SDK;
@@ -6,16 +16,72 @@ namespace FaceNow.Windows.Studio.ViewModels;
 
 internal sealed partial class MainViewModel
 {
-    private (int Revision, RealtimeEvent State, string VisibleMessage, TaskCompletionSource Completion)? pendingFailureDetails;
-    private Task? terminalDetailDelivery;
-    // Capture the lifecycle when binding the SDK, rather than trusting events queued before a stop.
+    private RealtimeConnectionState connectionState;
+
+    public RealtimeConnectionState State
+    {
+        get => connectionState;
+        private set
+        {
+            if (connectionState == value) return;
+            connectionState = value;
+            Changed();
+            Changed(nameof(RemoteReady));
+            Changed(nameof(ResultPlaceholder));
+        }
+    }
+
+    public bool RemoteReady => State == RealtimeConnectionState.Generating;
+
+    // Each subscription belongs to one lifecycle, including work already queued on the UI thread.
+    internal Action<RealtimeState> CreateSessionStateHandler()
+    {
+        int current = revision;
+        return state =>
+        {
+            if (current == revision) ReceiveState(state);
+        };
+    }
+
     internal Action<RealtimeEvent> CreateSessionEventHandler()
     {
         int current = revision;
         return item =>
         {
             if (current == revision) Receive(item);
-            else CompleteTerminalFailureDetails(current, item);
+        };
+    }
+
+    private void ReceiveState(RealtimeState snapshot)
+    {
+        State = snapshot.ConnectionState;
+        if (snapshot.Reason is RealtimeReason.Failure failure)
+        {
+            var error = failure.Error;
+            CameraDiagnostics.Write($"RTC terminal error code={error.Result} API={error.ApiCode} HTTP={error.HttpStatus}");
+            HandleGenerationFailure(error, endsSession: true);
+            return;
+        }
+
+        if (State == RealtimeConnectionState.Idle)
+        {
+            localStream = null;
+            LocalVideo = null;
+        }
+        if (State is RealtimeConnectionState.Idle or RealtimeConnectionState.Disconnecting)
+            RemoteVideo = null;
+        CameraDiagnostics.Write($"RTC state={State}");
+        if (!Active && State is RealtimeConnectionState.Connected or RealtimeConnectionState.Generating)
+            Active = true;
+        if (State == RealtimeConnectionState.Generating) BeginElapsed();
+        Status = State switch
+        {
+            RealtimeConnectionState.Preparing => "正在准备摄像头…",
+            RealtimeConnectionState.Ready => "摄像头已就绪 · 本地预览中",
+            RealtimeConnectionState.Connecting => "正在连接服务…",
+            RealtimeConnectionState.Connected => "正在等待首张结果帧…",
+            RealtimeConnectionState.Generating => "实时生成中",
+            _ => AppText.Format("Status: {0}", AppText.Get(State.ToString()))
         };
     }
 
@@ -25,53 +91,26 @@ internal sealed partial class MainViewModel
 
     private static bool IsCreditFailure(Exception failure) => failure switch
     {
-        // XMAX_API_ERROR and XMAX_SESSION_ERROR are the platform failures recognized by macOS.
+        // Read billing error details from platform API and session failures.
         XmaxException sdk when sdk.Result is -4 or -15 => GenerationFailure.IsInsufficientCredits(sdk.ApiCode, sdk.Message),
         AccountException account => account.Code == CreditPolicy.InsufficientCode,
         _ => false
     };
 
-    private void HandleGenerationFailure(Exception failure, bool endsSession = false, bool notifyAuthentication = true)
+    private void HandleGenerationFailure(Exception failure, bool endsSession = false)
     {
         if (IsClosing) return; // Cleanup failures and duplicate SDK reports must not replace the initiating error.
         bool insufficient = IsCreditFailure(failure);
         Error = insufficient ? CreditPolicy.InsufficientMessage : failure.Message;
         if (endsSession || insufficient) _ = StopAsync();
         // Credit failures are not authentication failures, even if the service returns HTTP 403.
-        if (notifyAuthentication) NotifyAuthenticationFailure(failure, insufficient);
+        NotifyAuthenticationFailure(failure, insufficient);
     }
 
     private void NotifyAuthenticationFailure(Exception failure, bool insufficient)
     {
         if (!insufficient && generationAccess is not null && failure is XmaxException sdk
             && (sdk.HttpStatus is 401 or 403 || sdk.ApiCode == 46002)) AuthenticationRejected?.Invoke();
-    }
-
-    private void ReceiveTerminalFailure(RealtimeEvent item)
-    {
-        int current = revision;
-        bool needsDetails = item.Type == RealtimeEventType.State && string.IsNullOrWhiteSpace(item.Message);
-        var details = needsDetails ? new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously) : null;
-        terminalDetailDelivery = details?.Task;
-        HandleGenerationFailure(EventFailure(item), endsSession: true, notifyAuthentication: !needsDetails);
-        // SDK 1.1 emits the reason/code on State, then the full message on Error. Permit only
-        // that same failure to finish its notice after cleanup invalidates the event receiver.
-        if (details is not null) pendingFailureDetails = (current, item, Error, details);
-    }
-
-    private void CompleteTerminalFailureDetails(int current, RealtimeEvent item)
-    {
-        if (pendingFailureDetails is not { } pending || current != pending.Revision || revision != current + 1
-            || item.Type != RealtimeEventType.Error || item.Code != pending.State.Code
-            || item.ApiCode != pending.State.ApiCode || item.HttpStatus != pending.State.HttpStatus
-            || item.SessionId != pending.State.SessionId) return;
-        pendingFailureDetails = null;
-        pending.Completion.TrySetResult();
-        if (Error != pending.VisibleMessage) return; // A dismissal or newer notice is authoritative.
-        var failure = EventFailure(item);
-        bool insufficient = IsCreditFailure(failure);
-        Error = insufficient ? CreditPolicy.InsufficientMessage : failure.Message;
-        NotifyAuthenticationFailure(failure, insufficient);
     }
 
     /// <summary>Returns home immediately; all callers join one cleanup task before another session can start.</summary>
@@ -81,18 +120,15 @@ internal sealed partial class MainViewModel
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         cleanup = completion.Task;
         closingSession = true;
-        pendingFailureDetails = null;
         ++revision;
         pendingConditions = null;
         ++intent;
         var previous = session; session = null;
+        localStream = null;
         var previousPump = cameraPump; cameraPump = null;
-        Changed(nameof(ResultVideoSource));
         var previousOutputStartup = outputStartup; outputStartup = null;
         var cancellation = operationCancellation; operationCancellation = null;
-        var details = terminalDetailDelivery; terminalDetailDelivery = null;
         Active = false;
-        RemoteReady = false;
         elapsedTimer.Stop();
         startedAt = null; Changed(nameof(Elapsed));
         foreach (var upload in uploadCancellations.Values.ToArray())
@@ -103,12 +139,12 @@ internal sealed partial class MainViewModel
         foreach (var reference in AllReferences) reference.IsSelected = false;
         Status = "正在关闭会话…";
         RefreshBusy();
-        _ = CompleteStopAsync(previous, previousPump, previousOutputStartup, cancellation, details, completion);
+        _ = CompleteStopAsync(previous, previousPump, previousOutputStartup, cancellation, completion);
         return completion.Task;
     }
 
     private async Task CompleteStopAsync(XmaxRealtime? previous, RemoteCameraPump? previousPump,
-        Task? previousOutputStartup, CancellationTokenSource? cancellation, Task? details, TaskCompletionSource completion)
+        Task? previousOutputStartup, CancellationTokenSource? cancellation, TaskCompletionSource completion)
     {
         async Task StopOutputAsync()
         {
@@ -132,14 +168,7 @@ internal sealed partial class MainViewModel
         {
             try { if (cancellation is not null) await cancellation.CancelAsync(); }
             catch (Exception failure) { ReportCleanupFailure(failure); }
-            // SDK polling runs every 25 ms. Give the correlated Error a bounded delivery
-            // window before DisposeAsync cancels that poller; absent details never block teardown.
-            if (details is not null)
-            {
-                try { await details.WaitAsync(TimeSpan.FromMilliseconds(100)); }
-                catch (TimeoutException) { }
-            }
-            try { if (previous is not null) await previous.DisposeAsync(); }
+            try { if (previous is not null) await CloseRealtimeAsync(previous); }
             catch (Exception failure) { ReportCleanupFailure(failure); }
         }
         try
@@ -152,7 +181,6 @@ internal sealed partial class MainViewModel
             cancellation?.Dispose();
             LocalVideo = RemoteVideo = null;
             sessionKey = sessionCamera = "";
-            State = RealtimeState.Idle;
             foreach (var row in TimingRows.Concat(UplinkRows).Concat(UplinkNetworkRows).Concat(DownlinkRows).Concat(DownlinkNetworkRows)) row.Value = "—";
             Metrics = "等待视频统计";
             Status = "会话已关闭";
@@ -160,6 +188,29 @@ internal sealed partial class MainViewModel
             completion.TrySetResult();
             RefreshBusy();
         }
+    }
+
+    private async Task CloseRealtimeAsync(XmaxRealtime previous)
+    {
+        var idle = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int closingRevision = revision;
+        try
+        {
+            await previous.SetStateListenerAsync(snapshot =>
+            {
+                if (revision != closingRevision || idle.Task.IsCompleted) return;
+                if (snapshot.ConnectionState == RealtimeConnectionState.Disconnecting)
+                    State = snapshot.ConnectionState;
+                if (snapshot.ConnectionState == RealtimeConnectionState.Idle)
+                {
+                    State = snapshot.ConnectionState;
+                    idle.TrySetResult();
+                }
+            });
+            await previous.CloseAsync();
+            await idle.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+        finally { await previous.DisposeAsync(); }
     }
 
     private void ReportCleanupFailure(Exception failure)

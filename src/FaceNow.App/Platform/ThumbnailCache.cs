@@ -59,7 +59,7 @@ internal static class ThumbnailCache
         using var stream = new InMemoryRandomAccessStream();
         using (var writer = new DataWriter(stream.GetOutputStreamAt(0))) { writer.WriteBytes(bytes); await writer.StoreAsync(); }
         stream.Seek(0);
-        var image = new BitmapImage { DecodePixelWidth = 160 };
+        var image = new BitmapImage { DecodePixelWidth = 256 };
         await image.SetSourceAsync(stream);
         return image;
     }

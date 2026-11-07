@@ -1,5 +1,16 @@
+//
+//  MainWindow.Layout.cs
+//  FaceNow
+//
+//  Author: 翁跃庭 (Yueting Weng)
+//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
+//
+//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -15,16 +26,20 @@ public sealed partial class MainWindow
 {
     private void BuildUi()
     {
-        cameraButton.ExtraChevron = true; cameraButton.Padding = new(16, 0, 14, 0); cameraButton.FontFamily = LoginTypography.Font;
-        homeVirtualCamera.FontFamily = new("Microsoft YaHei UI");
         scroller.Content = page; root.Children.Add(scroller);
         foreach (var element in new UIElement[] { header, landing, workspace, footer, previewFooter }) page.Children.Add(element);
         previewFooter.TextAlignment = TextAlignment.Center;
-        var branding = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-        branding.Children.Add(brand); branding.Children.Add(previewBadge); header.Children.Add(branding);
+        var branding = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top, Margin = new(-8, 8, 0, 0) };
+        brandName.FontFamily = new("Segoe UI");
+        brandName.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+        brandName.VerticalAlignment = VerticalAlignment.Center;
+        branding.Children.Add(brand); branding.Children.Add(brandName); branding.Children.Add(previewBadge); header.Children.Add(branding);
         foreach (var button in new[] { modelButton, keyButton, homeVirtualCamera }) homeControls.Children.Add(button);
+        homeControls.VerticalAlignment = sessionControls.VerticalAlignment = VerticalAlignment.Top;
         header.Children.Add(homeControls); header.Children.Add(sessionControls);
         foreach (var element in new UIElement[] { statisticsButton, elapsed, stopButton }) sessionControls.Children.Add(element);
+        BindMicrophones();
         homeVirtualCamera.Click += (_, _) => OpenVirtualCameraSettings(homeVirtualCamera);
         AutomationProperties.SetName(cameraButton, "Select Camera"); AutomationProperties.SetName(keyButton, "API Key");
         AutomationProperties.SetName(StartButton, "Start Camera"); AutomationProperties.SetName(statisticsButton, "Show / hide statistics");
@@ -37,36 +52,55 @@ public sealed partial class MainWindow
         title.FontFamily = LoginTypography.Font; title.FontWeight = Microsoft.UI.Text.FontWeights.Medium; title.CharacterSpacing = -30;
         landing.Children.Add(title);
         landingStage.Children.Add(new CheckerboardSurface());
-        // Balance the picker with an equal spacer so Start Camera stays at the canvas center.
-        var actions = new Grid { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-        actions.RowDefinitions.Add(new() { Height = new(44) }); actions.RowDefinitions.Add(new() { Height = GridLength.Auto });
-        actions.RowDefinitions.Add(new() { Height = new(44) });
-        Grid.SetRow(StartButton, 1); actions.Children.Add(StartButton);
-        cameraButton.HorizontalAlignment = HorizontalAlignment.Center; cameraButton.VerticalAlignment = VerticalAlignment.Center;
-        cameraButton.Margin = new(0, 12, 0, 0); Grid.SetRow(cameraButton, 2); actions.Children.Add(cameraButton);
+        var actions = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        var startHost = new Grid { HorizontalAlignment = HorizontalAlignment.Center };
+        var startShadow = new Grid { IsHitTestVisible = false };
+        _ = new LoginShadow(startShadow, () => (float)(StartButton.Height / 2), Theme.Brush("#2F46E2").Color, 15, 10, .35f);
+        Theme.Bind(startShadow, UIElement.OpacityProperty, nameof(StartButton.Opacity), StartButton);
+        startHost.Children.Add(startShadow); startHost.Children.Add(StartButton);
+        actions.Children.Add(startHost);
+        var inputPickers = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10,
+            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new(0, 12, 0, 0) };
+        inputPickers.Children.Add(cameraButton);
+        inputPickers.Children.Add(homeMicrophone);
+        actions.Children.Add(inputPickers);
+        cameraAspect.Margin = new(0, 10, 0, 0);
+        cameraAspect.SelectionChanged += format => Model.SelectedFormat = format;
+        actions.Children.Add(cameraAspect);
         landingStage.Children.Add(actions);
         terms.TextAlignment = TextAlignment.Center; terms.TextWrapping = TextWrapping.Wrap; terms.HorizontalAlignment = HorizontalAlignment.Center; terms.VerticalAlignment = VerticalAlignment.Bottom; terms.Margin = new(20, 0, 20, 28);
-        terms.Inlines.Add(new Run { Text = AppText.Get("We access your camera in accordance with our ") });
-        terms.Inlines.Add(LinkInline("Terms of Use", "https://platform.xmaxsi.com/docs/resources/terms", "#C3C6CC"));
-        terms.Inlines.Add(new Run { Text = AppText.Get(" and ") }); terms.Inlines.Add(LinkInline("Privacy Policy", "https://platform.xmaxsi.com/docs/resources/privacy", "#C3C6CC")); terms.Inlines.Add(new Run { Text = AppText.Get(".") });
+        const string cameraNotice = "We access your camera and, when enabled, microphone in accordance with our {0} and {1}.";
+        foreach (string part in Regex.Split(AppText.Get(cameraNotice), @"(\{[01]\})"))
+            terms.Inlines.Add(part switch
+            {
+                "{0}" => LinkInline("Terms of Use", "https://platform.xmaxsi.com/docs/resources/terms", "#C3C6CC"),
+                "{1}" => LinkInline("Privacy Policy", "https://platform.xmaxsi.com/docs/resources/privacy", "#C3C6CC"),
+                _ => new Run { Text = part }
+            });
         landingStage.Children.Add(terms); landing.Children.Add(landingStage);
         var copyright = Theme.Text("Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.", 13, "#6B7380"); copyright.HorizontalAlignment = HorizontalAlignment.Center; copyright.Margin = new(0, 16, 0, 0); landing.Children.Add(copyright);
-        var videos = new Grid(); videos.ColumnDefinitions.Add(new()); videos.ColumnDefinitions.Add(new() { Width = new(24) }); videos.ColumnDefinitions.Add(new());
-        ConfigureVideo(localPanel, LocalView, localPlaceholder, localStatistics, false); ConfigureVideo(remotePanel, RemoteView, resultPlaceholder, remoteStatistics, true);
-        videos.Children.Add(localPanel); Grid.SetColumn(remotePanel, 2); videos.Children.Add(remotePanel); workspace.Children.Add(videos);
-        var tabBar = new Border { HorizontalAlignment = HorizontalAlignment.Center, CornerRadius = new(21), Background = Theme.Brush("#1A787880"), Height = 42, Padding = new(4), Margin = new(0, 34, 0, 28) };
-        var tabRow = new StackPanel { Orientation = Orientation.Horizontal };
-        foreach (var (mode, text) in new[] { ("charx", "Character Swap"), ("clothx", "Virtual Try-On"), ("vibex", "Style Transfer"), ("free", "Free Prompt") })
+        ConfigureVideoRow();
+        workspace.Children.Add(videoRow);
+        BuildSessionAudioControls();
+        workspace.Children.Add(sessionAudioControls);
+        var tabBar = new Border { HorizontalAlignment = HorizontalAlignment.Center, CornerRadius = new(21), Background = Theme.Brush("#1A787880"), Height = 42, Padding = new(4), Margin = new(0, ModeTabsTopSpacing, 0, 28) };
+        var tabRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2 };
+        foreach (var (mode, text) in new[] { ("charx", "Character Swap"), ("clothx", "Virtual Try-On"), ("vibex", "Style Transfer"), ("dimx", "Virtual Summon"), ("free", "Free Prompt") })
         {
-            var label = Theme.Text(text, 14, "#6B7380"); label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
+            var label = Theme.Text(text, 13.5, "#6B7380"); label.FontFamily = new("Segoe UI"); label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
             var tab = new Button { Template = Theme.ButtonTemplate, Content = label, Height = 34, Padding = new(22, 0, 22, 0), CornerRadius = new(17), BorderThickness = new(1) };
             AutomationProperties.SetName(tab, text); tab.Click += (_, _) => Model.SelectedMode = mode; tabs[mode] = tab; tabRow.Children.Add(tab);
         }
         tabBar.Child = tabRow; workspace.Children.Add(tabBar); workspace.Children.Add(referenceArea);
-        BuildReferences("charx", Model.CharacterReferences); BuildReferences("clothx", Model.ClothingReferences); BuildReferences("vibex", Model.StyleReferences);
-        var promptContent = new Grid { Margin = new(12) }; promptEditor.Margin = new(0, 0, 112, 0); promptContent.Children.Add(promptEditor);
+        BuildReferences("charx", Model.CharacterReferences); BuildReferences("clothx", Model.ClothingReferences); BuildReferences("vibex", Model.StyleReferences); BuildReferences("dimx", Model.SummonReferences);
+        var promptContent = new Grid();
+        promptEditor.Margin = new(18, 18, 18, 0);
+        promptEditor.Height = 78;
+        promptEditor.VerticalAlignment = VerticalAlignment.Top;
+        ScrollViewer.SetVerticalScrollBarVisibility(promptEditor, ScrollBarVisibility.Auto);
+        promptContent.Children.Add(promptEditor);
         promptEditor.TextChanged += (_, _) => Model.Prompt = promptEditor.Text;
-        var freeActions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom };
+        var freeActions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom, Margin = new(0, 0, 12, 12) };
         freeUpload.Click += async (_, _) => await ChooseUploadAsync(); freeActions.Children.Add(freeUpload);
         var freeButton = new Button { Template = Theme.ButtonTemplate, Padding = new(0), BorderThickness = new(0), Background = Theme.Brush("#E5E7EB"), CornerRadius = new(22), Content = freeReferenceImage };
         RoundedClip.Attach(freeButton, 22); freeButton.Click += async (_, _) => { if (Model.FreeReference is { } item) await SelectReferenceAsync(item); };
@@ -77,18 +111,6 @@ public sealed partial class MainWindow
         promptContent.Children.Add(freeActions); freePromptBox.Child = promptContent; referenceArea.Children.Add(freePromptBox);
         BuildFooter();
         root.Children.Add(toast);
-    }
-    private void ConfigureVideo(Grid panel, UIElement video, TextBlock placeholder, StackPanel metrics, bool result)
-    {
-        RoundedClip.Attach(panel, 24); panel.Children.Add(video);
-        placeholder.TextAlignment = TextAlignment.Center; placeholder.TextWrapping = TextWrapping.Wrap; placeholder.VerticalAlignment = VerticalAlignment.Center; panel.Children.Add(placeholder);
-        metrics.Margin = result ? new(14, 40, 14, 14) : new(14); metrics.VerticalAlignment = VerticalAlignment.Top; metrics.HorizontalAlignment = HorizontalAlignment.Left;
-        foreach (var rows in result ? new[] { Model.DownlinkRows, Model.DownlinkNetworkRows } : new[] { Model.TimingRows, Model.UplinkRows, Model.UplinkNetworkRows }) metrics.Children.Add(MetricBox(rows));
-        panel.Children.Add(metrics);
-        var titleText = Theme.Text(result ? "AI Generation" : "Preview", 10, "#A6FFFFFF"); titleText.FontFamily = new("Segoe UI"); titleText.TextTrimming = TextTrimming.CharacterEllipsis;
-        if (!result) { titleText.FontFamily = new("Microsoft YaHei UI"); Theme.Bind(titleText, TextBlock.TextProperty, nameof(Model.LocalTitle), Model); }
-        panel.Children.Add(new Border { Background = Theme.Brush("#59000000"), CornerRadius = new(8), Padding = new(6, 3, 6, 3), Margin = result ? new(12) : new(14, 0, 14, 12), VerticalAlignment = result ? VerticalAlignment.Top : VerticalAlignment.Bottom, HorizontalAlignment = result ? HorizontalAlignment.Right : HorizontalAlignment.Left, Child = titleText });
-        if (result) { var watermark = Theme.Text(FaceNow.Core.Product.BrandDefinition.Watermark, 11, "#CCFFFFFF"); watermark.FontFamily = new("Segoe UI"); watermark.HorizontalAlignment = HorizontalAlignment.Left; watermark.VerticalAlignment = VerticalAlignment.Top; watermark.Margin = new(12); watermark.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold; panel.Children.Add(watermark); }
     }
     private static Border MetricBox(MetricRow[] rows)
     {
@@ -126,7 +148,7 @@ public sealed partial class MainWindow
             double size = glyph == "socialX" ? 18 : 20;
             link.Content = new Glyph { Kind = glyph, Width = size, Height = size, Foreground = Theme.Brush("#BF6B7380") };
             link.Width = 24; link.HorizontalContentAlignment = HorizontalAlignment.Center; link.VerticalContentAlignment = VerticalAlignment.Center;
-            ToolTipService.SetToolTip(link, name); AutomationProperties.SetName(link, name); socials.Children.Add(link);
+            ToolTipService.SetToolTip(link, AppText.Get(name)); AutomationProperties.SetName(link, AppText.Get(name)); socials.Children.Add(link);
         }
         footer.Children.Add(socials);
         var links = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 40, HorizontalAlignment = HorizontalAlignment.Right };
@@ -136,7 +158,7 @@ public sealed partial class MainWindow
         {
             var link = Theme.Link(text, () => { if (url.Length == 0) _ = ShowAboutAsync(); else OpenLink(url); });
             if (link.Content is TextBlock label) label.FontFamily = LoginTypography.Font;
-            AutomationProperties.SetName(link, text); links.Children.Add(link);
+            AutomationProperties.SetName(link, AppText.Get(text)); links.Children.Add(link);
         }
         footer.Children.Add(links);
     }

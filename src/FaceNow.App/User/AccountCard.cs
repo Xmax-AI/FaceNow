@@ -7,39 +7,22 @@ using Microsoft.UI.Xaml.Media.Animation;
 
 namespace FaceNow.App.User;
 
-internal sealed class AccountAvatarButton : Button
+internal sealed class AccountAvatarButton : ToolbarButton
 {
-    private readonly SolidColorBrush fill = Theme.Brush("#2F46E2");
-    private readonly TextBlock initials = new() { FontFamily = new("Segoe UI"), FontSize = 13,
-        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, Foreground = Theme.Brush("#FFFFFF"),
-        TextLineBounds = TextLineBounds.Tight, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private readonly Glyph person = new() { Kind = "person", Width = 16, Height = 16, Foreground = Theme.Brush("#FFFFFF"),
-        HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    internal AccountAvatarButton()
+    internal AccountAvatarButton() : base(ToolbarButtonRole.Menu, ToolbarButtonTone.FilledAccent, circular: true)
     {
-        Template = Theme.ButtonTemplate; Width = Height = 36; MinWidth = MinHeight = 0;
-        Padding = new(0); BorderThickness = new(0); CornerRadius = new(18); Background = fill;
         VerticalAlignment = VerticalAlignment.Center;
-        HorizontalContentAlignment = HorizontalAlignment.Stretch; VerticalContentAlignment = VerticalAlignment.Stretch;
-        UseSystemFocusVisuals = true;
-        var body = new Grid(); body.Children.Add(initials); body.Children.Add(person); Content = body;
-        PointerEntered += (_, _) => LoginMotion.Color(this, fill, "#2438C4");
-        PointerExited += (_, _) => { LoginMotion.Color(this, fill, "#2F46E2"); LoginMotion.Opacity(this, IsEnabled ? 1 : .5); };
-        PointerPressed += (_, _) => LoginMotion.Opacity(this, .85);
-        PointerReleased += (_, _) => LoginMotion.Opacity(this, IsEnabled ? 1 : .5);
-        RegisterPropertyChangedCallback(IsEnabledProperty, (_, _) => LoginMotion.Opacity(this, IsEnabled ? 1 : .5));
-        LoginMotion.Color(this, fill, "#2F46E2"); LoginMotion.Opacity(this, 1);
         SetInitials("");
     }
+
     internal void SetInitials(string value)
     {
-        initials.Text = value;
-        initials.Visibility = value.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
-        person.Visibility = value.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        SetValue(TextProperty, value);
+        Glyph = value.Length == 0 ? "person" : "";
     }
 }
 
-/// <summary>The 340-point macOS account card: identity, credits, and four consistent action rows.</summary>
+/// <summary>A 340-point account card showing identity, credits, and four account actions.</summary>
 internal sealed class AccountCard : UserControl
 {
     private readonly AccountAvatarButton avatar = new() { IsHitTestVisible = false, IsTabStop = false };

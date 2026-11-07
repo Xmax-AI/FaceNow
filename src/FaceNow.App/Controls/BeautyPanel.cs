@@ -14,7 +14,7 @@ internal sealed class BeautyPanel : UserControl
     internal Action<BeautySettings>? SettingsChanged;
     internal BeautyPanel()
     {
-        Width = 270;
+        Width = 248;
         var surface = new Border { Padding = new(10), CornerRadius = new(8), Background = Theme.Brush("#CC000000"), BorderBrush = Theme.Brush("#22FFFFFF"), BorderThickness = new(1) };
         var stack = new StackPanel { Spacing = 2 };
         string[] labels = ["Smoothness", "Lightening", "Sharpness", "Redness"];

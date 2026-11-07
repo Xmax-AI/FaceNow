@@ -4,7 +4,7 @@ using FaceNow.Core.Product;
 
 namespace FaceNow.Windows.Media;
 
-/// <summary>Final output canvas owns cropping and readable branding; it never mirrors source pixels.</summary>
+/// <summary>Fits the generated frame into the output canvas before adding branding.</summary>
 internal sealed class FrameCompositor(int width = 1920, int height = 1080)
 {
     private byte[]? overlay;

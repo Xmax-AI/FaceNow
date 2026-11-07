@@ -7,6 +7,23 @@ using FaceNow.Windows.Network;
 
 var tests = new (string Name, Func<Task> Run)[]
 {
+    ("Missing WebView2 is recognized for both managed and COM file-not-found projections", () =>
+    {
+        Check(CaptchaStartupPolicy.Classify(new FileNotFoundException()) == CaptchaStartupIssue.RuntimeMissing);
+        Check(CaptchaStartupPolicy.Classify(new System.Runtime.InteropServices.COMException("missing", unchecked((int)0x80070002))) == CaptchaStartupIssue.RuntimeMissing);
+        Check(CaptchaStartupPolicy.Classify(new System.Runtime.InteropServices.COMException("uninstalled", unchecked((int)0x80070645))) == CaptchaStartupIssue.RuntimeMissing);
+        return Task.CompletedTask;
+    }),
+    ("WebView2 deployment, permissions and shared-process failures keep distinct recovery advice", () =>
+    {
+        Check(CaptchaStartupPolicy.Classify(new DllNotFoundException()) == CaptchaStartupIssue.ApplicationFilesMissing);
+        Check(CaptchaStartupPolicy.Classify(new BadImageFormatException()) == CaptchaStartupIssue.ApplicationFilesMissing);
+        Check(CaptchaStartupPolicy.Classify(new UnauthorizedAccessException()) == CaptchaStartupIssue.AccessDenied);
+        Check(CaptchaStartupPolicy.Classify(new System.Runtime.InteropServices.COMException("busy", unchecked((int)0x8007139F))) == CaptchaStartupIssue.InUse);
+        Check(CaptchaStartupPolicy.Classify(new System.Runtime.InteropServices.COMException("old runtime", unchecked((int)0x80004002))) == CaptchaStartupIssue.UnsupportedRuntime);
+        Check(CaptchaStartupPolicy.Classify(new IOException("other failure")) == CaptchaStartupIssue.Unknown);
+        return Task.CompletedTask;
+    }),
     ("Known zero credits block startup without requesting balance or invalidating the key", async () =>
     {
         var api = new FakeApi { BalanceOverride = () => Task.FromResult(0d) };
@@ -54,7 +71,7 @@ var tests = new (string Name, Func<Task> Run)[]
         card = AccountPresentation.From(user);
         Check(card.Title == "Account" && card.AvatarText == "" && card.Credits == "—" && user.SessionApiKeySuffix is null);
     }),
-    ("Account avatar and title follow macOS phone and email priorities", async () =>
+    ("Account avatar and title prioritize phone, then email", async () =>
     {
         var api = new FakeApi { ProfileOverride = () => Task.FromResult(new AccountProfile { Uid = "owner", Phone = " 13800000000 ", Email = " yu@example.com " }) };
         using var user = new UserRepository(api, new MemoryStorage());
@@ -203,6 +220,39 @@ var tests = new (string Name, Func<Task> Run)[]
         model.Select(2); model.ApiKey = "uk-test"; Check(model.CanSubmit);
         model.IsBusy = true; Check(!model.CanSubmit); return Task.CompletedTask;
     }),
+    ("Failed login configuration leaves a retry action available in both editions", () =>
+    {
+        foreach (var edition in Enum.GetValues<FaceNow.Core.Product.ProductEdition>())
+        {
+            var model = new LoginViewModel(product: new(edition));
+            model.SetAccount(model.Method == LoginMethod.Sms ? "13800000000" : "user@example.com");
+            Check(!model.CanSendCode);
+            model.ConfigurationFailed = true;
+            Check(model.CanSendCode && !model.CanSubmit);
+            model.IsBusy = true; Check(!model.CanSendCode);
+            model.IsBusy = false;
+            model.Configuration = Configuration(); model.ConfigurationFailed = false;
+            Check(model.CanSendCode);
+            model.SetCode("123456"); Check(model.CanSubmit);
+        }
+        return Task.CompletedTask;
+    }),
+    ("Nonempty API key input reports local validation without sending malformed credentials", async () =>
+    {
+        var model = new LoginViewModel(); model.Select(2);
+        model.ApiKey = " \n "; Check(!model.CanSubmit);
+        model.ApiKey = "not-an-api-key"; Check(model.CanSubmit);
+        var api = new FakeApi(); using var user = new UserRepository(api, new MemoryStorage());
+        var error = await Throws<AccountException>(() => user.SignInWithKeyAsync(model.ApiKey));
+        Check(api.LastProfileCredential is null && !user.CanAccessHome);
+        Check(LoginViewModel.SignInErrorMessage(error, true) == "Invalid API key. Check it and try again.");
+        foreach (int code in new[] { 400, 401, 403, 46002 })
+            Check(LoginViewModel.SignInErrorMessage(new AccountException("rejected", code), true) == "Invalid API key. Check it and try again.");
+        foreach (int code in new[] { 429, 500, 503 })
+            Check(LoginViewModel.SignInErrorMessage(new AccountException("temporary failure", code), true) == "temporary failure");
+        Check(LoginViewModel.SignInErrorMessage(new IOException("offline"), true) == "offline");
+        model.IsBusy = true; Check(!model.CanSubmit);
+    }),
     ("Regional login forms expose only the local code channel and API key", () =>
     {
         foreach (var edition in new[] { FaceNow.Core.Product.ProductEdition.Domestic, FaceNow.Core.Product.ProductEdition.Overseas })
@@ -297,6 +347,28 @@ var tests = new (string Name, Func<Task> Run)[]
         await Throws<AccountException>(() => api.GetConfigurationAsync(default));
         foreach (var json in new[] { "{}", "{\"currentBalance\":true}", "{\"currentBalance\":-1}", "{\"currentBalance\":\"12\"}" })
         { handler.Response = Envelope(json); await Throws<AccountException>(() => api.GetBalanceAsync("secret", default)); }
+    }),
+    ("Chinese and English code errors share field feedback without exposing server payloads", async () =>
+    {
+        var handler = new RecordingHandler(); using var client = new HttpClient(handler); using var api = new AccountApi(client);
+        var cases = new (int Code, string Message, string Expected)[] {
+            (400, "验证码错误", "Invalid code. Check it and try again."),
+            (400, "Invalid verification code", "Invalid code. Check it and try again."),
+            (400, "OTP mismatch", "Invalid code. Check it and try again."),
+            (400, "验证码已过期", "This code has expired. Request a new one."),
+            (400, "The email code has expired", "This code has expired. Request a new one."),
+            (400, "图形验证码错误", "Security verification failed. Please try again."),
+            (400, "Captcha verification code expired", "Security verification failed. Please try again."),
+            (429, "Invalid verification code", "Too many requests. Please wait and try again."),
+            (503, "Invalid verification code", "The service is temporarily unavailable. Please try again."),
+            (400, "internal account details uk-do-not-display", "Unable to complete the request. Check your details and try again.")
+        };
+        foreach (var item in cases)
+        {
+            handler.Response = JsonSerializer.Serialize(new { success = false, code = item.Code, message = item.Message });
+            var error = await Throws<AccountException>(() => api.GetProfileAsync("isolated", default));
+            Check(error.Message == item.Expected && LoginViewModel.SignInErrorMessage(error, false) == item.Expected);
+        }
     }),
     ("HTTP and business-level authentication failures preserve their classification", async () =>
     {

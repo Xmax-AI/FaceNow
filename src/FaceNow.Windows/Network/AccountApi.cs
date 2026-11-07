@@ -7,7 +7,7 @@ using FaceNow.Core.User;
 
 namespace FaceNow.Windows.Network;
 
-/// <summary>The domestic account contract shared with macOS. Credentials are scoped to each request.</summary>
+/// <summary>Calls the account service with credentials scoped to each request.</summary>
 public sealed class AccountApi : IAccountApi, IDisposable
 {
     private readonly HttpClient client;
@@ -109,14 +109,23 @@ public sealed class AccountApi : IAccountApi, IDisposable
     private static string ErrorMessage(JsonElement root, int code)
     {
         if (code is 401 or 46002) return "Your session has expired. Please sign in again.";
-        if (code == 403) return "This account does not have permission to perform this action.";
-        string message = root.TryGetProperty("message", out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? "" : "";
-        if (message.Contains("验证码") && (message.Contains("过期") || message.Contains("失效"))) return "This code has expired. Request a new one.";
-        if (message.Contains("图形验证码") || message.Contains("安全验证")) return "Security verification failed. Please try again.";
-        if (message.Contains("验证码") && (message.Contains("错误") || message.Contains("不正确"))) return "Invalid code. Check it and try again.";
         if (code == 429) return "Too many requests. Please wait and try again.";
+        if (code is >= 500 and <= 599) return "The service is temporarily unavailable. Please try again.";
+        string message = root.TryGetProperty("message", out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? "" : "";
+        string detail = message.ToLowerInvariant();
+        if (ContainsAny(detail, "captcha", "图形验证码", "人机验证", "安全验证")) return "Security verification failed. Please try again.";
+        if (ContainsAny(detail, "verification code", "verification_code", "sms code", "email code", "one-time code", "otp",
+            "invalid code", "incorrect code", "wrong code", "code expired", "code has expired", "code mismatch", "验证码", "校验码"))
+        {
+            bool expired = ContainsAny(detail, "expired", "过期", "失效");
+            bool rejected = ContainsAny(detail, "invalid", "incorrect", "wrong", "mismatch", "not match", "failed", "error", "错误", "不正确", "无效", "不匹配", "不对", "失败");
+            if (expired && !rejected) return "This code has expired. Request a new one.";
+            if (rejected) return "Invalid code. Check it and try again.";
+        }
+        if (code == 403) return "This account does not have permission to perform this action.";
         // Do not surface arbitrary server payloads, which may echo credentials or internal details.
         return code >= 500 ? "The service is temporarily unavailable. Please try again." : "Unable to complete the request. Check your details and try again.";
     }
+    private static bool ContainsAny(string message, params string[] terms) => terms.Any(message.Contains);
     public void Dispose() { if (ownsClient) client.Dispose(); }
 }

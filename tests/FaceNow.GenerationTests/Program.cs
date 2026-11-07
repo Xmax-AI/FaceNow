@@ -1,13 +1,141 @@
+//
+//  Program.cs
+//  FaceNow
+//
+//  Author: 翁跃庭 (Yueting Weng)
+//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
+//
+//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+
 using FaceNow.Core.Localization;
 using FaceNow.Core.User;
 using FaceNow.Core.VirtualCamera;
 using FaceNow.Windows.Studio.Platform;
 using FaceNow.Windows.Studio.ViewModels;
 using Xmax.SDK;
+using FaceNow.Core.Product;
+using FaceNow.Windows.Studio.Services;
 
 var tests = new (string Name, Func<Task> Run)[]
 {
-    ("macOS credit codes and legacy descriptions are recognized without false positives", () =>
+    ("Elapsed time starts at Generating, survives condition updates and resets on stop", async () =>
+    {
+        var dispatcher = new FakeDispatcher();
+        var model = new MainViewModel(dispatcher, new FakeThumbnails(), new FakeOutput());
+        var timer = dispatcher.Timers.Single();
+        var receive = model.CreateSessionStateHandler();
+        receive(new RealtimeState(RealtimeConnectionState.Ready));
+        Check(!timer.IsEnabled && model.Elapsed == "00:00");
+        receive(new RealtimeState(RealtimeConnectionState.Connected));
+        Check(model.Active && !timer.IsEnabled && model.Elapsed == "00:00");
+        receive(new RealtimeState(RealtimeConnectionState.Generating));
+        Check(timer.IsEnabled && timer.Starts == 1 && model.Elapsed == "00:00");
+        await Task.Delay(1100);
+        timer.Pulse();
+        Check(model.Elapsed != "00:00");
+        receive(new RealtimeState(RealtimeConnectionState.Generating));
+        Check(timer.Starts == 1 && model.Elapsed != "00:00");
+        await model.StopAsync();
+        Check(!timer.IsEnabled && model.Elapsed == "00:00");
+        receive(new RealtimeState(RealtimeConnectionState.Generating));
+        Check(!timer.IsEnabled && !model.Active && model.Elapsed == "00:00");
+        var next = model.CreateSessionStateHandler();
+        next(new RealtimeState(RealtimeConnectionState.Connected));
+        Check(!timer.IsEnabled && model.Elapsed == "00:00");
+        next(new RealtimeState(RealtimeConnectionState.Generating));
+        Check(timer.IsEnabled && timer.Starts == 2 && model.Elapsed == "00:00");
+        await model.StopAsync();
+    }),
+    ("Presets preserve order, identity, image pairing, and regional hosts", () =>
+    {
+        var expected = new Dictionary<string, string[]>
+        {
+            ["charx"] = ["removed-preset-1.png", "charx_image21.png", "charx_image2.jpeg", "charx_image22.png", "charx_image23.jpeg", "charx_image24.png", "charx_image25.jpeg", "removed-preset-4.png", "removed-preset-5.png", "removed-preset-6.png", "removed-preset-2.png", "removed-preset-3.png", "removed-preset-7.png", "charx_image13.jpeg", "charx_image14.png", "removed-preset-8.png", "charx_image16.png", "charx_real_image17.jpeg", "charx_image18.png"],
+            ["clothx"] = ["clothx_image1.png", "clothx_image2.png", "clothx_real_image3.png", "clothx_real_image4.png", "clothx_image5.png", "clothx_image6.png", "clothx_image7.png", "clothx_image8.png", "clothx_real_image9.png", "clothx_real_image10.png", "clothx_image11.jpeg", "clothx_image12.jpeg"],
+            ["vibex"] = Enumerable.Range(1, 8).Select(i => $"vibex_real_image{i}.png").ToArray(),
+            ["dimx"] = Enumerable.Range(3, 6).Select(i => $"dimx_image{i}.png").ToArray()
+        };
+        foreach (var edition in Enum.GetValues<ProductEdition>())
+        {
+            var profile = new ProductProfile(edition); var presets = ReferenceCatalog.Load(profile);
+            Check(presets.Count == 47 && presets.Select(item => item.Id).Distinct().Count() == 47);
+            foreach (var (mode, filenames) in expected)
+                Check(presets.Where(item => item.Mode == mode && !item.IsPromptOnly).Select(item => new Uri(item.ReferenceUrl).Segments[^1]).SequenceEqual(filenames), mode);
+            foreach (var item in presets.Where(item => !item.IsPromptOnly))
+            {
+                var original = new Uri(item.ReferenceUrl); var thumbnail = new Uri(item.ThumbnailUrl);
+                Check(item.Id == item.ReferenceUrl && original.Host == profile.AssetOrigin.Host && original.AbsolutePath == thumbnail.AbsolutePath);
+                Check(original.AbsolutePath.StartsWith($"/images/playground/{item.Mode}/") && original.Query == "?v=32&presetVersion=20261030");
+                Check(!original.Query.Contains("imageMogr2") && thumbnail.Query.EndsWith("&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90"));
+                Check(!string.IsNullOrWhiteSpace(item.Prompt));
+            }
+            Check(presets[0].Name == (profile.IsOverseas ? "removed preset 7" : "removed preset 17"));
+        }
+        return Task.CompletedTask;
+    }),
+    ("Each preset keeps its specific instruction instead of falling back to its mode's upload prompt", () =>
+    {
+        foreach (var edition in Enum.GetValues<ProductEdition>())
+        {
+            var profile = new ProductProfile(edition); var presets = ReferenceCatalog.Load(profile);
+            ReferenceItem Find(string file) => presets.Single(item => item.ReferenceUrl.Contains("/" + file + "?"));
+            Check(Find("clothx_image11.jpeg").Prompt == (profile.IsOverseas ? "Apply the cap from the reference image to the video character." : "将参考图棒球帽应用到视频角色身上"));
+            Check(Find("clothx_image12.jpeg").Prompt == (profile.IsOverseas ? "Apply the glasses from the reference image to the video character." : "将参考图眼镜应用到视频角色身上"));
+            Check(Find("clothx_image6.png").Prompt == (profile.IsOverseas ? "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit." : "将参考图的上衣穿到视频人物身上，其他保持不变"));
+            Check(Find("clothx_image8.png").Prompt == (profile.IsOverseas ? "Put the bottoms from the reference image on the video character. Keep everything else unchanged." : "将参考图的下装穿到视频人物身上，其他保持不变"));
+            Check(Find("vibex_real_image1.png").Prompt == (profile.IsOverseas ? "The reference character performs the motions from the video." : "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。"));
+        }
+        return Task.CompletedTask;
+    }),
+    ("Uploaded references capture mode defaults and preserve user-authored free text", () =>
+    {
+        var model = ActiveModel(new FakeOutput());
+        foreach (var edition in Enum.GetValues<ProductEdition>())
+        {
+            var profile = new ProductProfile(edition);
+            foreach (string mode in new[] { "charx", "clothx", "vibex", "dimx", "free" })
+            {
+                const string free = "My own prompt / 我自己的提示词";
+                var item = ReferenceItem.FromUpload("my-reference.png", mode, free, profile);
+                item.ReferenceUrl = "https://upload.example/reference.png";
+                model.Prompt = "A later draft"; model.SelectedMode = "free";
+                var context = model.ReferenceContext(item);
+                Check(context.Prompt == (mode == "free" ? free : GenerationPrompts.ForMode(mode, profile)));
+                Check(context.ReferencePath == item.ReferenceUrl);
+                Check(item.LocalPath == "my-reference.png" && !item.IsPromptOnly);
+            }
+            Check(GenerationPrompts.ForMode("vibex", profile) == (profile.IsOverseas ? "The reference character performs the motions from the video." : "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景"));
+            Check(GenerationPrompts.ForMode("dimx", profile) == (profile.IsOverseas
+                ? "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the reference character onto the shoulder or hand of the person in the video."
+                : "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图角色召唤到视频人物的肩膀上或者手上"));
+        }
+        return Task.CompletedTask;
+    }),
+    ("Virtual Summon supports prompt-only selections, image selections and cross-mode selection cleanup", async () =>
+    {
+        var model = ActiveModel(new FakeOutput());
+        Check(model.SummonReferences.Count == 9 && model.SummonReferences[0].IsUpload);
+        var promptOnly = model.SummonReferences.Where(item => item.IsPromptOnly).ToArray();
+        Check(promptOnly.Select(item => item.Id).SequenceEqual(new[] { "preset:dimx-little-dog", "preset:dimx-little-mouse" }));
+        foreach (var item in promptOnly)
+        {
+            var context = model.ReferenceContext(item);
+            Check(context.ReferencePath is null && context.Prompt == item.Prompt);
+            model.SelectedMode = "dimx"; await model.SelectReferenceAsync(item);
+            Check(item.IsSelected && model.CharacterReferences.All(reference => !reference.IsSelected) && model.Error.Length == 0);
+        }
+        await model.StopAsync();
+        Check(model.SummonReferences.All(item => !item.IsSelected));
+        foreach (var edition in Enum.GetValues<ProductEdition>())
+        {
+            var profile = new ProductProfile(edition); var summons = ReferenceCatalog.Load(profile).Where(item => item.Mode == "dimx").ToArray();
+            Check(summons[0].Prompt == (profile.IsOverseas ? "Summon a small dog onto the person's shoulder." : "召唤一只小狗到人的肩膀上"));
+            Check(summons[1].Prompt == (profile.IsOverseas ? "Summon a little mouse onto the person's shoulder." : "召唤一只小老鼠到人物肩膀上"));
+            Check(summons[2].Prompt!.Contains(profile.IsOverseas ? "without replacing any existing subject" : "不替换任何原有主体"));
+        }
+    }),
+    ("Credit codes and legacy descriptions are recognized without false positives", () =>
     {
         foreach (int code in new[] { 43001, 46017 }) Check(GenerationFailure.IsInsufficientCredits(code, "Billing refused"));
         foreach (string message in new[] { "积分不足，请先充值", "账户余额不足", "积分已用完", "积分已耗尽", "余额已耗尽",
@@ -22,17 +150,19 @@ var tests = new (string Name, Func<Task> Run)[]
     ("Heartbeat failure returns home immediately and blocks restart until cleanup finishes", async () =>
     {
         var output = new FakeOutput { Gate = new() }; var access = new FakeAccess();
-        var model = ActiveModel(output, access); var receive = model.CreateSessionEventHandler();
-        receive(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Session heartbeat timed out"));
+        var model = ActiveModel(output, access); var receive = model.CreateSessionStateHandler();
+        var events = model.CreateSessionEventHandler();
+        receive(FailedState(-15, "Session heartbeat timed out"));
         Check(!model.Active && model.IsClosing && model.Busy && !model.CanEdit);
         Check(model.Error == AppText.Get("Session heartbeat timed out") && !model.StartCommand.CanExecute(null));
         await model.StartLandingAsync(); await model.GenerateAsync();
         Check(!model.Active && access.KeyReads == 0 && access.CreditChecks == 0);
-        receive(Event(RealtimeEventType.State, state: RealtimeState.Generating));
-        receive(Event(RealtimeEventType.Error, code: -4, message: "Late unrelated error"));
+        receive(new RealtimeState(RealtimeConnectionState.Generating));
+        events(Event(RealtimeEventType.Error, code: -4, message: "Late unrelated error"));
         Check(!model.Active && model.Error == AppText.Get("Session heartbeat timed out") && output.Stops == 1);
         Task cleanup = model.StopAsync(); output.Gate.SetResult(); await cleanup;
-        Check(!model.IsClosing && !model.Busy && model.State == RealtimeState.Idle && model.Session is null);
+        Check(!model.IsClosing && !model.Busy && model.State == RealtimeConnectionState.Ready && model.Session is null,
+            "Without a native controller, the simulated SDK state remains the last callback value.");
         Check(model.LocalVideo is null && model.RemoteVideo is null && model.Error == AppText.Get("Session heartbeat timed out"));
         Check(model.StartCommand.CanExecute(null));
     }),
@@ -67,7 +197,7 @@ var tests = new (string Name, Func<Task> Run)[]
     ("Cleanup faults cannot overwrite the initiating error or leave restart disabled", async () =>
     {
         var output = new FakeOutput { StopFailure = new IOException("Output teardown failed") }; var model = ActiveModel(output);
-        model.CreateSessionEventHandler()(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Original session failure"));
+        model.CreateSessionStateHandler()(FailedState(-15, "Original session failure"));
         Check(!model.Active && model.Error == AppText.Get("Original session failure") && !model.Busy && !model.IsClosing);
         await model.StopAsync(); Check(model.Error == AppText.Get("Original session failure"));
     }),
@@ -87,51 +217,40 @@ var tests = new (string Name, Func<Task> Run)[]
         // Substitute only the pending SDK operation; no real SDK session is created.
         typeof(MainViewModel).GetField("outputStartup", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .SetValue(model, startup.Task);
-        model.CreateSessionEventHandler()(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Session ended"));
+        model.CreateSessionStateHandler()(FailedState(-15, "Session ended"));
         Check(!model.Active && model.IsClosing && output.Stops == 1 && !model.StartCommand.CanExecute(null));
         Task cleanup = model.StopAsync(); startup.SetException(new IOException("Late output startup failed"));
         await cleanup; Check(!model.Busy && output.Stops == 2 && model.Error == AppText.Get("Session ended"));
     }),
-    ("State failure receives only its correlated follow-up error text", async () =>
+    ("Terminal state preserves its full error and ignores later diagnostic events", async () =>
     {
-        var output = new FakeOutput { Gate = new() }; var model = ActiveModel(output); var receive = model.CreateSessionEventHandler();
-        receive(Event(RealtimeEventType.State, reason: 2, code: -15, message: ""));
-        Check(!model.Active && model.IsClosing && model.Error.Length > 0);
-        receive(Event(RealtimeEventType.Error, code: -15, message: "Unrelated failure", session: "different-session"));
-        Check(model.Error != AppText.Get("Unrelated failure"));
-        receive(Event(RealtimeEventType.Error, code: -15, message: "Heartbeat connection lost"));
-        Check(model.Error == AppText.Get("Heartbeat connection lost") && !model.Active && output.Stops == 1);
-        output.Gate.SetResult(); await model.StopAsync(); Check(model.Error == AppText.Get("Heartbeat connection lost"));
+        var output = new FakeOutput { Gate = new() }; var model = ActiveModel(output);
+        var receive = model.CreateSessionStateHandler();
+        var events = model.CreateSessionEventHandler();
+        receive(FailedState(-15, "Heartbeat connection lost"));
+        Check(!model.Active && model.IsClosing && model.Error == AppText.Get("Heartbeat connection lost"));
+        events(Event(RealtimeEventType.Error, code: -15, message: "Unrelated failure"));
+        Check(model.Error == AppText.Get("Heartbeat connection lost") && output.Stops == 1);
+        model.ClearError();
+        events(Event(RealtimeEventType.Error, code: -15, message: "Heartbeat connection lost"));
+        Check(model.Error == AppText.Get(""));
+        output.Gate.SetResult();
+        await model.StopAsync();
     }),
-    ("Legacy credit exhaustion in the follow-up error is normalized after returning home", async () =>
+    ("The terminal state's credit error is recognized before cleanup", async () =>
     {
-        var output = new FakeOutput { Gate = new() }; var model = ActiveModel(output); var receive = model.CreateSessionEventHandler();
-        receive(Event(RealtimeEventType.State, reason: 2, code: -15, message: ""));
-        receive(Event(RealtimeEventType.Error, code: -15, message: "No credits remaining"));
+        var output = new FakeOutput { Gate = new() }; var model = ActiveModel(output);
+        model.CreateSessionStateHandler()(FailedState(-15, "No credits remaining"));
         Check(!model.Active && model.Error == CreditPolicy.InsufficientMessage);
-        output.Gate.SetResult(); await model.StopAsync();
-    }),
-    ("Dismissed terminal notices are not resurrected by their delayed detail event", async () =>
-    {
-        var output = new FakeOutput { Gate = new() }; var model = ActiveModel(output); var receive = model.CreateSessionEventHandler();
-        receive(Event(RealtimeEventType.State, reason: 2, code: -15, message: "")); model.ClearError();
-        receive(Event(RealtimeEventType.Error, code: -15, message: "Late detail"));
-        Check(model.Error == AppText.Get("")); output.Gate.SetResult(); await model.StopAsync();
-    }),
-    ("A missing follow-up error cannot block teardown indefinitely", async () =>
-    {
-        var model = ActiveModel(new FakeOutput());
-        model.CreateSessionEventHandler()(Event(RealtimeEventType.State, reason: 2, code: -15, message: ""));
-        Check(!model.Active && model.IsClosing && model.Error.Length > 0);
-        await model.StopAsync().WaitAsync(TimeSpan.FromSeconds(2));
-        Check(!model.Busy && !model.IsClosing && model.Error.Length > 0);
+        output.Gate.SetResult();
+        await model.StopAsync();
     }),
     ("An old lifecycle cannot reactivate or terminate the next workspace", async () =>
     {
-        var model = ActiveModel(new FakeOutput()); var old = model.CreateSessionEventHandler(); await model.StopAsync();
+        var model = ActiveModel(new FakeOutput()); var old = model.CreateSessionStateHandler(); await model.StopAsync();
         model.ConfigurePreview(true); model.ClearError();
-        old(Event(RealtimeEventType.State, reason: 2, code: -15, message: "Stale failure"));
-        old(Event(RealtimeEventType.State, state: RealtimeState.Generating));
+        old(FailedState(-15, "Stale failure"));
+        old(new RealtimeState(RealtimeConnectionState.Generating));
         Check(model.Active && model.Error == AppText.Get(""));
         model.CreateSessionEventHandler()(Event(RealtimeEventType.Error, code: -4, message: "Current notice"));
         Check(model.Active && model.Error == AppText.Get("Current notice"));
@@ -162,9 +281,11 @@ static MainViewModel ActiveModel(FakeOutput output, IGenerationAccess? access = 
     model.ConfigurePreview(true);
     return model;
 }
-static RealtimeEvent Event(RealtimeEventType type, RealtimeState state = RealtimeState.Ready, int reason = 0,
-    int code = 0, int apiCode = 0, int http = 0, string message = "", string session = "test-session") =>
-    new(type, state, code, message, session, "test-task", reason, apiCode, http, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+static RealtimeState FailedState(int code, string message) =>
+    new(RealtimeConnectionState.Ready, "test-session", null, new RealtimeReason.Failure(new(code, message)));
+
+static RealtimeEvent Event(RealtimeEventType type, int code = 0, int apiCode = 0, int http = 0, string message = "") =>
+    new(type, RealtimeConnectionState.Ready, code, message, "test-session", "test-task", 0, apiCode, http, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
 
 sealed class FakeOutput : IVirtualCameraOutput
 {
@@ -190,14 +311,16 @@ sealed class FakeThumbnails : IThumbnailLoader
 }
 sealed class FakeDispatcher : IUiDispatcher
 {
+    public List<FakeTimer> Timers { get; } = [];
     public void InvokeAsync(Action action) => action();
-    public IUiTimer CreateTimer(TimeSpan interval) => new FakeTimer();
+    public IUiTimer CreateTimer(TimeSpan interval) { var timer = new FakeTimer(); Timers.Add(timer); return timer; }
 }
 sealed class FakeTimer : IUiTimer
 {
     public bool IsEnabled { get; private set; }
+    public int Starts { get; private set; }
     public event EventHandler? Tick;
-    public void Start() => IsEnabled = true;
+    public void Start() { ++Starts; IsEnabled = true; }
     public void Stop() => IsEnabled = false;
     public void Pulse() => Tick?.Invoke(this, EventArgs.Empty);
 }

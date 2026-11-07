@@ -1,3 +1,13 @@
+//
+//  MainViewModel.cs
+//  FaceNow
+//
+//  Author: 翁跃庭 (Yueting Weng)
+//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
+//
+//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -16,6 +26,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private readonly IUiDispatcher dispatcher;
     private readonly IThumbnailLoader thumbnails;
     private XmaxRealtime? session;
+    private RealtimeMediaStream? localStream;
     private readonly IVirtualCameraOutput? cameraOutput;
     private readonly IGenerationAccess? generationAccess;
     private RemoteCameraPump? cameraPump;
@@ -26,18 +37,24 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private int foregroundOperations;
     private bool closingSession;
     private Task cleanup = Task.CompletedTask;
-    private readonly long[] lastStatisticsLog = new long[2];
     private string status = AppText.Get("Ready · camera preview does not require an API key"), error = "", metrics = AppText.Get("Waiting for video statistics");
     private CameraDevice? camera;
-    private VideoFormat format;
+    internal static IReadOnlyList<(string Ratio, VideoFormat Format)> CameraPresets { get; } =
+    [
+        ("16:9", new(1920, 1080)),
+        ("9:16", new(1080, 1920)),
+        ("1:1", new(1408, 1408)),
+        ("3:4", new(1152, 1536)),
+        ("4:3", new(1536, 1152)),
+    ];
+    private VideoFormat format = CameraPresets[0].Format;
     private string sessionKey = "", sessionCamera = "";
     private static XmaxEnvironment ServiceEnvironment => FaceNow.Core.Product.ProductProfile.Current.IsOverseas ? XmaxEnvironment.Global : XmaxEnvironment.China;
-    private const string ServiceModel = "x2.1";
+    private const RealtimeModel ServiceModel = RealtimeModel.X2_1;
     private VideoFormat sessionFormat;
-    private IXmaxVideoSource? local, remote;
+    private RealtimeVideoTrack? local, remote;
     public ObservableCollection<CameraDevice> Cameras { get; } = [];
     public Func<CameraDevice, bool>? CameraFilter { get; set; }
-    public ObservableCollection<VideoFormat> Formats { get; } = [];
     private string apiKey = "";
     public string ApiKey { get => apiKey; set { apiKey = value; Changed(); Changed(nameof(KeyLabel)); } }
     public string Prompt { get; set; } = "";
@@ -48,7 +65,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         get => camera;
         set { camera = value; if (value is not null && !IsPreview) CameraSelectionStore.Save(value.Id); Changed(); Changed(nameof(LocalTitle)); }
     }
-    public VideoFormat SelectedFormat { get => format; set { format = value; Changed(); } }
+    public VideoFormat SelectedFormat { get => format; set { if (format == value) return; format = value; Changed(); } }
     public bool Busy => foregroundOperations > 0 || IsClosing;
     public bool IsClosing => closingSession;
     private void RefreshBusy()
@@ -56,13 +73,12 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     public string Status { get => status; private set { status = AppText.Get(value); Changed(); } }
     public string Error { get => error; private set { error = AppText.Get(value); Changed(); } }
     public string Metrics { get => metrics; private set { metrics = AppText.Get(value); Changed(); } }
-    public IXmaxVideoSource? LocalVideo { get => local; private set { local = value; Changed(); } }
-    public IXmaxVideoSource? RemoteVideo { get => remote; private set { remote = value; Changed(); } }
+    public RealtimeVideoTrack? LocalVideo { get => local; private set { local = value; Changed(); } }
+    public RealtimeVideoTrack? RemoteVideo { get => remote; private set { if (remote == value) return; remote = value; Changed(); } }
     public AsyncCommand RefreshCommand { get; }
     public AsyncCommand PreviewCommand { get; }
     public AsyncCommand GenerateCommand { get; }
     public AsyncCommand StopCommand { get; }
-    public RealtimeState State { get; private set; }
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action? AuthenticationRejected;
 
@@ -85,10 +101,8 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         try
         {
             if (IsPreview) return;
-            var model = XmaxClient.GetModelInfo(ServiceModel);
-            foreach (var item in model.SupportedFormats) Formats.Add(item);
-            SelectedFormat = new VideoFormat(1920, 1080, 30);
-            if (SelectedFormat.Width == 0) SelectedFormat = model.DefaultCameraFormat;
+            LoadVirtualMicrophonePreference();
+            _ = RefreshVirtualMicrophoneAsync();
             await GuardAsync(RefreshCamerasAsync);
         }
         catch (Exception failure) { ReportError(failure); }
@@ -109,25 +123,32 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     {
         await EnsureSessionAsync();
         Active = true;
-        BeginElapsed();
     }
     private async Task EnsureSessionAsync()
     {
         if (IsClosing) throw new OperationCanceledException("Session cleanup is in progress.");
         if (generationAccess is not null) ApiKey = generationAccess.GetVerifiedGenerationKey();
         if (SelectedCamera is null) { RequireCamera(); throw new InvalidOperationException("Select a camera before starting. Choose your physical camera for live video."); }
-        if (session is not null && sessionKey == ApiKey &&
-            sessionCamera == SelectedCamera.Id && sessionFormat == SelectedFormat && State != RealtimeState.Idle)
+        var requestedFormat = SelectedFormat;
+        if (session is not null && localStream is not null && sessionKey == ApiKey &&
+            sessionCamera == SelectedCamera.Id && sessionFormat == requestedFormat)
             return;
         await StopAsync();
         int current = ++revision;
         using var client = new XmaxClient(new() { ApiKey = ApiKey, Environment = ServiceEnvironment });
         var next = client.CreateRealtime(new() { Model = ServiceModel, AdaptiveQualityEnabled = true });
         session = next;
-        sessionKey = ApiKey; sessionCamera = SelectedCamera.Id; sessionFormat = SelectedFormat;
-        LocalVideo = next.LocalVideo; RemoteVideo = next.RemoteVideo;
+        sessionKey = ApiKey; sessionCamera = SelectedCamera.Id; sessionFormat = requestedFormat;
+        LocalVideo = RemoteVideo = null;
         foreach (var row in TimingRows.Concat(UplinkRows).Concat(UplinkNetworkRows).Concat(DownlinkRows).Concat(DownlinkNetworkRows)) row.Value = "—";
+        await next.SetStateListenerAsync(CreateSessionStateHandler());
         var receive = CreateSessionEventHandler();
+        await next.SetUplinkVideoStatisticsListenerAsync(stats => { if (current == revision) ReceiveUplinkStatistics(stats); });
+        await next.SetDownlinkVideoStatisticsListenerAsync(stats => { if (current == revision) ReceiveDownlinkStatistics(stats); });
+        await next.SetMicrophoneLevelListenerAsync(level => dispatcher.InvokeAsync(() =>
+        {
+            if (current == revision && Microphone.IsEnabled) MicrophoneLevelChanged?.Invoke(level);
+        }));
         next.EventReceived += item => dispatcher.InvokeAsync(() => receive(item));
         next.CallbackFaulted += failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportError(failure); });
         RefreshCommands();
@@ -140,16 +161,24 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
             effects.BeginSession();
             var pipeline = await RemoteCameraPump.StartAsync(next, cameraOutput,
                 failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportCameraOutputError(failure); }), effects,
-                failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportError(new InvalidOperationException("Beauty unavailable. Original video has been restored.")); }), enableOutput: false);
+                failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportError(new InvalidOperationException("Beauty unavailable. Original video has been restored.")); }),
+                enableOutput: false, microphoneFaulted: VirtualMicrophoneStatus == VirtualMicrophoneState.Enabled ? failure => dispatcher.InvokeAsync(() =>
+                {
+                    if (current == revision) ReportVirtualMicrophoneError(failure);
+                }) : null);
             if (current != revision) { await pipeline.DisposeAsync(); throw new OperationCanceledException(); }
             cameraPump = pipeline;
-            Changed(nameof(ResultVideoSource));
-            await next.SetVideoMirrorAsync(new(true, true, false));
             preparationToken.ThrowIfCancellationRequested();
-            await next.PrepareCameraAsync(SelectedCamera.Id, SelectedFormat, microphone: false, cancellationToken: preparationToken);
+            var cameraStream = await next.CreateLocalCameraStreamAsync(
+                videoFormat: requestedFormat,
+                deviceId: SelectedCamera.Id,
+                mirror: true,
+                microphone: Microphone,
+                cancellationToken: preparationToken
+            );
             if (current != revision) throw new OperationCanceledException(preparationToken);
-            State = RealtimeState.Ready;
-            Status = "摄像头已就绪 · 本地预览中";
+            localStream = cameraStream;
+            LocalVideo = cameraStream.VideoTrack;
         }
         catch (Exception failure) when (current != revision)
         { throw new OperationCanceledException("Camera preparation was stopped.", failure, preparationToken); }
@@ -160,47 +189,12 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         }
         finally { if (current == revision) { operationCancellation?.Dispose(); operationCancellation = null; } }
     }
-    public async Task GenerateAsync()
-    {
-        if (IsClosing) return;
-        if (generationAccess is not null) ApiKey = generationAccess.GetVerifiedGenerationKey();
-        EnsureCreditsForStart();
-        if (string.IsNullOrWhiteSpace(ApiKey)) throw new InvalidOperationException("实时生成需要 Xmax API Key；摄像头预览可以单独使用。");
-        if (string.IsNullOrWhiteSpace(Prompt)) throw new InvalidOperationException("请输入生成提示词。");
-        var selectedReference = AllReferences.FirstOrDefault(item => item.IsSelected);
-        await EnsureSessionAsync();
-        var currentSession = session ?? throw new OperationCanceledException();
-        int current = revision;
-        if (selectedReference is not null) MarkSelected(selectedReference);
-        Status = State == RealtimeState.Generating ? "正在更新生成条件…" : "正在连接服务并等待首张结果帧…";
-        var generation = new CancellationTokenSource();
-        operationCancellation = generation;
-        var generationToken = generation.Token;
-        try
-        {
-            if (generationAccess is not null && generationAccess.GetVerifiedGenerationKey() != ApiKey)
-                throw new OperationCanceledException("The active account credential changed.");
-            EnsureCreditsForStart();
-            await currentSession.StartAsync(new(Prompt, string.IsNullOrWhiteSpace(ReferenceImage) ? null : ReferenceImage,
-                FaceRestoration), microphone: false, cancellationToken: generationToken);
-            if (current == revision) { State = RealtimeState.Generating; Status = "实时生成中"; Active = true; RemoteReady = true; BeginElapsed(); }
-            // System camera setup is optional; it must never prevent RTC or Result playback.
-            if (current == revision) await EnsureCameraOutputAsync(currentSession, current);
-        }
-        catch (Exception) when (current != revision) { /* A terminal callback or explicit stop already owns cleanup and the error. */ }
-        catch (Exception failure)
-        {
-            HandleGenerationFailure(failure, endsSession: true);
-            await cleanup;
-        }
-        finally { if (current == revision) { operationCancellation?.Dispose(); operationCancellation = null; } }
-    }
-    private Task EnsureCameraOutputAsync(XmaxRealtime target, int current)
+    private Task EnsureCameraOutputAsync(int current)
     {
         if (outputStartup is { IsCompleted: false }) return outputStartup;
-        return outputStartup = StartCameraOutputAsync(target, current);
+        return outputStartup = StartCameraOutputAsync(current);
     }
-    private async Task StartCameraOutputAsync(XmaxRealtime target, int current)
+    private async Task StartCameraOutputAsync(int current)
     {
         if (cameraPump is not { IsStopped: false } pipeline || cameraOutput?.Status.Registration != CameraRegistrationState.Registered) return;
         try
@@ -228,51 +222,21 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
                 await previous.DisableOutputAsync();
             }
         }
-        else if (target is not null && State == RealtimeState.Generating && cameraOutput.Status.State != CameraOutputState.Faulted)
-            await EnsureCameraOutputAsync(target, current);
+        else if (target is not null && State == RealtimeConnectionState.Generating && cameraOutput.Status.State != CameraOutputState.Faulted)
+            await EnsureCameraOutputAsync(current);
     }
     private void Receive(RealtimeEvent item)
     {
-        if (item.Type is RealtimeEventType.State or RealtimeEventType.Error && item.Reason == 2)
-        {
-            CameraDiagnostics.Write($"RTC terminal error code={item.Code} API={item.ApiCode} HTTP={item.HttpStatus}");
-            ReceiveTerminalFailure(item);
-            return;
-        }
+        if (item.Type == RealtimeEventType.State) return;
         UpdateMetricRows(item);
-        if (item.Type == RealtimeEventType.State)
-        {
-            CameraDiagnostics.Write($"RTC state={item.State}");
-            State = item.State;
-            RemoteReady = item.State == RealtimeState.Generating;
-            // Match XLab: keep the loading landing page until RTC is connected.
-            if (!Active && item.State is RealtimeState.Connected or RealtimeState.Generating)
-            {
-                Active = true;
-                BeginElapsed();
-            }
-            Status = AppText.Format("Status: {0}", AppText.Get(item.State.ToString()));
-        }
-        else if (item.Type == RealtimeEventType.Error)
+        if (item.Type == RealtimeEventType.Error)
         {
             CameraDiagnostics.Write($"RTC error code={item.Code} API={item.ApiCode} HTTP={item.HttpStatus}");
             HandleGenerationFailure(EventFailure(item));
         }
-        else if (item.Type == RealtimeEventType.Statistics && item.Width > 0 && item.Height > 0)
-        {
-            Metrics = AppText.Format("{0}  {1} × {2}  ·  {3} fps  ·  {4} kbps  ·  Latency {5} ms", AppText.Get(item.Direction == 0 ? "Uplink" : "Downlink"), item.Width, item.Height, Available(item.FramesPerSecond), Available(item.BitrateKbps), Available(item.EndToEndMilliseconds));
-            int direction = item.Direction == 0 ? 0 : 1;
-            long now = Environment.TickCount64;
-            if (now - lastStatisticsLog[direction] >= 10000)
-            {
-                lastStatisticsLog[direction] = now;
-                CameraDiagnostics.Write($"RTC {(direction == 0 ? "uplink" : "downlink")} {item.Width}x{item.Height} fps={item.FramesPerSecond} kbps={item.BitrateKbps}");
-            }
-        }
         else if (item.Type == RealtimeEventType.Timing && item.Code >= 0)
             Metrics = AppText.Format("First frame {0:F0} ms  ·  Total startup {1:F0} ms", item.FirstFrameMilliseconds, item.TotalMilliseconds);
     }
-    private static string Available(int value) => value >= 0 ? value.ToString() : "—";
     private async Task GuardAsync(Func<Task> operation)
     {
         ++foregroundOperations; RefreshBusy();

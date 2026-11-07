@@ -1,0 +1,427 @@
+[
+  {
+    "mode": "charx",
+    "name": "removed preset 7",
+    "nameZh": "removed preset 17",
+    "reference": "/images/playground/charx/removed-preset-1.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-1.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Candy Girl",
+    "nameZh": "糖果少女",
+    "reference": "/images/playground/charx/charx_image21.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image21.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Cute Girl",
+    "nameZh": "大眼萌妹",
+    "reference": "/images/playground/charx/charx_image2.jpeg?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image2.jpeg?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Suited Guy",
+    "nameZh": "西装青年",
+    "reference": "/images/playground/charx/charx_image22.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image22.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Short-Haired Cool Girl",
+    "nameZh": "短发酷姐",
+    "reference": "/images/playground/charx/charx_image23.jpeg?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image23.jpeg?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Dreamy Girl",
+    "nameZh": "唯美少女",
+    "reference": "/images/playground/charx/charx_image24.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image24.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Anime Girl",
+    "nameZh": "动漫少女",
+    "reference": "/images/playground/charx/charx_image25.jpeg?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image25.jpeg?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "removed preset 11",
+    "nameZh": "removed preset 16",
+    "reference": "/images/playground/charx/removed-preset-4.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-4.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "removed preset 10",
+    "nameZh": "removed preset 18",
+    "reference": "/images/playground/charx/removed-preset-5.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-5.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "removed preset 5",
+    "nameZh": "removed preset 13",
+    "reference": "/images/playground/charx/removed-preset-6.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-6.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "removed preset 2",
+    "nameZh": "removed preset 4",
+    "reference": "/images/playground/charx/removed-preset-2.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-2.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "removed preset 6",
+    "nameZh": "removed preset 12",
+    "reference": "/images/playground/charx/removed-preset-3.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-3.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "removed preset 1",
+    "nameZh": "removed preset 3",
+    "reference": "/images/playground/charx/removed-preset-7.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-7.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Chosen Workhorse",
+    "nameZh": "天选牛马",
+    "reference": "/images/playground/charx/charx_image13.jpeg?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image13.jpeg?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Mecha Girl",
+    "nameZh": "机甲少女",
+    "reference": "/images/playground/charx/charx_image14.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image14.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "removed preset 8",
+    "nameZh": "removed preset 15",
+    "reference": "/images/playground/charx/removed-preset-8.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/removed-preset-8.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Humanoid Robot",
+    "nameZh": "人形机器",
+    "reference": "/images/playground/charx/charx_image16.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image16.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Special Forces Soldier",
+    "nameZh": "特战士兵",
+    "reference": "/images/playground/charx/charx_real_image17.jpeg?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_real_image17.jpeg?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "charx",
+    "name": "Adorable Hamster",
+    "nameZh": "呆萌仓鼠",
+    "reference": "/images/playground/charx/charx_image18.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/charx/charx_image18.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中角色替换成参考图中角色",
+    "promptEn": "Become the character in the reference image"
+  },
+  {
+    "mode": "clothx",
+    "name": "Pink Preppy Outfit",
+    "nameZh": "粉色学院装",
+    "reference": "/images/playground/clothx/clothx_image1.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image1.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中人物衣服替换成参考图中衣服",
+    "promptEn": "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Black-Collared Preppy Outfit",
+    "nameZh": "黑领学院装",
+    "reference": "/images/playground/clothx/clothx_image2.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image2.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中人物衣服替换成参考图中衣服",
+    "promptEn": "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Black-and-White Avant-Garde Outfit",
+    "nameZh": "黑白先锋装",
+    "reference": "/images/playground/clothx/clothx_real_image3.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_real_image3.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中人物衣服替换成参考图中衣服",
+    "promptEn": "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Brown Artsy Outfit",
+    "nameZh": "棕色文艺装",
+    "reference": "/images/playground/clothx/clothx_real_image4.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_real_image4.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中人物衣服替换成参考图中衣服",
+    "promptEn": "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Silver-White Xianxia Robe",
+    "nameZh": "银白仙侠袍",
+    "reference": "/images/playground/clothx/clothx_image5.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image5.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中人物衣服替换成参考图中衣服",
+    "promptEn": "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Top Replacement",
+    "nameZh": "换上衣",
+    "reference": "/images/playground/clothx/clothx_image6.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image6.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "将参考图的上衣穿到视频人物身上，其他保持不变",
+    "promptEn": "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Top Replacement",
+    "nameZh": "换上衣",
+    "reference": "/images/playground/clothx/clothx_image7.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image7.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "将参考图的上衣穿到视频人物身上，其他保持不变",
+    "promptEn": "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Bottoms Replacement",
+    "nameZh": "换下装",
+    "reference": "/images/playground/clothx/clothx_image8.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image8.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "将参考图的下装穿到视频人物身上，其他保持不变",
+    "promptEn": "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
+  },
+  {
+    "mode": "clothx",
+    "name": "Bottoms Replacement",
+    "nameZh": "换下装",
+    "reference": "/images/playground/clothx/clothx_real_image9.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_real_image9.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "将参考图的下装穿到视频人物身上，其他保持不变",
+    "promptEn": "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
+  },
+  {
+    "mode": "clothx",
+    "name": "Navy Sailor Outfit",
+    "nameZh": "藏青水手装",
+    "reference": "/images/playground/clothx/clothx_real_image10.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_real_image10.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "视频中人物衣服替换成参考图中衣服",
+    "promptEn": "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+  },
+  {
+    "mode": "clothx",
+    "name": "Baseball Cap",
+    "nameZh": "棒球帽",
+    "reference": "/images/playground/clothx/clothx_image11.jpeg?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image11.jpeg?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "将参考图棒球帽应用到视频角色身上",
+    "promptEn": "Apply the cap from the reference image to the video character."
+  },
+  {
+    "mode": "clothx",
+    "name": "Sunglasses",
+    "nameZh": "墨镜",
+    "reference": "/images/playground/clothx/clothx_image12.jpeg?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/clothx/clothx_image12.jpeg?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "将参考图眼镜应用到视频角色身上",
+    "promptEn": "Apply the glasses from the reference image to the video character."
+  },
+  {
+    "mode": "vibex",
+    "name": "Calf on Grass",
+    "nameZh": "草地小牛",
+    "reference": "/images/playground/vibex/vibex_real_image1.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image1.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "mode": "vibex",
+    "name": "Photorealistic Portrait",
+    "nameZh": "写实人象",
+    "reference": "/images/playground/vibex/vibex_real_image2.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image2.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "mode": "vibex",
+    "name": "Dark Humor Meme",
+    "nameZh": "地狱梗图",
+    "reference": "/images/playground/vibex/vibex_real_image3.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image3.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "mode": "vibex",
+    "name": "Sentai Tokusatsu",
+    "nameZh": "战队特摄",
+    "reference": "/images/playground/vibex/vibex_real_image4.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image4.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "mode": "vibex",
+    "name": "Photorealistic Animals",
+    "nameZh": "写实动物",
+    "reference": "/images/playground/vibex/vibex_real_image5.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image5.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "mode": "vibex",
+    "name": "3D Cartoon",
+    "nameZh": "3D卡通",
+    "reference": "/images/playground/vibex/vibex_real_image6.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image6.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "mode": "vibex",
+    "name": "Designer Toy Figurines",
+    "nameZh": "潮玩人偶",
+    "reference": "/images/playground/vibex/vibex_real_image7.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image7.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "mode": "vibex",
+    "name": "Surrealism",
+    "nameZh": "超现实风",
+    "reference": "/images/playground/vibex/vibex_real_image8.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/vibex/vibex_real_image8.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。",
+    "promptEn": "The reference character performs the motions from the video."
+  },
+  {
+    "id": "preset:dimx-little-dog",
+    "mode": "dimx",
+    "name": "Little Dog",
+    "nameZh": "小狗在肩",
+    "reference": "",
+    "thumbnail": "",
+    "prompt": "召唤一只小狗到人的肩膀上",
+    "promptEn": "Summon a small dog onto the person's shoulder."
+  },
+  {
+    "id": "preset:dimx-little-mouse",
+    "mode": "dimx",
+    "name": "Little Mouse",
+    "nameZh": "小鼠在肩",
+    "reference": "",
+    "thumbnail": "",
+    "prompt": "召唤一只小老鼠到人物肩膀上",
+    "promptEn": "Summon a little mouse onto the person's shoulder."
+  },
+  {
+    "mode": "dimx",
+    "name": "Penguin Doll",
+    "nameZh": "企鹅玩偶",
+    "reference": "/images/playground/dimx/dimx_image3.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/dimx/dimx_image3.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+    "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+  },
+  {
+    "mode": "dimx",
+    "name": "Little Rabbit",
+    "nameZh": "小兔在肩",
+    "reference": "/images/playground/dimx/dimx_image4.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/dimx/dimx_image4.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+    "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+  },
+  {
+    "mode": "dimx",
+    "name": "Cream-White Bunny",
+    "nameZh": "奶白小兔",
+    "reference": "/images/playground/dimx/dimx_image5.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/dimx/dimx_image5.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+    "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+  },
+  {
+    "mode": "dimx",
+    "name": "removed preset 9",
+    "nameZh": "removed preset 14",
+    "reference": "/images/playground/dimx/removed-preset-9.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/dimx/removed-preset-9.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+    "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+  },
+  {
+    "mode": "dimx",
+    "name": "Cow Doll",
+    "nameZh": "奶牛玩偶",
+    "reference": "/images/playground/dimx/dimx_image7.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/dimx/dimx_image7.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+    "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+  },
+  {
+    "mode": "dimx",
+    "name": "Hello Kitty",
+    "nameZh": "hello Kitty",
+    "reference": "/images/playground/dimx/dimx_image8.png?v=32&presetVersion=20261030",
+    "thumbnail": "/images/playground/dimx/dimx_image8.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
+    "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
+    "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+  }
+]

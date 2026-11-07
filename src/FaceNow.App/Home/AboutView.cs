@@ -10,7 +10,7 @@ using Windows.System;
 
 namespace FaceNow.App.Home;
 
-/// <summary>Static, scrolling product information in the same modal geometry as macOS.</summary>
+/// <summary>Scrollable product information displayed in a modal dialog.</summary>
 internal sealed class AboutView : UserControl, IDisposable
 {
     private readonly Border backdrop = new() { Background = Theme.Brush("#59000000"), Opacity = 0 };
@@ -30,7 +30,7 @@ internal sealed class AboutView : UserControl, IDisposable
         HorizontalContentAlignment = HorizontalAlignment.Stretch; VerticalContentAlignment = VerticalAlignment.Stretch;
         HorizontalAlignment = HorizontalAlignment.Stretch; VerticalAlignment = VerticalAlignment.Stretch;
         IsTabStop = true; UseSystemFocusVisuals = false; TabFocusNavigation = KeyboardNavigationMode.Cycle;
-        AutomationProperties.SetName(this, "About Us"); AutomationProperties.SetIsDialog(this, true);
+        AutomationProperties.SetName(this, AppText.Get("About Us")); AutomationProperties.SetIsDialog(this, true);
         var overlay = new Grid { Background = Theme.Brush("#00FFFFFF") }; overlay.Children.Add(backdrop);
         backdrop.Tapped += (_, args) => { args.Handled = true; if (!dismissing) RequestDismiss?.Invoke(); };
         card.RenderTransform = slide;
@@ -121,7 +121,7 @@ internal sealed class AboutView : UserControl, IDisposable
         var button = new Button { Template = Theme.ButtonTemplate, Content = label, Background = fill, BorderBrush = border,
             BorderThickness = new(1), CornerRadius = new(primary ? 10 : 8), MinHeight = 0, MinWidth = 0,
             HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center, UseSystemFocusVisuals = false };
-        AutomationProperties.SetName(button, name);
+        AutomationProperties.SetName(button, AppText.Get(name));
         bool hot = false, pressed = false, keyboard = false;
         void Refresh()
         {

@@ -44,21 +44,29 @@ internal sealed class CheckerboardSurface : Canvas
 }
 internal sealed class CenteredWrapPanel : Panel
 {
-    private const double Cell = 84, Pitch = 96;
+    internal const double CellWidth = 76, CellHeight = 84;
+    private const double Gap = 14, ColumnPitch = CellWidth + Gap, RowPitch = CellHeight + Gap;
+
     protected override Size MeasureOverride(Size available)
     {
-        foreach (UIElement child in Children) child.Measure(new(Cell, Cell));
-        int columns = Math.Max(1, (int)Math.Floor((double.IsInfinity(available.Width) ? 1304 : available.Width + 12) / Pitch));
-        return new(double.IsInfinity(available.Width) ? columns * Pitch - 12 : available.Width, Math.Max(0, Math.Ceiling((double)Children.Count / columns) * Pitch - 12));
+        foreach (UIElement child in Children) child.Measure(new(CellWidth, CellHeight));
+        bool unbounded = double.IsInfinity(available.Width);
+        int columns = Columns(unbounded ? 1304 : available.Width);
+        int rows = (Children.Count + columns - 1) / columns;
+        return new(unbounded ? columns * ColumnPitch - Gap : available.Width, Math.Max(0, rows * RowPitch - Gap));
     }
+
     protected override Size ArrangeOverride(Size final)
     {
-        int columns = Math.Max(1, (int)Math.Floor((final.Width + 12) / Pitch));
+        int columns = Columns(final.Width);
         for (int i = 0; i < Children.Count; ++i)
         {
             int row = i / columns, count = Math.Min(columns, Children.Count - row * columns);
-            Children[i].Arrange(new Rect((final.Width - (count * Pitch - 12)) / 2 + i % columns * Pitch, row * Pitch, Cell, Cell));
+            double left = (final.Width - (count * ColumnPitch - Gap)) / 2;
+            Children[i].Arrange(new Rect(left + i % columns * ColumnPitch, row * RowPitch, CellWidth, CellHeight));
         }
         return final;
     }
+
+    private static int Columns(double width) => Math.Max(1, (int)((width + Gap) / ColumnPitch));
 }

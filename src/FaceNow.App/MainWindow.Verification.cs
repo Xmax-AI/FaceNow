@@ -1,9 +1,20 @@
+//
+//  MainWindow.Verification.cs
+//  FaceNow
+//
+//  Author: 翁跃庭 (Yueting Weng)
+//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
+//
+//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.IO;
 using System.Text.Json;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Automation.Provider;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Graphics.Imaging;
@@ -55,7 +66,7 @@ public sealed partial class MainWindow
         bool passed = false, referenceUpdatePassed = false;
         string? error = null;
         var transitions = new List<object>();
-        var pageEntryStates = new List<RealtimeState>();
+        var pageEntryStates = new List<RealtimeConnectionState>();
         void ObservePageEntry(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
         {
             if (args.PropertyName == nameof(Model.Active) && Model.Active && !Model.IsPreview) pageEntryStates.Add(Model.State);
@@ -65,6 +76,7 @@ public sealed partial class MainWindow
         {
             await Task.Delay(650);
             if (mode == "--smoke-test-login-layout") await VerifyLoginLayoutAsync();
+            else if (mode == "--smoke-test-presets") await VerifyReferenceModesAsync();
             else if (mode is "--smoke-test-signout" or "--smoke-test-signout-cached") await VerifySignOutAsync();
             else if (mode == "--smoke-test-account")
             {
@@ -92,6 +104,7 @@ public sealed partial class MainWindow
                 }
             }
             else if (mode == "--smoke-test-camera-setup") await VerifyCameraSetupPreviewAsync();
+            else if (mode == "--smoke-test-virtual-devices") await VerifyVirtualMicrophoneSetupAsync();
             else if (mode == "--smoke-test-ui")
             {
                 Check(homeVirtualCamera.IsLoaded && homeVirtualCamera.Text == CameraUsageLabel, "Home camera usage entry is missing.");
@@ -103,24 +116,28 @@ public sealed partial class MainWindow
                 await SaveScreenshotAsync("virtual-camera-status", (FrameworkElement)virtualCameraPopup!.Child);
                 ClosePopups();
                 await VerifyCameraUsageAsync();
-                foreach (var (width, height, name) in new[] { (1920,1080,"wide"), (1180,800,"minimum") })
+                foreach (var (width, height, name) in new[] { (1920,1080,"wide"), (1920,800,"wide-short"), (1180,800,"minimum") })
                 {
                     ResizeWindow(width,height); await Task.Delay(250); ArrangePage();
-                    Check(landingStage.Width <= 940 && Math.Abs(landingStage.Width * 1080 / 1920 - landingStage.Height) < .5, "Landing proportions changed.");
+                    Check(landingStage.Width is >= 640 and <= 1040 && Math.Abs(landingStage.Width * 1080 / 1920 - landingStage.Height) < .5,
+                        "Landing proportions changed.");
+                    Check(Canvas.GetTop(footer) - (Canvas.GetTop(landing) + landing.DesiredSize.Height) >= 29.5,
+                        "The landing content overlaps the footer or leaves too little space.");
                     await SaveScreenshotAsync("landing-" + name);
                 }
                 ResizeWindow(1360,890); await Task.Delay(200);
                 await Model.StartLandingAsync(); transitions.Add(await VerifyTransitionAsync(true));
                 Check(CameraUsageDescendants(sessionControls).OfType<global::Microsoft.UI.Xaml.Controls.TextBlock>().All(label => label.Text != CameraUsageLabel), "Generation toolbar still shows the camera usage entry.");
                 await UntilAsync(() => Model.CharacterReferences.All(item => item.IsUpload || item.Thumbnail is not null || item.HasError), 40);
-                await ClickReferenceAsync(Model.CharacterReferences.First(item => item.Id == "charx-3"));
+                await ClickReferenceAsync(Model.CharacterReferences.Where(item => !item.IsUpload).ElementAt(2));
                 await ClickReferenceAsync(Model.ClothingReferences.First(item => !item.IsUpload));
                 await ClickReferenceAsync(Model.StyleReferences.First(item => !item.IsUpload));
-                await ClickReferenceAsync(Model.CharacterReferences.First(item => item.Id == "charx-3"));
+                await ClickReferenceAsync(Model.CharacterReferences.Where(item => !item.IsUpload).ElementAt(2));
                 await SaveScreenshotAsync("aligned-session");
                 foreach (var (width, height, name) in new[] { (1360,1200,"tall"), (1920,1080,"wide"), (1180,800,"minimum") })
                 {
                     ResizeWindow(width,height); await Task.Delay(250); ArrangePage();
+                    VerifyGenerationLayout();
                     await SaveScreenshotAsync("session-" + name);
                 }
                 ResizeWindow(1360,890); await Task.Delay(250); ArrangePage();
@@ -181,33 +198,33 @@ public sealed partial class MainWindow
                     await SaveScreenshotAsync("startup-landing");
                     await UntilAsync(() => !Model.Busy, 90);
                     Check(Model.Error.Length == 0, Model.Error);
-                    Check(pageEntryStates.Count == 1 && pageEntryStates[0] is RealtimeState.Connected or RealtimeState.Generating,
+                    Check(pageEntryStates.Count == 1 && pageEntryStates[0] is RealtimeConnectionState.Connected or RealtimeConnectionState.Generating,
                         "The generation page opened before RTC connected.");
                 }
-                await UntilAsync(() => LocalView.PresentedFrameCount >= 10);
+                await UntilAsync(() => localVideoView.PresentedFrameCount >= 10);
                 if (mode == "--smoke-test-live")
                 {
-                    await UntilAsync(() => RemoteView.PresentedFrameCount >= 10);
+                    await UntilAsync(() => resultVideoView.PresentedFrameCount >= 10);
                     if (virtualCameraOutput.Status.Registration == FaceNow.Core.VirtualCamera.CameraRegistrationState.Registered)
                     {
                         VerificationProgress("Live Result playing; opening external virtual camera consumer");
-                        long beforeCapture = RemoteView.PresentedFrameCount;
+                        long beforeCapture = resultVideoView.PresentedFrameCount;
                         long deliveredBefore = virtualCameraOutput.DeliveredFrames;
                         var capture = await CaptureCameraDiagnosticAsync("live-virtual-camera");
                         Check(!IsWaitingCanvas(capture.Pixels), "The external consumer received only the placeholder during AI generation.");
                         Check(virtualCameraOutput.DeliveredFrames >= deliveredBefore + 10, "AI frames were not delivered to the external consumer.");
-                        await UntilAsync(() => RemoteView.PresentedFrameCount >= beforeCapture + 10);
+                        await UntilAsync(() => resultVideoView.PresentedFrameCount >= beforeCapture + 10);
                         VerificationProgress("External consumer received AI frames; Result playback continued");
                     }
-                    await ClickReferenceAsync(Model.CharacterReferences.First(item => item.Id == "charx-9"));
-                    long before = RemoteView.PresentedFrameCount;
-                    await UntilAsync(() => RemoteView.PresentedFrameCount >= before + 10);
+                    await ClickReferenceAsync(Model.CharacterReferences.Where(item => !item.IsUpload).ElementAt(8));
+                    long before = resultVideoView.PresentedFrameCount;
+                    await UntilAsync(() => resultVideoView.PresentedFrameCount >= before + 10);
                     referenceUpdatePassed = true; await Task.Delay(700); await SaveScreenshotAsync("live-reference-update");
                     Model.SelectedMode = "free"; Model.Prompt = "改为柔和的水彩画风格，保持人物和动作一致。";
                     await Model.SubmitPromptAsync().WaitAsync(TimeSpan.FromSeconds(45)); Check(Model.Error.Length == 0, Model.Error);
                 }
                 Check(Model.Error.Length == 0, Model.Error);
-                await SaveScreenshotAsync("local-video", LocalView); if (mode == "--smoke-test-live") await SaveScreenshotAsync("remote-video", RemoteView);
+                await SaveScreenshotAsync("local-video", localVideoView); if (mode == "--smoke-test-live") await SaveScreenshotAsync("remote-video", resultVideoView);
             }
             if (mode is not ("--smoke-test-account" or "--smoke-test-login-layout" or "--smoke-test-signout" or "--smoke-test-signout-cached")) await SaveScreenshotAsync(mode.TrimStart('-'));
             passed = true;
@@ -216,8 +233,8 @@ public sealed partial class MainWindow
         finally
         {
             Model.PropertyChanged -= ObservePageEntry;
-            long localFrames = LocalView.PresentedFrameCount, remoteFrames = RemoteView.PresentedFrameCount;
-            uint localWidth = LocalView.VideoWidth, localHeight = LocalView.VideoHeight, remoteWidth = RemoteView.VideoWidth, remoteHeight = RemoteView.VideoHeight;
+            long localFrames = localVideoView.PresentedFrameCount, remoteFrames = resultVideoView.PresentedFrameCount;
+            uint localWidth = localVideoView.VideoWidth, localHeight = localVideoView.VideoHeight, remoteWidth = resultVideoView.VideoWidth, remoteHeight = resultVideoView.VideoHeight;
             string startupTiming = Model.TimingRows[^1].Value;
             ClosePopups();
             DisposeAccountUi();
@@ -272,31 +289,5 @@ public sealed partial class MainWindow
         await Task.Delay(500);
         Check(target.Opacity == 1 && ((TranslateTransform)target.RenderTransform).Y == 0, "Page entry did not settle.");
         return new { page = active ? "generation" : "landing", sampledOpacity = opacity, sampledOffset = offset, durationMilliseconds = 450, offsetDip = 14, settled = true };
-    }
-    private async Task VerifyFramesAsync()
-    {
-        using var client = new XmaxClient(); await using var realtime = client.CreateRealtime();
-        using var sink = await realtime.BindExternalAsync(new(16, 8));
-        Model.StatisticsVisible = false;
-        LocalView.Width = 160; LocalView.Height = 80; LocalView.VideoSource = realtime.LocalVideo;
-        byte[] pixels = new byte[64 * 8];
-        for (int y = 0; y < 8; ++y) for (int x = 0; x < 16; ++x) { int i = y * 64 + x * 4; pixels[i + (x < 8 ? 2 : 0)] = 255; pixels[i + 3] = 255; }
-        sink.PushBgra(pixels, 64, 1000); await UntilAsync(() => LocalView.PresentedFrameCount >= 1); await Task.Delay(100);
-        await VerifyFramePixelsAsync(false); await SaveScreenshotAsync("render-bgra", LocalView);
-        await realtime.SetVideoMirrorAsync(new(true, false, false)); sink.PushBgra(pixels, 64, 2000);
-        await UntilAsync(() => LocalView.PresentedFrameCount >= 2); await Task.Delay(100); await VerifyFramePixelsAsync(true); await SaveScreenshotAsync("render-mirrored", LocalView);
-        await Task.Run(() => { for (int i = 3; i <= 100; ++i) sink.PushBgra(pixels, 64, i * 1000); });
-        await UntilAsync(() => LocalView.LastPresentedTimestampMicroseconds == 100000);
-        localPanel.Children.Remove(LocalView); await Task.Delay(50); localPanel.Children.Insert(0, LocalView);
-        sink.PushBgra(pixels, 64, 101000); await UntilAsync(() => LocalView.LastPresentedTimestampMicroseconds == 101000);
-        LocalView.VideoSource = null;
-    }
-    private async Task VerifyFramePixelsAsync(bool mirrored)
-    {
-        var bitmap = new RenderTargetBitmap(); await bitmap.RenderAsync(LocalView, 160, 80);
-        using var reader = DataReader.FromBuffer(await bitmap.GetPixelsAsync()); byte[] bytes = new byte[reader.UnconsumedBufferLength]; reader.ReadBytes(bytes);
-        int left = (bitmap.PixelHeight / 2 * bitmap.PixelWidth + bitmap.PixelWidth / 8) * 4;
-        int right = (bitmap.PixelHeight / 2 * bitmap.PixelWidth + bitmap.PixelWidth * 7 / 8) * 4;
-        Check(bytes[left + (mirrored ? 0 : 2)] > 200 && bytes[right + (mirrored ? 2 : 0)] > 200, "WinUI displayed pixels or mirror metadata differ from the input.");
     }
 }

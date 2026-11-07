@@ -1,10 +1,13 @@
 using FaceNow.App.Controls;
+using FaceNow.Core.Product;
 using FaceNow.Core.User;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using System.Text.RegularExpressions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
@@ -33,6 +36,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
     private readonly Image appIcon = new() { Source = new BitmapImage(new("ms-appx:///Assets/FaceNow.png")) };
     private readonly TextBlock title = LoginTypography.Text("Welcome to FaceNow", 34);
     private readonly TextBlock subtitle = LoginTypography.Text("Your new look for every camera moment", 17, "#6B7380");
+    private readonly TextBlock apiKeyHelp = LoginTypography.Text("", 13, "#6B7380");
     private readonly TextBlock terms = LoginTypography.Text("", 14, "#6B7380");
     private readonly TextBlock status = LoginTypography.Text("", 10, "#9CA3AF");
     private readonly MediaPlayer player = new() { IsLoopingEnabled = true, IsMuted = true };
@@ -43,7 +47,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
     private string? rejectedKey, lastNotice;
     private string? videoFailure;
     private bool videoLoading;
-    private bool updating, presented, configurationLoaded, configurationFailed, disposed, submittingLogin, sendingCode, captureMode;
+    private bool updating, presented, configurationLoaded, disposed, submittingLogin, sendingCode, captureMode;
     private double layoutScale = 1;
     internal Action<string?>? RequestError { get; set; }
     internal Action? SignedIn { get; set; }
@@ -51,7 +55,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
     public LoginView(UserRepository user, Grid overlayHost, bool preview = false)
     {
         this.user = user; this.preview = preview; Visibility = Visibility.Collapsed;
-        captcha = new(overlayHost);
+        captcha = new(overlayHost, () => model.Select(2));
         HorizontalContentAlignment = HorizontalAlignment.Stretch; VerticalContentAlignment = VerticalAlignment.Stretch;
         layout.ColumnDefinitions.Add(new()); layout.ColumnDefinitions.Add(new());
         var showcase = new Grid { Margin = new(20, 20, 0, 20), Background = Theme.Brush("#111318") };
@@ -76,7 +80,9 @@ internal sealed partial class LoginView : UserControl, IDisposable
         var caption = new StackPanel { Margin = new(32), Spacing = 12, VerticalAlignment = VerticalAlignment.Bottom };
         var slogan = LoginTypography.Text("Be Anyone.  Be You.", 38, "#FFFFFF"); slogan.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
         caption.Children.Add(slogan);
-        caption.Children.Add(LoginTypography.Text("Powered by the world-leading real-time video editing model from Xmax.ai", 12.5, "#CCFFFFFF"));
+        var modelCredit = LoginTypography.Text("Powered by the world-leading real-time video editing model from Xmax.ai", 12.5, "#CCFFFFFF");
+        modelCredit.Margin = new(2, 0, 0, 0);
+        caption.Children.Add(modelCredit);
         showcase.Children.Add(caption); layout.Children.Add(showcase);
 
         formContent.HorizontalAlignment = HorizontalAlignment.Center;
@@ -92,6 +98,10 @@ internal sealed partial class LoginView : UserControl, IDisposable
         form.Children.Add(methods);
         var firstInput = new Grid(); firstInput.Children.Add(accountInput); firstInput.Children.Add(keyInput);
         Grid.SetRow(firstInput, 2); form.Children.Add(firstInput);
+        apiKeyHelp.TextWrapping = TextWrapping.Wrap;
+        apiKeyHelp.Inlines.Add(new Run { Text = AppText.Get("Need an API Key? ") });
+        apiKeyHelp.Inlines.Add(PlatformLink("Create one on the Xmax API Platform ↗", "/api-keys"));
+        Grid.SetRow(apiKeyHelp, 3); form.Children.Add(apiKeyHelp);
         Grid.SetRow(codeInput, 4); form.Children.Add(codeInput);
         var primaryHost = new Grid(); var primaryShadow = new Grid { IsHitTestVisible = false };
         _ = new LoginShadow(primaryShadow, () => (float)submit.CornerRadius.TopLeft, Theme.Brush("#2F46E2").Color, 7.5f, 5, .175f);
@@ -99,11 +109,12 @@ internal sealed partial class LoginView : UserControl, IDisposable
         primaryHost.Children.Add(primaryShadow); primaryHost.Children.Add(submit);
         Grid.SetRow(primaryHost, 6); form.Children.Add(primaryHost);
         terms.TextAlignment = TextAlignment.Center; terms.TextWrapping = TextWrapping.Wrap; terms.Opacity = .75;
-        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get("By signing in, you are agreeing to the ") });
-        terms.Inlines.Add(LegalLink("Terms of Use", "terms"));
-        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get(" and ") });
-        terms.Inlines.Add(LegalLink("Privacy Policy", "privacy"));
-        terms.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get(".") });
+        foreach (string part in Regex.Split(AppText.Get("By signing in, you are agreeing to the {0} and {1}."), @"(\{[01]\})"))
+            terms.Inlines.Add(part switch {
+                "{0}" => PlatformLink("Terms of Use", "/docs/resources/terms"),
+                "{1}" => PlatformLink("Privacy Policy", "/docs/resources/privacy"),
+                _ => new Run { Text = part }
+            });
         Grid.SetRow(terms, 8); form.Children.Add(terms);
         form.VerticalAlignment = VerticalAlignment.Center; inputArea.Children.Add(form);
         Grid.SetRow(inputArea, 1); formContent.Children.Add(inputArea);
@@ -111,7 +122,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
         column.Children.Add(formContent);
         status.TextAlignment = TextAlignment.Center; status.VerticalAlignment = VerticalAlignment.Bottom; status.Margin = new(0, 0, 0, 3);
         column.Children.Add(status); Grid.SetColumn(column, 1); layout.Children.Add(column); Content = layout;
-        AutomationProperties.SetName(account, "Phone number"); AutomationProperties.SetName(code, "Verification code"); AutomationProperties.SetName(key, "API Key");
+        AutomationProperties.SetName(account, AppText.Get("Phone number")); AutomationProperties.SetName(code, AppText.Get("Verification code")); AutomationProperties.SetName(key, AppText.Get("API Key"));
         methods.SelectionChanged += () => { if (!updating) { model.Select(methods.SelectedIndex); Render(); } };
         account.TextChanged += (_, _) =>
         {
@@ -144,17 +155,18 @@ internal sealed partial class LoginView : UserControl, IDisposable
         ApplyLayout(); Render();
     }
 
-    private static Microsoft.UI.Xaml.Documents.Hyperlink LegalLink(string text, string slug) => new()
+    private static Hyperlink PlatformLink(string text, string path) => new()
     {
-        NavigateUri = new(FaceNow.Core.Product.ProductProfile.Current.ResolveLink($"https://platform.xmaxsi.com/docs/resources/{slug}")), Foreground = Theme.Brush("#2F46E2"),
+        NavigateUri = new(ProductProfile.Current.PlatformOrigin, path),
+        Foreground = Theme.Brush("#2F46E2"),
         TextDecorations = global::Windows.UI.Text.TextDecorations.None,
-        Inlines = { new Microsoft.UI.Xaml.Documents.Run { Text = AppText.Get(text) } }
+        Inlines = { new Run { Text = AppText.Get(text) } }
     };
 
     private void ApplyLayout()
     {
         if (ActualWidth <= 0 || ActualHeight <= 0) return;
-        // The same 1440 x 900 design reference, bounded scale and independent anchors as macOS.
+        // Scale from a 1440 x 900 reference within fixed bounds and position each section independently.
         layoutScale = Math.Round(Math.Clamp(Math.Min(ActualWidth / 1440, ActualHeight / 900), .9, 1.1), 2);
         double s = layoutScale;
         formContent.Width = Math.Max(240, Math.Min(ActualWidth / 2 - 96, Math.Min(ActualWidth / 2 * .82, 560 * s)));
@@ -165,11 +177,14 @@ internal sealed partial class LoginView : UserControl, IDisposable
         inputArea.Margin = new(0, 24 * s, 0, 24 * s);
         methods.ApplyScale(s); accountInput.ApplyScale(s); codeInput.ApplyScale(s); keyInput.ApplyScale(s);
         send.ApplyScale(s, true); submit.ApplyScale(s, false); terms.FontSize = 14 * s;
+        apiKeyHelp.FontSize = 13 * s;
+        apiKeyHelp.LineHeight = 18 * s;
+        apiKeyHelp.Margin = new(8, 8 * s, 0, 0);
         form.RowDefinitions[1].Height = new(24 * s);
-        form.RowDefinitions[3].Height = new(model.UsesApiKey ? 0 : 16 * s);
+        form.RowDefinitions[3].Height = model.UsesApiKey ? GridLength.Auto : new(16 * s);
         form.RowDefinitions[5].Height = new(20 * s);
         form.RowDefinitions[7].Height = new(24 * s);
-        form.RowDefinitions[9].Height = new(model.UsesApiKey ? 70 * s : 0);
+        form.RowDefinitions[9].Height = new(model.UsesApiKey ? 44 * s : 0);
         UpdateAccessory();
     }
 
@@ -197,7 +212,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
     private void ResetAfterSignIn()
     {
         model.ResetAfterSignIn(); rejectedKey = null; rejectedCodes.Clear();
-        submittingLogin = sendingCode = configurationFailed = false;
+        submittingLogin = sendingCode = false;
         updating = true;
         try { account.Text = code.Text = key.Password = ""; }
         finally { updating = false; }
@@ -238,7 +253,7 @@ internal sealed partial class LoginView : UserControl, IDisposable
     private async Task LoadConfigurationAsync()
     {
         if (configurationLoaded || model.IsBusy || disposed) return;
-        model.IsBusy = true; model.Error = null; configurationFailed = false; Render();
+        model.IsBusy = true; model.Error = null; model.ConfigurationFailed = false; Render();
         try
         {
             model.Configuration = await user.GetConfigurationAsync(lifetime.Token);
@@ -246,13 +261,13 @@ internal sealed partial class LoginView : UserControl, IDisposable
             if (!model.UsesApiKey && !model.Configuration.Supports(model.Method)) model.Select(2);
         }
         catch (OperationCanceledException) { }
-        catch (Exception failure) { configurationFailed = true; ReportRequestError(failure.Message); }
+        catch (Exception failure) { model.ConfigurationFailed = true; ReportRequestError(failure.Message); }
         finally { model.IsBusy = false; if (!disposed) Render(); }
     }
     private async Task RunAsync(bool login)
     {
-        if (disposed || !presented || user.IsBusy) return;
-        if (login && configurationFailed && !model.UsesApiKey) { await LoadConfigurationAsync(); return; }
+        if (disposed || !presented || user.IsBusy || model.IsBusy) return;
+        if (model.ConfigurationFailed && !model.UsesApiKey) { await LoadConfigurationAsync(); return; }
         if (!(login ? model.CanSubmit : model.CanSendCode)) return;
         bool withKey = model.UsesApiKey;
         var method = model.Method;
@@ -281,12 +296,21 @@ internal sealed partial class LoginView : UserControl, IDisposable
         catch (OperationCanceledException) { }
         catch (Exception failure)
         {
-            if (withKey && failure is AccountException { IsUnauthorized: true }) rejectedKey = enteredKey;
-            if (!withKey && (failure.Message.StartsWith("Invalid code.", StringComparison.Ordinal) || failure.Message.StartsWith("This code has expired.", StringComparison.Ordinal)))
-                rejectedCodes[method] = (enteredCode, failure.Message);
-            ReportRequestError(failure.Message);
+            string message = LoginViewModel.SignInErrorMessage(failure, withKey);
+            if (withKey && message == "Invalid API key. Check it and try again.") rejectedKey = enteredKey;
+            if (!withKey && (message.StartsWith("Invalid code.", StringComparison.Ordinal) || message.StartsWith("This code has expired.", StringComparison.Ordinal)))
+                rejectedCodes[method] = (enteredCode, message);
+            ReportRequestError(message);
         }
-        finally { model.IsBusy = submittingLogin = sendingCode = false; if (!disposed) Render(); }
+        finally
+        {
+            model.IsBusy = submittingLogin = sendingCode = false;
+            if (!disposed)
+            {
+                Render();
+                if (presented && !withKey && model.UsesApiKey) key.Focus(FocusState.Programmatic);
+            }
+        }
     }
     private void ReportRequestError(string message) { model.Error = message; RequestError?.Invoke(message); }
     public void Refresh()
@@ -309,20 +333,19 @@ internal sealed partial class LoginView : UserControl, IDisposable
             methods.SetAvailability(model.Configuration?.EnableSmsLogin ?? true, model.Configuration?.EnableEmailLogin ?? true);
             methods.IsEnabled = !busy;
             accountInput.Visibility = codeInput.Visibility = model.UsesApiKey ? Visibility.Collapsed : Visibility.Visible;
-            keyInput.Visibility = model.UsesApiKey ? Visibility.Visible : Visibility.Collapsed;
+            keyInput.Visibility = apiKeyHelp.Visibility = model.UsesApiKey ? Visibility.Visible : Visibility.Collapsed;
             accountInput.SetPrefix(model.Method == LoginMethod.Sms);
             account.PlaceholderText = AppText.Get(model.Method == LoginMethod.Sms ? "Enter your phone number" : "Enter your email address");
-            AutomationProperties.SetName(account, model.Method == LoginMethod.Sms ? "Phone number" : "Email address");
+            AutomationProperties.SetName(account, AppText.Get(model.Method == LoginMethod.Sms ? "Phone number" : "Email address"));
             if (account.Text != model.Account) account.Text = model.Account;
             if (code.Text != model.Code) code.Text = model.Code;
             code.MaxLength = model.CodeLength;
             accountInput.IsEnabled = codeInput.IsEnabled = keyInput.IsEnabled = !busy;
-            keyInput.SetInvalid(rejectedKey is not null ? "This API key is inactive or unavailable." : null);
+            keyInput.SetInvalid(rejectedKey is not null ? "Invalid API key. Check it and try again." : null);
             codeInput.SetInvalid(rejectedCodes.GetValueOrDefault(model.Method).Message);
             send.IsEnabled = !busy && model.CanSendCode;
             send.Text = model.Cooldown > 0 ? AppText.Format("Resend ({0}s)", model.Cooldown) : "Get Code";
-            send.SetLoading(sendingCode);
-            submit.IsEnabled = !busy && (model.CanSubmit || configurationFailed && !model.UsesApiKey && model.ValidAccount && model.Code.Length == model.CodeLength);
+            submit.IsEnabled = !busy && model.CanSubmit;
             submit.SetLoading(submittingLogin);
             status.Text = preview ? AppText.Get("Login preview · simulated account, no account requests") : "";
             ApplyLayout();

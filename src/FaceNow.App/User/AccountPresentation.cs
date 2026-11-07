@@ -3,7 +3,7 @@ using FaceNow.Core.User;
 
 namespace FaceNow.App.User;
 
-/// <summary>Matches the macOS account card without exposing account tokens or complete keys.</summary>
+/// <summary>Formats account identity and masks API keys for display.</summary>
 internal sealed class AccountPresentation
 {
     internal required string AvatarText { get; init; }

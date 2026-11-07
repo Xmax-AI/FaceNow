@@ -12,8 +12,8 @@ public sealed partial class MainWindow
     private readonly UserRepository? accountRepository;
     private LoginView? loginView;
     private readonly AccountAvatarButton accountButton = new();
-    private readonly Pill homeCredits = new() { Text = AppText.Get("—"), Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
-    private readonly Pill sessionCredits = new() { Text = AppText.Get("—"), Glyph = "boltFilled", ContentSpacing = 4, Padding = new(12, 0, 14, 0), FontFamily = new("Segoe UI"), FontWeight = Microsoft.UI.Text.FontWeights.Medium };
+    private readonly ToolbarButton homeCredits = new() { Text = "—", Glyph = "boltFilled" };
+    private readonly ToolbarButton sessionCredits = new() { Text = "—", Glyph = "boltFilled" };
     private bool studioInitialized, studioInitializing, accountStopping, lastVerified;
     private readonly DispatcherTimer creditsRefreshTimer = new() { Interval = TimeSpan.FromSeconds(5) };
     private void BuildAccountUi()
@@ -25,7 +25,7 @@ public sealed partial class MainWindow
         root.Children.Insert(root.Children.Count - 1, loginView);
         homeControls.Children.Add(homeCredits);
         homeControls.Children.Add(accountButton);
-        sessionControls.Children.Insert(1, sessionCredits);
+        sessionControls.Children.Insert(sessionControls.Children.IndexOf(elapsed), sessionCredits);
         accountButton.Click += async (_, _) => await OpenAccountAsync();
         root.SizeChanged += (_, _) => { if (accountPopup?.IsOpen == true) ClosePopups(); };
         homeCredits.Click += (_, _) => OpenLink("https://platform.xmaxai.com/credits");
@@ -101,8 +101,7 @@ public sealed partial class MainWindow
         AutomationProperties.SetName(accountButton, "Account: " + accountRepository.DisplayName);
         accountButton.IsEnabled = !accountRepository.IsBusy && !accountStopping;
         homeCredits.Text = sessionCredits.Text = presentation.Credits;
-        homeCredits.Destructive = sessionCredits.Destructive = accountRepository.RemainingCredits is < 300;
-        homeCredits.Refresh(); sessionCredits.Refresh();
+        homeCredits.Tone = sessionCredits.Tone = accountRepository.RemainingCredits is < 300 ? ToolbarButtonTone.Danger : ToolbarButtonTone.Neutral;
         AutomationProperties.SetName(homeCredits, "Credits " + presentation.Credits);
         AutomationProperties.SetName(sessionCredits, "Credits " + presentation.Credits);
         accountCard?.Update(presentation, accountRepository.CanAccessHome, !accountRepository.IsBusy && !accountStopping);

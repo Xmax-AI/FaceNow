@@ -203,7 +203,7 @@ void Verify(bool local, const fs::path& screenshot, const std::wstring& relayLin
         BYTE low = 255, high = 0;
         for (size_t i = 0; i < pixels.size(); i++) if (i % 4 != 3) { low = (std::min)(low, pixels[i]); high = (std::max)(high, pixels[i]); }
         if (high - low < 40) {
-            // A uniform image is valid only when it is the macOS-matched waiting canvas.
+            // A uniform image is valid only when it has the waiting canvas color.
             // Allow small RGB/NV12 round-trip differences; still reject unintended blank output.
             for (size_t i = 0; i < pixels.size(); i += 4)
                 if (abs((int)pixels[i] - 244) > 4 || abs((int)pixels[i + 1] - 243) > 4 || abs((int)pixels[i + 2] - 241) > 4)

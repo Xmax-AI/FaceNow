@@ -18,7 +18,7 @@ public sealed partial class MainWindow
             Check(Math.Abs(accountButton.ActualWidth - accountButton.ActualHeight) < .1 && accountButton.ActualWidth == 36,
                 "The account entry is not a 36-point circular avatar.");
             Check(Math.Abs(card.ActualWidth - 340) < .1 && Math.Abs(card.ActualHeight - 238) < .1,
-                $"The account card does not match macOS geometry: {card.ActualWidth:F2} x {card.ActualHeight:F2}.");
+                $"Expected a 340 × 238 account card, got {card.ActualWidth:F2} x {card.ActualHeight:F2}.");
             var labels = CameraUsageDescendants(card).OfType<TextBlock>().Select(label => label.Text).ToArray();
             foreach (string label in new[] { "Buy Credits", "View Usage", "Privacy Policy", "Terms of Use", "Sign out", "••••••••view" })
                 Check(labels.Contains(label), "Missing account card content: " + label);

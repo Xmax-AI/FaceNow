@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using FaceNow.App.Controls;
+using FaceNow.Windows.Studio.ViewModels;
+using Windows.Foundation;
 
 namespace FaceNow.App;
 
@@ -12,21 +14,21 @@ public sealed partial class MainWindow
     private Popup? virtualCameraPopup;
     private Action? refreshCameraUsage;
     private bool cameraStatusRefreshing;
-    private static string CameraUsageLabel => AppText.Get("Virtual Camera");
+    private static string CameraUsageLabel => AppText.Get("Virtual Devices");
     private const string FaceNowCameraName = "FaceNow - Xmax Virtual Camera";
 
-    private sealed record CameraUsage(string Title, string Description, string Color, string? Setup = null, bool Ready = false);
+    private sealed record CameraUsage(string Title, string Description, string Color, bool OfferSetup = false, bool Ready = false);
     private static CameraUsage DescribeCameraUsage(CameraOutputStatus status, bool canInstall) => status.Registration switch
     {
         CameraRegistrationState.Unsupported => new("Unavailable", "This feature requires Windows 11. Use FaceNow on a Windows 11 computer to continue.", "#DC2626"),
         CameraRegistrationState.ComponentMissing => new("Unavailable", "The camera feature is missing from this copy of FaceNow. Reinstall the full app, then try again.", "#DC2626"),
         _ when !canInstall && (status.State == CameraOutputState.Faulted || status.Registration == CameraRegistrationState.NotRegistered)
             => new("Unavailable", "Your AI video is still using the camera. Stop your AI video, then set up the camera again.", "#DC2626"),
-        _ when status.State == CameraOutputState.Faulted => new("Setup needed", "Your camera needs to be set up again before FaceNow can be used in other apps.", "#DC2626", "Set up camera"),
-        CameraRegistrationState.NotRegistered => new("Setup needed", "Set up once to add FaceNow to the camera list in your meeting or streaming app.", "#DC2626", "Set up camera"),
+        _ when status.State == CameraOutputState.Faulted => new("Needs Setup", "Your camera needs to be set up again before FaceNow can be used in other apps.", "#D97706", OfferSetup: true),
+        CameraRegistrationState.NotRegistered => new("Not Installed", "Set up once to add FaceNow to the camera list in your meeting or streaming app.", "#D97706", OfferSetup: true),
         CameraRegistrationState.Registered when status.State is CameraOutputState.Stopped or CameraOutputState.Running
-            => new("Ready to use", "Start Camera in FaceNow, then choose this camera in your meeting or streaming app.", "#15803D", Ready: true),
-        _ => new("Checking", "Checking camera availability…", "#DC2626")
+            => new("Enabled", "Start Camera in FaceNow, then choose this camera in your meeting or streaming app.", "#15803D", Ready: true),
+        _ => new("Checking", "Checking camera availability…", "#6B7380")
     };
 
     private void RefreshVirtualCameraUi()
@@ -35,14 +37,9 @@ public sealed partial class MainWindow
         var usage = DescribeCameraUsage(status, CanSetUpCamera);
         var button = homeVirtualCamera;
         button.Text = CameraUsageLabel;
-        button.Available = usage.Ready && !IsCameraSetupBusy;
         button.IsEnabled = !IsCameraSetupBusy;
-        button.Accent = false;
-        button.Secondary = false;
-        button.Destructive = false;
         button.Refresh();
-        string helpText = IsCameraSetupBusy ? "Setting up your camera. Please wait…"
-            : usage.Title.Length == 0 ? usage.Description : usage.Title + ". " + usage.Description;
+        string helpText = AppText.Get(IsCameraSetupBusy ? "Setting up your camera. Please wait…" : usage.Description);
         ToolTipService.SetToolTip(button, helpText);
         AutomationProperties.SetName(button, CameraUsageLabel);
         AutomationProperties.SetHelpText(button, helpText);
@@ -66,81 +63,163 @@ public sealed partial class MainWindow
         var host = new StackPanel();
         CameraOutputStatus? displayed = null;
         bool previousCanInstall = false;
+        VirtualMicrophoneState? displayedMicrophone = null;
         refreshCameraUsage = () =>
         {
             var status = CameraUsageStatus;
             bool canInstall = CanSetUpCamera;
-            if (displayed == status && previousCanInstall == canInstall) return;
+            var microphone = Model.VirtualMicrophoneStatus;
+            if (displayed == status && previousCanInstall == canInstall && displayedMicrophone == microphone) return;
             displayed = status; previousCanInstall = canInstall;
-            host.Children.Clear(); host.Children.Add(BuildCameraUsagePanel(status, canInstall, anchor));
+            displayedMicrophone = microphone;
+            host.Children.Clear(); host.Children.Add(BuildVirtualDevicesPanel(status, canInstall, anchor, microphone));
         };
         refreshCameraUsage();
-        virtualCameraPopup = OpenPopup(anchor, host, 360, 20);
+        virtualCameraPopup = OpenPopup(anchor, host, 400, 0);
         _ = SynchronizeVirtualCameraStatusAsync();
+        _ = Model.RefreshVirtualMicrophoneAsync();
     }
 
-    private StackPanel BuildCameraUsagePanel(CameraOutputStatus status, bool canInstall, FrameworkElement anchor)
+    private StackPanel BuildVirtualDevicesPanel(CameraOutputStatus status, bool canInstall, FrameworkElement anchor,
+        VirtualMicrophoneState microphoneStatus = VirtualMicrophoneState.NotInstalled)
     {
         var usage = DescribeCameraUsage(status, canInstall);
-        var panel = new StackPanel { Spacing = 16 };
-        var headerRow = new Grid();
-        headerRow.ColumnDefinitions.Add(new()); headerRow.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
-        var heading = Theme.Text("Use FaceNow in other apps", 16); heading.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
-        heading.TextWrapping = TextWrapping.Wrap; heading.Margin = new(0, 0, 16, 0); headerRow.Children.Add(heading);
-        var state = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
-        state.Visibility = usage.Title.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
-        state.Children.Add(new Microsoft.UI.Xaml.Shapes.Ellipse { Width = 7, Height = 7, Fill = Theme.Brush(usage.Color), VerticalAlignment = VerticalAlignment.Center });
-        var label = Theme.Text(usage.Title, 12, "#6B7380"); label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
-        state.Children.Add(label); Grid.SetColumn(state, 1); headerRow.Children.Add(state); panel.Children.Add(headerRow);
-        var description = Theme.Text(usage.Description, 13, "#6B7380"); description.TextWrapping = TextWrapping.Wrap;
-        panel.Children.Add(description);
-        if (usage.Ready)
+        var panel = new StackPanel { Margin = new(16, 20, 16, 12) };
+        var heading = Theme.Text(CameraUsageLabel, 18, "#424954");
+        heading.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+        heading.Margin = new(4, 0, 4, 18);
+        panel.Children.Add(heading);
+
+        var microphoneUsage = DescribeVirtualMicrophone(microphoneStatus);
+        double statusWidth = 14 + Math.Max(DeviceTextWidth(usage.Title), DeviceTextWidth(microphoneUsage.Label));
+        double setupWidth = DeviceTextWidth("Set Up", semibold: true) + 2;
+
+        Button? cameraSetup = null;
+        if (usage.OfferSetup || usage.Ready)
         {
-            var device = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
-            device.Children.Add(new Glyph { Kind = "camera", Width = 20, Height = 20, Foreground = Theme.Brush("#2F46E2"), VerticalAlignment = VerticalAlignment.Center });
-            var name = Theme.Text(FaceNowCameraName, 13); name.FontWeight = Microsoft.UI.Text.FontWeights.Medium; device.Children.Add(name);
-            panel.Children.Add(new Border { Child = device, Padding = new(12), Background = Theme.Brush("#F7F8FA"), CornerRadius = new(10) });
-        }
-        if (usage.Setup is { } setupLabel)
-        {
-            var setup = new Pill { Text = setupLabel, Primary = true, Height = 40, IsEnabled = canInstall, HorizontalAlignment = HorizontalAlignment.Stretch };
-            AutomationProperties.SetAutomationId(setup, "camera_setup");
-            setup.Click += async (_, _) =>
+            cameraSetup = DeviceLink("Set Up", async () =>
             {
-                if (cameraSetupPreview) await SimulateCameraSetupAsync(anchor);
+                if (usage.Ready)
+                {
+                    ClosePopups();
+                    if (!Model.IsPreview) OpenLink("ms-settings:camera");
+                }
+                else if (cameraSetupPreview) await SimulateCameraSetupAsync(anchor);
                 else await RunCameraActionAsync(virtualCameraOutput.InstallAndEnableAsync, anchor);
-            };
-            panel.Children.Add(setup);
-            var permission = Theme.Text("Windows will ask for administrator permission.", 11, "#6B7380");
-            permission.TextWrapping = TextWrapping.Wrap; panel.Children.Add(permission);
+            });
+            cameraSetup.IsEnabled = usage.Ready || canInstall;
+            AutomationProperties.SetAutomationId(cameraSetup, "camera_setup");
+            AutomationProperties.SetName(cameraSetup, AppText.Get("Set up camera"));
+            if (usage.OfferSetup) ToolTipService.SetToolTip(cameraSetup, AppText.Get("Windows will ask for administrator permission."));
         }
-        if (status.Registration is CameraRegistrationState.Unsupported or CameraRegistrationState.ComponentMissing) return panel;
-        var help = new StackPanel { Spacing = 8, Visibility = Visibility.Collapsed };
-        var tip = Theme.Text("After setup, reopen the camera list in your other app. If FaceNow is still missing, restart that app.", 12, "#6B7380"); tip.TextWrapping = TextWrapping.Wrap;
-        help.Children.Add(tip);
-        var links = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 20 };
-        var refresh = Theme.Link("Check again", () => { });
-        refresh.Click += async (_, _) =>
+        var camera = DeviceRow("Virtual Camera", "camera", usage.Title, usage.Color, statusWidth, setupWidth, cameraSetup);
+        camera.Margin = new(0, 0, 0, 10);
+        ToolTipService.SetToolTip(camera, AppText.Get(usage.Description));
+        panel.Children.Add(camera);
+
+        var microphoneSetup = DeviceLink("Set Up", async () => await ShowVirtualMicrophoneSetupAsync(anchor));
+        AutomationProperties.SetAutomationId(microphoneSetup, "microphone_setup");
+        AutomationProperties.SetName(microphoneSetup, AppText.Get("Set Up Virtual Microphone"));
+        var microphone = DeviceRow("Virtual Microphone", "microphone", microphoneUsage.Label,
+            microphoneUsage.Color, statusWidth, setupWidth, microphoneSetup);
+        panel.Children.Add(microphone);
+
+        panel.Children.Add(new Border { Height = 1, Background = Theme.Brush("#EBEEF2"), Margin = new(0, 18, 0, 10) });
+        var guide = new StackPanel { Spacing = 8, Visibility = Visibility.Collapsed };
+        var guideButton = DeviceLink("View Integration Guide", () =>
         {
-            if (cameraSetupPreview) OpenVirtualCameraSettings(anchor);
-            else await RunCameraActionAsync(virtualCameraOutput.RefreshAsync, anchor);
-        };
-        links.Children.Add(refresh);
-        links.Children.Add(Theme.Link("Camera permissions", () => { ClosePopups(); OpenLink("ms-settings:privacy-webcam"); }));
-        help.Children.Add(links);
-        string helpTitle = usage.Ready ? "Can't find FaceNow?" : "Need help?";
-        Button? helpLink = null;
-        helpLink = Theme.Link(helpTitle, () =>
+            guide.Visibility = guide.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+        }, 14);
+        guideButton.Height = 32;
+        guideButton.HorizontalAlignment = HorizontalAlignment.Stretch;
+        guideButton.HorizontalContentAlignment = HorizontalAlignment.Center;
+        AutomationProperties.SetAutomationId(guideButton, "camera_help");
+        panel.Children.Add(guideButton);
+
+        guide.Margin = new(4, 10, 4, 0);
+        var description = Theme.Text(usage.Description, 13, "#6B7380");
+        description.TextWrapping = TextWrapping.Wrap;
+        guide.Children.Add(description);
+        if (usage.Ready)
+            guide.Children.Add(Theme.Text(FaceNowCameraName, 13));
+        if (usage.OfferSetup)
+            guide.Children.Add(Theme.Text("Windows will ask for administrator permission.", 12, "#6B7380"));
+        if (status.Registration is not (CameraRegistrationState.Unsupported or CameraRegistrationState.ComponentMissing))
         {
-            bool expanded = help.Visibility == Visibility.Collapsed;
-            help.Visibility = expanded ? Visibility.Visible : Visibility.Collapsed;
-            ((TextBlock)helpLink!.Content).Text = expanded ? "Hide help" : helpTitle;
-        });
-        ((TextBlock)helpLink.Content).Foreground = Theme.Brush("#2F46E2");
-        helpLink.HorizontalAlignment = HorizontalAlignment.Left; helpLink.Height = 24;
-        AutomationProperties.SetAutomationId(helpLink, "camera_help");
-        panel.Children.Add(helpLink); panel.Children.Add(help);
+            var tip = Theme.Text("After setup, reopen the camera list in your other app. If FaceNow is still missing, restart that app.", 12, "#6B7380");
+            tip.TextWrapping = TextWrapping.Wrap;
+            guide.Children.Add(tip);
+            var links = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 20 };
+            links.Children.Add(DeviceLink("Check again", async () =>
+            {
+                if (cameraSetupPreview) OpenVirtualCameraSettings(anchor);
+                else await RunCameraActionAsync(virtualCameraOutput.RefreshAsync, anchor);
+            }));
+            links.Children.Add(DeviceLink("Camera permissions", () =>
+            {
+                ClosePopups();
+                OpenLink("ms-settings:privacy-webcam");
+            }));
+            guide.Children.Add(links);
+        }
+        panel.Children.Add(guide);
         return panel;
+    }
+
+    private static double DeviceTextWidth(string text, bool semibold = false)
+    {
+        var label = Theme.Text(text, 13);
+        if (semibold) label.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+        label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        return Math.Ceiling(label.DesiredSize.Width);
+    }
+
+    private static Border DeviceRow(string name, string icon, string status, string color, double statusWidth, double setupWidth, Button? setup)
+    {
+        var row = new Grid { ColumnSpacing = 14 };
+        row.ColumnDefinitions.Add(new());
+        row.ColumnDefinitions.Add(new() { Width = new(statusWidth) });
+        row.ColumnDefinitions.Add(new() { Width = new(setupWidth) });
+
+        var identity = new Grid { ColumnSpacing = 10 };
+        identity.ColumnDefinitions.Add(new() { Width = new(22) });
+        identity.ColumnDefinitions.Add(new());
+        identity.Children.Add(new Glyph { Kind = icon, Width = 22, Height = 22, Foreground = Theme.Brush("#6B7380"),
+            VerticalAlignment = VerticalAlignment.Center });
+        var title = Theme.Text(name, 13, "#424954");
+        title.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+        title.TextTrimming = TextTrimming.CharacterEllipsis;
+        Grid.SetColumn(title, 1);
+        identity.Children.Add(title);
+        row.Children.Add(identity);
+
+        var state = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, VerticalAlignment = VerticalAlignment.Center };
+        state.Children.Add(new Microsoft.UI.Xaml.Shapes.Ellipse { Width = 8, Height = 8,
+            Fill = Theme.Brush(color), VerticalAlignment = VerticalAlignment.Center });
+        state.Children.Add(Theme.Text(status, 13, "#6B7380"));
+        Grid.SetColumn(state, 1);
+        row.Children.Add(state);
+        if (setup is not null)
+        {
+            Grid.SetColumn(setup, 2);
+            setup.HorizontalAlignment = HorizontalAlignment.Right;
+            row.Children.Add(setup);
+        }
+        return new Border { Child = row, Height = 48, Padding = new(12, 0, 12, 0),
+            Background = Theme.Brush("#F7F8FA"), CornerRadius = new(12) };
+    }
+
+    private static Button DeviceLink(string text, Action action, double size = 13)
+    {
+        var link = Theme.Link(text, action);
+        link.Height = 28;
+        link.VerticalAlignment = VerticalAlignment.Center;
+        var label = (TextBlock)link.Content;
+        label.FontSize = size;
+        label.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+        label.Foreground = Theme.Brush("#2F46E2");
+        AutomationProperties.SetName(link, AppText.Get(text));
+        return link;
     }
 
     private async Task RunCameraActionAsync(Func<Task> action, FrameworkElement anchor)

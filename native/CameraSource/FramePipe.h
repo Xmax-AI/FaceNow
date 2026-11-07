@@ -14,6 +14,7 @@ class FramePipe {
     ULONGLONG retryAt = 0;
     FaceNowFrames::Header header{};
     wil::com_ptr_nothrow<IMFAttributes> sourceAttributes;
+    bool fixedEndpoint = false;
     const wchar_t* lastStage = L"";
     DWORD lastCode = 0;
     bool describedBuffer = false;
@@ -35,9 +36,12 @@ class FramePipe {
             Record(L"name-missing", static_cast<DWORD>(result)); return;
         }
         if (symbolicLink == link.get() && (pipe || GetTickCount64() < retryAt)) return;
-        auto next = FaceNowFrames::PipeName(link.get());
+        SetEndpoint(link.get());
+    }
+    void SetEndpoint(const std::wstring& link) {
+        auto next = FaceNowFrames::PipeName(link);
         if (next.empty()) { Record(L"name-hash", GetLastError()); return; }
-        symbolicLink = link.get();
+        symbolicLink = link;
         if (next != name) {
             pipe.reset(); name = std::move(next); retryAt = 0;
             Record(L"name-ready", ERROR_SUCCESS);
@@ -71,15 +75,20 @@ class FramePipe {
     }
 public:
     void Configure(IMFAttributes* attributes) {
+        fixedEndpoint = false;
         sourceAttributes = attributes;
         ResolveName();
+    }
+    void ConfigureEndpoint(const std::wstring& endpoint) {
+        fixedEndpoint = true;
+        SetEndpoint(endpoint);
     }
     bool Draw(BYTE* output, DWORD length, LONG pitch, UINT width, UINT height) {
         outputPitch = pitch; outputWidth = width; outputHeight = height;
         if (!describedBuffer) { SourceDiagnostic(L"buffer", ERROR_SUCCESS, pitch, width, height, name); describedBuffer = true; }
         // Frame Server may replace an existing activation link after Initialize.
         // Keep reading the shared attributes; a nonempty early link is not final.
-        ResolveName();
+        if (!fixedEndpoint) ResolveName();
         if (name.empty() || !event) return false;
         if (!output || !FaceNowFrames::BgraLayoutFits(width, height, pitch, length)) { Record(L"buffer-invalid", ERROR_INVALID_PARAMETER); return false; }
         auto fail = [&] { pipe.reset(); retryAt = GetTickCount64() + 250; return false; };

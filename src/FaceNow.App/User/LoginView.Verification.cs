@@ -52,7 +52,7 @@ internal sealed partial class LoginView
         }
         Visit(methods);
         string primary = FaceNow.Core.Product.ProductProfile.Current.ShowsPhoneLogin ? "Phone" : "Email";
-        if (!names.SequenceEqual(new[] { primary, "API Key" }) || methods.SelectedIndex != model.DefaultIndex)
+        if (!names.SequenceEqual(new[] { AppText.Get(primary), AppText.Get("API Key") }) || methods.SelectedIndex != model.DefaultIndex)
             throw new InvalidOperationException("The login selector did not expose exactly the two regional channels or restore its default.");
     }
 
@@ -160,7 +160,7 @@ internal sealed partial class LoginView
         var selector = Bounds(methods); var first = Bounds(model.UsesApiKey ? keyInput : accountInput);
         var primary = Bounds(submit); var legal = Bounds(terms); var footer = Bounds(scenarios); var subtitleBounds = Bounds(subtitle);
         if (selector.X < ActualWidth / 2 + 40 || selector.Right > ActualWidth - 40)
-            throw new InvalidOperationException("The account form escaped its macOS column margins.");
+            throw new InvalidOperationException("The account form must keep a 40-point inset inside the login column.");
         if (selector.Y < subtitleBounds.Bottom + 12 || first.Y < selector.Bottom + 12 || primary.Bottom > legal.Top - 8 || legal.Bottom > footer.Top - 12)
             throw new InvalidOperationException("Login header, inputs, actions or scenario footer overlap.");
         if (model.UsesApiKey)

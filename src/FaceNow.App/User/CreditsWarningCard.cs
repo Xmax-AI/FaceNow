@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace FaceNow.App.User;
 
-/// <summary>Contents of the macOS 280-point low-credit popover, with 16-point outer insets.</summary>
+/// <summary>Contents of the 280-point low-credit popover with 16-point outer insets.</summary>
 internal sealed class CreditsWarningCard : UserControl
 {
     internal CreditsWarningCard(Action recharge)

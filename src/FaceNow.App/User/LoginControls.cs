@@ -73,24 +73,35 @@ internal sealed class LoginShadow
     }
 }
 
-/// <summary>Login-only control presentation, matching the AppKit controls without changing the studio toolbar.</summary>
+/// <summary>Shared color and opacity transitions for FaceNow controls.</summary>
 internal static class LoginMotion
 {
     private sealed class State { public State() { } public object? Desired; public Storyboard? Animation; }
     private static readonly ConditionalWeakTable<DependencyObject, State> states = new();
     internal static bool Enabled => new UISettings().AnimationsEnabled;
-    internal static void Color(FrameworkElement owner, SolidColorBrush brush, string hex)
+    internal static void Color(FrameworkElement owner, SolidColorBrush brush, string hex) =>
+        Color(owner, brush, SolidColorBrush.ColorProperty, Theme.Brush(hex).Color);
+
+    internal static void Color(FrameworkElement owner, GradientStop stop, string hex, bool pressed)
     {
         var next = Theme.Brush(hex).Color;
-        var state = states.GetOrCreateValue(brush);
+        if (pressed)
+            next = global::Windows.UI.Color.FromArgb(next.A, (byte)Math.Round(next.R * .94),
+                (byte)Math.Round(next.G * .94), (byte)Math.Round(next.B * .94));
+        Color(owner, stop, GradientStop.ColorProperty, next);
+    }
+
+    private static void Color(FrameworkElement owner, DependencyObject target, DependencyProperty property, Color next)
+    {
+        var state = states.GetOrCreateValue(target);
         if (Equals(state.Desired, next)) return;
         bool animate = state.Desired is not null && owner.IsLoaded && Enabled;
-        var current = brush.Color;
-        state.Animation?.Stop(); state.Desired = next; brush.Color = next;
+        var current = (Color)target.GetValue(property);
+        state.Animation?.Stop(); state.Desired = next; target.SetValue(property, next);
         if (!animate) return;
         var animation = new ColorAnimation { From = current, To = next, Duration = TimeSpan.FromSeconds(.3),
             EnableDependentAnimation = true, EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut } };
-        Storyboard.SetTarget(animation, brush); Storyboard.SetTargetProperty(animation, "Color");
+        Storyboard.SetTarget(animation, target); Storyboard.SetTargetProperty(animation, "Color");
         var storyboard = new Storyboard { FillBehavior = FillBehavior.Stop }; storyboard.Children.Add(animation);
         state.Animation = storyboard; storyboard.Begin();
     }
@@ -129,7 +140,7 @@ internal sealed class LoginActionButton : Button
         var content = new Grid(); content.Children.Add(label); content.Children.Add(spinner); Content = content;
         label.HorizontalAlignment = HorizontalAlignment.Center;
         spinner.HorizontalAlignment = HorizontalAlignment.Center; spinner.VerticalAlignment = VerticalAlignment.Center;
-        AutomationProperties.SetName(this, text);
+        AutomationProperties.SetName(this, AppText.Get(text));
         PointerEntered += (_, _) => { hovered = true; Refresh(); };
         PointerExited += (_, _) => { hovered = pressed = false; Refresh(); };
         PointerPressed += (_, _) => { pressed = true; Refresh(); };
@@ -197,7 +208,7 @@ internal sealed class LoginMethodSelector : UserControl
                 UseSystemFocusVisuals = false,
                 HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
-            AutomationProperties.SetName(button, titles[i]);
+            AutomationProperties.SetName(button, AppText.Get(titles[i]));
             button.Visibility = visible[i] ? Visibility.Visible : Visibility.Collapsed;
             button.Click += (_, _) => { if (visible[index] && available[index]) SelectedIndex = index; };
             button.PointerEntered += (_, _) => { hoveredIndex = index; Refresh(); };

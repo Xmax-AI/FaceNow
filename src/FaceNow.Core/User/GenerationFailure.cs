@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace FaceNow.Core.User;
 
-/// <summary>Shares the macOS credit-exhaustion classification without treating unrelated errors as billing failures.</summary>
+/// <summary>Identifies credit exhaustion from platform error codes and explicit messages.</summary>
 public static class GenerationFailure
 {
     public static bool IsInsufficientCredits(int? apiCode, string message)

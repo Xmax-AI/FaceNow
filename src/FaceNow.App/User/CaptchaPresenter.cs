@@ -7,35 +7,97 @@ using Microsoft.Web.WebView2.Core;
 
 namespace FaceNow.App.User;
 
-internal sealed class CaptchaPresenter(Grid host)
+internal sealed class CaptchaPresenter(Grid host, Action selectApiKey)
 {
     private static readonly string Origin = AccountContract.ServiceOrigin.GetLeftPart(UriPartial.Authority);
     public async Task<CaptchaProof> PresentAsync(string appId, string businessState, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(appId)) throw new AccountException("Security verification is unavailable. Please try again.");
+        token.ThrowIfCancellationRequested();
+        if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "Assets", "Login", "captcha.html")))
+            throw new AccountException(CaptchaStartupPolicy.ApplicationFilesMessage);
+        try
+        {
+            if (string.IsNullOrWhiteSpace(CoreWebView2Environment.GetAvailableBrowserVersionString()))
+                throw new FileNotFoundException();
+            return await PresentChallengeAsync(appId, businessState, token);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (AccountException) { throw; }
+        catch (Exception failure)
+        {
+            var issue = CaptchaStartupPolicy.Classify(failure);
+            if (issue is CaptchaStartupIssue.RuntimeMissing or CaptchaStartupIssue.UnsupportedRuntime)
+            {
+                await ShowRuntimeHelpAsync(issue, token);
+                throw new OperationCanceledException("Verification component setup is required.", token);
+            }
+            throw new AccountException(CaptchaStartupPolicy.Message(issue));
+        }
+    }
+
+    private async Task ShowRuntimeHelpAsync(CaptchaStartupIssue issue, CancellationToken token)
+    {
+        string guidance = issue == CaptchaStartupIssue.UnsupportedRuntime
+            ? CaptchaStartupPolicy.Message(issue)
+            : "Download and install Microsoft Edge WebView2 Runtime from Microsoft, then restart FaceNow.";
+        var dialog = new ContentDialog
+        {
+            XamlRoot = host.XamlRoot,
+            Title = AppText.Get("Security verification needs WebView2"),
+            Content = new TextBlock
+            {
+                Text = AppText.Get(guidance) + "\n\n" + AppText.Get("You can also sign in with an existing Xmax API key."),
+                TextWrapping = TextWrapping.Wrap
+            },
+            PrimaryButtonText = AppText.Get("Download WebView2"),
+            SecondaryButtonText = AppText.Get("Sign in with API Key"),
+            CloseButtonText = AppText.Get("Cancel"),
+            DefaultButton = ContentDialogButton.Close
+        };
+        using var registration = token.Register(() => host.DispatcherQueue.TryEnqueue(() => dialog.Hide()));
+        token.ThrowIfCancellationRequested();
+        var result = await dialog.ShowAsync();
+        token.ThrowIfCancellationRequested();
+        if (result == ContentDialogResult.Primary)
+        {
+            try
+            {
+                if (!await global::Windows.System.Launcher.LaunchUriAsync(new(CaptchaStartupPolicy.DownloadUrl)))
+                    throw new InvalidOperationException();
+            }
+            catch { throw new AccountException("The Microsoft download page could not be opened. Install Microsoft Edge WebView2 Runtime and try again."); }
+        }
+        else if (result == ContentDialogResult.Secondary) selectApiKey();
+    }
+
+    private async Task<CaptchaProof> PresentChallengeAsync(string appId, string businessState, CancellationToken token)
+    {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
         timeout.CancelAfter(TimeSpan.FromSeconds(90));
         var completion = new TaskCompletionSource<CaptchaProof>(TaskCreationOptions.RunContinuationsAsynchronously);
+        bool cancelledByUser = false;
         using var registration = timeout.Token.Register(() => completion.TrySetCanceled(timeout.Token));
         var overlay = new Grid { Background = Theme.Brush("#D9FFFFFF") };
         var surface = new Grid { Width = 520, Height = 560, Background = Theme.Brush("#FFFFFF"), CornerRadius = new(24) };
         var web = new WebView2 { Margin = new(8, 54, 8, 8) };
         var cancel = new Pill { Text = AppText.Get("Cancel"), HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top, Margin = new(12) };
-        cancel.Click += (_, _) => completion.TrySetCanceled();
+        cancel.Click += (_, _) => { cancelledByUser = true; timeout.Cancel(); };
         surface.Children.Add(web); surface.Children.Add(cancel); overlay.Children.Add(surface); host.Children.Add(overlay);
         string nonce = Guid.NewGuid().ToString("N");
         try
         {
             string dataDirectory = Path.Combine(FaceNow.Core.Product.ProductProfile.Current.DataDirectory, "WebView2");
-            var environment = await CoreWebView2Environment.CreateWithOptionsAsync("", dataDirectory, null);
-            await web.EnsureCoreWebView2Async(environment);
+            Directory.CreateDirectory(dataDirectory);
+            var environment = await CoreWebView2Environment.CreateWithOptionsAsync("", dataDirectory, null).AsTask(timeout.Token);
+            await web.EnsureCoreWebView2Async(environment).AsTask(timeout.Token);
             timeout.Token.ThrowIfCancellationRequested();
             var browser = web.CoreWebView2;
             browser.Settings.AreDevToolsEnabled = false;
             browser.Settings.AreDefaultContextMenusEnabled = false;
             browser.Settings.AreHostObjectsAllowed = false;
-            // Match macOS's HTTPS base origin; no account credential or API key enters this WebView.
+            // Serve the local verification page under the account service origin without passing credentials.
             browser.SetVirtualHostNameToFolderMapping(AccountContract.ServiceOrigin.Host, Path.Combine(AppContext.BaseDirectory, "Assets", "Login"), CoreWebView2HostResourceAccessKind.DenyCors);
             browser.NavigationStarting += (_, args) =>
             {
@@ -76,10 +138,12 @@ internal sealed class CaptchaPresenter(Grid host)
             browser.Navigate(Origin + "/captcha.html");
             return await completion.Task;
         }
-        catch (OperationCanceledException) when (!token.IsCancellationRequested && timeout.IsCancellationRequested)
+        catch (OperationCanceledException) when (!cancelledByUser && !token.IsCancellationRequested && timeout.IsCancellationRequested)
         { throw new AccountException("Security verification timed out. Please try again."); }
-        catch (System.Runtime.InteropServices.COMException failure) when (failure.HResult == unchecked((int)0x80070002))
-        { throw new AccountException("Install Microsoft Edge WebView2 Runtime to complete security verification."); }
-        finally { web.Close(); host.Children.Remove(overlay); }
+        finally
+        {
+            try { web.Close(); } catch { /* Native initialization may have failed before the control can close normally. */ }
+            host.Children.Remove(overlay);
+        }
     }
 }

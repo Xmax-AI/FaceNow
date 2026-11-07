@@ -78,7 +78,7 @@ HRESULT SimpleFrameGenerator::_CreateRGB32Frame(
 
     if (m_frames.Draw(pBuf, len, pitch, width, height)) return S_OK;
 
-    // Match macOS VideoFrameRenderer.makeWaitingImage: RGB (241, 243, 244).
+    // Fill the waiting canvas with RGB (241, 243, 244).
     for (DWORD y = 0; y < height; ++y) {
         auto row = reinterpret_cast<uint32_t*>(pBuf + int64_t(y) * pitch);
         std::fill_n(row, width, 0xfff1f3f4);

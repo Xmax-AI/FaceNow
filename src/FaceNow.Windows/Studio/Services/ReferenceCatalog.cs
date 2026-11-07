@@ -2,20 +2,29 @@
 using System.Text.Json;
 using System.Reflection;
 using FaceNow.Windows.Studio.ViewModels;
+using FaceNow.Core.Product;
 
 namespace FaceNow.Windows.Studio.Services;
 
 internal static class ReferenceCatalog
 {
-    internal static IReadOnlyList<ReferenceItem> Load()
+    internal static IReadOnlyList<ReferenceItem> Load(ProductProfile? profile = null)
     {
+        profile ??= ProductProfile.Current;
         using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FaceNow.presets.json")!;
         using var document = JsonDocument.Parse(stream);
-        return document.RootElement.EnumerateArray().Select(item => new ReferenceItem
+        string Asset(string path) => path.Length == 0 ? "" : new Uri(profile.AssetOrigin, path).AbsoluteUri;
+        return document.RootElement.EnumerateArray().Select(item =>
         {
-            Id = item.GetProperty("id").GetString()!, Mode = item.GetProperty("mode").GetString()!,
-            Name = AppText.Get(item.GetProperty("name").GetString()!), ThumbnailUrl = FaceNow.Core.Product.ProductProfile.Current.ResolveAsset(item.GetProperty("thumbnail").GetString()!),
-            ReferenceUrl = FaceNow.Core.Product.ProductProfile.Current.ResolveAsset(item.GetProperty("reference").GetString()!)
+            string reference = Asset(item.GetProperty("reference").GetString()!);
+            return new ReferenceItem
+            {
+                Id = item.TryGetProperty("id", out var id) ? id.GetString()! : reference,
+                Mode = item.GetProperty("mode").GetString()!,
+                Name = item.GetProperty(profile.IsOverseas ? "name" : "nameZh").GetString()!,
+                ThumbnailUrl = Asset(item.GetProperty("thumbnail").GetString()!), ReferenceUrl = reference,
+                Prompt = item.GetProperty(profile.IsOverseas ? "promptEn" : "prompt").GetString()!
+            };
         }).ToList();
     }
 }

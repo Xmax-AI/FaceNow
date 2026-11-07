@@ -38,16 +38,38 @@ public sealed partial class MainWindow
         var list = new StackPanel { Spacing = 2 };
         foreach (var camera in Model.Cameras)
         {
-            bool selected = Model.SelectedCamera?.Id == camera.Id;
-            var row = new Grid(); row.ColumnDefinitions.Add(new()); row.ColumnDefinitions.Add(new() { Width = new(22) });
-            var text = Theme.RawText(camera.Name, 12, selected ? "#2F46E2" : "#111318"); text.FontFamily = new("Microsoft YaHei UI"); text.TextTrimming = TextTrimming.CharacterEllipsis; row.Children.Add(text);
-            if (selected) { var check = Theme.Text("✓", 12, "#2F46E2"); check.FontFamily = new("Segoe UI Symbol"); check.HorizontalAlignment = HorizontalAlignment.Right; Grid.SetColumn(check, 1); row.Children.Add(check); }
-            var button = new Button { Template = Theme.ButtonTemplate, Content = row, Height = 34, HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Stretch, Padding = new(8, 0, 8, 0), CornerRadius = new(8), BorderThickness = new(0), Background = Theme.Brush(selected ? "#EEF1FF" : "#00FFFFFF") };
-            AutomationProperties.SetName(button, camera.Name);
+            var button = CreateInputPickerRow(camera.Name, Model.SelectedCamera?.Id == camera.Id);
             button.Click += (_, _) => { Model.SelectedCamera = camera; ClosePopups(); }; list.Children.Add(button);
         }
         if (Model.Cameras.Count == 0) list.Children.Add(Theme.Text("No cameras found", 12, "#6B7380"));
         OpenPopup(cameraButton, list, 276, 8);
+    }
+    private static Button CreateInputPickerRow(string label, bool selected)
+    {
+        var row = new Grid();
+        row.ColumnDefinitions.Add(new());
+        row.ColumnDefinitions.Add(new() { Width = new(22) });
+        var text = Theme.RawText(label, 12, selected ? "#2F46E2" : "#111318");
+        text.FontFamily = new("Microsoft YaHei UI");
+        text.TextTrimming = TextTrimming.CharacterEllipsis;
+        row.Children.Add(text);
+        if (selected)
+        {
+            var check = Theme.Text("✓", 12, "#2F46E2");
+            check.FontFamily = new("Segoe UI Symbol");
+            check.HorizontalAlignment = HorizontalAlignment.Right;
+            Grid.SetColumn(check, 1);
+            row.Children.Add(check);
+        }
+        var button = new Button
+        {
+            Template = Theme.ButtonTemplate, Content = row, Height = 34, HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch, Padding = new(8, 0, 8, 0), CornerRadius = new(8),
+            BorderThickness = new(0), Background = Theme.Brush(selected ? "#EEF1FF" : "#00FFFFFF")
+        };
+        AutomationProperties.SetName(button, label);
+        if (selected) AutomationProperties.SetItemStatus(button, AppText.Get("Selected"));
+        return button;
     }
     private void OpenModels()
     {
@@ -124,7 +146,7 @@ public sealed partial class MainWindow
         {
             var source = await ThumbnailCache.LoadAsync("https://assets.22duck.fun/image/wechatAccount.jpg");
             if (closing || Model.Active) return;
-            // The surface border plus padding gives the same 14-point inset as macOS's 208 x 242 card.
+            // The border and padding together provide a 14-point inset.
             var content = new Grid { Height = 214 };
             content.RowDefinitions.Add(new() { Height = new(180) });
             content.RowDefinitions.Add(new() { Height = new(8) });

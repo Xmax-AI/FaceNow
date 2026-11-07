@@ -1,6 +1,7 @@
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using FaceNow.Core.Product;
 
 namespace FaceNow.Windows.Studio.ViewModels;
 
@@ -11,8 +12,15 @@ internal sealed class ReferenceItem : INotifyPropertyChanged
     public string Name { get; init; } = "";
     public string ThumbnailUrl { get; init; } = "";
     public string ReferenceUrl { get; set; } = "";
+    public string? Prompt { get; init; }
+    public bool IsPromptOnly => !IsUpload && LocalPath is null && ThumbnailUrl.Length == 0 && ReferenceUrl.Length == 0 && !string.IsNullOrWhiteSpace(Prompt);
     public string? LocalPath { get; init; }
     public bool IsUpload { get; init; }
+    internal static ReferenceItem FromUpload(string path, string mode, string freePrompt, ProductProfile? profile = null) => new()
+    {
+        Id = Guid.NewGuid().ToString("N"), Name = Path.GetFileName(path), Mode = mode, ThumbnailUrl = path, LocalPath = path,
+        Prompt = mode == "free" ? freePrompt : GenerationPrompts.ForMode(mode, profile)
+    };
     private bool selected, loading, failed, uploading;
     private object? thumbnail;
     private double? uploadProgress;
