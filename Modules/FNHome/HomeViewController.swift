@@ -12,6 +12,7 @@ import Factory
 import AppKit
 import Combine
 import SnapKit
+import XmaxSDK
 
 /// Composes repository-backed business views and coordinates persistent page transitions.
 @MainActor
@@ -192,7 +193,13 @@ final class HomeViewController: NSViewController {
     /// The initial camera-start experience owned by FNOnboarding.
     private lazy var landing: OnboardingLandingView = {
         let view = OnboardingLandingView()
-        view.onStart = { [weak self] in self?.startCamera() }
+        view.onStart = { [weak self] preset, reference in
+            self?.startCamera(
+                preset: preset,
+                reference: reference
+            )
+        }
+        view.onReferenceImportError = { [weak self] message in self?.generationRepo.showSetupError(message) }
         view.onShowCameraSetup = { [weak self] in self?.showOnboarding(at: .camera) }
         view.onShowMicrophoneSetup = { [weak self] in self?.showOnboarding(at: .microphone) }
         view.onCameraAction = { [weak self] action in self?.performCameraNoticeAction(action) }
@@ -369,7 +376,10 @@ final class HomeViewController: NSViewController {
     }
 
     /// Checks permission and the cached balance without requesting credits during camera startup.
-    private func startCamera() {
+    private func startCamera(
+        preset: RealtimeCameraPreset,
+        reference: GenerationReference
+    ) {
         guard loginPage == nil, aboutPage == nil, cameraStartTask == nil, cameraNoticeTask == nil, !isShuttingDown
         else { return }
         virtualCameraRepo.synchronizeReadiness()
@@ -391,7 +401,11 @@ final class HomeViewController: NSViewController {
             guard !Task.isCancelled, !self.isShuttingDown, !self.viewModel.needsLogin,
                 self.onboardingPage == nil, self.aboutPage == nil
             else { return }
-            await self.viewModel.startCamera(requestedAt: requestedAt)
+            await self.viewModel.startCamera(
+                preset: preset,
+                reference: reference,
+                requestedAt: requestedAt
+            )
         }
         scheduleRender()
     }
@@ -426,7 +440,7 @@ final class HomeViewController: NSViewController {
             unavailableMessage: viewModel.startUnavailableMessage
         )
         landing.updatePreparation(presentation: cameraWarning)
-        workspace.update()
+        workspace.update(resetReferenceScroll: pageChanged)
         let needsPageLayout =
             pageChanged
             || previousCameraWidth != cameraControls.preferredWidth
@@ -786,6 +800,7 @@ final class HomeViewController: NSViewController {
             dismissSignInToast()
             userView.closePopover()
             landing.closeCameraPicker()
+            landing.resetReferenceSelection()
             cameraControls.closePopover()
             let form = UserLoginFormView()
             form.onRequestError = { [weak self] message in

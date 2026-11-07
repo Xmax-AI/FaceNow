@@ -17,7 +17,7 @@ final class GenerationVideoPanel: Canvas {
 
     /// The SDK preview view whose binding remains attached during page transitions.
     private lazy var video: XmaxRealtimeVideoView = {
-        let view = XmaxRealtimeVideoView()
+        let view = XmaxRealtimeVideoView(videoContentMode: .fit)
         // Mirror presentation only; capture, uplink and virtual-camera frames keep their original direction.
         view.isMirrored = true
         return view
@@ -106,10 +106,12 @@ final class GenerationVideoPanel: Canvas {
     /// Binds the current track and updates presentation without replacing the SDK view.
     func update(
         track: RealtimeVideoTrack?,
+        contentMode: VideoContentMode,
         message: String,
         statistics: [GenerationStatisticsGroup],
         visible: Bool
     ) {
+        if track != nil { video.videoContentMode = contentMode }
         video.track = track
         if placeholder.stringValue != message { placeholder.stringValue = message }
         placeholder.isHidden = message.isEmpty

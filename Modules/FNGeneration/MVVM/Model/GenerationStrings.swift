@@ -379,6 +379,15 @@ enum GenerationStrings {
         )
     }
 
+    /// Prompts the user to choose a different image after a safety rejection.
+    static var errorReferenceImageRejected: String {
+        Localization.string(
+            "error.reference_image_rejected",
+            table: "Generation",
+            defaultValue: "This reference image did not pass the safety check. Choose a different image."
+        )
+    }
+
     /// Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.
     static var modeCharacterSwap: String {
         Localization.string(
@@ -853,6 +862,15 @@ enum GenerationStrings {
             "controls.upload_your_own_reference_image",
             table: "Generation",
             defaultValue: "Upload your own reference image"
+        )
+    }
+
+    /// Describes the reference button while the selected image is being uploaded and checked.
+    static var controlsReferenceImageUploading: String {
+        Localization.string(
+            "controls.reference_image_uploading",
+            table: "Generation",
+            defaultValue: "Uploading and checking reference image…"
         )
     }
 

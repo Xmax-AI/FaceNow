@@ -9,16 +9,34 @@
 //
 
 import AppKit
+import QuartzCore
 import SnapKit
 
 /// Only changes to item identity reload the collection; toolbar and statistics updates preserve cells.
 final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSCollectionViewDelegate {
 
+    static let singleRowAvatarSize: CGFloat = 52
+    static let singleRowHeight = singleRowAvatarSize + 4
+    private static let rowItemSize = NSSize(width: singleRowHeight, height: singleRowAvatarSize)
+    private static let rowSpacing: CGFloat = 8
+    private let singleRow: Bool
+
+    static func singleRowWidth(itemCount: Int) -> CGFloat {
+        CGFloat(itemCount) * rowItemSize.width + CGFloat(max(0, itemCount - 1)) * rowSpacing
+    }
+
+    private lazy var scrollEdgeMask: CAGradientLayer = {
+        let layer = CAGradientLayer()
+        layer.startPoint = CGPoint(x: 0, y: 0.5)
+        layer.endPoint = CGPoint(x: 1, y: 0.5)
+        return layer
+    }()
+
     /// The reference-grid scroll container retained across session statistics updates.
     private lazy var scroll: NSScrollView = {
-        let view = NSScrollView()
+        let view: NSScrollView = singleRow ? ReferenceStripScrollView() : NSScrollView()
         view.drawsBackground = false
-        view.hasVerticalScroller = true
+        view.hasVerticalScroller = !singleRow
         view.scrollerStyle = .overlay
         return view
     }()
@@ -27,7 +45,16 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     private lazy var collection: NSCollectionView = {
         let view = NSCollectionView()
         view.backgroundColors = [.clear]
-        view.collectionViewLayout = GenerationReferenceLayout()
+        if singleRow {
+            let layout = NSCollectionViewFlowLayout()
+            layout.scrollDirection = .horizontal
+            layout.itemSize = Self.rowItemSize
+            layout.minimumLineSpacing = Self.rowSpacing
+            layout.sectionInset = NSEdgeInsets(top: 2, left: 0, bottom: 2, right: 0)
+            view.collectionViewLayout = layout
+        } else {
+            view.collectionViewLayout = GenerationReferenceLayout()
+        }
         view.dataSource = self
         view.delegate = self
         view.isSelectable = false
@@ -44,6 +71,8 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     /// The uploaded and built-in references currently displayed by the grid.
     private var references: [GenerationReference] = []
 
+    private var itemCount: Int { references.count + (singleRow ? 0 : 1) }
+
     /// The identity of the currently selected reference, when one exists.
     private var selectedID: String?
 
@@ -56,22 +85,34 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     /// Requests generation with the selected existing reference.
     var onSelect: ((GenerationReference) -> Void)?
 
-    /// Creates the reusable native grid and its reference layout.
-    override init(
-        color: NSColor = .clear,
-        radius: CGFloat = 0
+    /// Creates the reference grid or the compact strip used on the homepage.
+    init(
+        singleRow: Bool = false
     ) {
-        super.init(
-            color: color,
-            radius: radius
-        )
+        self.singleRow = singleRow
+        super.init()
         scroll.documentView = collection
         addSubview(scroll)
         scroll.snp.makeConstraints { make in make.edges.equalToSuperview() }
         collection.snp.makeConstraints { make in
             make.leading.top.equalTo(scroll.contentView)
-            make.width.equalTo(scroll.contentView)
-            make.height.equalTo(0).priority(490)
+            if singleRow {
+                make.width.equalTo(0).priority(490)
+                make.height.equalTo(scroll.contentView)
+            } else {
+                make.width.equalTo(scroll.contentView)
+                make.height.equalTo(0).priority(490)
+            }
+        }
+        if singleRow {
+            let clipView = scroll.contentView
+            clipView.postsBoundsChangedNotifications = true
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(updateScrollEdgeFade),
+                name: NSView.boundsDidChangeNotification,
+                object: clipView
+            )
         }
     }
 
@@ -84,8 +125,16 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     override func layout() {
         super.layout()
         let width = scroll.contentSize.width
+        if singleRow {
+            let documentWidth = max(width, Self.singleRowWidth(itemCount: itemCount))
+            if collection.frame.width != documentWidth {
+                collection.snp.updateConstraints { make in make.width.equalTo(documentWidth).priority(490) }
+            }
+            updateScrollEdgeFade()
+            return
+        }
         let columns = max(1, Int((width + 14) / 90))
-        let rows = (references.count + 1 + columns - 1) / columns
+        let rows = (itemCount + columns - 1) / columns
         let size = NSSize(
             width: width,
             height: max(scroll.contentSize.height, CGFloat(rows) * 98 - 14)
@@ -96,12 +145,39 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
         }
     }
 
+    /// Fades only the edges that have more avatars outside the viewport.
+    @objc private func updateScrollEdgeFade() {
+        let visible = scroll.contentView.bounds
+        guard visible.width > 0, let layer else { return }
+        let fadeLeading = visible.minX > 0.5
+        let fadeTrailing = visible.maxX < Self.singleRowWidth(itemCount: itemCount) - 0.5
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        if fadeLeading || fadeTrailing {
+            let fraction = min(0.5, 50 / visible.width)
+            let fadedEdge = NSColor.black.withAlphaComponent(0.2).cgColor
+            scrollEdgeMask.frame = bounds
+            scrollEdgeMask.locations = [0, NSNumber(value: Double(fraction)), NSNumber(value: Double(1 - fraction)), 1]
+            scrollEdgeMask.colors = [
+                fadeLeading ? fadedEdge : NSColor.black.cgColor,
+                NSColor.black.cgColor,
+                NSColor.black.cgColor,
+                fadeTrailing ? fadedEdge : NSColor.black.cgColor,
+            ]
+            layer.mask = scrollEdgeMask
+        } else {
+            layer.mask = nil
+        }
+        CATransaction.commit()
+    }
+
     /// Applies item identities and selection state while preserving cells when possible.
     func update(
         references: [GenerationReference],
         selectedID: String?,
         enabled: Bool,
-        dimmed: Bool
+        dimmed: Bool,
+        resetScroll: Bool = false
     ) {
         let changed = self.references.map(\.id) != references.map(\.id)
         self.references = references
@@ -114,8 +190,6 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
         if changed {
             collection.reloadData()
             needsLayout = true
-            scroll.contentView.scroll(to: .zero)
-            scroll.reflectScrolledClipView(scroll.contentView)
         } else {
             for path in collection.indexPathsForVisibleItems() {
                 if let item = collection.item(at: path) as? GenerationReferenceItem {
@@ -126,6 +200,10 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
                 }
             }
         }
+        if changed || resetScroll {
+            scroll.contentView.scroll(to: .zero)
+            scroll.reflectScrolledClipView(scroll.contentView)
+        }
     }
 
     /// Cancels pending requests for currently visible reference thumbnails.
@@ -133,11 +211,11 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
         for item in collection.visibleItems() { (item as? GenerationReferenceItem)?.button.thumbnail.cancel() }
     }
 
-    /// Returns the reference count including the upload action.
+    /// Includes the upload cell in the workspace grid.
     func collectionView(
         _ collectionView: NSCollectionView,
         numberOfItemsInSection section: Int
-    ) -> Int { references.count + 1 }
+    ) -> Int { itemCount }
 
     /// Dequeues and configures the reusable reference cell at the requested index.
     func collectionView(
@@ -161,7 +239,9 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
         _ item: GenerationReferenceItem,
         at path: IndexPath
     ) {
-        let reference = path.item == 0 ? nil : references[path.item - 1]
+        let referenceIndex = path.item - (singleRow ? 0 : 1)
+        let reference = referenceIndex >= 0 ? references[referenceIndex] : nil
+        item.button.compactThumbnailSize = singleRow ? Self.singleRowAvatarSize : nil
         item.button.configure(
             reference,
             selected: reference?.id == selectedID && selectedID != nil,
@@ -171,5 +251,31 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
             guard let self, self.enabled else { return }
             if let reference { self.onSelect?(reference) } else { self.onUpload?() }
         }
+    }
+}
+
+/// Supports horizontal scrolling without displaying a scroller over the avatars.
+private final class ReferenceStripScrollView: NSScrollView {
+
+    /// Prevents the collection view from enabling a scroller when it lays out its items.
+    override var hasHorizontalScroller: Bool {
+        get { super.hasHorizontalScroller }
+        set { super.hasHorizontalScroller = false }
+    }
+
+    override func scrollWheel(
+        with event: NSEvent
+    ) {
+        let horizontalDelta = event.scrollingDeltaX
+        guard horizontalDelta != 0, abs(horizontalDelta) >= abs(event.scrollingDeltaY),
+            let documentView, documentView.frame.width > contentView.bounds.width
+        else {
+            super.scrollWheel(with: event)
+            return
+        }
+        let distance = event.hasPreciseScrollingDeltas ? horizontalDelta : horizontalDelta * horizontalLineScroll
+        let visible = contentView.bounds.offsetBy(dx: -distance, dy: 0)
+        contentView.scroll(to: contentView.constrainBoundsRect(visible).origin)
+        reflectScrolledClipView(contentView)
     }
 }

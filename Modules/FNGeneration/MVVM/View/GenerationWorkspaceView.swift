@@ -19,6 +19,12 @@ import Combine
 @MainActor
 final class GenerationWorkspaceView: Canvas {
 
+    /// The spacing between the two previews.
+    private static let previewSpacing: CGFloat = 24
+
+    /// The height-to-width ratio of the preview canvas and its overlays.
+    private static let previewHeightRatio: CGFloat = 9.0 / 16.0
+
     /// Displays caption artwork while letting pointer events reach the video and controls.
     private final class SubtitleImageView: NSImageView {
 
@@ -160,7 +166,7 @@ final class GenerationWorkspaceView: Canvas {
     /// The compact upload or reference control used by Free Prompt.
     private lazy var freeReference: GenerationReferenceButton = {
         let view = GenerationReferenceButton()
-        view.compact = true
+        view.compactThumbnailSize = 44
         view.onClick = { [weak self] in
             guard let self else { return }
             if let reference = self.generationRepo.freeReference, reference.uploadState == .error {
@@ -216,18 +222,20 @@ final class GenerationWorkspaceView: Canvas {
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Measures both video panels and the reference editor at the current width.
+    /// Measures the fixed-ratio preview canvases and controls at the current width.
     func preferredHeight(
         contentWidth: CGFloat
     ) -> CGFloat {
-        let panelWidth = (contentWidth - 24) / 2
-        return panelWidth * CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
+        let panelWidth = max(0, (contentWidth - Self.previewSpacing) / 2)
+        return panelWidth * Self.previewHeightRatio
             + 12 + GenerationAudioControlsView.preferredHeight + 24 + 42 + 28
             + 190
     }
 
     /// Updates existing controls while retaining preview bindings during startup.
-    func update() {
+    func update(
+        resetReferenceScroll: Bool
+    ) {
         audioControls.update()
         let active = generationRepo.sessionActive
         if active && !generationRepo.isClosing {
@@ -235,9 +243,18 @@ final class GenerationWorkspaceView: Canvas {
         } else {
             setBeautyVisible(false, animated: false)
         }
+        let localTrack = generationRepo.localStream?.videoTrack
+        let contentMode: VideoContentMode = if let format = localTrack?.videoFormat,
+            CGFloat(format.height) == CGFloat(format.width) * Self.previewHeightRatio
+        {
+            .fill
+        } else {
+            .fit
+        }
         // The preview is bound even while the landing page is visible, as required by SDK readiness.
         localPanel.update(
-            track: generationRepo.localStream?.videoTrack,
+            track: localTrack,
+            contentMode: contentMode,
             message: "",
             statistics: statistics.localStatisticsPanels,
             visible: generationRepo.statisticsVisible
@@ -249,6 +266,7 @@ final class GenerationWorkspaceView: Canvas {
                 ? GenerationStrings.controlsGenerating : GenerationStrings.controlsWaitingForConnection
         resultPanel.update(
             track: generationRepo.remoteStream?.videoTrack,
+            contentMode: contentMode,
             message: placeholder,
             statistics: statistics.remoteStatisticsPanels,
             visible: generationRepo.statisticsVisible
@@ -264,7 +282,8 @@ final class GenerationWorkspaceView: Canvas {
                     references: generationRepo.uploadedReferences.filter { $0.mode == mode } + mode.presets,
                     selectedID: generationRepo.selectedReferenceID,
                     enabled: generationRepo.canGenerate,
-                    dimmed: !generationRepo.canGenerate && !generationRepo.interpolationSwitching
+                    dimmed: !generationRepo.canGenerate && !generationRepo.interpolationSwitching,
+                    resetScroll: resetReferenceScroll
                 )
             }
         }
@@ -362,11 +381,9 @@ final class GenerationWorkspaceView: Canvas {
     private func configureLayout() {
         localPanel.snp.makeConstraints { make in
             make.leading.top.equalToSuperview()
-            make.trailing.equalTo(resultPanel.snp.leading).offset(-24)
+            make.trailing.equalTo(resultPanel.snp.leading).offset(-Self.previewSpacing)
             make.width.equalTo(resultPanel)
-            make.height.equalTo(localPanel.snp.width).multipliedBy(
-                CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
-            )
+            make.height.equalTo(localPanel.snp.width).multipliedBy(Self.previewHeightRatio)
         }
         resultPanel.snp.makeConstraints { make in
             make.trailing.top.equalToSuperview()

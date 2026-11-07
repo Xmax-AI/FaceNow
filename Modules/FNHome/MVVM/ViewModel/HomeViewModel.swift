@@ -10,6 +10,7 @@
 
 import Factory
 import Foundation
+import XmaxSDK
 
 /// Derives home navigation and startup decisions from shared business repositories.
 @MainActor
@@ -43,6 +44,8 @@ final class HomeViewModel {
 
     /// Opens local capture after validating permission; cloud generation validates its own credentials.
     func startCamera(
+        preset: RealtimeCameraPreset,
+        reference: GenerationReference,
         requestedAt: UInt64
     ) async {
         virtualCameraRepo.synchronizeReadiness()
@@ -51,6 +54,8 @@ final class HomeViewModel {
             return
         }
         await generationRepo.start(
+            preset: preset,
+            initialReference: reference,
             requestedAt: requestedAt
         )
     }

@@ -272,7 +272,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
                 if isNewFrame || renderedSubtitle !== caption {
                     renderedOutput = try renderer.normalize(
                         frame.pixelBuffer,
-                        subtitle: caption
+                        subtitle: caption,
+                        preservesAspectRatio: true
                     )
                     renderedInput = frame.pixelBuffer
                     renderedSubtitle = caption

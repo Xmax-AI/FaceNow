@@ -78,6 +78,18 @@ enum Palette {
         alpha: 1
     )
 
+    /// The translucent surface shared by controls on the camera canvas.
+    static let videoControlSurface = NSColor.black.withAlphaComponent(0.28)
+
+    /// The subtle outline around controls on the camera canvas.
+    static let videoControlBorder = NSColor.white.withAlphaComponent(0.16)
+
+    /// The foreground used by unselected controls on the camera canvas.
+    static let videoControlText = NSColor.white.withAlphaComponent(0.85)
+
+    /// The hover fill shared by controls on the camera canvas.
+    static let videoControlHover = NSColor.white.withAlphaComponent(0.08)
+
     /// The shared red foreground for stop actions and low-credit warnings.
     static let destructive = NSColor(
         srgbRed: 220 / 255,

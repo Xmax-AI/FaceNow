@@ -70,8 +70,8 @@ final class GenerationReferenceButton: NSButton {
     /// The action invoked when the user activates this control.
     var onClick: (() -> Void)?
 
-    /// Whether the reference uses the smaller Free Prompt presentation.
-    var compact = false
+    /// Uses a smaller thumbnail without a caption when specified.
+    var compactThumbnailSize: CGFloat?
 
     /// Whether layout coordinates start at the top-left corner.
     override var isFlipped: Bool { true }
@@ -144,15 +144,17 @@ final class GenerationReferenceButton: NSButton {
         isEnabled = canSelect
         synchronizeHover()
         thumbnail.isHidden = reference == nil
+        let uploading = reference?.uploadState == .uploading
         spinner.setSpinning(
-            reference?.uploadState == .uploading,
+            uploading,
             color: .white
         )
+        let uploadStatus = uploading ? GenerationStrings.controlsReferenceImageUploading : nil
         toolTip =
-            reference?.uploadError.map { GenerationStrings.retryUpload(message: $0) } ?? reference?.name
+            uploadStatus ?? reference?.uploadError.map { GenerationStrings.retryUpload(message: $0) } ?? reference?.name
             ?? GenerationStrings.controlsUploadYourOwnReferenceImage
         setAccessibilityLabel(reference?.name ?? GenerationStrings.controlsUploadReferenceImage)
-        setAccessibilityValue(selected ? GenerationStrings.selected : "")
+        setAccessibilityValue(uploadStatus ?? (selected ? GenerationStrings.selected : ""))
         needsDisplay = true
         needsLayout = true
     }
@@ -288,15 +290,16 @@ final class GenerationReferenceButton: NSButton {
     /// Places the current reference content within the host-provided bounds.
     override func layout() {
         super.layout()
-        thumbnail.snp.updateConstraints { make in make.size.equalTo(compact ? 44 : 64) }
-        overlay.layer?.cornerRadius = (compact ? 44 : 64) / 2
+        let size = compactThumbnailSize ?? 64
+        thumbnail.snp.updateConstraints { make in make.size.equalTo(size) }
+        overlay.layer?.cornerRadius = size / 2
     }
 
     /// Draws the reference's cropped image or its upload and selection decoration.
     override func draw(
         _ dirtyRect: NSRect
     ) {
-        let size: CGFloat = compact ? 44 : 64
+        let size = compactThumbnailSize ?? 64
         let circle = NSRect(
             x: (bounds.width - size) / 2 + 1,
             y: 1,
@@ -326,7 +329,7 @@ final class GenerationReferenceButton: NSButton {
                 color: Palette.secondary
             )
         }
-        if !compact {
+        if compactThumbnailSize == nil {
             let paragraph = NSMutableParagraphStyle()
             paragraph.alignment = .center
 

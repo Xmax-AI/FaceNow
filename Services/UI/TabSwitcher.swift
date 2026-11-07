@@ -21,6 +21,12 @@ final class TabSwitcher: Canvas {
         alpha: 1
     )
 
+    /// The surface and selection colors used by the segment group.
+    enum Style {
+        case light
+        case videoOverlay
+    }
+
     /// The horizontal sizing policy for the segment controls.
     enum Distribution {
 
@@ -69,6 +75,9 @@ final class TabSwitcher: Canvas {
     /// The sizing policy shared by measurement and constraints.
     private let distribution: Distribution
 
+    /// The appearance shared by the track and all segments.
+    private let style: Style
+
     /// Per-segment availability supplied by the host.
     private var enabledIndices: Set<Int>
 
@@ -78,7 +87,7 @@ final class TabSwitcher: Canvas {
     /// Native controls preserve keyboard focus, click handling, and accessibility.
     private lazy var segments: [TabSegmentButton] = {
         titles.enumerated().map { index, title in
-            let segment = TabSegmentButton(title: title)
+            let segment = TabSegmentButton(title: title, style: style)
             segment.horizontalPadding = max(0, horizontalPadding)
             segment.applyFont(font)
             segment.onSelect = { [weak self] in self?.select(index) }
@@ -92,12 +101,18 @@ final class TabSwitcher: Canvas {
     /// Composes independently rendered native segments with stable SnapKit constraints.
     init(
         titles: [String],
-        distribution: Distribution = .equal
+        distribution: Distribution = .equal,
+        style: Style = .light
     ) {
         self.titles = titles
         self.distribution = distribution
+        self.style = style
         enabledIndices = Set(titles.indices)
-        super.init(color: Self.trackColor, radius: 21)
+        super.init(color: style == .videoOverlay ? Palette.videoControlSurface : Self.trackColor, radius: 21)
+        if style == .videoOverlay {
+            layer?.borderWidth = 1
+            layer?.borderColor = Palette.videoControlBorder.cgColor
+        }
         segments.forEach(addSubview)
         var previous: TabSegmentButton?
         for segment in segments {
@@ -250,6 +265,9 @@ private final class TabSegmentButton: NSButton {
     /// The persistent label whose foreground transitions independently of background colors.
     private let label = CATextLayer()
 
+    /// The track's appearance for idle, hovered, and selected states.
+    private let style: TabSwitcher.Style
+
     /// The native pointer area for this segment only.
     private var hoverArea: NSTrackingArea?
 
@@ -272,8 +290,10 @@ private final class TabSegmentButton: NSButton {
 
     /// Installs native click behavior and isolated background and label layers.
     init(
-        title: String
+        title: String,
+        style: TabSwitcher.Style
     ) {
+        self.style = style
         super.init(frame: .zero)
         self.title = title
         isBordered = false
@@ -308,7 +328,7 @@ private final class TabSegmentButton: NSButton {
         needsLayout = true
     }
 
-    /// Applies committed state; selected segments remain white regardless of hover.
+    /// Applies committed state while keeping selected segments independent of hover.
     func update(
         selected: Bool,
         hovered: Bool,
@@ -405,9 +425,24 @@ private final class TabSegmentButton: NSButton {
 
     /// Animates independent layer properties from their presentation values through shared timing.
     private func updateAppearance() {
-        var background = selected ? NSColor.white : hovered ? NSColor(white: 0.985, alpha: 1) : TabSwitcher.trackColor
-        if pressed { background = NSColor(white: selected ? 0.98 : 0.94, alpha: 1) }
-        let foreground = selected || hovered ? Palette.text : Palette.secondary
+        let background: NSColor
+        let foreground: NSColor
+        switch style {
+        case .light:
+            if pressed {
+                background = NSColor(white: selected ? 0.98 : 0.94, alpha: 1)
+            } else {
+                background = selected ? .white : hovered ? NSColor(white: 0.985, alpha: 1) : TabSwitcher.trackColor
+            }
+            foreground = selected || hovered ? Palette.text : Palette.secondary
+        case .videoOverlay:
+            if selected {
+                background = NSColor(white: pressed ? 0.32 : 0.27, alpha: 1)
+            } else {
+                background = pressed ? .white.withAlphaComponent(0.15) : hovered ? Palette.videoControlHover : .clear
+            }
+            foreground = selected || hovered ? .white : Palette.videoControlText
+        }
         ControlMotion.set(background.cgColor, for: "backgroundColor", on: surface, in: self)
         ControlMotion.set(foreground.cgColor, for: "foregroundColor", on: label, in: self)
         ControlMotion.set(selected ? Float(0.1) : Float(0), for: "shadowOpacity", on: surface, in: self)

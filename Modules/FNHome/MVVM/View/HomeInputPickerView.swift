@@ -99,8 +99,8 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
             view.alignment = .left
             view.centersTitleVisually = true
         } else {
-            view.foregroundColor = .white.withAlphaComponent(0.85)
-            view.hoverBackgroundColor = .white.withAlphaComponent(0.08)
+            view.foregroundColor = Palette.videoControlText
+            view.hoverBackgroundColor = Palette.videoControlHover
         }
         view.cornerRadius = 16
         view.showsShadow = false
@@ -133,10 +133,10 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
     ) {
         self.input = input
         self.presentation = presentation
-        super.init(color: presentation == .landing ? .black.withAlphaComponent(0.28) : .clear, radius: 16)
+        super.init(color: presentation == .landing ? Palette.videoControlSurface : .clear, radius: 16)
         if presentation == .landing {
             layer?.borderWidth = 1
-            layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
+            layer?.borderColor = Palette.videoControlBorder.cgColor
         }
         addSubview(button)
         button.snp.makeConstraints { make in make.edges.equalToSuperview() }

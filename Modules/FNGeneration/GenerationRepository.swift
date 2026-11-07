@@ -269,7 +269,7 @@ final class GenerationRepository: ObservableObject {
     /// Creates the SDK manager, allowing dependency-controlled construction.
     private let makeManager: (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging
 
-    /// Uploads prepared reference pixels through the current client's storage service.
+    /// Uploads prepared reference pixels and returns the approved image URL.
     private let uploadImage: (XmaxClient, Data, String, XmaxStorageProgressHandler?) async throws -> URL
 
     /// Creates the generation owner with shared credentials and injectable service factories.
@@ -284,7 +284,7 @@ final class GenerationRepository: ObservableObject {
             name,
             progress in
             let storage = try client.createStorageManager()
-            return try await storage.uploadImage(
+            return try await storage.uploadImageWithSafetyCheck(
                 data,
                 fileName: name,
                 contentType: "image/jpeg",
@@ -576,6 +576,8 @@ final class GenerationRepository: ObservableObject {
 
     /// Creates and binds camera preview before starting generation when the SDK reports ready.
     func start(
+        preset: RealtimeCameraPreset,
+        initialReference: GenerationReference,
         requestedAt: UInt64 = DispatchTime.now().uptimeNanoseconds
     ) async {
         guard !isClosing else {
@@ -583,6 +585,9 @@ final class GenerationRepository: ObservableObject {
             return
         }
         guard !isBusy, localStream == nil else { return }
+        guard initialReference.uploadState == .ready,
+            initialReference.thumbnailData == nil || !initialReference.referencePath.isEmpty
+        else { return }
         virtualCameraRepo.prepareCameraInputs()
         guard virtualCameraRepo.canStartSession else {
             errorMessage = virtualCameraRepo.startUnavailableMessage
@@ -612,24 +617,13 @@ final class GenerationRepository: ObservableObject {
         )
         await refreshMicrophones()?.value
         guard lifecycleID == operation else { return }
-        activeMode = .charx
+        activeMode = initialReference.mode
         selectedReferenceID = nil
         launchTiming = RealtimeLaunchTiming()
         uplinkStatistics = nil
         downlinkStatistics = nil
         networkQuality = nil
-        #if OVERSEA
-            let environment = XmaxEnvironment.global
-        #else
-            let environment = XmaxEnvironment.china
-        #endif
-        let client = XmaxClient(
-            configuration: XmaxConfiguration(
-                apiKey: userRepo.apiKey,
-                environment: environment,
-                loggerOptions: .all
-            )
-        )
+        let client = makeClient()
         let manager = makeManager(
             client,
             RealtimeConfiguration(
@@ -677,11 +671,6 @@ final class GenerationRepository: ObservableObject {
             }
         }
         guard lifecycleID == operation else { return }
-        guard let reference = GenerationMode.charx.presets.first else {
-            resetSession()
-            return
-        }
-        selectedReferenceID = reference.id
         do {
             output.frames.reset(
                 producer: operation,
@@ -724,6 +713,7 @@ final class GenerationRepository: ObservableObject {
                 operation: operation
             )
             let stream = try await manager.createLocalCameraStream(
+                preset: preset,
                 deviceID: cameraID,
                 mirror: false,
                 microphone: selectedMicrophone
@@ -733,6 +723,10 @@ final class GenerationRepository: ObservableObject {
                 return
             }
             localStream = stream
+            if initialReference.thumbnailData != nil {
+                uploadedReferences = [initialReference] + uploadedReferences.filter { $0.id != initialReference.id }
+            }
+            selectedReferenceID = initialReference.id
             sessionActive = true
             await manager.setRemoteVideoBeautyErrorListener { [weak self] error in
                 guard let self, self.lifecycleID == operation else { return }
@@ -748,7 +742,7 @@ final class GenerationRepository: ObservableObject {
             guard lifecycleID == operation else { return }
             try await manager.setRemoteAudioVolume(remoteAudioVolume)
             guard lifecycleID == operation else { return }
-            pendingInitialReference = reference
+            pendingInitialReference = initialReference
             await startPendingGeneration(operation: operation)
         } catch {
             guard lifecycleID == operation else { return }
@@ -757,7 +751,7 @@ final class GenerationRepository: ObservableObject {
         }
     }
 
-    /// Consumes the initial preset once, regardless of whether ready arrives before or after stream creation returns.
+    /// Applies the home selection once the local preview is ready.
     private func startPendingGeneration(
         operation: UUID
     ) async {
@@ -769,14 +763,12 @@ final class GenerationRepository: ObservableObject {
         }
         guard state.connectionState == .ready else { return }
         pendingInitialReference = nil
+        defer { if lifecycleID == operation { isBusy = false } }
         do {
             try await generate(reference: reference)
-            guard lifecycleID == operation else { return }
-            isBusy = false
         } catch {
             guard lifecycleID == operation else { return }
             handleGenerationFailure(error)
-            if lifecycleID == operation { isBusy = false }
         }
     }
 
@@ -854,26 +846,31 @@ final class GenerationRepository: ObservableObject {
         )
     }
 
+    /// Uploads and approves a home reference before camera startup.
+    func approveHomeReference(
+        _ reference: GenerationReference,
+        progress: XmaxStorageProgressHandler?
+    ) async throws -> GenerationReference {
+        guard userRepo.hasVerifiedSession, hasAPIKey else {
+            throw XmaxError(code: .invalidAPIKey, message: AccountStrings.invalidAPIKey)
+        }
+        return try await approveReference(
+            reference,
+            client: makeClient(),
+            progress: progress
+        )
+    }
+
     /// Local files appear first immediately; per-item progress and retries leave other controls available.
     func uploadReference(
         at fileURL: URL,
         mode: GenerationMode
     ) async {
         guard canGenerate else { return }
-        let scoped = fileURL.startAccessingSecurityScopedResource()
-        defer { if scoped { fileURL.stopAccessingSecurityScopedResource() } }
         do {
-            let data = try Data(contentsOf: fileURL)
-            guard !data.isEmpty else {
-                throw CocoaError(.fileReadCorruptFile)
-            }
-            let reference = GenerationReference(
-                id: UUID().uuidString,
+            let reference = try GenerationReference.localImage(
+                at: fileURL,
                 mode: mode,
-                name: fileURL.lastPathComponent,
-                thumbnailURL: fileURL,
-                referencePath: "",
-                thumbnailData: data,
                 prompt: mode == .free ? prompt : mode.prompt
             )
             uploadedReferences.insert(
@@ -894,7 +891,24 @@ final class GenerationRepository: ObservableObject {
         reference: GenerationReference,
         intent: UUID
     ) async {
-        guard let client, let data = reference.thumbnailData else { return }
+        let operation = lifecycleID
+        do {
+            guard let ready = try await transferReference(reference) else { return }
+            await enqueue(
+                reference: ready,
+                intent: intent
+            )
+        } catch {
+            guard lifecycleID == operation, selectionIntent == intent else { return }
+            handleGenerationFailure(error)
+        }
+    }
+
+    /// Uploads a local reference and updates its progress in the workspace list.
+    private func transferReference(
+        _ reference: GenerationReference
+    ) async throws -> GenerationReference? {
+        guard let client, reference.thumbnailData != nil else { return nil }
         let operation = lifecycleID
         patchReference(reference.id) {
             $0.uploadState = .uploading
@@ -903,38 +917,78 @@ final class GenerationRepository: ObservableObject {
         }
         errorMessage = nil
         do {
-            let jpeg = try await Task.detached { try Self.jpegData(data) }.value
-            let uploadedURL = try await uploadImage(
-                client,
-                jpeg,
-                (reference.name as NSString).deletingPathExtension + ".jpg"
+            let approved = try await approveReference(
+                reference,
+                client: client
             ) { [weak self] progress in
                 let fraction = progress.fractionCompleted
                 Task { @MainActor in
-                    guard let self else { return }
-                    self.patchReference(reference.id) { $0.uploadProgress = fraction }
+                    guard let self, self.lifecycleID == operation else { return }
+                    self.patchReference(reference.id) {
+                        if $0.uploadState == .uploading { $0.uploadProgress = fraction }
+                    }
                 }
             }
-            patchReference(reference.id) {
-                $0.referencePath = uploadedURL.absoluteString
-                $0.uploadState = .ready
-                $0.uploadProgress = 1
-            }
-            guard lifecycleID == operation else { return }
-            if let ready = uploadedReferences.first(where: { $0.id == reference.id }) {
-                await enqueue(
-                    reference: ready,
-                    intent: intent
-                )
-            }
+            guard lifecycleID == operation else { return nil }
+            patchReference(reference.id) { $0 = approved }
+            return uploadedReferences.first(where: { $0.id == reference.id })
         } catch {
-            patchReference(reference.id) {
-                $0.uploadState = .error
-                $0.uploadError = error.localizedDescription
+            guard lifecycleID == operation else { return nil }
+            if (error as? XmaxError)?.code == .unsafeImage {
+                uploadedReferences.removeAll { $0.id == reference.id }
+                if selectedReferenceID == reference.id { selectedReferenceID = nil }
+            } else {
+                patchReference(reference.id) {
+                    $0.uploadState = .error
+                    $0.uploadError = error.localizedDescription
+                }
             }
-            guard lifecycleID == operation else { return }
-            if selectionIntent == intent { handleGenerationFailure(error) }
+            throw error
         }
+    }
+
+    /// Returns a selectable reference after the SDK approves the uploaded image.
+    private func approveReference(
+        _ reference: GenerationReference,
+        client: XmaxClient,
+        progress: XmaxStorageProgressHandler?
+    ) async throws -> GenerationReference {
+        guard let data = reference.thumbnailData else { throw CocoaError(.fileReadCorruptFile) }
+        let jpeg = try await Task.detached { try Self.jpegData(data) }.value
+        try Task.checkCancellation()
+        do {
+            let url = try await uploadImage(
+                client,
+                jpeg,
+                (reference.name as NSString).deletingPathExtension + ".jpg",
+                progress
+            )
+            try Task.checkCancellation()
+            var approved = reference
+            approved.referencePath = url.absoluteString
+            approved.uploadState = .ready
+            approved.uploadProgress = 1
+            approved.uploadError = nil
+            return approved
+        } catch let error as XmaxError where error.code == .unsafeImage {
+            throw XmaxError(code: .unsafeImage, message: GenerationStrings.errorReferenceImageRejected)
+        }
+    }
+
+    /// Uses the edition's SDK environment for storage and realtime generation.
+    private func makeClient() -> XmaxClient {
+        #if OVERSEA
+            let environment = XmaxEnvironment.global
+        #else
+            let environment = XmaxEnvironment.china
+        #endif
+        return XmaxClient(
+            configuration: XmaxConfiguration(
+                apiKey: userRepo.apiKey,
+                environment: environment,
+                loggerOptions: .all
+            )
+        )
     }
 
     /// Updates an existing reference by identity without replacing other items.
@@ -1264,6 +1318,9 @@ final class GenerationRepository: ObservableObject {
         let operation = lifecycleID
         selectionIntent = UUID()
         pendingInitialReference = nil
+        for index in uploadedReferences.indices where uploadedReferences[index].uploadState == .uploading {
+            uploadedReferences[index].uploadState = .error
+        }
         application = nil
         manager = nil
         client = nil

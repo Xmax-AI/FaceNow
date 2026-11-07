@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import ImageIO
 #if canImport(FNNetwork)
     import FNNetwork
 #endif
@@ -60,6 +61,31 @@ struct GenerationReference: Identifiable, Sendable {
 
         /// The previous upload failed and the reference can be retried.
         case error
+    }
+
+    /// Reads a user-selected image while the file picker grant is active.
+    static func localImage(
+        at url: URL,
+        mode: GenerationMode,
+        prompt: String
+    ) throws -> Self {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        let data = try Data(contentsOf: url)
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+            CGImageSourceCopyPropertiesAtIndex(source, 0, nil) != nil
+        else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        return Self(
+            id: UUID().uuidString,
+            mode: mode,
+            name: url.lastPathComponent,
+            thumbnailURL: nil,
+            referencePath: "",
+            thumbnailData: data,
+            prompt: prompt
+        )
     }
 
     /// Keeps prompt-only presets selectable without inventing an image URL or an upload state.

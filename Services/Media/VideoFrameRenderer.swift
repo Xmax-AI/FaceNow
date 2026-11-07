@@ -98,11 +98,12 @@ final class VideoFrameRenderer {
         )
     }
 
-    /// Reuses compatible buffers only without artwork; otherwise normalizes and composites into owned output.
-    /// Format matching includes color, aperture and aspect-ratio metadata without modifying the input.
+    /// Normalizes video into the output canvas before compositing artwork and subtitles.
+    /// Callers that preserve aspect ratio fill uncovered areas with black.
     func normalize(
         _ pixelBuffer: CVPixelBuffer,
-        subtitle: CIImage? = nil
+        subtitle: CIImage? = nil,
+        preservesAspectRatio: Bool = false
     ) throws -> CVPixelBuffer {
         if overlay == nil, subtitle == nil,
             CVPixelBufferGetWidth(pixelBuffer) == format.width,
@@ -118,12 +119,22 @@ final class VideoFrameRenderer {
             return pixelBuffer
         }
         let image = CIImage(cvPixelBuffer: pixelBuffer)
-        let resized = image.transformed(
-            by: CGAffineTransform(
-                scaleX: bounds.width / image.extent.width,
-                y: bounds.height / image.extent.height
+        let scaleX = bounds.width / image.extent.width
+        let scaleY = bounds.height / image.extent.height
+        let resized: CIImage
+        if preservesAspectRatio, scaleX != scaleY {
+            let scale = min(scaleX, scaleY)
+            let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+            let centered = scaled.transformed(
+                by: CGAffineTransform(
+                    translationX: bounds.midX - scaled.extent.midX,
+                    y: bounds.midY - scaled.extent.midY
+                )
             )
-        )
+            resized = centered.composited(over: CIImage(color: .black).cropped(to: bounds))
+        } else {
+            resized = image.transformed(by: CGAffineTransform(scaleX: scaleX, y: scaleY))
+        }
         let branded = overlay?.composited(over: resized) ?? resized
         return try render(subtitle?.composited(over: branded) ?? branded)
     }

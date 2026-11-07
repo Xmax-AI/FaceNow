@@ -649,6 +649,24 @@
         }
       }
     },
+    "controls.reference_image_uploading": {
+      "comment": "Status while the selected reference image is being uploaded and checked.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uploading and checking reference image…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在上传并检测参考图…"
+          }
+        }
+      }
+    },
     "controls.upload": {
       "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
       "extractionState": "manual",
@@ -753,6 +771,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "上一次会话仍在停止中，请稍后再试。"
+          }
+        }
+      }
+    },
+    "error.reference_image_rejected": {
+      "comment": "Shown after the reference image fails the content safety check.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This reference image did not pass the safety check. Choose a different image."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "参考图未通过安全检测，请换一张图片。"
           }
         }
       }

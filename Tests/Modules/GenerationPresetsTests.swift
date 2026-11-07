@@ -65,7 +65,7 @@ final class GenerationPresetsTests: XCTestCase {
         }
     }
 
-    func testAccessoryAndStyleImagesKeepTheirMatchingPrompts() throws {
+    func testCharacterAccessoryAndStylePromptsMatchX21() throws {
         let cap = try XCTUnwrap(GenerationMode.clothx.presets.first {
             URL(string: $0.referencePath)?.lastPathComponent == "clothx_image11.jpeg"
         })
@@ -73,16 +73,24 @@ final class GenerationPresetsTests: XCTestCase {
             URL(string: $0.referencePath)?.lastPathComponent == "clothx_image12.jpeg"
         })
         #if OVERSEA
+            let charxPrompt = "Become the character in the reference image"
+            let vibexPrompt = "The character from the reference image recreates the actions in the video. "
+                + "Preserve all appearance details of the reference character exactly, "
+                + "and keep the original background from the reference image unchanged."
+            let vibexPresetPrompt = vibexPrompt
             XCTAssertEqual(cap.prompt, "Apply the cap from the reference image to the video character.")
             XCTAssertEqual(glasses.prompt, "Apply the glasses from the reference image to the video character.")
-            XCTAssertEqual(GenerationMode.vibex.presets.first?.prompt, "The reference character performs the motions from the video.")
-            XCTAssertEqual(GenerationMode.vibex.prompt, "The reference character performs the motions from the video.")
         #else
+            let charxPrompt = "视频中人物替换成参考图中角色"
+            let vibexPrompt = "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景"
+            let vibexPresetPrompt = vibexPrompt + "。"
             XCTAssertEqual(cap.prompt, "将参考图棒球帽应用到视频角色身上")
             XCTAssertEqual(glasses.prompt, "将参考图眼镜应用到视频角色身上")
-            XCTAssertEqual(GenerationMode.vibex.presets.first?.prompt, "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。")
-            XCTAssertEqual(GenerationMode.vibex.prompt, "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景")
         #endif
+        XCTAssertEqual(GenerationMode.charx.prompt, charxPrompt)
+        XCTAssertTrue(GenerationMode.charx.presets.allSatisfy { $0.prompt == charxPrompt })
+        XCTAssertEqual(GenerationMode.vibex.prompt, vibexPrompt)
+        XCTAssertTrue(GenerationMode.vibex.presets.allSatisfy { $0.prompt == vibexPresetPrompt })
         XCTAssertNotEqual(cap.prompt, GenerationMode.clothx.prompt)
         XCTAssertNotEqual(glasses.prompt, GenerationMode.clothx.prompt)
     }

@@ -108,6 +108,20 @@ final class VirtualCameraWatermarkTests: XCTestCase {
         XCTAssertEqual(luma(try clean.testPattern(at: 0.5)), luma(try marked.testPattern(at: 0.5)))
     }
 
+    func testPortraitVideoFitsTheLandscapeOutputWithoutStretching() throws {
+        let portrait = VideoFormat(width: 360, height: 640, frameRate: 30, pixelFormat: kCVPixelFormatType_32BGRA)
+        let input = try VideoFrameRenderer(format: portrait).testPattern(at: 0)
+        let renderer = try VideoFrameRenderer(format: format)
+        let output = luma(try renderer.normalize(input, preservesAspectRatio: true))
+        let black = [UInt8](repeating: 16, count: format.width * format.height)
+        let left = CGRect(x: 0, y: 0, width: 210, height: 360)
+        let right = CGRect(x: 430, y: 0, width: 210, height: 360)
+        let center = CGRect(x: 220, y: 0, width: 200, height: 360)
+        XCTAssertEqual(changedPixels(black, output, region: left), 0)
+        XCTAssertEqual(changedPixels(black, output, region: right), 0)
+        XCTAssertGreaterThan(changedPixels(black, output, region: center), 60_000)
+    }
+
     func testSubtitleChangesAndClearsOnTheSameSourceFrame() throws {
         let input = try VideoFrameRenderer(format: format).testPattern(at: 0)
         let renderer = try makeRenderer()
