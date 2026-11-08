@@ -1,5 +1,5 @@
 //
-//  UserAPIKeyView.swift
+//  UserAccountToolbarView.swift
 //  FaceNow
 //
 
@@ -7,11 +7,11 @@ import Factory
 import AppKit
 import SnapKit
 
-/// Presents credential editing without coupling user preferences to the session.
+/// Presents the account menu and current credit balance.
 @MainActor
-final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
+final class UserAccountToolbarView: Canvas {
 
-    /// The preferences edited by the native field.
+    /// The account and balance shown in the toolbar.
     @Injected(\.userRepo) private var userRepo: UserRepository
 
     /// Shares the existing policy destinations with the account actions.
@@ -28,9 +28,6 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
 
     /// Requests generation cleanup before signing out.
     var onSignOut: (() -> Void)?
-
-    /// Prevents credential changes while generation or cleanup owns the SDK key.
-    var settingsLocked = false
 
     /// Keeps the avatar on home while allowing a credits-only generation header.
     var showsAvatar = true {
@@ -85,46 +82,15 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         return button
     }()
 
-    /// Retains keyboard editing and selection between coalesced updates.
-    private lazy var keyField: NSTextField = {
-        let field = NSTextField()
-        field.delegate = self
-        field.placeholderString = UserStrings.apiKey
-        field.font = Typography.font(size: 13)
-        field.bezelStyle = .roundedBezel
-        field.setAccessibilityLabel(UserStrings.apiKey)
-        return field
-    }()
-
-    /// Contains the editor and platform help link.
-    private lazy var editor: Canvas = {
-        let view = Canvas()
-        return view
-    }()
-
-    /// Displays the API platform link using native text selection.
-    private lazy var helpView: NSTextView = {
-        let view = NSTextView()
-        view.isEditable = false
-        view.isSelectable = true
-        view.drawsBackground = false
-        view.textContainerInset = .zero
-        view.textContainer?.lineFragmentPadding = 0
-        view.linkTextAttributes = [
-            .foregroundColor: Palette.accent,
-            .underlineStyle: NSUnderlineStyle.single.rawValue,
-        ]
-        return view
-    }()
-
     /// Whether the current transient popover is showing the account card.
     private var showingAccount = false
 
-    /// Distinguishes a hover warning from account and credential popovers.
+    /// Distinguishes the credit warning from the account menu.
     private var showingCredits = false
 
     /// Keeps the warning visible while either hover surface contains the pointer.
     private var creditsButtonHovered = false
+    /// Whether the pointer is over the credit warning card.
     private var creditsPopoverHovered = false
 
     /// Owns the short hover delays and cancels them on page or session changes.
@@ -178,10 +144,10 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
-    /// Owns the single account, credential, or credit-warning popover.
+    /// Owns the active account or credit popover.
     private var popover: NSPopover?
 
-    /// Creates the credential control for the shared user settings.
+    /// Creates the account and credit controls.
     init() {
         super.init()
         [creditsButton, button].forEach(addSubview)
@@ -213,7 +179,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
             + (showsAvatar ? button.preferredWidth(controlHeight: controlHeight) + ToolbarControlMetrics.spacing : 0)
     }
 
-    /// Updates the pill without replacing an active editor.
+    /// Refreshes the avatar, credit balance, and any open account menu.
     func update() {
         button.content = .avatar(
             initials: viewModel.avatarText,
@@ -242,7 +208,7 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         closePopover()
     }
 
-    /// Dismisses editing during page transitions or application shutdown.
+    /// Dismisses the popover and cancels hover work.
     func closePopover() {
         creditsHoverTask?.cancel()
         creditsHoverTask = nil
@@ -306,8 +272,8 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
         }
     }
 
-    /// Presents a recharge action for an explicit start failure or a red-pill hover.
-    func showCreditsWarning() {
+    /// Shows the recharge shortcut when the pointer rests on the credit pill.
+    private func showCreditsWarning() {
         guard viewModel.showsLowCreditsWarning, window?.isVisible == true,
             !isHiddenOrHasHiddenAncestor,
             popover?.isShown != true || showingCredits
@@ -366,96 +332,5 @@ final class UserAPIKeyView: Canvas, NSTextFieldDelegate {
     private func signOut() {
         closePopover()
         onSignOut?()
-    }
-
-    /// Presents the saved credential and platform help without restarting the session.
-    func showEditor() {
-        guard userRepo.canAccessHome else {
-            onSignIn?()
-            return
-        }
-        closePopover()
-        let text = AccountStrings.accountGetAnAPIKeyFromTheXmaxOpenPlatform
-        let attributed = NSMutableAttributedString(
-            string: text,
-            attributes: [
-                .font: Typography.font(size: 12), .foregroundColor: Palette.secondary,
-            ]
-        )
-        attributed.addAttribute(
-            .link,
-            value: userRepo.apiKeysURL,
-            range: (text as NSString).range(of: "Xmax Open Platform")
-        )
-        let width = max(292, ceil(attributed.size().width) + 40)
-        editor.snp.remakeConstraints { make in
-            make.width.equalTo(width)
-            make.height.equalTo(130)
-        }
-        keyField.stringValue = userRepo.apiKey
-        helpView.textStorage?.setAttributedString(attributed)
-        editor.addSubview(keyField)
-        editor.addSubview(helpView)
-        keyField.snp.remakeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(36)
-        }
-        helpView.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(18)
-            make.top.equalTo(keyField.snp.bottom).offset(12)
-            make.height.equalTo(18)
-        }
-        keyField.isEnabled = !settingsLocked
-        let signIn = Button(
-            AccountStrings.accountSignInToYourAccount,
-            style: .plain
-        )
-        signIn.onClick = { [weak self] in
-            self?.closePopover()
-            self?.onSignIn?()
-        }
-        editor.subviews.filter { $0 is Button }.forEach { $0.removeFromSuperview() }
-        editor.addSubview(signIn)
-        signIn.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.top.equalTo(helpView.snp.bottom).offset(10)
-            make.height.equalTo(26)
-        }
-        let controller = NSViewController()
-        controller.view = editor
-        let popover = NSPopover()
-        popover.behavior = .transient
-        popover.contentViewController = controller
-        popover.contentSize = editor.fittingSize
-        self.popover = popover
-        popover.show(
-            relativeTo: button.bounds,
-            of: button,
-            preferredEdge: .maxY
-        )
-        keyField.window?.makeFirstResponder(keyField)
-    }
-
-    /// Persists committed native field changes through FNUser.
-    func controlTextDidChange(
-        _ notification: Notification
-    ) {
-        guard notification.object as? NSTextField === keyField, !settingsLocked, userRepo.canAccessHome else { return }
-        userRepo.apiKey = keyField.stringValue
-    }
-
-    /// Closes the editor for Return and Escape without interfering with other commands.
-    func control(
-        _ control: NSControl,
-        textView: NSTextView,
-        doCommandBy commandSelector: Selector
-    ) -> Bool {
-        if commandSelector == #selector(NSResponder.insertNewline(_:))
-            || commandSelector == #selector(NSResponder.cancelOperation(_:))
-        {
-            closePopover()
-            return true
-        }
-        return false
     }
 }

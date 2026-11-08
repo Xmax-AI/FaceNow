@@ -60,15 +60,6 @@ enum VirtualCameraConfiguration {
 
     #endif
 
-    /// Excludes both FaceNow output cameras from physical camera input selection.
-    static func isFaceNowCamera(
-        _ id: String
-    ) -> Bool {
-        [domesticDeviceID, overseaDeviceID].contains {
-            id.caseInsensitiveCompare($0.uuidString) == .orderedSame
-        }
-    }
-
     /// Loads the shared offline artwork once in either the app or camera extension bundle.
     static let waitingArtwork: CGImage? = {
         guard let url = Bundle.main.url(forResource: "FaceNowCameraPlaceholder", withExtension: "png"),
@@ -105,4 +96,13 @@ enum VirtualCameraConfiguration {
 
     /// The maximum frame age before replacing interrupted video with a waiting image.
     static let staleInterval: TimeInterval = 2
+
+    /// Excludes both FaceNow output cameras from physical camera input selection.
+    static func isFaceNowCamera(
+        _ id: String
+    ) -> Bool {
+        [domesticDeviceID, overseaDeviceID].contains {
+            id.caseInsensitiveCompare($0.uuidString) == .orderedSame
+        }
+    }
 }

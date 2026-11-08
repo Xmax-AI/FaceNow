@@ -46,6 +46,15 @@ final class VirtualCameraDeviceMonitor {
     /// The currently published video devices, empty before monitoring starts.
     var devices: [AVCaptureDevice] { discovery?.devices ?? [] }
 
+    /// The CMIO system property describing the process-visible device list.
+    private static var deviceAddress: CMIOObjectPropertyAddress {
+        CMIOObjectPropertyAddress(
+            mSelector: UInt32(kCMIOHardwarePropertyDevices),
+            mScope: UInt32(kCMIOObjectPropertyScopeGlobal),
+            mElement: UInt32(kCMIOObjectPropertyElementMain)
+        )
+    }
+
     /// Creates an idle monitor without enumerating hardware or starting capture.
     private init() {}
 
@@ -87,15 +96,6 @@ final class VirtualCameraDeviceMonitor {
         )
         if status == noErr { cmioListener = listener }
         logger.notice("Persistent device monitoring started; CMIO listener status=\(status)")
-    }
-
-    /// The CMIO system property describing the process-visible device list.
-    private static var deviceAddress: CMIOObjectPropertyAddress {
-        CMIOObjectPropertyAddress(
-            mSelector: UInt32(kCMIOHardwarePropertyDevices),
-            mScope: UInt32(kCMIOObjectPropertyScopeGlobal),
-            mElement: UInt32(kCMIOObjectPropertyElementMain)
-        )
     }
 
     /// Publishes discovery changes and records whether this app's camera is visible.

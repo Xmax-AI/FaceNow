@@ -260,7 +260,8 @@ final class VideoFrameRenderer {
         bounds: CGRect,
         artwork: CGImage?
     ) -> CIImage {
-        let background = artwork == nil
+        let background =
+            artwork == nil
             ? CIColor(red: 241.0 / 255, green: 243.0 / 255, blue: 244.0 / 255)
             : .white
         let canvas = CIImage(color: background).cropped(to: bounds)

@@ -218,6 +218,18 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
+    /// Returns the current destination after normalizing the native editor's value.
+    private var destination: String { viewModel.destination(from: accountField.stringValue) }
+
+    /// The selected destination's monotonic resend countdown.
+    private var cooldown: Int { viewModel.cooldown(for: destination) }
+
+    /// Whether the selected destination satisfies the platform's format rules.
+    private var validAccount: Bool { viewModel.isValidAccount(destination) }
+
+    /// The selected tenant-configured verification-code length.
+    private var codeLength: Int { viewModel.codeLength }
+
     /// Creates native controls without opening a camera or sending a code.
     init() {
         super.init()
@@ -400,18 +412,6 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         termsBottom?.update(inset: unusedRowHeight * layoutScale)
     }
 
-    /// Returns the current destination after normalizing the native editor's value.
-    private var destination: String { viewModel.destination(from: accountField.stringValue) }
-
-    /// The selected destination's monotonic resend countdown.
-    private var cooldown: Int { viewModel.cooldown(for: destination) }
-
-    /// Whether the selected destination satisfies the platform's format rules.
-    private var validAccount: Bool { viewModel.isValidAccount(destination) }
-
-    /// The selected tenant-configured verification-code length.
-    private var codeLength: Int { viewModel.codeLength }
-
     /// Updates enablement from actual work and tenant capabilities without replacing inputs.
     private func update() {
         let busy = operation != nil || userRepo.isBusy || userRepo.isRestoring
@@ -583,8 +583,10 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
                 }
             } catch is CancellationError {} catch {
                 guard !Task.isCancelled else { return }
-                self.requestError = login
-                    ? self.viewModel.recordSignInFailure(error, value: code, method: method) : error.localizedDescription
+                self.requestError =
+                    login
+                    ? self.viewModel.recordSignInFailure(error, value: code, method: method)
+                    : error.localizedDescription
             }
         }
         update()

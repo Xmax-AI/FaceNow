@@ -29,18 +29,18 @@ public struct UserTokenStore: UserTokenStoring {
     /// Separates application editions while retaining the original domestic session identity.
     private let service: String
 
-    /// Creates the account-token service without accessing Keychain.
-    public init() {
-        let applicationID = Bundle.main.bundleIdentifier ?? "com.xmax.meeting.camera"
-        service = "\(applicationID).account.cloud.xmax.22duck.cn.open-platform"
-    }
-
     /// Builds the stable Keychain identity without placing tokens in preferences.
     private var query: [String: Any] {
         [
             kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
             kSecAttrAccount as String: "session",
         ]
+    }
+
+    /// Creates the account-token service without accessing Keychain.
+    public init() {
+        let applicationID = Bundle.main.bundleIdentifier ?? "com.xmax.meeting.camera"
+        service = "\(applicationID).account.cloud.xmax.22duck.cn.open-platform"
     }
 
     /// Reads the session without prompting for biometric authentication.

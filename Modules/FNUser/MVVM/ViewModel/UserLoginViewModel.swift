@@ -38,7 +38,11 @@ final class UserLoginViewModel {
 
     /// Associates validation with the exact submitted code rather than a later filtered edit.
     private struct RejectedCode {
+
+        /// The submitted code that the platform rejected.
         let value: String
+
+        /// The validation failure shown while that code is unchanged.
         let reason: SignInRejection
     }
 
@@ -47,6 +51,18 @@ final class UserLoginViewModel {
 
     /// Supplies only the currently selected channel's verification-code error.
     var codeValidationMessage: String? { codeRejections[method]?.reason.message }
+
+    /// Independent channel drafts restored when switching between phone and email.
+    private var drafts: [LoginMethod: UserLoginDraft] = [:]
+
+    /// Resend deadlines keyed by normalized channel and destination.
+    private var deadlines: [String: TimeInterval] = [:]
+
+    /// The monotonic clock, replaceable in deterministic presentation tests.
+    private let uptime: () -> TimeInterval
+
+    /// The tenant-controlled code length, retaining the initial six-digit default.
+    var codeLength: Int { configuration?.codeLength(for: method) ?? 6 }
 
     /// Clears API-key validation only when the user edits that field.
     func didEditAPIKey(
@@ -85,18 +101,6 @@ final class UserLoginViewModel {
     func selectAPIKey(
         _ selected: Bool
     ) { usesAPIKey = selected }
-
-    /// Independent channel drafts restored when switching between phone and email.
-    private var drafts: [LoginMethod: UserLoginDraft] = [:]
-
-    /// Resend deadlines keyed by normalized channel and destination.
-    private var deadlines: [String: TimeInterval] = [:]
-
-    /// The monotonic clock, replaceable in deterministic presentation tests.
-    private let uptime: () -> TimeInterval
-
-    /// The tenant-controlled code length, retaining the initial six-digit default.
-    var codeLength: Int { configuration?.codeLength(for: method) ?? 6 }
 
     /// Creates idle form state without reading credentials or issuing a request.
     init(

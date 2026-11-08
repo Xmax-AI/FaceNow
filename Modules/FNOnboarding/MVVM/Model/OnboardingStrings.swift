@@ -25,7 +25,8 @@ enum OnboardingStrings {
         Localization.string(
             "guide.virtual_microphone_checked_pending_detail",
             table: "Onboarding",
-            defaultValue: "Check complete. macOS still has not detected Virtual Microphone. The driver is installed. Restart your Mac and check again, or set up audio later."
+            defaultValue:
+                "Check complete. macOS still has not detected Virtual Microphone. The driver is installed. Restart your Mac and check again, or set up audio later."
         )
     }
 
@@ -34,7 +35,8 @@ enum OnboardingStrings {
         Localization.string(
             "guide.virtual_microphone_checked_not_installed_detail",
             table: "Onboarding",
-            defaultValue: "Check complete. The Virtual Microphone driver was not found. Install it first, or set up audio later."
+            defaultValue:
+                "Check complete. The Virtual Microphone driver was not found. Install it first, or set up audio later."
         )
     }
 
@@ -43,7 +45,8 @@ enum OnboardingStrings {
         Localization.string(
             "guide.virtual_microphone_check_timed_out_detail",
             table: "Onboarding",
-            defaultValue: "The check timed out, so Virtual Microphone status could not be confirmed. Check again, or set up audio later."
+            defaultValue:
+                "The check timed out, so Virtual Microphone status could not be confirmed. Check again, or set up audio later."
         )
     }
 
@@ -88,7 +91,8 @@ enum OnboardingStrings {
         Localization.string(
             "guide.virtual_microphone_install_detail",
             table: "Onboarding",
-            defaultValue: "Install the FaceNow audio driver with the macOS installer. Administrator authorization is required. If the device has not appeared after installation, you can use video first and restart your Mac later to finish audio setup."
+            defaultValue:
+                "Install the FaceNow audio driver with the macOS installer. Administrator authorization is required. If the device has not appeared after installation, you can use video first and restart your Mac later to finish audio setup."
         )
     }
 
@@ -97,7 +101,8 @@ enum OnboardingStrings {
         Localization.string(
             "guide.virtual_microphone_pending_detail",
             table: "Onboarding",
-            defaultValue: "The Virtual Microphone driver is installed but not active yet. You can use video first and restart your Mac later to finish audio setup."
+            defaultValue:
+                "The Virtual Microphone driver is installed but not active yet. You can use video first and restart your Mac later to finish audio setup."
         )
     }
 
@@ -171,15 +176,6 @@ enum OnboardingStrings {
             "action.copy_error_details",
             table: "Onboarding",
             defaultValue: "Copy Error Details"
-        )
-    }
-
-    /// Describes a typed virtual-camera installation or recovery step.
-    static var guideReinstallVirtualCamera: String {
-        Localization.string(
-            "guide.reinstall_virtual_camera",
-            table: "Onboarding",
-            defaultValue: "Reinstall Virtual Camera"
         )
     }
 
@@ -436,46 +432,6 @@ enum OnboardingStrings {
         )
     }
 
-    /// Explains the next action using the actual application, camera, or button name.
-    static func guideExplanationInstall(
-        action: String
-    ) -> String {
-        Localization.format(
-            "guide.explanation.install",
-            table: "Onboarding",
-            defaultValue:
-                "Click “%1$@” in the bottom-right corner to let macOS install and enable Virtual Camera. If macOS asks for approval, follow the system dialog.",
-            arguments: [action]
-        )
-    }
-
-    /// Explains the next action using the actual application, camera, or button name.
-    static func guideExplanationRetry(
-        action: String
-    ) -> String {
-        Localization.format(
-            "guide.explanation.retry",
-            table: "Onboarding",
-            defaultValue:
-                "Click “%1$@” in the bottom-right corner to retry the operation. FaceNow will update this page with the result or the next required step.",
-            arguments: [action]
-        )
-    }
-
-    /// Explains the next action using the actual application, camera, or button name.
-    static func guideExplanationVideoCalls(
-        app: String,
-        camera: String
-    ) -> String {
-        Localization.format(
-            "guide.explanation.video_calls",
-            table: "Onboarding",
-            defaultValue:
-                "In %1$@, open the camera settings and choose “%2$@” as your video input.\n\nThis lets the app receive your FaceNow look instead of the original camera feed. If the camera is missing from the list, reopen the video calling app after enabling Virtual Camera.",
-            arguments: [app, camera]
-        )
-    }
-
     /// Explains how to repeat discovery without reinstalling the virtual camera.
     static var guideExplanationCheckAgain: String {
         Localization.string(
@@ -568,15 +524,6 @@ enum OnboardingStrings {
     }
 
     /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeViewHelp: String {
-        Localization.string(
-            "notice.view_help",
-            table: "Onboarding",
-            defaultValue: "View Help"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
     static var noticeShowInFinder: String {
         Localization.string(
             "notice.show_in_finder",
@@ -658,29 +605,11 @@ enum OnboardingStrings {
     }
 
     /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeUpdateVirtualCameraToUseThisVersionOfFaceNow: String {
-        Localization.string(
-            "notice.update_virtual_camera_to_use_this_version_of_facenow",
-            table: "Onboarding",
-            defaultValue: "Update Virtual Camera to use this version of FaceNow."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
     static var noticeAllowTheFaceNowCameraExtensionInSystemSettings: String {
         Localization.string(
             "notice.allow_the_facenow_camera_extension_in_system_settings",
             table: "Onboarding",
             defaultValue: "Allow the FaceNow camera extension in System Settings."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeVirtualCameraIsnTReadyYetCheckAgain: String {
-        Localization.string(
-            "notice.virtual_camera_isn_t_ready_yet_check_again",
-            table: "Onboarding",
-            defaultValue: "Virtual Camera isn’t ready yet. Check again."
         )
     }
 
@@ -739,24 +668,6 @@ enum OnboardingStrings {
     }
 
     /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeUpdating: String {
-        Localization.string(
-            "notice.updating",
-            table: "Onboarding",
-            defaultValue: "Updating…"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeUpdatingVirtualCamera: String {
-        Localization.string(
-            "notice.updating_virtual_camera",
-            table: "Onboarding",
-            defaultValue: "Updating Virtual Camera…"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
     static var noticeRemoving: String {
         Localization.string(
             "notice.removing",
@@ -810,78 +721,6 @@ enum OnboardingStrings {
         )
     }
 
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeVirtualCameraCouldnTBeRemovedAutomaticallyRemoveIt: String {
-        Localization.string(
-            "notice.virtual_camera_couldn_t_be_removed_automatically_remove_it",
-            table: "Onboarding",
-            defaultValue: "Virtual Camera couldn’t be removed automatically. Remove it in System Settings."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeCouldnTInstallVirtualCameraTryAgain: String {
-        Localization.string(
-            "notice.couldn_t_install_virtual_camera_try_again",
-            table: "Onboarding",
-            defaultValue: "Couldn’t install Virtual Camera. Try again."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeCouldnTUpdateVirtualCameraTryAgain: String {
-        Localization.string(
-            "notice.couldn_t_update_virtual_camera_try_again",
-            table: "Onboarding",
-            defaultValue: "Couldn’t update Virtual Camera. Try again."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeCouldnTRemoveVirtualCameraTryAgain: String {
-        Localization.string(
-            "notice.couldn_t_remove_virtual_camera_try_again",
-            table: "Onboarding",
-            defaultValue: "Couldn’t remove Virtual Camera. Try again."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeCouldnTConnectToVirtualCameraTryAgain: String {
-        Localization.string(
-            "notice.couldn_t_connect_to_virtual_camera_try_again",
-            table: "Onboarding",
-            defaultValue: "Couldn’t connect to Virtual Camera. Try again."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeCouldnTCheckAvailableCamerasTryAgain: String {
-        Localization.string(
-            "notice.couldn_t_check_available_cameras_try_again",
-            table: "Onboarding",
-            defaultValue: "Couldn’t check available cameras. Try again."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeCouldnTCheckVirtualCameraStatus: String {
-        Localization.string(
-            "notice.couldn_t_check_virtual_camera_status",
-            table: "Onboarding",
-            defaultValue: "Couldn’t check Virtual Camera status."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.
-    static var noticeCouldnTRequestCameraAccessTryAgain: String {
-        Localization.string(
-            "notice.couldn_t_request_camera_access_try_again",
-            table: "Onboarding",
-            defaultValue: "Couldn’t request camera access. Try again."
-        )
-    }
-
     /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
     static var guideGetReadyToUseFaceNow: String {
         Localization.string(
@@ -906,15 +745,6 @@ enum OnboardingStrings {
             "guide.close_setup_guide",
             table: "Onboarding",
             defaultValue: "Close setup guide"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideVideoCallingApp: String {
-        Localization.string(
-            "guide.video_calling_app",
-            table: "Onboarding",
-            defaultValue: "Video calling app"
         )
     }
 
@@ -1065,15 +895,6 @@ enum OnboardingStrings {
     }
 
     /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideClickInstallEnableInTheBottomRightCorner: String {
-        Localization.string(
-            "guide.click_install_enable_in_the_bottom_right_corner",
-            table: "Onboarding",
-            defaultValue: "Click “Install & Enable” in the bottom-right corner."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
     static var guideClickOpenSystemSettingsInTheMacOSDialog: String {
         Localization.string(
             "guide.click_open_system_settings_in_the_macos_dialog",
@@ -1097,42 +918,6 @@ enum OnboardingStrings {
             "guide.use_facenow_in_video_calls",
             table: "Onboarding",
             defaultValue: "Bring Your Look To Video Calls"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideChooseFaceNowAsYourCameraInYourVideoCalling: String {
-        Localization.string(
-            "guide.choose_facenow_as_your_camera_in_your_video_calling",
-            table: "Onboarding",
-            defaultValue: "Choose FaceNow as your camera in your video calling app."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideOpenSettingsVideoInGoogleMeet: String {
-        Localization.string(
-            "guide.open_settings_video_in_google_meet",
-            table: "Onboarding",
-            defaultValue: "Open “Settings” → “Video” in Google Meet."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideOpenVideoSettings: String {
-        Localization.string(
-            "guide.open_video_settings",
-            table: "Onboarding",
-            defaultValue: "Open Video Settings"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideSelectFaceNowCamera: String {
-        Localization.string(
-            "guide.select_facenow_camera",
-            table: "Onboarding",
-            defaultValue: "Select FaceNow Camera"
         )
     }
 
@@ -1164,105 +949,6 @@ enum OnboardingStrings {
     }
 
     /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideFaceNowWouldLikeToAccessTheCamera: String {
-        Localization.string(
-            "guide.facenow_would_like_to_access_the_camera",
-            table: "Onboarding",
-            defaultValue: "FaceNow Would Like to Access the Camera"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideFaceNowUsesYourCameraForRealTimeEffects: String {
-        Localization.string(
-            "guide.facenow_uses_your_camera_for_real_time_effects",
-            table: "Onboarding",
-            defaultValue: "FaceNow uses your camera for real-time effects."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideChooseAllow: String {
-        Localization.string(
-            "guide.choose_allow",
-            table: "Onboarding",
-            defaultValue: "①  Choose Allow"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideCameraPermissionMacOSDialogIllustration: String {
-        Localization.string(
-            "guide.camera_permission_macos_dialog_illustration",
-            table: "Onboarding",
-            defaultValue: "Camera permission · macOS dialog illustration"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideSystemSettings: String {
-        Localization.string(
-            "guide.system_settings",
-            table: "Onboarding",
-            defaultValue: "System Settings"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideGeneralLoginItemsExtensionsNCameraExtensions: String {
-        Localization.string(
-            "guide.general_login_items_extensions_ncamera_extensions",
-            table: "Onboarding",
-            defaultValue: "General → Login Items & Extensions\nCamera Extensions"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guidePrivacySecurityNAllowTheFaceNowSystemExtension: String {
-        Localization.string(
-            "guide.privacy_security_nallow_the_facenow_system_extension",
-            table: "Onboarding",
-            defaultValue: "Privacy & Security\nAllow the FaceNow system extension"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideEnableFaceNowDone: String {
-        Localization.string(
-            "guide.enable_facenow_done",
-            table: "Onboarding",
-            defaultValue: "②  Enable FaceNow  →  Done"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideReturnToFaceNowReadinessIsCheckedAutomatically: String {
-        Localization.string(
-            "guide.return_to_facenow_readiness_is_checked_automatically",
-            table: "Onboarding",
-            defaultValue: "Return to FaceNow. Readiness is checked automatically."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideCameraNChooseYourVideoInput: String {
-        Localization.string(
-            "guide.camera_nchoose_your_video_input",
-            table: "Onboarding",
-            defaultValue: "①  Camera  ⌄\nChoose your video input"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideCameraMenuIllustrationTheLayoutVariesByApp: String {
-        Localization.string(
-            "guide.camera_menu_illustration_the_layout_varies_by_app",
-            table: "Onboarding",
-            defaultValue: "Camera-menu illustration · the layout varies by app"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
     static var guideCameraExtensionPermissionPromptChooseOpenSystemSettings: String {
         Localization.string(
             "guide.camera_extension_permission_prompt_choose_open_system_settings",
@@ -1286,15 +972,6 @@ enum OnboardingStrings {
             "guide.turn_on_the_switch_next_to_facenow_then_click",
             table: "Onboarding",
             defaultValue: "Turn on the switch next to FaceNow, then click “Done”."
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.
-    static var guideInstallEnable: String {
-        Localization.string(
-            "guide.install_enable",
-            table: "Onboarding",
-            defaultValue: "Install & Enable"
         )
     }
 
@@ -1352,57 +1029,12 @@ enum OnboardingStrings {
         )
     }
 
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.
+    /// Names the virtual camera in the guide and device menu.
     static var virtualCamera: String {
         Localization.string(
             "camera.virtual_camera",
             table: "Common",
             defaultValue: "Virtual Camera"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.
-    static var setupRefreshVirtualCamera: String {
-        Localization.string(
-            "setup.refresh_virtual_camera",
-            table: "Onboarding",
-            defaultValue: "Refresh Virtual Camera"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.
-    static var setupRefreshCameraExtensionStatus: String {
-        Localization.string(
-            "setup.refresh_camera_extension_status",
-            table: "Onboarding",
-            defaultValue: "Refresh camera extension status"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.
-    static var remove: String {
-        Localization.string(
-            "action.remove",
-            table: "Common",
-            defaultValue: "Remove"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.
-    static var setupTestVideo: String {
-        Localization.string(
-            "setup.test_video",
-            table: "Onboarding",
-            defaultValue: "Test Video"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.
-    static var setupStopTestVideo: String {
-        Localization.string(
-            "setup.stop_test_video",
-            table: "Onboarding",
-            defaultValue: "Stop Test Video"
         )
     }
 
@@ -1429,7 +1061,8 @@ enum OnboardingStrings {
         Localization.string(
             "guide.facenow_turns_your_movements_into_your_chosen_look_in",
             table: "Onboarding",
-            defaultValue: "FaceNow uses your camera feed as input for real-time generation, mapping your expressions and movements to your selected appearance."
+            defaultValue:
+                "FaceNow uses your camera feed as input for real-time generation, mapping your expressions and movements to your selected appearance."
         )
     }
 
@@ -1439,33 +1072,6 @@ enum OnboardingStrings {
             "action.continue",
             table: "Common",
             defaultValue: "Continue"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingFlowViewModel.swift.
-    static var guidePreparingVirtualCamera: String {
-        Localization.string(
-            "guide.preparing_virtual_camera",
-            table: "Onboarding",
-            defaultValue: "Preparing Virtual Camera…"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingFlowViewModel.swift.
-    static var guideUpdateVirtualCamera: String {
-        Localization.string(
-            "guide.update_virtual_camera",
-            table: "Onboarding",
-            defaultValue: "Update Virtual Camera"
-        )
-    }
-
-    /// Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingSetupViewModel.swift.
-    static var setupAwaitingApproval: String {
-        Localization.string(
-            "setup.awaiting_approval",
-            table: "Onboarding",
-            defaultValue: "Awaiting Approval"
         )
     }
 
@@ -1515,53 +1121,6 @@ enum OnboardingStrings {
         )
     }
 
-    /// Complete message; preserve all format placeholders.
-    static func openVideoSettings(
-        app: String
-    ) -> String {
-        Localization.format(
-            "message.open_the_camera_menu_or_video_settings_in_selectedapp",
-            table: "Onboarding",
-            defaultValue: "Open the camera menu or video settings in %@.",
-            arguments: [app]
-        )
-    }
-
-    /// Complete message; preserve all format placeholders.
-    static func chooseCameraNamed(
-        name: String
-    ) -> String {
-        Localization.format(
-            "message.choose_virtualcameraconfiguration_devicename_from_the_camera_list",
-            table: "Onboarding",
-            defaultValue: "Choose “%@” from the camera list.",
-            arguments: [name]
-        )
-    }
-
-    /// Complete message; preserve all format placeholders.
-    static func videoSettingsTitle(
-        app: String
-    ) -> String {
-        Localization.format(
-            "message.app_video_settings",
-            table: "Onboarding",
-            defaultValue: "%@ · Video Settings",
-            arguments: [app]
-        )
-    }
-
-    /// Complete message; preserve all format placeholders.
-    static func selectedCameraIllustration(
-        name: String
-    ) -> String {
-        Localization.format(
-            "message.virtualcameraconfiguration_devicename",
-            table: "Onboarding",
-            defaultValue: "②  ✓  %@",
-            arguments: [name]
-        )
-    }
     /// Localized page text; preserve all placeholders and product names.
     static var activateCamera: String {
         Localization.string(
@@ -1586,19 +1145,6 @@ enum OnboardingStrings {
         Localization.string("step.state.upcoming", table: "Onboarding", defaultValue: "upcoming")
     }
 
-    /// Localized page text; preserve all placeholders and product names.
-    static func stepAccessibility(
-        title: String,
-        state: String
-    ) -> String {
-        Localization.format(
-            "step.accessibility",
-            table: "Onboarding",
-            defaultValue: "%1$@, %2$@",
-            arguments: [title, state]
-        )
-    }
-
     /// Explains the completed camera stage during a manual review.
     static var cameraStepReady: String {
         Localization.string(
@@ -1614,45 +1160,6 @@ enum OnboardingStrings {
             "guide.virtual_camera_step_ready",
             table: "Onboarding",
             defaultValue: "Virtual Camera is ready. Continue setup."
-        )
-    }
-
-    /// Keeps the instruction aligned with the current localized primary action.
-    static func clickPrimaryButton(
-        _ title: String
-    ) -> String {
-        Localization.format(
-            "guide.click_primary_button",
-            table: "Onboarding",
-            defaultValue: "Click “%@” in the bottom-right corner.",
-            arguments: [title]
-        )
-    }
-
-    /// Describes the green virtual-output availability light.
-    static var landingVirtualCameraAvailable: String {
-        Localization.string(
-            "landing.virtual_camera_available",
-            table: "Onboarding",
-            defaultValue: "Virtual Camera is available."
-        )
-    }
-
-    /// Describes the amber light during virtual-output preparation.
-    static var landingVirtualCameraChecking: String {
-        Localization.string(
-            "landing.virtual_camera_checking",
-            table: "Onboarding",
-            defaultValue: "Checking Virtual Camera…"
-        )
-    }
-
-    /// Describes the neutral light when virtual output is unavailable.
-    static var landingVirtualCameraUnavailable: String {
-        Localization.string(
-            "landing.virtual_camera_unavailable",
-            table: "Onboarding",
-            defaultValue: "Virtual Camera is unavailable."
         )
     }
 
@@ -1690,6 +1197,177 @@ enum OnboardingStrings {
             table: "Onboarding",
             defaultValue:
                 "Turn on video in your call and keep FaceNow open while you talk. If the camera is missing, reopen your video calling app."
+        )
+    }
+
+    /// Requests system permission without starting audio capture.
+    static var allowMicrophoneAccess: String {
+        Localization.string(
+            "guide.allow_microphone_access",
+            table: "Onboarding",
+            defaultValue: "Allow Microphone Access"
+        )
+    }
+
+    /// Explains optional physical microphone input.
+    static var microphoneIntroduction: String {
+        Localization.string(
+            "guide.microphone_introduction",
+            table: "Onboarding",
+            defaultValue:
+                "Allow FaceNow to capture your voice. You can choose an input device or turn the microphone off at any time."
+        )
+    }
+
+    /// Identifies microphone access restricted by system policy.
+    static var microphoneRestrictedTitle: String {
+        Localization.string(
+            "guide.microphone_restricted_title",
+            table: "Onboarding",
+            defaultValue: "Microphone Access Is Restricted"
+        )
+    }
+
+    /// Explains restricted microphone access and optional continuation.
+    static var microphoneRestrictedDetail: String {
+        Localization.string(
+            "guide.microphone_restricted_detail",
+            table: "Onboarding",
+            defaultValue:
+                "Microphone access is restricted by macOS or your administrator. You can skip this step and continue with video."
+        )
+    }
+
+    /// Explains how to enable a previously denied microphone permission.
+    static var microphoneSettingsDetail: String {
+        Localization.string(
+            "guide.microphone_settings_detail",
+            table: "Onboarding",
+            defaultValue: "In System Settings → Privacy & Security → Microphone, enable FaceNow, then return here."
+        )
+    }
+
+    /// Explains the explicit microphone permission prompt.
+    static var microphoneRequestDetail: String {
+        Localization.string(
+            "guide.microphone_request_detail",
+            table: "Onboarding",
+            defaultValue: "Click “Allow Microphone Access”, then choose Allow in the permission dialog."
+        )
+    }
+
+    /// Confirms permission without claiming audio capture has started.
+    static var microphoneStepReady: String {
+        Localization.string(
+            "guide.microphone_step_ready",
+            table: "Onboarding",
+            defaultValue: "Microphone access is ready. Continue setup."
+        )
+    }
+
+    /// Identifies an explicitly deferred optional step for accessibility.
+    static var skipped: String {
+        Localization.string(
+            "step.state.skipped",
+            table: "Onboarding",
+            defaultValue: "skipped"
+        )
+    }
+
+    /// Names the optional generated-audio output step.
+    static var virtualMicrophone: String {
+        Localization.string(
+            "guide.virtual_microphone",
+            table: "Onboarding",
+            defaultValue: "Virtual Microphone"
+        )
+    }
+
+    /// Introduces explicit installation and enabling of audio output.
+    static var setupVirtualMicrophone: String {
+        Localization.string(
+            "guide.setup_virtual_microphone",
+            table: "Onboarding",
+            defaultValue: "Set Up Virtual Microphone"
+        )
+    }
+
+    /// Explains optional synchronized audio output for video calls.
+    static var virtualMicrophoneIntroduction: String {
+        Localization.string(
+            "guide.virtual_microphone_introduction",
+            table: "Onboarding",
+            defaultValue:
+                "Enable Virtual Microphone to keep audio and video in sync during video calls. You can skip this step and set it up later."
+        )
+    }
+
+    /// Confirms device readiness without claiming audio capture or generation has started.
+    static var virtualMicrophoneStepReady: String {
+        Localization.string(
+            "guide.virtual_microphone_step_ready",
+            table: "Onboarding",
+            defaultValue: "Virtual Microphone is enabled. Continue setup."
+        )
+    }
+
+    /// Adds microphone selection only when virtual audio output is enabled.
+    static var videoCallsMicrophoneTitle: String {
+        Localization.string(
+            "guide.video_calls.microphone_title",
+            table: "Onboarding",
+            defaultValue: "Select FaceNow as your microphone"
+        )
+    }
+
+    /// Explains the next action using the actual application, camera, or button name.
+    static func guideExplanationInstall(
+        action: String
+    ) -> String {
+        Localization.format(
+            "guide.explanation.install",
+            table: "Onboarding",
+            defaultValue:
+                "Click “%1$@” in the bottom-right corner to let macOS install and enable Virtual Camera. If macOS asks for approval, follow the system dialog.",
+            arguments: [action]
+        )
+    }
+
+    /// Explains the next action using the actual application, camera, or button name.
+    static func guideExplanationRetry(
+        action: String
+    ) -> String {
+        Localization.format(
+            "guide.explanation.retry",
+            table: "Onboarding",
+            defaultValue:
+                "Click “%1$@” in the bottom-right corner to retry the operation. FaceNow will update this page with the result or the next required step.",
+            arguments: [action]
+        )
+    }
+
+    /// Localized page text; preserve all placeholders and product names.
+    static func stepAccessibility(
+        title: String,
+        state: String
+    ) -> String {
+        Localization.format(
+            "step.accessibility",
+            table: "Onboarding",
+            defaultValue: "%1$@, %2$@",
+            arguments: [title, state]
+        )
+    }
+
+    /// Keeps the instruction aligned with the current localized primary action.
+    static func clickPrimaryButton(
+        _ title: String
+    ) -> String {
+        Localization.format(
+            "guide.click_primary_button",
+            table: "Onboarding",
+            defaultValue: "Click “%@” in the bottom-right corner.",
+            arguments: [title]
         )
     }
 
@@ -1753,114 +1431,6 @@ enum OnboardingStrings {
         )
     }
 
-    /// Names the optional microphone permission step.
-    static var microphoneAccess: String {
-        Localization.string(
-            "guide.microphone_access",
-            table: "Onboarding",
-            defaultValue: "Microphone Access"
-        )
-    }
-
-    /// Requests system permission without starting audio capture.
-    static var allowMicrophoneAccess: String {
-        Localization.string(
-            "guide.allow_microphone_access",
-            table: "Onboarding",
-            defaultValue: "Allow Microphone Access"
-        )
-    }
-
-    /// Explains optional physical microphone input.
-    static var microphoneIntroduction: String {
-        Localization.string(
-            "guide.microphone_introduction",
-            table: "Onboarding",
-            defaultValue: "Allow FaceNow to capture your voice. You can choose an input device or turn the microphone off at any time."
-        )
-    }
-
-    /// Identifies microphone access restricted by system policy.
-    static var microphoneRestrictedTitle: String {
-        Localization.string(
-            "guide.microphone_restricted_title",
-            table: "Onboarding",
-            defaultValue: "Microphone Access Is Restricted"
-        )
-    }
-
-    /// Explains restricted microphone access and optional continuation.
-    static var microphoneRestrictedDetail: String {
-        Localization.string(
-            "guide.microphone_restricted_detail",
-            table: "Onboarding",
-            defaultValue: "Microphone access is restricted by macOS or your administrator. You can skip this step and continue with video."
-        )
-    }
-
-    /// Explains how to enable a previously denied microphone permission.
-    static var microphoneSettingsDetail: String {
-        Localization.string(
-            "guide.microphone_settings_detail",
-            table: "Onboarding",
-            defaultValue: "In System Settings → Privacy & Security → Microphone, enable FaceNow, then return here."
-        )
-    }
-
-    /// Explains the explicit microphone permission prompt.
-    static var microphoneRequestDetail: String {
-        Localization.string(
-            "guide.microphone_request_detail",
-            table: "Onboarding",
-            defaultValue: "Click “Allow Microphone Access”, then choose Allow in the permission dialog."
-        )
-    }
-
-    /// Confirms permission without claiming audio capture has started.
-    static var microphoneStepReady: String {
-        Localization.string(
-            "guide.microphone_step_ready",
-            table: "Onboarding",
-            defaultValue: "Microphone access is ready. Continue setup."
-        )
-    }
-
-    /// Identifies an explicitly deferred optional step for accessibility.
-    static var skipped: String {
-        Localization.string(
-            "step.state.skipped",
-            table: "Onboarding",
-            defaultValue: "skipped"
-        )
-    }
-
-    /// Names the optional generated-audio output step.
-    static var virtualMicrophone: String {
-        Localization.string(
-            "guide.virtual_microphone",
-            table: "Onboarding",
-            defaultValue: "Virtual Microphone"
-        )
-    }
-
-    /// Introduces explicit installation and enabling of audio output.
-    static var setupVirtualMicrophone: String {
-        Localization.string(
-            "guide.setup_virtual_microphone",
-            table: "Onboarding",
-            defaultValue: "Set Up Virtual Microphone"
-        )
-    }
-
-    /// Explains optional synchronized audio output for video calls.
-    static var virtualMicrophoneIntroduction: String {
-        Localization.string(
-            "guide.virtual_microphone_introduction",
-            table: "Onboarding",
-            defaultValue: "Enable Virtual Microphone to keep audio and video in sync during video calls. You can skip this step and set it up later."
-        )
-    }
-
     /// Explains enabling an already published virtual input.
     static func virtualMicrophoneEnableDetail(
         microphone: String
@@ -1873,24 +1443,6 @@ enum OnboardingStrings {
         )
     }
 
-    /// Confirms device readiness without claiming audio capture or generation has started.
-    static var virtualMicrophoneStepReady: String {
-        Localization.string(
-            "guide.virtual_microphone_step_ready",
-            table: "Onboarding",
-            defaultValue: "Virtual Microphone is enabled. Continue setup."
-        )
-    }
-
-    /// Adds microphone selection only when virtual audio output is enabled.
-    static var videoCallsMicrophoneTitle: String {
-        Localization.string(
-            "guide.video_calls.microphone_title",
-            table: "Onboarding",
-            defaultValue: "Select FaceNow as your microphone"
-        )
-    }
-
     /// Names the stable virtual audio input to select in calling software.
     static func videoCallsMicrophoneDetail(
         microphone: String
@@ -1898,7 +1450,8 @@ enum OnboardingStrings {
         Localization.format(
             "guide.video_calls.microphone_detail",
             table: "Onboarding",
-            defaultValue: "In your calling app’s microphone menu, select “%1$@” to keep audio in sync with your FaceNow video.",
+            defaultValue:
+                "In your calling app’s microphone menu, select “%1$@” to keep audio in sync with your FaceNow video.",
             arguments: [microphone]
         )
     }

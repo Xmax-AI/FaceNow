@@ -32,6 +32,19 @@ final class MicrophoneToggle: NSButton {
     /// The destination knob position used to avoid duplicate animations.
     private var targetProgress: CGFloat = 0
 
+    /// The text, icon, and track size including the toggle's explicit content insets.
+    override var intrinsicContentSize: NSSize {
+        let text = Typography.size(
+            title,
+            font: font!
+        )
+        // CSS padding: 6px 7px 6px 14px; 8px gaps; 1px border.
+        return NSSize(
+            width: 2 + 14 + 14 + 8 + ceil(text.width) + 8 + 30 + 7,
+            height: 2 + 6 + max(18, ceil(text.height)) + 6
+        )
+    }
+
     /// Supplies the layer animation used when changing the knob position.
     override class func defaultAnimation(
         forKey key: NSAnimatablePropertyKey
@@ -59,19 +72,6 @@ final class MicrophoneToggle: NSButton {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
-
-    /// The text, icon, and track size including the toggle's explicit content insets.
-    override var intrinsicContentSize: NSSize {
-        let text = Typography.size(
-            title,
-            font: font!
-        )
-        // CSS padding: 6px 7px 6px 14px; 8px gaps; 1px border.
-        return NSSize(
-            width: 2 + 14 + 14 + 8 + ceil(text.width) + 8 + 30 + 7,
-            height: 2 + 6 + max(18, ceil(text.height)) + 6
-        )
-    }
 
     /// Updates custom presentation after the native button cell changes its state.
     @objc private func didToggle() {

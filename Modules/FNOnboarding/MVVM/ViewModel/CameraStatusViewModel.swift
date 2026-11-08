@@ -15,31 +15,6 @@ final class CameraStatusViewModel {
     /// Supplies current device selection and mutation restrictions.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
 
-    /// The read-only status of virtual output, independent of physical input permission.
-    enum VirtualCameraIndicator: Equatable {
-        case available
-        case checking
-        case unavailable
-
-        /// Describes the light without relying on color alone.
-        var helpText: String {
-            switch self {
-            case .available: OnboardingStrings.landingVirtualCameraAvailable
-            case .checking: OnboardingStrings.landingVirtualCameraChecking
-            case .unavailable: OnboardingStrings.landingVirtualCameraUnavailable
-            }
-        }
-    }
-
-    /// Projects the existing virtual-output facts without creating another readiness cache.
-    var virtualCameraIndicator: VirtualCameraIndicator {
-        switch virtualCameraRepo.readiness(for: .virtualOutput) {
-        case .ready: .available
-        case .checking: .checking
-        case .permissionRequired, .unavailable: .unavailable
-        }
-    }
-
     /// Derives presentation without retaining another copy of readiness or loading state.
     var presentation: CameraNoticePresentation? {
         presentation(for: .complete)

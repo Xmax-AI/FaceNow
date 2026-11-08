@@ -181,6 +181,9 @@ final class OnboardingGuideView: Canvas {
         return view
     }()
 
+    /// Prevents keyboard events from reaching the covered home page.
+    override var acceptsFirstResponder: Bool { true }
+
     /// Composes a modal overlay while retaining the underlying home and preview bindings.
     init() {
         super.init()
@@ -203,9 +206,6 @@ final class OnboardingGuideView: Canvas {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
-
-    /// Prevents keyboard events from reaching the covered home page.
-    override var acceptsFirstResponder: Bool { true }
 
     /// Dismisses preparation without saving completion when Escape is pressed.
     override func cancelOperation(
@@ -300,9 +300,10 @@ final class OnboardingGuideView: Canvas {
         previous.isHidden = repo.step == .camera
         skipAudio.isHidden = !model.showsAudioSkip
         skipAudio.isEnabled = model.canSkipAudio
-        primary.title = model.primaryTitle
-        primary.isEnabled = model.primaryEnabled
-        primary.loading = model.primaryLoading
+        let presentation = model.primaryPresentation
+        primary.title = presentation.title
+        primary.isEnabled = presentation.canPerform
+        primary.loading = presentation.isLoading
         primary.snp.updateConstraints { make in make.width.equalTo(primary.preferredWidth) }
         switch repo.step {
         case .camera:
@@ -630,8 +631,9 @@ private final class OnboardingProgressView: Canvas {
                     title: stage.title,
                     state: completed
                         ? OnboardingStrings.completed
-                        : skipped ? OnboardingStrings.skipped
-                        : active ? OnboardingStrings.currentStep : OnboardingStrings.upcoming
+                        : skipped
+                            ? OnboardingStrings.skipped
+                            : active ? OnboardingStrings.currentStep : OnboardingStrings.upcoming
                 )
             )
         }
@@ -735,7 +737,8 @@ private final class OnboardingIllustrationView: Canvas {
         #endif
         microphoneScreenshot.isHidden = !showsMicrophoneScreenshot
         videoCalls.isHidden = step != .videoCalls
-        self.explanation.isHidden = showsScreenshots || showsCameraScreenshot || showsMicrophoneScreenshot || step == .videoCalls
+        self.explanation.isHidden =
+            showsScreenshots || showsCameraScreenshot || showsMicrophoneScreenshot || step == .videoCalls
         if step != .videoCalls {
             self.explanation.update(
                 isComplete ? "-" : explanation,

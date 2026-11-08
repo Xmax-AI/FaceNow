@@ -11,9 +11,17 @@ final class AboutViewModel {
 
     /// One advantage card, separating copy and symbol identity from native layout.
     struct Advantage {
+
+        /// The system symbol representing the advantage.
         let symbol: String
+
+        /// The localized card heading.
         let title: String
+
+        /// The short value emphasized on the card.
         let metric: String
+
+        /// The localized explanation beneath the value.
         let detail: String
     }
 

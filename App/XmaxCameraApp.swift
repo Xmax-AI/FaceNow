@@ -46,7 +46,9 @@ final class XmaxCameraApp: NSObject, NSApplicationDelegate {
                     FileHandle.standardOutput.write(Data("\n".utf8))
                     exit(EXIT_SUCCESS)
                 } catch {
-                    FileHandle.standardError.write(Data("Beauty verification failed: \(error.localizedDescription)\n".utf8))
+                    FileHandle.standardError.write(
+                        Data("Beauty verification failed: \(error.localizedDescription)\n".utf8)
+                    )
                     exit(EXIT_FAILURE)
                 }
             }

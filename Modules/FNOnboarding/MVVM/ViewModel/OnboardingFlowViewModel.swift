@@ -92,19 +92,21 @@ final class OnboardingFlowViewModel: ObservableObject {
         let checked = virtualMicrophoneRepo.deviceCheckState == .completed
         switch virtualMicrophoneRepo.status {
         case .notInstalled:
-            return checked ? OnboardingStrings.virtualMicrophoneCheckedNotInstalledDetail
+            return checked
+                ? OnboardingStrings.virtualMicrophoneCheckedNotInstalledDetail
                 : OnboardingStrings.virtualMicrophoneInstallDetail
         case .pending:
-            return checked ? OnboardingStrings.virtualMicrophoneCheckedPendingDetail
+            return checked
+                ? OnboardingStrings.virtualMicrophoneCheckedPendingDetail
                 : OnboardingStrings.virtualMicrophonePendingDetail
-        case .disabled: return OnboardingStrings.virtualMicrophoneEnableDetail(microphone: VirtualMicrophoneConfiguration.deviceName)
+        case .disabled:
+            return OnboardingStrings.virtualMicrophoneEnableDetail(
+                microphone: VirtualMicrophoneConfiguration.deviceName
+            )
         case .enabled: return OnboardingStrings.virtualMicrophoneStepReady
         case .failed: return virtualMicrophoneRepo.failure ?? VirtualMicrophoneStrings.failed
         }
     }
-
-    /// Whether the system camera permission prompt is awaiting an answer.
-    var isRequestingAccess: Bool { virtualCameraRepo.isRequestingCameraAccess }
 
     /// Whether camera access requires an explicit settings change instead of another prompt.
     var needsCameraSettings: Bool { authorization == .denied || authorization == .restricted }
@@ -222,10 +224,21 @@ final class OnboardingFlowViewModel: ObservableObject {
 
     /// Keeps the primary button's title, command, enablement, and spinner consistent.
     struct PrimaryPresentation {
+
+        /// The title shown on the primary button.
         let title: String
+
+        /// The command available at the current step.
         let action: PrimaryAction?
+
+        /// Whether the step permits the command.
         var isEnabled = true
+
+        /// Whether the button shows an operation in progress.
         var isLoading = false
+
+        /// Whether the primary button can accept a new action.
+        var canPerform: Bool { isEnabled && !isLoading }
     }
 
     /// Derives one primary action from shared camera facts and the current guide stage.
@@ -245,7 +258,7 @@ final class OnboardingFlowViewModel: ObservableObject {
             if virtualMicrophoneRepo.deviceAvailable {
                 return PrimaryPresentation(title: VirtualMicrophoneStrings.enable, action: .enableVirtualMicrophone)
             }
-            if virtualMicrophoneRepo.isInstalled {
+            if virtualMicrophoneRepo.driverInstalled {
                 return PrimaryPresentation(title: VirtualMicrophoneStrings.checkAgain, action: .checkVirtualMicrophone)
             }
             return PrimaryPresentation(title: VirtualMicrophoneStrings.install, action: .installVirtualMicrophone)
@@ -294,14 +307,13 @@ final class OnboardingFlowViewModel: ObservableObject {
         )
     }
 
-    /// Exposes primary control values without duplicating their state derivation.
-    var primaryTitle: String { primaryPresentation.title }
-    var primaryEnabled: Bool { primaryPresentation.isEnabled && !primaryPresentation.isLoading }
-    var primaryLoading: Bool { primaryPresentation.isLoading }
-
     /// A numbered instruction rendered by the guide without interpreting repository flags.
     struct Instruction {
+
+        /// The action or milestone displayed in the timeline.
         let title: String
+
+        /// The supporting instruction or current status.
         let detail: String
     }
 
@@ -321,7 +333,9 @@ final class OnboardingFlowViewModel: ObservableObject {
             instructions.append(
                 .init(
                     title: OnboardingStrings.videoCallsMicrophoneTitle,
-                    detail: OnboardingStrings.videoCallsMicrophoneDetail(microphone: VirtualMicrophoneConfiguration.deviceName)
+                    detail: OnboardingStrings.videoCallsMicrophoneDetail(
+                        microphone: VirtualMicrophoneConfiguration.deviceName
+                    )
                 )
             )
         }
@@ -352,7 +366,7 @@ final class OnboardingFlowViewModel: ObservableObject {
                 return [.init(title: OnboardingStrings.continueAction, detail: virtualMicrophoneExplanation)]
             }
             return [
-                .init(title: primaryTitle, detail: virtualMicrophoneExplanation),
+                .init(title: primaryPresentation.title, detail: virtualMicrophoneExplanation)
             ]
         }
         if onboardingRepo.step == .microphone {
@@ -364,7 +378,7 @@ final class OnboardingFlowViewModel: ObservableObject {
                     title: needsMicrophoneSettings
                         ? OnboardingStrings.noticeOpenSystemSettings : OnboardingStrings.allowMicrophoneAccess,
                     detail: microphonePermissionDetail
-                ),
+                )
             ]
         }
         let notice = cameraNotice
@@ -417,7 +431,7 @@ final class OnboardingFlowViewModel: ObservableObject {
         guard let notice else {
             return [
                 .init(
-                    title: primaryTitle,
+                    title: primaryPresentation.title,
                     detail: virtualCameraReady
                         ? OnboardingStrings.virtualCameraStepReady : OnboardingStrings.noticeCheckingVirtualCameraStatus
                 )
@@ -582,14 +596,19 @@ final class OnboardingFlowViewModel: ObservableObject {
         skippingAudio: Bool = false
     ) async -> Navigation? {
         let requestedStep = onboardingRepo.step
-        let requestedAction: PrimaryAction? = skippingAudio
+        let requestedAction: PrimaryAction? =
+            skippingAudio
             ? .skipAudio
             : primaryPresentation.action
         synchronize()
-        guard onboardingRepo.isPresented, onboardingRepo.step == requestedStep,
-            let action = requestedAction,
-            skippingAudio ? canSkipAudio : (primaryEnabled && primaryPresentation.action == action)
+        guard onboardingRepo.isPresented, onboardingRepo.step == requestedStep, let action = requestedAction
         else { return nil }
+        if skippingAudio {
+            guard canSkipAudio else { return nil }
+        } else {
+            let presentation = primaryPresentation
+            guard presentation.canPerform, presentation.action == action else { return nil }
+        }
         switch action {
         case .advance:
             onboardingRepo.advance()
@@ -599,7 +618,9 @@ final class OnboardingFlowViewModel: ObservableObject {
             isRequestingMicrophoneAccess = true
             defer { isRequestingMicrophoneAccess = false }
             _ = await generationRepo.requestMicrophoneAccess()
-            guard !Task.isCancelled, onboardingRepo.isPresented, onboardingRepo.step == requestedStep else { return nil }
+            guard !Task.isCancelled, onboardingRepo.isPresented, onboardingRepo.step == requestedStep else {
+                return nil
+            }
             synchronize()
         case .microphoneSettings:
             return .microphoneSettings

@@ -10,9 +10,9 @@ public enum Localization {
 
     /// The app target fixes its language independently of system and user preferences.
     #if OVERSEA
-    public static let languageCode = "en"
+        public static let languageCode = "en"
     #else
-    public static let languageCode = "zh-Hans"
+        public static let languageCode = "zh-Hans"
     #endif
 
     /// The locale used when formatting parameters inside app-owned localized messages.

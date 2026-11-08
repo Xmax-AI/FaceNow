@@ -37,6 +37,15 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     /// The nominal samples per second derived from the negotiated frame duration.
     var frameRate: Int { Int((1 / frameDuration.seconds).rounded()) }
 
+    /// Sink buffering is deliberately small to bound transport latency.
+    var availableProperties: Set<CMIOExtensionProperty> {
+        var properties: Set<CMIOExtensionProperty> = [.streamActiveFormatIndex, .streamFrameDuration]
+        if direction == .sink {
+            properties.formUnion([.streamSinkBufferQueueSize, .streamSinkBuffersRequiredForStartup])
+        }
+        return properties
+    }
+
     /// Builds either a camera consumer stream or a producer sink.
     init(
         device: CameraDeviceSource,
@@ -54,15 +63,6 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
             clockType: .hostTime,
             source: self
         )
-    }
-
-    /// Sink buffering is deliberately small to bound transport latency.
-    var availableProperties: Set<CMIOExtensionProperty> {
-        var properties: Set<CMIOExtensionProperty> = [.streamActiveFormatIndex, .streamFrameDuration]
-        if direction == .sink {
-            properties.formUnion([.streamSinkBufferQueueSize, .streamSinkBuffersRequiredForStartup])
-        }
-        return properties
     }
 
     /// Returns the fixed format and producer queue requirements.

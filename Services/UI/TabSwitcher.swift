@@ -96,6 +96,22 @@ final class TabSwitcher: Canvas {
         }
     }()
 
+    /// The content-derived width including the track insets and segment gaps.
+    var preferredWidth: CGFloat {
+        let widths = segments.map(\.preferredWidth)
+        let content =
+            distribution == .equal
+            ? (widths.max() ?? 0) * CGFloat(widths.count)
+            : widths.reduce(0, +)
+        return content + CGFloat(max(0, widths.count - 1)) * 2 + 8
+    }
+
+    /// The controls used by the onboarding dialog's existing keyboard focus cycle.
+    var selectionControls: [NSControl] { segments }
+
+    /// The standard control height and its content-derived width.
+    override var fittingSize: NSSize { NSSize(width: preferredWidth, height: 42) }
+
     /// Composes independently rendered native segments with stable SnapKit constraints.
     init(
         titles: [String],
@@ -134,22 +150,6 @@ final class TabSwitcher: Canvas {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
-
-    /// The content-derived width including the track insets and segment gaps.
-    var preferredWidth: CGFloat {
-        let widths = segments.map(\.preferredWidth)
-        let content =
-            distribution == .equal
-            ? (widths.max() ?? 0) * CGFloat(widths.count)
-            : widths.reduce(0, +)
-        return content + CGFloat(max(0, widths.count - 1)) * 2 + 8
-    }
-
-    /// The controls used by the onboarding dialog's existing keyboard focus cycle.
-    var selectionControls: [NSControl] { segments }
-
-    /// The standard control height and its content-derived width.
-    override var fittingSize: NSSize { NSSize(width: preferredWidth, height: 42) }
 
     /// Updates availability without restarting unchanged appearance animations.
     func setEnabled(
@@ -286,6 +286,9 @@ private final class TabSegmentButton: NSButton {
         ceil(Typography.size(title, font: font ?? Typography.font(size: 13.5)).width) + horizontalPadding * 2
     }
 
+    /// The focus ring follows the control's constrained bounds.
+    override var focusRingMaskBounds: NSRect { bounds }
+
     /// Installs native click behavior and isolated background and label layers.
     init(
         title: String,
@@ -397,9 +400,6 @@ private final class TabSegmentButton: NSButton {
         let radius = surfaceRadius ?? bounds.height / 2
         NSBezierPath(roundedRect: bounds, xRadius: radius, yRadius: radius).fill()
     }
-
-    /// The focus ring follows the control's constrained bounds.
-    override var focusRingMaskBounds: NSRect { bounds }
 
     /// Updates layer geometry only; SnapKit exclusively positions this NSView.
     override func layout() {

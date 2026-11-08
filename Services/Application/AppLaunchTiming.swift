@@ -53,6 +53,35 @@ struct AppLaunchTiming: Equatable, Sendable {
     /// The currently measured stage, absent before an accepted Start action.
     private(set) var phase: Phase?
 
+    /// The accumulated cleanup and app-setup duration, available after SDK startup begins.
+    var preparationMs: Double? {
+        guard let phase, phase.rawValue >= Phase.generation.rawValue else { return nil }
+        return Double(
+            Phase.allCases.filter { $0.rawValue < Phase.generation.rawValue }
+                .reduce(UInt64(0)) { $0 + (durations[$1] ?? 0) }
+        ) / 1_000_000
+    }
+
+    /// The directly measured Start-to-result duration, absent before binding completes.
+    var totalMs: Double? {
+        guard let startedAt, let finishedAt else { return nil }
+        return Double(finishedAt - startedAt) / 1_000_000
+    }
+
+    /// The stage durations formatted without inventing unavailable measurements.
+    var summary: String {
+        Phase.allCases.map { phase in
+            let value =
+                milliseconds(for: phase).map {
+                    String(
+                        format: "%.1f ms",
+                        $0
+                    )
+                } ?? "—"
+            return "\(phase.name)=\(value)"
+        }.joined(separator: "; ")
+    }
+
     /// Resets timing for one accepted operation at its original Start timestamp.
     mutating func begin(
         operation: UUID,
@@ -101,48 +130,5 @@ struct AppLaunchTiming: Equatable, Sendable {
         for phase: Phase
     ) -> Double? {
         durations[phase].map { Double($0) / 1_000_000 }
-    }
-
-    /// The accumulated cleanup and app-setup duration, available after SDK startup begins.
-    var preparationMs: Double? {
-        guard let phase, phase.rawValue >= Phase.generation.rawValue else { return nil }
-        return Double(
-            Phase.allCases.filter { $0.rawValue < Phase.generation.rawValue }
-                .reduce(UInt64(0)) { $0 + (durations[$1] ?? 0) }
-        ) / 1_000_000
-    }
-
-    /// The directly measured Start-to-result duration, absent before binding completes.
-    var totalMs: Double? {
-        guard let startedAt, let finishedAt else { return nil }
-        return Double(finishedAt - startedAt) / 1_000_000
-    }
-
-    /// The completed preparation stages formatted for diagnostics.
-    var preparationSummary: String {
-        Phase.allCases.filter { $0.rawValue < Phase.generation.rawValue }.map { phase in
-            let value =
-                milliseconds(for: phase).map {
-                    String(
-                        format: "%.1f ms",
-                        $0
-                    )
-                } ?? "—"
-            return "\(phase.name): \(value)"
-        }.joined(separator: "\n")
-    }
-
-    /// The stage durations formatted without inventing unavailable measurements.
-    var summary: String {
-        Phase.allCases.map { phase in
-            let value =
-                milliseconds(for: phase).map {
-                    String(
-                        format: "%.1f ms",
-                        $0
-                    )
-                } ?? "—"
-            return "\(phase.name)=\(value)"
-        }.joined(separator: "; ")
     }
 }

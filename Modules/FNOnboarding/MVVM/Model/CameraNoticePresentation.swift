@@ -78,8 +78,7 @@ enum CameraNoticeAction: Equatable {
         case .requestCameraAccess: OnboardingStrings.noticeAllowCameraAccess
         case .openSettings: OnboardingStrings.noticeOpenSystemSettings
         case .chooseCamera: OnboardingStrings.noticeChooseCamera
-        case .installVirtualCamera: OnboardingStrings.install
-        case .reinstallVirtualCamera: OnboardingStrings.install
+        case .installVirtualCamera, .reinstallVirtualCamera: OnboardingStrings.install
         case .checkAgain: OnboardingStrings.noticeCheckAgain
         case .retry: OnboardingStrings.retry
         case .showHelp: OnboardingStrings.viewAction
@@ -131,13 +130,15 @@ struct CameraNoticePresentation: Equatable {
         surface: CameraNoticeSurface = .banner,
         installationFailure: CameraOperationFailure? = nil
     ) -> Self? {
-        guard var notice = resolve(
-            readiness: readiness,
-            operation: operation,
-            failure: failure,
-            actionsLocked: actionsLocked,
-            surface: surface
-        ) else { return nil }
+        guard
+            var notice = resolve(
+                readiness: readiness,
+                operation: operation,
+                failure: failure,
+                actionsLocked: actionsLocked,
+                surface: surface
+            )
+        else { return nil }
         if !notice.isLoading,
             notice.action.operation == .install || notice.action.operation == .reinstall,
             let installationFailure
@@ -169,7 +170,8 @@ struct CameraNoticePresentation: Equatable {
         if let operation, operation.origin == .user {
             switch readiness {
             case .permissionRequired(.denied), .permissionRequired(.restricted),
-                .unavailable(.approvalRequired), .unavailable(.installationIncomplete), .unavailable(.installationLocation):
+                .unavailable(.approvalRequired), .unavailable(.installationIncomplete),
+                .unavailable(.installationLocation):
                 break
             default:
                 return progress(operation.kind)

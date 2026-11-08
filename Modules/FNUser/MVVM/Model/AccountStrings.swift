@@ -39,24 +39,6 @@ enum AccountStrings {
     }
 
     /// Account, credit or header presentation text.
-    static var accountGetAnAPIKeyFromTheXmaxOpenPlatform: String {
-        Localization.string(
-            "account.get_an_api_key_from_the_xmax_open_platform",
-            table: "User",
-            defaultValue: "Get an API key from the Xmax Open Platform."
-        )
-    }
-
-    /// Account, credit or header presentation text.
-    static var accountSignInToYourAccount: String {
-        Localization.string(
-            "account.sign_in_to_your_account",
-            table: "User",
-            defaultValue: "Sign in to your account"
-        )
-    }
-
-    /// Account, credit or header presentation text.
     static var accountBuyCredits: String {
         Localization.string(
             "account.buy_credits",
@@ -172,6 +154,50 @@ enum AccountStrings {
             defaultValue: "Open the credits page."
         )
     }
+    /// Account authentication notice shown when entering or leaving home.
+    static var sessionExpired: String {
+        Localization.string(
+            "session.expired",
+            table: "User",
+            defaultValue: "Your session has expired. Please sign in again."
+        )
+    }
+
+    /// Account authentication notice shown when entering or leaving home.
+    static var sessionUnavailable: String {
+        Localization.string(
+            "session.unavailable",
+            table: "User",
+            defaultValue: "Unable to verify your session. Check your connection and sign in again."
+        )
+    }
+
+    /// Account authentication notice shown when entering or leaving home.
+    static var invalidAPIKey: String {
+        Localization.string(
+            "session.invalid_api_key",
+            table: "User",
+            defaultValue: "Invalid API key. Check it and try again."
+        )
+    }
+
+    /// Account authentication notice shown when entering or leaving home.
+    static var inactiveAPIKey: String {
+        Localization.string(
+            "session.inactive_api_key",
+            table: "User",
+            defaultValue: "This API key is invalid or no longer active."
+        )
+    }
+
+    /// Account authentication notice shown when entering or leaving home.
+    static var ownerMismatch: String {
+        Localization.string(
+            "session.owner_mismatch",
+            table: "User",
+            defaultValue: "The account profile does not match this API key."
+        )
+    }
 
     /// Complete message; preserve all format placeholders.
     static func accountAccessibility(
@@ -219,50 +245,6 @@ enum AccountStrings {
             table: "User",
             defaultValue: "%1$@ %2$@ Open the credits page.",
             arguments: [state, message]
-        )
-    }
-    /// Account authentication notice shown when entering or leaving home.
-    static var sessionExpired: String {
-        Localization.string(
-            "session.expired",
-            table: "User",
-            defaultValue: "Your session has expired. Please sign in again."
-        )
-    }
-
-    /// Account authentication notice shown when entering or leaving home.
-    static var sessionUnavailable: String {
-        Localization.string(
-            "session.unavailable",
-            table: "User",
-            defaultValue: "Unable to verify your session. Check your connection and sign in again."
-        )
-    }
-
-    /// Account authentication notice shown when entering or leaving home.
-    static var invalidAPIKey: String {
-        Localization.string(
-            "session.invalid_api_key",
-            table: "User",
-            defaultValue: "Invalid API key. Check it and try again."
-        )
-    }
-
-    /// Account authentication notice shown when entering or leaving home.
-    static var inactiveAPIKey: String {
-        Localization.string(
-            "session.inactive_api_key",
-            table: "User",
-            defaultValue: "This API key is invalid or no longer active."
-        )
-    }
-
-    /// Account authentication notice shown when entering or leaving home.
-    static var ownerMismatch: String {
-        Localization.string(
-            "session.owner_mismatch",
-            table: "User",
-            defaultValue: "The account profile does not match this API key."
         )
     }
 

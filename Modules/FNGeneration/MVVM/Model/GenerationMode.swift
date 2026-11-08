@@ -37,7 +37,10 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// The default Chinese prompt for style transfer.
     private static let vibexChinesePrompt = "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景"
+
+    /// The default English prompt for style transfer.
     private static let vibexEnglishPrompt =
         "The character from the reference image recreates the actions in the video. "
         + "Preserve all appearance details of the reference character exactly, "
@@ -60,7 +63,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
         case .clothx:
             Self.regionalPrompt(
                 chinese: "视频中人物衣服替换成参考图中衣服",
-                english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                english:
+                    "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
             )
         case .vibex:
             Self.regionalPrompt(
@@ -70,7 +74,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
         case .dimx:
             Self.regionalPrompt(
                 chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图角色召唤到视频人物的肩膀上或者手上",
-                english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the reference character onto the shoulder or hand of the person in the video."
+                english:
+                    "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the reference character onto the shoulder or hand of the person in the video."
             )
         case .free: ""
         }
@@ -224,7 +229,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_image1.png",
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
-                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -235,7 +241,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_image2.png",
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
-                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -246,7 +253,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_real_image3.png",
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
-                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -257,7 +265,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_real_image4.png",
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
-                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -268,7 +277,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_image5.png",
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
-                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -279,7 +289,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_image6.png",
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的上衣穿到视频人物身上，其他保持不变",
-                        english: "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -290,7 +301,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_image7.png",
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的上衣穿到视频人物身上，其他保持不变",
-                        english: "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -301,7 +313,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_image8.png",
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的下装穿到视频人物身上，其他保持不变",
-                        english: "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
+                        english:
+                            "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
                     ),
                     faceRestoration: true
                 ),
@@ -312,7 +325,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_real_image9.png",
                     prompt: Self.regionalPrompt(
                         chinese: "将参考图的下装穿到视频人物身上，其他保持不变",
-                        english: "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
+                        english:
+                            "Put the bottoms from the reference image on the video character. Keep everything else unchanged."
                     ),
                     faceRestoration: true
                 ),
@@ -323,7 +337,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "clothx_real_image10.png",
                     prompt: Self.regionalPrompt(
                         chinese: "视频中人物衣服替换成参考图中衣服",
-                        english: "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
+                        english:
+                            "Keep the character and background unchanged, only replace clothing with the reference‑image outfit."
                     ),
                     faceRestoration: true
                 ),
@@ -436,7 +451,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "dimx_image3.png",
                     prompt: Self.regionalPrompt(
                         chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                        english:
+                            "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
                     )
                 ),
                 .preset(
@@ -446,7 +462,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "dimx_image4.png",
                     prompt: Self.regionalPrompt(
                         chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                        english:
+                            "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
                     )
                 ),
                 .preset(
@@ -456,7 +473,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "dimx_image5.png",
                     prompt: Self.regionalPrompt(
                         chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                        english:
+                            "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
                     )
                 ),
                 .preset(
@@ -466,7 +484,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "removed-preset-9.png",
                     prompt: Self.regionalPrompt(
                         chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                        english:
+                            "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
                     )
                 ),
                 .preset(
@@ -476,7 +495,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "dimx_image7.png",
                     prompt: Self.regionalPrompt(
                         chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                        english:
+                            "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
                     )
                 ),
                 .preset(
@@ -486,7 +506,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     reference: "dimx_image8.png",
                     prompt: Self.regionalPrompt(
                         chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-                        english: "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
+                        english:
+                            "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
                     )
                 ),
             ]

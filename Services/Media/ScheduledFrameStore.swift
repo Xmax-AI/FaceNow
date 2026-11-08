@@ -95,6 +95,13 @@ final class ScheduledFrameStore: @unchecked Sendable {
     /// The queue discard counters read and reset under the same state lock.
     private var statistics = FrameQueueStatistics()
 
+    /// Reports retained work for diagnostics without exposing queue mutation.
+    var pendingFrameCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return pending.count
+    }
+
     /// SDK timestamps are rebased once; CMIO input already uses the host clock.
     init(
         usesHostTime: Bool = false,
@@ -245,13 +252,6 @@ final class ScheduledFrameStore: @unchecked Sendable {
             receivedAt: displayed.receivedAt,
             presentationTime: displayed.presentationTime + videoDelay
         )
-    }
-
-    /// Reports retained work for diagnostics without exposing queue mutation.
-    var pendingFrameCount: Int {
-        lock.lock()
-        defer { lock.unlock() }
-        return pending.count
     }
 
     /// Drains interval counters without changing queued frames or their presentation times.

@@ -16,13 +16,6 @@ final class UserAccountViewModel {
     /// The authenticated profile and server-owned balance.
     @Injected(\.userRepo) private var userRepo: UserRepository
 
-    /// Resolves the shared repository while permitting an isolated test account.
-    init(
-        user: UserRepository? = nil
-    ) {
-        if let user { userRepo = user }
-    }
-
     /// Uses the first two phone characters, falling back to the email's uppercase initials.
     var avatarText: String {
         if let phone = nonempty(userRepo.profile?.phone) { return String(phone.prefix(2)) }
@@ -69,6 +62,13 @@ final class UserAccountViewModel {
         if userRepo.isLoadingCredits { return AccountStrings.accountRefreshingRemainingCreditsOpenTheCreditsPage }
         if showsLowCreditsWarning { return AccountStrings.accountLowCreditsTopUpToAvoidInterruptions }
         return AccountStrings.accountOpenTheCreditsPage
+    }
+
+    /// Resolves the shared repository while permitting an isolated test account.
+    init(
+        user: UserRepository? = nil
+    ) {
+        if let user { userRepo = user }
     }
 
     /// Treats empty profile fields as absent when deriving avatar characters.

@@ -73,9 +73,6 @@ final class VirtualCameraOutput: @unchecked Sendable {
     /// The number of new frames normalized into the bounded renderer pool.
     private var convertedFrames = 0
 
-    /// Test mode uses the same transport as generation.
-    private var isTestPattern = false
-
     /// Reports aggregate transport measurements and dropped-frame failures.
     private let logger = Logger(
         subsystem: VirtualCameraConfiguration.appBundleID,
@@ -104,9 +101,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
     }
 
     /// Waits for a usable sink and rejects late discovery results after stop or a newer start.
-    /// The caller supplies the localized video badge; diagnostic color bars omit product artwork.
+    /// The caller supplies the localized badge for generated video.
     func start(
-        testPattern: Bool,
         generationCaption: String
     ) async throws {
         let requestID = UUID()
@@ -152,15 +148,10 @@ final class VirtualCameraOutput: @unchecked Sendable {
                             do {
                                 self.stopOnWorker()
                                 let format = VirtualCameraConfiguration.videoFormat
-                                let overlay: CGImage?
-                                if testPattern {
-                                    overlay = nil
-                                } else {
-                                    overlay = try VirtualCameraWatermark.makeImage(
-                                        format: format,
-                                        generationCaption: generationCaption
-                                    )
-                                }
+                                let overlay = try VirtualCameraWatermark.makeImage(
+                                    format: format,
+                                    generationCaption: generationCaption
+                                )
                                 let renderer = try VideoFrameRenderer(
                                     format: format,
                                     overlay: overlay,
@@ -194,7 +185,6 @@ final class VirtualCameraOutput: @unchecked Sendable {
                                         stream
                                     )
                                 )
-                                self.isTestPattern = testPattern
                                 let timer = DispatchSource.makeTimerSource(queue: self.worker)
                                 timer.schedule(
                                     deadline: .now(),
@@ -258,10 +248,7 @@ final class VirtualCameraOutput: @unchecked Sendable {
         do {
             let buffer: CVPixelBuffer
             var isNewFrame = false
-            if isTestPattern {
-                buffer = try renderer.testPattern(at: time.seconds)
-                isNewFrame = true
-            } else if let frame = frames.frame(now: time.seconds) {
+            if let frame = frames.frame(now: time.seconds) {
                 let caption = subtitle.withLock { $0 }
                 isNewFrame = renderedInput !== frame.pixelBuffer
                 if isNewFrame || renderedSubtitle !== caption {
@@ -316,8 +303,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
             return
         }
         sentFrames += 1
-        if isNewFrame { sentNewFrames += 1 }
-        if isNewFrame, !isTestPattern {
+        if isNewFrame {
+            sentNewFrames += 1
             if renderedInput === renderedOutput {
                 passthroughFrames += 1
             } else {

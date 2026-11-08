@@ -97,12 +97,15 @@ enum Icon {
         for kind: Kind
     ) -> CGRect {
         let glyph = path(kind)
-        let painted = isFilled(kind) ? glyph : glyph.copy(
-            strokingWithWidth: strokeWidth(for: kind),
-            lineCap: .round,
-            lineJoin: .round,
-            miterLimit: 10
-        )
+        let painted =
+            isFilled(kind)
+            ? glyph
+            : glyph.copy(
+                strokingWithWidth: strokeWidth(for: kind),
+                lineCap: .round,
+                lineJoin: .round,
+                miterLimit: 10
+            )
         let bounds = painted.boundingBoxOfPath
         return CGRect(x: bounds.minX / 24, y: bounds.minY / 24, width: bounds.width / 24, height: bounds.height / 24)
     }

@@ -73,24 +73,6 @@
         }
       }
     },
-    "action.remove": {
-      "comment": "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remove"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "移除"
-          }
-        }
-      }
-    },
     "action.retry": {
       "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
       "extractionState": "manual",

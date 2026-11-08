@@ -32,7 +32,11 @@ final class AboutViewController: NSViewController {
 
     /// Defers hierarchy removal until the standard modal motion has completed.
     private var dismissalTask: Task<Void, Never>?
+
+    /// Whether an animated dismissal is in progress.
     private var isDismissing = false
+
+    /// Whether the controller has released its presentation.
     private var isStopped = false
 
     /// Mounts static content without issuing network, account, or camera work.

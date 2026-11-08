@@ -167,7 +167,7 @@ final class OnboardingViewController: NSViewController {
         skippingAudio: Bool = false
     ) {
         guard !isStopped, !isDismissing, actionTask == nil,
-            skippingAudio ? viewModel.canSkipAudio : viewModel.primaryEnabled
+            skippingAudio ? viewModel.canSkipAudio : viewModel.primaryPresentation.canPerform
         else { return }
         let actionID = UUID()
         self.actionID = actionID

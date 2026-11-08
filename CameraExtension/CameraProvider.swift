@@ -18,6 +18,9 @@ final class CameraProvider: NSObject, CMIOExtensionProviderSource {
     /// The device persists for the entire provider lifetime.
     private var deviceSource: CameraDeviceSource!
 
+    /// The provider's read-only metadata.
+    var availableProperties: Set<CMIOExtensionProperty> { [.providerManufacturer] }
+
     /// Constructs the fixed device before starting the extension service.
     init(
         queue: DispatchQueue
@@ -42,9 +45,6 @@ final class CameraProvider: NSObject, CMIOExtensionProviderSource {
     ) {
         deviceSource.disconnect(client)
     }
-
-    /// The provider's read-only metadata.
-    var availableProperties: Set<CMIOExtensionProperty> { [.providerManufacturer] }
 
     /// Reports the camera manufacturer.
     func providerProperties(
@@ -132,6 +132,9 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
         category: "Camera"
     )
 
+    /// The virtual transport and stable model identifier.
+    var availableProperties: Set<CMIOExtensionProperty> { [.deviceTransportType, .deviceModel] }
+
     /// Creates source first so AVFoundation discovers the camera input stream.
     init(
         queue: DispatchQueue
@@ -174,9 +177,6 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
         try device.addStream(source.stream)
         try device.addStream(sink.stream)
     }
-
-    /// The virtual transport and stable model identifier.
-    var availableProperties: Set<CMIOExtensionProperty> { [.deviceTransportType, .deviceModel] }
 
     /// Returns the device's read-only metadata.
     func deviceProperties(

@@ -137,18 +137,6 @@ enum HomeStrings {
         )
     }
 
-    /// The public version label; the parameter is the app's marketing version.
-    static func version(
-        _ value: String
-    ) -> String {
-        Localization.format(
-            "home.version",
-            table: "Home",
-            defaultValue: "V%@",
-            arguments: [value]
-        )
-    }
-
     /// Displayed text in Modules/FNHome/HomeViewController.swift.
     static var homeCouldnTRestartFaceNowQuitAndReopenTheApp: String {
         Localization.string(
@@ -164,24 +152,6 @@ enum HomeStrings {
             "home.signed_in_successfully",
             table: "Home",
             defaultValue: "Signed in successfully"
-        )
-    }
-
-    /// Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.
-    static var homeHowToUseFaceNowInVideoCalls: String {
-        Localization.string(
-            "home.how_to_use_facenow_in_video_calls",
-            table: "Home",
-            defaultValue: "How to use FaceNow in video calls"
-        )
-    }
-
-    /// Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.
-    static var homeOpenFaceNowSetupGuide: String {
-        Localization.string(
-            "home.open_facenow_setup_guide",
-            table: "Home",
-            defaultValue: "Open FaceNow setup guide"
         )
     }
 
@@ -266,7 +236,6 @@ enum HomeStrings {
         )
     }
 
-
     /// About Us product copy, maintained with the Home String Catalog.
     static var aboutModelTitle: String {
         Localization.string(
@@ -276,13 +245,13 @@ enum HomeStrings {
         )
     }
 
-
     /// About Us product copy, maintained with the Home String Catalog.
     static var aboutModelIntroduction: String {
         Localization.string(
             "about.model_introduction",
             table: "Home",
-            defaultValue: "Xmax X2.1 is the real-time video generation model behind FaceNow and one of the world's leading general-purpose video editing models. It can reshape character appearances, outfits, and visual styles in real time, combining high-fidelity visuals with the fastest response and lowest usage costs in its class to make real-time video applications commercially viable at scale."
+            defaultValue:
+                "Xmax X2.1 is the real-time video generation model behind FaceNow and one of the world's leading general-purpose video editing models. It can reshape character appearances, outfits, and visual styles in real time, combining high-fidelity visuals with the fastest response and lowest usage costs in its class to make real-time video applications commercially viable at scale."
         )
     }
 
@@ -318,7 +287,8 @@ enum HomeStrings {
         Localization.string(
             "about.latency.detail",
             table: "Home",
-            defaultValue: "Ultra-low end-to-end latency brings movements and effects to the screen in real time, with fast startup and smooth effect switching."
+            defaultValue:
+                "Ultra-low end-to-end latency brings movements and effects to the screen in real time, with fast startup and smooth effect switching."
         )
     }
 
@@ -345,7 +315,8 @@ enum HomeStrings {
         Localization.string(
             "about.cost.detail",
             table: "Home",
-            defaultValue: "At a fraction of the price of competing products, it significantly lowers the cost of real-time video generation."
+            defaultValue:
+                "At a fraction of the price of competing products, it significantly lowers the cost of real-time video generation."
         )
     }
 
@@ -372,7 +343,8 @@ enum HomeStrings {
         Localization.string(
             "about.fidelity.detail",
             table: "Home",
-            defaultValue: "Faithfully reproduces the details and textures of characters and clothing, bringing generated results closer to the intended look and style."
+            defaultValue:
+                "Faithfully reproduces the details and textures of characters and clothing, bringing generated results closer to the intended look and style."
         )
     }
 
@@ -390,7 +362,8 @@ enum HomeStrings {
         Localization.string(
             "about.partnership_detail",
             table: "Home",
-            defaultValue: "Beyond video meetings, Xmax X2.1 can power live streaming, virtual try-on for e-commerce, and other interactive video products. Related applications have received positive feedback at industry showcases and from partners. If you would like to integrate real-time video generation into your own app, contact us to learn about integration options and technical support."
+            defaultValue:
+                "Beyond video meetings, Xmax X2.1 can power live streaming, virtual try-on for e-commerce, and other interactive video products. Related applications have received positive feedback at industry showcases and from partners. If you would like to integrate real-time video generation into your own app, contact us to learn about integration options and technical support."
         )
     }
 
@@ -409,6 +382,18 @@ enum HomeStrings {
             "about.contact_detail",
             table: "Home",
             defaultValue: "Tell us about your use case and integration needs."
+        )
+    }
+
+    /// The public version label; the parameter is the app's marketing version.
+    static func version(
+        _ value: String
+    ) -> String {
+        Localization.format(
+            "home.version",
+            table: "Home",
+            defaultValue: "V%@",
+            arguments: [value]
         )
     }
 

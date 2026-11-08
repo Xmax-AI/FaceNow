@@ -237,6 +237,16 @@ enum UserStrings {
         Localization.string("legal.privacy_policy", table: "Common", defaultValue: "Privacy Policy")
     }
 
+    /// Allows translators to reorder the two legal links within the complete agreement sentence.
+    static var agreement: String {
+        Localization.format(
+            "login.agreement",
+            table: "User",
+            defaultValue: "By signing in, you are agreeing to the %1$@ and %2$@.",
+            arguments: [termsOfUse, privacyPolicy]
+        )
+    }
+
     /// Formats the remaining resend time as one complete translatable message.
     static func resendCode(
         seconds: Int
@@ -246,16 +256,6 @@ enum UserStrings {
             table: "User",
             defaultValue: "Resend (%llds)",
             arguments: [Int64(seconds)]
-        )
-    }
-
-    /// Allows translators to reorder the two legal links within the complete agreement sentence.
-    static var agreement: String {
-        Localization.format(
-            "login.agreement",
-            table: "User",
-            defaultValue: "By signing in, you are agreeing to the %1$@ and %2$@.",
-            arguments: [termsOfUse, privacyPolicy]
         )
     }
 }

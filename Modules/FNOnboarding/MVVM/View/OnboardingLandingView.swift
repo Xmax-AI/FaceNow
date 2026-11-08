@@ -16,6 +16,7 @@ final class OnboardingLandingView: Canvas {
     /// The first-launch content supplied by the module's data boundary.
     @Injected(\.onboardingRepo) private var onboardingRepo: OnboardingRepository
 
+    /// Approves home reference uploads through the generation repository.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
 
     /// Starts capture with the chosen resolution and appearance.
@@ -81,11 +82,22 @@ final class OnboardingLandingView: Canvas {
         ("4:3", .resolution1536x1152),
     ]
 
+    /// The appearance presets offered on the landing page.
     private let referencePresets = GenerationMode.charx.presets
+
+    /// The confirmed reference passed to generation.
     private var selectedReference: GenerationReference?
+
+    /// The latest approved custom appearance.
     private var importedReference: GenerationReference?
+
+    /// The pending upload displayed in the list while approval runs.
     private var uploadingReference: GenerationReference?
+
+    /// The active upload, cancelled when the account's selection is cleared.
     private var referenceImport: Task<Void, Never>?
+
+    /// Whether camera startup locks the reference controls.
     private var isStarting = false
 
     /// Keeps the selected appearance beside the independently scrolling list.
@@ -95,12 +107,14 @@ final class OnboardingLandingView: Canvas {
         return view
     }()
 
+    /// Separates the upload preview from the scrollable presets.
     private lazy var appearanceDivider: Canvas = {
         let view = Canvas(color: .white.withAlphaComponent(0.25))
         view.setAccessibilityElement(false)
         return view
     }()
 
+    /// Displays the confirmed appearance beside the list.
     private lazy var previewImage: GenerationThumbnailView = {
         let view = GenerationThumbnailView()
         return view
@@ -124,6 +138,7 @@ final class OnboardingLandingView: Canvas {
         return view
     }()
 
+    /// Displays home appearances and reports explicit selections.
     private lazy var referenceList: GenerationReferenceListView = {
         let view = GenerationReferenceListView(singleRow: true)
         view.onSelect = { [weak self] reference in self?.selectReference(reference) }
@@ -224,6 +239,14 @@ final class OnboardingLandingView: Canvas {
         return view
     }()
 
+    /// Keeps a visible preparation notice close to the headline in both layout and measurement.
+    private var headlineGap: CGFloat {
+        if !setupReminder.isHidden {
+            return min(24, max(16, viewportWidth * 0.006 + 10))
+        }
+        return min(40, max(26, viewportWidth * 0.011 + 17))
+    }
+
     /// Composes the startup view from its configured native controls.
     init() {
         super.init()
@@ -252,14 +275,6 @@ final class OnboardingLandingView: Canvas {
         contentWidth: CGFloat
     ) -> CGFloat {
         min(contentWidth, min(1040, max(640, viewportWidth * 0.55)))
-    }
-
-    /// Keeps a visible preparation notice close to the headline in both layout and measurement.
-    private var headlineGap: CGFloat {
-        if !setupReminder.isHidden {
-            return min(24, max(16, viewportWidth * 0.006 + 10))
-        }
-        return min(40, max(26, viewportWidth * 0.011 + 17))
     }
 
     /// Measures the headline, video-shaped placeholder, and copyright line.
@@ -318,6 +333,7 @@ final class OnboardingLandingView: Canvas {
         selectReference(referencePresets.first)
     }
 
+    /// Commits a new appearance and refreshes the home controls.
     private func selectReference(
         _ reference: GenerationReference?
     ) {
@@ -325,6 +341,7 @@ final class OnboardingLandingView: Canvas {
         updateReferenceSelection()
     }
 
+    /// Keeps the confirmed preview stable while an upload is pending.
     private func updateReferenceSelection() {
         let importing = referenceImport != nil
         let enabled = !isStarting && !importing
@@ -490,6 +507,7 @@ final class OnboardingLandingView: Canvas {
         }
     }
 
+    /// Fits a whole number of avatar cells at the preferred strip width.
     private func configureAppearanceLayout() {
         let dividerSpacing: CGFloat = 12
         let dividerWidth: CGFloat = 1

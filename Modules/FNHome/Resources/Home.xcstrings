@@ -559,24 +559,6 @@
         }
       }
     },
-    "home.how_to_use_facenow_in_video_calls" : {
-      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How to use FaceNow in video calls"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "如何在视频通话中使用 FaceNow"
-          }
-        }
-      }
-    },
     "home.microphone_off" : {
       "comment" : "Audio input selection beneath Start Camera.",
       "extractionState" : "manual",
@@ -609,24 +591,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未找到摄像头"
-          }
-        }
-      }
-    },
-    "home.open_facenow_setup_guide" : {
-      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeCameraControlsView.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open FaceNow setup guide"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开 FaceNow 设置指南"
           }
         }
       }

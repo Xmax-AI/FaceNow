@@ -115,15 +115,12 @@ final class GenerationRepository: ObservableObject {
 
     /// Allows startup selection or a runtime microphone change while other generation work is idle.
     var canChangeMicrophone: Bool {
-        !isBusy && !isClosing && !microphoneSwitching && !testPatternActive
+        !isBusy && !isClosing && !microphoneSwitching
             && (!sessionActive || [.ready, .connected, .generating].contains(state.connectionState))
     }
 
     /// Rejects stale input discovery results after another refresh or capture startup.
     private var microphoneRefreshID = UUID()
-
-    /// Whether diagnostic video is using the virtual output without generation.
-    @Published private(set) var testPatternActive = false
 
     // MARK: - State
 
@@ -331,7 +328,7 @@ final class GenerationRepository: ObservableObject {
     ) { errorMessage = message }
 
     /// Setup changes are disabled while capture or virtual output is in use.
-    var settingsLocked: Bool { isBusy || sessionActive || testPatternActive }
+    var settingsLocked: Bool { isBusy || sessionActive }
 
     /// Discovers physical inputs without opening a capture session.
     func refreshCameras() {
@@ -532,33 +529,6 @@ final class GenerationRepository: ObservableObject {
         }
     }
 
-    /// Exercises the installed camera transport without starting a generation session.
-    func toggleTestPattern() async {
-        guard !isBusy, !sessionActive else { return }
-        if testPatternActive {
-            await close()
-            return
-        }
-        isBusy = true
-        errorMessage = nil
-        let operation = lifecycleID
-        await cleanup?.value
-        guard lifecycleID == operation else { return }
-        do {
-            try await output.start(
-                testPattern: true,
-                generationCaption: GenerationStrings.controlsResult
-            )
-            guard lifecycleID == operation else { return }
-            testPatternActive = true
-            isBusy = false
-        } catch {
-            guard lifecycleID == operation else { return }
-            errorMessage = error.localizedDescription
-            resetSession()
-        }
-    }
-
     /// A capture choice does not retain an AVFoundation device.
     struct CaptureDevice: Identifiable {
 
@@ -593,7 +563,6 @@ final class GenerationRepository: ObservableObject {
             errorMessage = GenerationStrings.errorConnectAPhysicalCameraAndSelectItFromThe
             return
         }
-        if testPatternActive { await close() }
         isBusy = true
         errorMessage = nil
         let operation = UUID()
@@ -709,9 +678,9 @@ final class GenerationRepository: ObservableObject {
             )
             let stream = try await manager.createLocalCameraStream(
                 preset: preset,
-                cameraId: cameraID,
-                mirror: false,
-                microphone: selectedMicrophone
+                camera: .device(id: cameraID),
+                microphone: selectedMicrophone,
+                mirror: false
             )
             guard lifecycleID == operation else {
                 await manager.close()
@@ -778,7 +747,6 @@ final class GenerationRepository: ObservableObject {
             do {
                 try Task.checkCancellation()
                 try await output.start(
-                    testPattern: false,
                     generationCaption: GenerationStrings.controlsResult
                 )
                 try Task.checkCancellation()
@@ -1271,7 +1239,7 @@ final class GenerationRepository: ObservableObject {
 
     /// Returns to the landing page immediately and prevents a restart until media teardown finishes.
     func close() async {
-        guard !isClosing, isBusy || sessionActive || testPatternActive || localStream != nil else { return }
+        guard !isClosing, isBusy || sessionActive || localStream != nil else { return }
         resetSession()
         errorMessage = nil
         await cleanup?.value
@@ -1305,7 +1273,6 @@ final class GenerationRepository: ObservableObject {
         let microphone = virtualMicrophoneRepo.output
         microphone.reset(producer: nil)
         application?.cancel()
-        testPatternActive = false
         lifecycleID = UUID()
         microphoneLevelSubject.send(nil)
         stopTranslation()

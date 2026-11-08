@@ -109,24 +109,6 @@
         }
       }
     },
-    "account.get_an_api_key_from_the_xmax_open_platform" : {
-      "comment" : "Account, credit or header presentation text.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get an API key from the Xmax Open Platform."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从 Xmax 开放平台获取 API Key。"
-          }
-        }
-      }
-    },
     "account.low_credits" : {
       "comment" : "Account, credit or header presentation text.",
       "extractionState" : "manual",
@@ -213,24 +195,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "显示最近一次获取的余额。"
-          }
-        }
-      }
-    },
-    "account.sign_in_to_your_account" : {
-      "comment" : "Account, credit or header presentation text.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to your account"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录你的账号"
           }
         }
       }

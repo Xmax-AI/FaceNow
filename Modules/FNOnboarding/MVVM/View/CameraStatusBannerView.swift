@@ -74,6 +74,9 @@ final class CameraStatusBannerView: Canvas {
         return view
     }()
 
+    /// Measures the button through the shared native component instead of assuming a short label.
+    private var actionWidth: CGFloat { max(40, setupButton.preferredWidth) }
+
     /// Creates a stable warning layout that remains hidden until a confirmed failure is available.
     init() {
         super.init(
@@ -123,9 +126,6 @@ final class CameraStatusBannerView: Canvas {
         isHidden = presentation == nil
         return true
     }
-
-    /// Measures the button through the shared native component instead of assuming a short label.
-    private var actionWidth: CGFloat { max(40, setupButton.preferredWidth) }
 
     /// Measures the wrapped explanation using the same content insets as the installed constraints.
     func preferredHeight(

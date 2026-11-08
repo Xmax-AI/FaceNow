@@ -50,7 +50,8 @@ enum ControlMotion {
         host.layoutSubtreeIfNeeded()
         NSAnimationContext.runAnimationGroup { context in
             context.duration = isAnimated(in: host) ? duration : 0
-            context.timingFunction = visible
+            context.timingFunction =
+                visible
                 ? CAMediaTimingFunction(controlPoints: 0.16, 1, 0.3, 1)
                 : CAMediaTimingFunction(name: .easeInEaseOut)
             context.allowsImplicitAnimation = true

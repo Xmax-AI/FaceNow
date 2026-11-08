@@ -39,14 +39,6 @@ final class GenerationReferenceButton: NSButton {
         didSet { needsDisplay = true }
     }
 
-    /// Supplies native interpolation for the custom-drawn selection color.
-    override class func defaultAnimation(
-        forKey key: NSAnimatablePropertyKey
-    ) -> Any? {
-        if key == "selectionProgress" { return CABasicAnimation() }
-        return super.defaultAnimation(forKey: key)
-    }
-
     /// Whether an initial reference state has already been applied.
     private var configured = false
 
@@ -70,6 +62,31 @@ final class GenerationReferenceButton: NSButton {
 
     /// Whether layout coordinates start at the top-left corner.
     override var isFlipped: Bool { true }
+
+    /// The noninteractive upload or failure overlay above the thumbnail.
+    private lazy var overlay: GenerationReferenceOverlay = {
+        let view = GenerationReferenceOverlay()
+        return view
+    }()
+
+    /// The upload percentage or retry caption shown by the overlay.
+    private lazy var progressLabel: NSTextField = {
+        let label = makeLabel(
+            size: 10,
+            color: .white
+        )
+        label.font = .systemFont(ofSize: 10)
+        label.alignment = .center
+        return label
+    }()
+
+    /// Supplies native interpolation for the custom-drawn selection color.
+    override class func defaultAnimation(
+        forKey key: NSAnimatablePropertyKey
+    ) -> Any? {
+        if key == "selectionProgress" { return CABasicAnimation() }
+        return super.defaultAnimation(forKey: key)
+    }
 
     /// Creates a persistent reference control with retained image and progress views.
     init() {
@@ -401,23 +418,6 @@ final class GenerationReferenceButton: NSButton {
             make.centerY.equalToSuperview().offset(error ? 0 : 13)
         }
     }
-
-    /// The noninteractive upload or failure overlay above the thumbnail.
-    private lazy var overlay: GenerationReferenceOverlay = {
-        let view = GenerationReferenceOverlay()
-        return view
-    }()
-
-    /// The upload percentage or retry caption shown by the overlay.
-    private lazy var progressLabel: NSTextField = {
-        let label = makeLabel(
-            size: 10,
-            color: .white
-        )
-        label.font = .systemFont(ofSize: 10)
-        label.alignment = .center
-        return label
-    }()
 }
 
 /// A decorative overlay that lets pointer events reach its reference button.

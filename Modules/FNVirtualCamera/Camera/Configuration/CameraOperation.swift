@@ -112,6 +112,8 @@ struct CameraOperationFailure: Codable, Equatable, Sendable {
 
     /// The original NSError identity, preserved without exposing credentials or request data.
     var errorDomain: String? = nil
+
+    /// The original code within the recorded system error domain.
     var errorCode: Int? = nil
 
     /// Classifies stable SystemExtensions error codes independently of localized descriptions.
@@ -161,7 +163,8 @@ enum CameraInstallationPreflight {
             return CameraOperationFailure(
                 operation: operation,
                 kind: .invalidLocation,
-                diagnosticMessage: "FaceNow must be reopened from /Applications before camera installation. Current path: \(applicationURL.path)"
+                diagnosticMessage:
+                    "FaceNow must be reopened from /Applications before camera installation. Current path: \(applicationURL.path)"
             )
         }
         guard let extensionVersion, !extensionVersion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

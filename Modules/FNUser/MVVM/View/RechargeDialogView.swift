@@ -110,6 +110,9 @@ final class RechargeDialogView: Canvas {
         return view
     }()
 
+    /// Receives keyboard focus while the dialog is closing.
+    override var acceptsFirstResponder: Bool { true }
+
     /// Builds the static localized notice without requesting balance or opening a URL.
     init() {
         super.init()
@@ -126,9 +129,6 @@ final class RechargeDialogView: Canvas {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
-
-    /// Receives keyboard focus while the dialog is closing.
-    override var acceptsFirstResponder: Bool { true }
 
     /// Fades in using the shared interaction timing and focuses the primary action.
     func present() {

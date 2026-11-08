@@ -24,9 +24,6 @@ final class UserRepository: ObservableObject {
     /// The account usage page opened from the profile card.
     let usageURL = NetworkEnvironment.current.platformURL.appendingPathComponent("usage")
 
-    /// The regional API-key management page opened from credential editing.
-    let apiKeysURL = NetworkEnvironment.current.platformURL.appendingPathComponent("api-keys")
-
     /// The regional terms displayed on the login form.
     let termsURL = NetworkEnvironment.current.termsURL
 
@@ -97,20 +94,6 @@ final class UserRepository: ObservableObject {
 
     /// Identifies an unacknowledged credit failure independently of the last polled balance.
     @Published private(set) var rechargeNoticeID: UUID?
-
-    /// Coalesces startup and runtime credit failures into one account notice.
-    func requestRechargeNotice() {
-        guard canAccessHome, rechargeNoticeID == nil else { return }
-        rechargeNoticeID = UUID()
-    }
-
-    /// A stale dialog completion must not dismiss a newer account notice.
-    func dismissRechargeNotice(
-        id: UUID
-    ) {
-        guard rechargeNoticeID == id else { return }
-        rechargeNoticeID = nil
-    }
 
     /// Whether a balance request is already in flight.
     @Published private(set) var isLoadingCredits = false
@@ -185,6 +168,20 @@ final class UserRepository: ObservableObject {
 
     /// Rejects late responses after logout or a newer sign-in operation.
     private var lifecycle = UUID()
+
+    /// Coalesces startup and runtime credit failures into one account notice.
+    func requestRechargeNotice() {
+        guard canAccessHome, rechargeNoticeID == nil else { return }
+        rechargeNoticeID = UUID()
+    }
+
+    /// A stale dialog completion must not dismiss a newer account notice.
+    func dismissRechargeNotice(
+        id: UUID
+    ) {
+        guard rechargeNoticeID == id else { return }
+        rechargeNoticeID = nil
+    }
 
     /// Creates account state without issuing requests or touching the camera.
     init(
@@ -488,39 +485,6 @@ final class UserRepository: ObservableObject {
             guard lifecycle == operation, !Task.isCancelled else { return }
             await handleSessionError(error)
         }
-    }
-
-    /// Creates a FaceNow key only after the user chooses the account-menu action.
-    func createKey() async {
-        guard let token, !isBusy, !isLoadingKeys else { return }
-        isBusy = true
-        let operation = lifecycle
-        defer { if lifecycle == operation { isBusy = false } }
-        do {
-            let record = try await networkRepo.send(
-                UserAPI.createAPIKey(name: "FaceNow"),
-                as: APIKeyRecord.self,
-                bearerToken: token
-            )
-            guard lifecycle == operation, !Task.isCancelled else { return }
-            keys.insert(
-                record,
-                at: 0
-            )
-            apiKey = record.apiKey
-            errorMessage = nil
-        } catch {
-            guard lifecycle == operation, !Task.isCancelled else { return }
-            await handleSessionError(error)
-        }
-    }
-
-    /// Selects only a key present in the current user's latest active-key list.
-    func selectKey(
-        uid: String
-    ) {
-        guard let record = keys.first(where: { $0.uid == uid }), isSignedIn else { return }
-        apiKey = record.apiKey
     }
 
     /// Refreshes server-owned credits without changing the active generation key.

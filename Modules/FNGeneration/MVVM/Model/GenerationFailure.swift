@@ -19,7 +19,8 @@ enum GenerationFailure {
             return true
         }
         return detail.range(
-            of: #"\b(insufficient (credits?|points?|balance|funds)|not enough (credits?|points?)|out of (credits?|points?)|no credits?( remaining)?|(credits?|points?|balance|funds) (is |are )?(insufficient|exhausted|depleted)|credits? (have |has )?(run out|been exhausted|been depleted))\b"#,
+            of:
+                #"\b(insufficient (credits?|points?|balance|funds)|not enough (credits?|points?)|out of (credits?|points?)|no credits?( remaining)?|(credits?|points?|balance|funds) (is |are )?(insufficient|exhausted|depleted)|credits? (have |has )?(run out|been exhausted|been depleted))\b"#,
             options: .regularExpression
         ) != nil
     }

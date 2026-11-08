@@ -97,7 +97,8 @@ enum CameraStrings {
         Localization.string(
             "status.virtual_camera_did_not_become_available_in_time_check",
             table: "Camera",
-            defaultValue: "Virtual Camera is enabled but unavailable. Turn FaceNow off and back on in Camera Extensions, then return to FaceNow."
+            defaultValue:
+                "Virtual Camera is enabled but unavailable. Turn FaceNow off and back on in Camera Extensions, then return to FaceNow."
         )
     }
 
@@ -310,6 +311,16 @@ enum CameraStrings {
                 "macOS has refreshed the camera, but FaceNow still has the previous device list. Quit and reopen FaceNow to continue."
         )
     }
+
+    /// Localized page text; preserve all placeholders and product names.
+    static var removalMismatch: String {
+        Localization.string(
+            "error.removal_mismatch",
+            table: "Camera",
+            defaultValue:
+                "Removal failed: macOS could not match the installed camera to this app. Click Update, then Remove, or remove it in System Settings."
+        )
+    }
     /// Complete display message; preserve the format placeholders.
     static func removalFailed(
         message: String
@@ -331,16 +342,6 @@ enum CameraStrings {
             table: "Camera",
             defaultValue: "Installation failed: %@",
             arguments: [message]
-        )
-    }
-
-    /// Localized page text; preserve all placeholders and product names.
-    static var removalMismatch: String {
-        Localization.string(
-            "error.removal_mismatch",
-            table: "Camera",
-            defaultValue:
-                "Removal failed: macOS could not match the installed camera to this app. Click Update, then Remove, or remove it in System Settings."
         )
     }
 

@@ -104,9 +104,6 @@ class Button: NSButton {
     /// Gives toolbar controls one compact shadow recipe regardless of their semantic fill color.
     private var usesToolbarAppearance = false
 
-    /// Gives device status capsules warm tints matching the pending-state gradient and outline.
-    var usesStatusAppearance = false { didSet { needsDisplay = true } }
-
     /// An explicit foreground override for a specialized control.
     var foregroundColor: NSColor? { didSet { needsDisplay = true } }
 
@@ -182,6 +179,44 @@ class Button: NSButton {
             updateOpacity()
             needsDisplay = true
         }
+    }
+
+    /// The effective foreground color for the current role, selection, and pointer state.
+    private var foreground: NSColor {
+        if let foregroundColor { return foregroundColor }
+        if style == .primary { return .white }
+        if style == .destructive { return Palette.destructive }
+        if style == .success { return Palette.success }
+        if selected && style == .statistics { return Palette.accent }
+        if selected && style == .interpolation {
+            return NSColor(
+                srgbRed: 169 / 255,
+                green: 102 / 255,
+                blue: 8 / 255,
+                alpha: 1
+            )
+        }
+        if usesToolbarAppearance {
+            return (hovered && isEnabled && !passive) || (style == .volume && selected)
+                ? Palette.text : Palette.secondary
+        }
+        if style == .statistics || style == .interpolation || style == .volume {
+            return selected || (hovered && isEnabled)
+                ? Palette.text
+                : NSColor(
+                    srgbRed: 139 / 255,
+                    green: 145 / 255,
+                    blue: 157 / 255,
+                    alpha: 1
+                )
+        }
+        if passive || style == .plain || (style == .tab && !selected && !hovered) { return Palette.secondary }
+        return Palette.text
+    }
+
+    /// Measures the label and icon with the Web component's explicit padding.
+    var preferredWidth: CGFloat {
+        preferredWidth(for: title)
     }
 
     /// Creates a persistent native button with its visual role and optional action.
@@ -384,48 +419,6 @@ class Button: NSButton {
         needsDisplay = true
     }
 
-    /// The effective foreground color for the current role, selection, and pointer state.
-    private var foreground: NSColor {
-        if let foregroundColor { return foregroundColor }
-        if style == .primary { return .white }
-        if usesStatusAppearance && (style == .success || style == .destructive) {
-            let ready = style == .success
-            return NSColor(
-                srgbRed: ready ? 73 / 255 : 166 / 255,
-                green: ready ? 112 / 255 : 75 / 255,
-                blue: ready ? 44 / 255 : 49 / 255,
-                alpha: 1
-            )
-        }
-        if style == .destructive { return Palette.destructive }
-        if style == .success { return Palette.success }
-        if selected && style == .statistics { return Palette.accent }
-        if selected && style == .interpolation {
-            return NSColor(
-                srgbRed: 169 / 255,
-                green: 102 / 255,
-                blue: 8 / 255,
-                alpha: 1
-            )
-        }
-        if usesToolbarAppearance {
-            return (hovered && isEnabled && !passive) || (style == .volume && selected)
-                ? Palette.text : Palette.secondary
-        }
-        if style == .statistics || style == .interpolation || style == .volume {
-            return selected || (hovered && isEnabled)
-                ? Palette.text
-                : NSColor(
-                    srgbRed: 139 / 255,
-                    green: 145 / 255,
-                    blue: 157 / 255,
-                    alpha: 1
-                )
-        }
-        if passive || style == .plain || (style == .tab && !selected && !hovered) { return Palette.secondary }
-        return Palette.text
-    }
-
     /// Updates the retained activity ring and schedules presentation after a loading change.
     private func updateLoading() {
         spinner.setSpinning(
@@ -489,11 +482,6 @@ class Button: NSButton {
         appearanceProgress = CGFloat(progress * progress * (3 - 2 * progress))
         if progress == 1 { appearanceTask = nil }
         return progress < 1
-    }
-
-    /// Measures the label and icon with the Web component's explicit padding.
-    var preferredWidth: CGFloat {
-        preferredWidth(for: title)
     }
 
     /// Measures alternate action labels using the same content metrics as the current title.
@@ -728,54 +716,22 @@ class Button: NSButton {
             bottom = top
             border = .clear
         case .destructive, .success:
-            if usesStatusAppearance {
-                let ready = style == .success
-                let topRGB: (red: CGFloat, green: CGFloat, blue: CGFloat) =
-                    ready ? (247, 251, 240) : (255, 248, 243)
-                let bottomRGB: (red: CGFloat, green: CGFloat, blue: CGFloat) =
-                    ready
-                    ? (hot ? (224, 238, 201) : (232, 243, 214))
-                    : (hot ? (255, 218, 200) : (255, 228, 214))
-                let borderRGB: (red: CGFloat, green: CGFloat, blue: CGFloat) =
-                    ready
-                    ? (hot ? (170, 198, 137) : (185, 210, 157))
-                    : (hot ? (224, 164, 140) : (233, 181, 159))
-                top = NSColor(
-                    srgbRed: topRGB.red / 255,
-                    green: topRGB.green / 255,
-                    blue: topRGB.blue / 255,
-                    alpha: 1
-                )
+            if style == .success {
                 bottom = NSColor(
-                    srgbRed: bottomRGB.red / 255,
-                    green: bottomRGB.green / 255,
-                    blue: bottomRGB.blue / 255,
-                    alpha: 1
-                )
-                border = NSColor(
-                    srgbRed: borderRGB.red / 255,
-                    green: borderRGB.green / 255,
-                    blue: borderRGB.blue / 255,
+                    srgbRed: hot ? 220 / 255 : 240 / 255,
+                    green: hot ? 252 / 255 : 253 / 255,
+                    blue: hot ? 231 / 255 : 244 / 255,
                     alpha: 1
                 )
             } else {
-                if style == .success {
-                    bottom = NSColor(
-                        srgbRed: hot ? 220 / 255 : 240 / 255,
-                        green: hot ? 252 / 255 : 253 / 255,
-                        blue: hot ? 231 / 255 : 244 / 255,
-                        alpha: 1
-                    )
-                } else {
-                    bottom = NSColor(
-                        srgbRed: 253 / 255,
-                        green: hot ? 232 / 255 : 242 / 255,
-                        blue: hot ? 232 / 255 : 242 / 255,
-                        alpha: 1
-                    )
-                }
-                border = foreground.withAlphaComponent(hot ? 0.5 : 0.28)
+                bottom = NSColor(
+                    srgbRed: 253 / 255,
+                    green: hot ? 232 / 255 : 242 / 255,
+                    blue: hot ? 232 / 255 : 242 / 255,
+                    alpha: 1
+                )
             }
+            border = foreground.withAlphaComponent(hot ? 0.5 : 0.28)
         case .statistics where selected:
             top = NSColor(
                 srgbRed: 238 / 255,
@@ -850,7 +806,7 @@ class Button: NSButton {
                 bottom: bottom,
                 border: border,
                 foreground: foreground,
-                highlightOpacity: outlined && !(usesStatusAppearance && (style == .success || style == .destructive)) ? 0.6 : 0,
+                highlightOpacity: outlined ? 0.6 : 0,
                 shadowColor: primaryShadow ? Palette.accent : .black,
                 shadowOpacity: shadowScale
                     * (!showsShadow || flat ? 0 : primaryShadow ? 0.35 : style == .tab ? 0.1 : hot ? 0.08 : 0.05),

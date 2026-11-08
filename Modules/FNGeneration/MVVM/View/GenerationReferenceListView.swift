@@ -10,16 +10,22 @@ import SnapKit
 /// Only changes to item identity reload the collection; toolbar and statistics updates preserve cells.
 final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSCollectionViewDelegate {
 
+    /// The diameter of a home reference avatar in points.
     static let singleRowAvatarSize: CGFloat = 52
+
+    /// The strip height in points, including vertical padding.
     static let singleRowHeight = singleRowAvatarSize + 4
+
+    /// The collection cell bounds used to measure a complete avatar.
     private static let rowItemSize = NSSize(width: singleRowHeight, height: singleRowAvatarSize)
+
+    /// The horizontal space between adjacent collection cells, in points.
     private static let rowSpacing: CGFloat = 8
+
+    /// Whether the list uses the horizontal home layout.
     private let singleRow: Bool
 
-    static func singleRowWidth(itemCount: Int) -> CGFloat {
-        CGFloat(itemCount) * rowItemSize.width + CGFloat(max(0, itemCount - 1)) * rowSpacing
-    }
-
+    /// Indicates when more references can be reached by scrolling.
     private lazy var scrollEdgeMask: CAGradientLayer = {
         let layer = CAGradientLayer()
         layer.startPoint = CGPoint(x: 0, y: 0.5)
@@ -66,6 +72,7 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     /// The uploaded and built-in references currently displayed by the grid.
     private var references: [GenerationReference] = []
 
+    /// The number of cells, including the grid's upload control.
     private var itemCount: Int { references.count + (singleRow ? 0 : 1) }
 
     /// The identity of the currently selected reference, when one exists.
@@ -79,6 +86,13 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
 
     /// Requests generation with the selected existing reference.
     var onSelect: ((GenerationReference) -> Void)?
+
+    /// Measures the strip width for a whole number of cells.
+    static func singleRowWidth(
+        itemCount: Int
+    ) -> CGFloat {
+        CGFloat(itemCount) * rowItemSize.width + CGFloat(max(0, itemCount - 1)) * rowSpacing
+    }
 
     /// Creates the reference grid or the compact strip used on the homepage.
     init(
@@ -254,8 +268,15 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
 /// Supports horizontal scrolling without displaying a scroller over the avatars.
 private final class ReferenceStripScrollView: NSScrollView, NSGestureRecognizerDelegate {
 
+    /// Whether references extend past the current viewport.
     private var canScrollHorizontally: Bool {
         (documentView?.frame.width ?? 0) > contentView.bounds.width
+    }
+
+    /// Prevents the collection view from enabling a scroller when it lays out its items.
+    override var hasHorizontalScroller: Bool {
+        get { super.hasHorizontalScroller }
+        set { super.hasHorizontalScroller = false }
     }
 
     override init(
@@ -272,12 +293,6 @@ private final class ReferenceStripScrollView: NSScrollView, NSGestureRecognizerD
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
 
-    /// Prevents the collection view from enabling a scroller when it lays out its items.
-    override var hasHorizontalScroller: Bool {
-        get { super.hasHorizontalScroller }
-        set { super.hasHorizontalScroller = false }
-    }
-
     /// Routes empty space between avatars to the scroll view's drag gesture.
     override func hitTest(
         _ point: NSPoint
@@ -286,10 +301,12 @@ private final class ReferenceStripScrollView: NSScrollView, NSGestureRecognizerD
         return target === documentView ? self : target
     }
 
+    /// Accepts a drag on an inactive window's reference strip.
     override func acceptsFirstMouse(
         for event: NSEvent?
     ) -> Bool { true }
 
+    /// Handles horizontal scrolling and forwards other wheel events to AppKit.
     override func scrollWheel(
         with event: NSEvent
     ) {
@@ -308,6 +325,7 @@ private final class ReferenceStripScrollView: NSScrollView, NSGestureRecognizerD
         _ gestureRecognizer: NSGestureRecognizer
     ) -> Bool { canScrollHorizontally }
 
+    /// Pans the strip while the primary mouse button is held.
     @objc private func scrollByDragging(
         _ pan: NSPanGestureRecognizer
     ) {
@@ -316,6 +334,7 @@ private final class ReferenceStripScrollView: NSScrollView, NSGestureRecognizerD
         pan.setTranslation(.zero, in: self)
     }
 
+    /// Clamps the horizontal offset and refreshes the clip view.
     private func scrollHorizontally(
         by distance: CGFloat
     ) {

@@ -14,6 +14,9 @@ final class GenerationReferenceLayout: NSCollectionViewLayout {
     /// The complete reference-grid content size for the current preparation pass.
     private var size = NSSize.zero
 
+    /// The grid size produced by the latest layout preparation.
+    override var collectionViewContentSize: NSSize { size }
+
     /// Computes centered rows for the current reference count and available width.
     override func prepare() {
         super.prepare()
@@ -44,9 +47,6 @@ final class GenerationReferenceLayout: NSCollectionViewLayout {
             return item
         }
     }
-
-    /// The grid size produced by the latest layout preparation.
-    override var collectionViewContentSize: NSSize { size }
 
     /// Requests new item frames when the collection width changes.
     override func shouldInvalidateLayout(

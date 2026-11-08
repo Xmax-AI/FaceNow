@@ -81,15 +81,6 @@ final class OnboardingRepository: ObservableObject {
     /// Stores the relaunch source independently of guide presentation and completion preferences.
     private static let resumeKey = "facenow.onboarding.resumeVideoCallsFromProcess.v1"
 
-    /// Creates progress ownership with an injectable process identity for restart recovery tests.
-    init(
-        processID: Int32 = ProcessInfo.processInfo.processIdentifier
-    ) {
-        self.processID = processID
-        microphoneSkipped = userDefaults.bool(forKey: "facenow.onboarding.microphoneSkipped.v1")
-        virtualMicrophoneSkipped = userDefaults.bool(forKey: "facenow.onboarding.virtualMicrophoneSkipped.v1")
-    }
-
     /// The current preparation stage, retained while the guide is open.
     @Published private(set) var step = Step.camera
 
@@ -134,6 +125,40 @@ final class OnboardingRepository: ObservableObject {
         return sourceProcess > 0 && sourceProcess != Int(processID) ? .videoCalls : nil
     }
 
+    /// The first unmet device requirement, followed by the video-call instructions.
+    var firstIncompleteStep: Step {
+        if !cameraReady { return .camera }
+        if !virtualCameraReady { return .virtualCamera }
+        if virtualMicrophoneSkipped { return .videoCalls }
+        if !microphoneReady && !microphoneSkipped { return .microphone }
+        if !virtualMicrophoneReady && !virtualMicrophoneSkipped { return .virtualMicrophone }
+        return .videoCalls
+    }
+
+    /// The headline above the initial camera stage.
+    let headline = OnboardingStrings.contentBringYourNewLookIntoVideoCallingApps
+
+    /// The service notice displayed with policy links beneath the Start Camera action.
+    let serviceNotice = OnboardingStrings.contentWeAccessYourCameraInAccordanceWithOurTerms
+
+    /// The product's terms of use.
+    let termsURL = NetworkEnvironment.current.termsURL
+
+    /// The product's privacy policy.
+    let privacyURL = NetworkEnvironment.current.privacyURL
+
+    /// The ownership line displayed below the stage.
+    let copyright = OnboardingStrings.contentCopyright2026XMAXAIPTELTDAllRightsReserved
+
+    /// Creates progress ownership with an injectable process identity for restart recovery tests.
+    init(
+        processID: Int32 = ProcessInfo.processInfo.processIdentifier
+    ) {
+        self.processID = processID
+        microphoneSkipped = userDefaults.bool(forKey: "facenow.onboarding.microphoneSkipped.v1")
+        virtualMicrophoneSkipped = userDefaults.bool(forKey: "facenow.onboarding.virtualMicrophoneSkipped.v1")
+    }
+
     /// Persists continuation before launching a replacement; a failed launch remains manually resumable.
     func prepareForRelaunch() {
         userDefaults.set(Int(processID), forKey: Self.resumeKey)
@@ -145,16 +170,6 @@ final class OnboardingRepository: ObservableObject {
         if isPresented, resumeStepAfterRelaunch != nil {
             userDefaults.removeObject(forKey: Self.resumeKey)
         }
-    }
-
-    /// The first unmet device requirement, followed by the video-call instructions.
-    var firstIncompleteStep: Step {
-        if !cameraReady { return .camera }
-        if !virtualCameraReady { return .virtualCamera }
-        if virtualMicrophoneSkipped { return .videoCalls }
-        if !microphoneReady && !microphoneSkipped { return .microphone }
-        if !virtualMicrophoneReady && !virtualMicrophoneSkipped { return .virtualMicrophone }
-        return .videoCalls
     }
 
     /// Opens the first unmet requirement or reviews all pages starting with camera access.
@@ -266,21 +281,6 @@ final class OnboardingRepository: ObservableObject {
         case .videoCalls: true
         }
     }
-
-    /// The headline above the initial camera stage.
-    let headline = OnboardingStrings.contentBringYourNewLookIntoVideoCallingApps
-
-    /// The service notice displayed with policy links beneath the Start Camera action.
-    let serviceNotice = OnboardingStrings.contentWeAccessYourCameraInAccordanceWithOurTerms
-
-    /// The product's terms of use.
-    let termsURL = NetworkEnvironment.current.termsURL
-
-    /// The product's privacy policy.
-    let privacyURL = NetworkEnvironment.current.privacyURL
-
-    /// The ownership line displayed below the stage.
-    let copyright = OnboardingStrings.contentCopyright2026XMAXAIPTELTDAllRightsReserved
 }
 
 extension Container {

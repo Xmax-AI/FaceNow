@@ -168,8 +168,8 @@ final class HomeViewController: NSViewController {
     }()
 
     /// The credential editor owned by FNUser.
-    private lazy var userView: UserAPIKeyView = {
-        let view = UserAPIKeyView()
+    private lazy var userView: UserAccountToolbarView = {
+        let view = UserAccountToolbarView()
         view.onSignIn = { [weak self] in
             self?.synchronizeLoginPage()
         }
@@ -426,7 +426,6 @@ final class HomeViewController: NSViewController {
         let previousCameraWidth = cameraControls.preferredWidth
         let previousUserWidth = userView.preferredWidth(controlHeight: homeControls.bounds.height)
         userView.showsAvatar = !active
-        userView.settingsLocked = viewModel.settingsLocked
         userView.update()
         toolbar.update()
         landing.update(

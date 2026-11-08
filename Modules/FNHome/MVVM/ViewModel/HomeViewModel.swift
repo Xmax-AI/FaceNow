@@ -29,9 +29,6 @@ final class HomeViewModel {
     /// Whether generation startup should display the landing-page progress state.
     var isStarting: Bool { generationRepo.isBusy && !generationRepo.isClosing }
 
-    /// Whether the API-key editor must preserve the active generation credential.
-    var settingsLocked: Bool { generationRepo.settingsLocked || generationRepo.isClosing }
-
     /// The current startup restriction displayed by the landing page.
     var startUnavailableMessage: String {
         virtualCameraRepo.startUnavailableMessage

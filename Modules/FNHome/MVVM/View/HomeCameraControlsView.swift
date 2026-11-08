@@ -50,6 +50,11 @@ final class HomeCameraControlsView: Canvas {
         return view
     }()
 
+    /// Measures the neutral device capsule using the shared toolbar metrics.
+    var preferredWidth: CGFloat {
+        devicesButton.preferredWidth
+    }
+
     /// Fits the status capsule to the shared header control area.
     init() {
         super.init()
@@ -63,11 +68,6 @@ final class HomeCameraControlsView: Canvas {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
-
-    /// Measures the neutral device capsule using the shared toolbar metrics.
-    var preferredWidth: CGFloat {
-        devicesButton.preferredWidth
-    }
 
     /// Dismisses device details during navigation, authentication changes, or shutdown.
     func closePopover() {

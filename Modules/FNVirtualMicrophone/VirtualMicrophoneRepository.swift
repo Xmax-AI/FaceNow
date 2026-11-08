@@ -47,6 +47,16 @@ final class VirtualMicrophoneRepository: ObservableObject {
     /// The latest nonfatal output failure, shown in the setup dialog.
     @Published private(set) var failure: String?
 
+    /// Shares one interpretation of device availability and output intent across all status views.
+    var status: VirtualMicrophoneStatus {
+        VirtualMicrophoneStatus.resolve(
+            driverInstalled: driverInstalled,
+            deviceAvailable: deviceAvailable,
+            enabled: enabled,
+            hasFailure: failure != nil
+        )
+    }
+
     /// Connects worker status to the main actor without retaining the repository through its transport.
     init(
         deviceQuery: @escaping DeviceQuery = VirtualMicrophoneRepository.readDeviceAvailability,
@@ -130,19 +140,6 @@ final class VirtualMicrophoneRepository: ObservableObject {
         }
         let installed = info?["CFBundleIdentifier"] as? String == VirtualMicrophoneConfiguration.driverBundleID
         return (available: available, installed: installed || available)
-    }
-
-    /// Reports the actual installed bundle, including the period before Core Audio loads it.
-    var isInstalled: Bool { driverInstalled }
-
-    /// Shares one interpretation of device availability and output intent across all status views.
-    var status: VirtualMicrophoneStatus {
-        VirtualMicrophoneStatus.resolve(
-            driverInstalled: driverInstalled,
-            deviceAvailable: deviceAvailable,
-            enabled: enabled,
-            hasFailure: failure != nil
-        )
     }
 
     /// Clears a previously displayed failure for a new explicit setup action.

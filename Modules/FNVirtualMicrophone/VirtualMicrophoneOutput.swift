@@ -35,7 +35,11 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
 
     /// Bounds retained packets before dispatching format conversion to the worker.
     private let pendingLock = NSLock()
+
+    /// The number of packets admitted to the worker queue, under the admission lock.
     private var pendingCount = 0
+
+    /// Whether an admission drop requires a timeline reset, under the admission lock.
     private var lostPackets = false
 
     /// Aggregates admission and scheduling without retaining PCM in diagnostic output.
@@ -70,12 +74,26 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
 
     /// Rejects packets from a previous generation session on the worker.
     private var producer: UUID?
+
+    /// The output intent owned by the worker.
     private var enabled = false
+
+    /// The running Core Audio unit, owned by the worker.
     private var unit: AudioUnit?
+
+    /// The playback timeline shared with the Core Audio callback while the unit runs.
     private var ring: OpaquePointer?
+
+    /// The current output sample rate in hertz.
     private var sampleRate: Double = 48_000
+
+    /// The active Core Audio endpoint, or zero before output opens.
     private var device: AudioDeviceID = 0
+
+    /// Converts incoming PCM to the output format on the worker.
     private let converter = AudioPCMConverter()
+
+    /// The next queued playback time in host-clock seconds.
     private var nextPresentationTime: TimeInterval?
 
     /// The additional playback hold in seconds, independent of automatic timestamp placement.

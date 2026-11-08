@@ -79,15 +79,6 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         ].joined(separator: "\n")
     }
 
-    /// Reads the stable macOS boot-session identity without relying on wall-clock estimates.
-    private static func currentBootID() -> String {
-        var size = 0
-        guard sysctlbyname("kern.bootsessionuuid", nil, &size, nil, 0) == 0, size > 0 else { return "" }
-        var bytes = [CChar](repeating: 0, count: size)
-        guard sysctlbyname("kern.bootsessionuuid", &bytes, &size, nil, 0) == 0 else { return "" }
-        return String(decoding: bytes.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
-    }
-
     /// Bounds indeterminate native progress while retaining the pending request identity for late callbacks.
     private var requestTimeoutTask: Task<Void, Never>?
 
@@ -104,19 +95,6 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
                 UserDefaults.standard.removeObject(forKey: key)
             }
         }
-    }
-
-    /// Records recovery navigation without inferring that the user completed the system action.
-    func recordRecoveryNavigation(
-        relaunch: Bool
-    ) {
-        guard var recovery = deviceRecovery else { return }
-        if relaunch {
-            recovery.relaunchFromProcessID = ProcessInfo.processInfo.processIdentifier
-        } else {
-            recovery.settingsOpened = true
-        }
-        deviceRecovery = recovery
     }
 
     /// Associates property-query completion with the user workflow that requested it.
@@ -157,14 +135,6 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
 
     /// The permission explanation for an explicit local preview attempt.
     var startUnavailableMessage: String { readiness.message }
-
-    /// Loads authorized physical inputs for home selection or preview without starting capture.
-    func prepareCameraInputs() {
-        synchronizeReadiness()
-        guard canStartSession else { return }
-        deviceMonitor.start()
-        synchronizeReadiness()
-    }
 
     /// Whether installation records have been received at least once.
     @Published private var hasCheckedInstallation = false
@@ -234,6 +204,109 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         subsystem: VirtualCameraConfiguration.appBundleID,
         category: "DiscoveryComparison"
     )
+
+    /// Projects platform authorization into the independent readiness model.
+    private var authorizationState: CameraAuthorization {
+        if isRequestingCameraAccess { return .requesting }
+        switch cameraAuthorization {
+        case .authorized: return .authorized
+        case .notDetermined: return .notRequested
+        case .denied: return .denied
+        case .restricted: return .restricted
+        @unknown default: return .restricted
+        }
+    }
+
+    /// Projects extension facts without coupling preparation to account or generation state.
+    private var extensionSnapshot: VirtualCameraReadinessSnapshot {
+        VirtualCameraReadinessSnapshot(
+            hasChecked: hasCheckedInstallation,
+            isInstalled: isInstalled,
+            isEnabled: isEnabled,
+            isVersionCurrent: isVersionCurrent,
+            isRefreshing: isRefreshing,
+            operation: isBusy ? (pendingKind == .deactivation ? .removal : .installation) : nil,
+            isAwaitingApproval: isAwaitingApproval,
+            isSystemCompletionPending: isSystemCompletionPending,
+            isDeviceReady: isDeviceReady,
+            isWaitingForDevice: isWaitingForDevice,
+            failure: deviceFailure ?? requestFailure.map(CameraUnavailableReason.operationFailed),
+            queryFailure: queryFailure
+        )
+    }
+
+    /// Evaluates only a started discovery session, excluding the application's own virtual output.
+    private var inputAvailability: CameraAvailability {
+        guard deviceMonitor.isStarted else { return .checking(.inputDiscovery) }
+        let inputs = deviceMonitor.devices.filter {
+            !VirtualCameraConfiguration.isFaceNowCamera($0.uniqueID)
+                && $0.localizedName != VirtualCameraConfiguration.deviceName
+        }
+        guard !inputs.isEmpty else { return .unavailable(.noInputCamera) }
+        if !selectedInputID.isEmpty, !inputs.contains(where: { $0.uniqueID == selectedInputID }) {
+            return .unavailable(.selectedInputDisconnected)
+        }
+        return .ready
+    }
+
+    /// Identifies the in-flight request so delayed delegate calls cannot overwrite newer state.
+    private var pendingRequest: OSSystemExtensionRequest?
+
+    /// The activation or deactivation operation associated with the current request.
+    private var pendingKind: RequestKind?
+
+    /// The independent in-flight system extension properties query.
+    private var propertiesRequest: OSSystemExtensionRequest?
+
+    /// Background device/property refreshes must not erase the result of an explicit user request.
+    private var requestFailureMessage: String?
+
+    /// The extension build version embedded in the current application bundle.
+    private var bundledExtensionVersion: String? {
+        let url = Bundle.main.bundleURL.appendingPathComponent(
+            "Contents/Library/SystemExtensions/\(VirtualCameraConfiguration.extensionBundleID).systemextension"
+        )
+        return Bundle(url: url)?.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    }
+
+    /// The local activation prerequisite, independent of an already working virtual camera.
+    var installationPreflightFailure: CameraOperationFailure? {
+        CameraInstallationPreflight.failure(
+            applicationURL: Bundle.main.bundleURL,
+            extensionVersion: bundledExtensionVersion,
+            operation: operation?.kind ?? .install
+        )
+    }
+
+    /// Reads the stable macOS boot-session identity without relying on wall-clock estimates.
+    private static func currentBootID() -> String {
+        var size = 0
+        guard sysctlbyname("kern.bootsessionuuid", nil, &size, nil, 0) == 0, size > 0 else { return "" }
+        var bytes = [CChar](repeating: 0, count: size)
+        guard sysctlbyname("kern.bootsessionuuid", &bytes, &size, nil, 0) == 0 else { return "" }
+        return String(decoding: bytes.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
+    }
+
+    /// Records recovery navigation without inferring that the user completed the system action.
+    func recordRecoveryNavigation(
+        relaunch: Bool
+    ) {
+        guard var recovery = deviceRecovery else { return }
+        if relaunch {
+            recovery.relaunchFromProcessID = ProcessInfo.processInfo.processIdentifier
+        } else {
+            recovery.settingsOpened = true
+        }
+        deviceRecovery = recovery
+    }
+
+    /// Loads authorized physical inputs for home selection or preview without starting capture.
+    func prepareCameraInputs() {
+        synchronizeReadiness()
+        guard canStartSession else { return }
+        deviceMonitor.start()
+        synchronizeReadiness()
+    }
 
     /// Observes device publication while leaving extension activation to explicit user actions.
     override init() {
@@ -340,7 +413,8 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
                 finishOperation(context.id)
                 return
             }
-            let requiresRemoval = kind == .reinstall
+            let requiresRemoval =
+                kind == .reinstall
                 || (isInstalled && !isVersionCurrent && !isSystemCompletionPending)
             isSystemCompletionPending = false
             deviceFailure = nil
@@ -439,50 +513,6 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         synchronizeReadiness()
     }
 
-    /// Projects platform authorization into the independent readiness model.
-    private var authorizationState: CameraAuthorization {
-        if isRequestingCameraAccess { return .requesting }
-        switch cameraAuthorization {
-        case .authorized: return .authorized
-        case .notDetermined: return .notRequested
-        case .denied: return .denied
-        case .restricted: return .restricted
-        @unknown default: return .restricted
-        }
-    }
-
-    /// Projects extension facts without coupling preparation to account or generation state.
-    private var extensionSnapshot: VirtualCameraReadinessSnapshot {
-        VirtualCameraReadinessSnapshot(
-            hasChecked: hasCheckedInstallation,
-            isInstalled: isInstalled,
-            isEnabled: isEnabled,
-            isVersionCurrent: isVersionCurrent,
-            isRefreshing: isRefreshing,
-            operation: isBusy ? (pendingKind == .deactivation ? .removal : .installation) : nil,
-            isAwaitingApproval: isAwaitingApproval,
-            isSystemCompletionPending: isSystemCompletionPending,
-            isDeviceReady: isDeviceReady,
-            isWaitingForDevice: isWaitingForDevice,
-            failure: deviceFailure ?? requestFailure.map(CameraUnavailableReason.operationFailed),
-            queryFailure: queryFailure
-        )
-    }
-
-    /// Evaluates only a started discovery session, excluding the application's own virtual output.
-    private var inputAvailability: CameraAvailability {
-        guard deviceMonitor.isStarted else { return .checking(.inputDiscovery) }
-        let inputs = deviceMonitor.devices.filter {
-            !VirtualCameraConfiguration.isFaceNowCamera($0.uniqueID)
-                && $0.localizedName != VirtualCameraConfiguration.deviceName
-        }
-        guard !inputs.isEmpty else { return .unavailable(.noInputCamera) }
-        if !selectedInputID.isEmpty, !inputs.contains(where: { $0.uniqueID == selectedInputID }) {
-            return .unavailable(.selectedInputDisconnected)
-        }
-        return .ready
-    }
-
     /// Waits until Combine's pre-assignment notifications have committed their related facts.
     private func scheduleReadinessUpdate() {
         guard !readinessUpdateScheduled else { return }
@@ -492,35 +522,6 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
             self.readinessUpdateScheduled = false
             self.synchronizeReadiness()
         }
-    }
-
-    /// Identifies the in-flight request so delayed delegate calls cannot overwrite newer state.
-    private var pendingRequest: OSSystemExtensionRequest?
-
-    /// The activation or deactivation operation associated with the current request.
-    private var pendingKind: RequestKind?
-
-    /// The independent in-flight system extension properties query.
-    private var propertiesRequest: OSSystemExtensionRequest?
-
-    /// Background device/property refreshes must not erase the result of an explicit user request.
-    private var requestFailureMessage: String?
-
-    /// The extension build version embedded in the current application bundle.
-    private var bundledExtensionVersion: String? {
-        let url = Bundle.main.bundleURL.appendingPathComponent(
-            "Contents/Library/SystemExtensions/\(VirtualCameraConfiguration.extensionBundleID).systemextension"
-        )
-        return Bundle(url: url)?.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-    }
-
-    /// The local activation prerequisite, independent of an already working virtual camera.
-    var installationPreflightFailure: CameraOperationFailure? {
-        CameraInstallationPreflight.failure(
-            applicationURL: Bundle.main.bundleURL,
-            extensionVersion: bundledExtensionVersion,
-            operation: operation?.kind ?? .install
-        )
     }
 
     /// Refreshes system state without installing or activating anything.
@@ -570,23 +571,14 @@ final class VirtualCameraRepository: NSObject, ObservableObject, OSSystemExtensi
         }
     }
 
-    /// Starts the same typed setup workflow used by onboarding and the home notice.
-    func install() {
-        Task { [weak self] in await self?.perform(.install) }
-    }
-
-    /// Removes the camera without scheduling a subsequent reinstall when explicitly requested.
-    func uninstall() {
-        Task { [weak self] in await self?.perform(.remove) }
-    }
-
     /// Prevents removing a working old camera when this application cannot install its replacement.
     private func validateInstallationLocation() -> Bool {
         guard let failure = installationPreflightFailure else { return true }
         operationFailure = failure
         requestFailure = failure
         requestFailureMessage = failure.diagnosticMessage
-        status = failure.kind == .invalidLocation
+        status =
+            failure.kind == .invalidLocation
             ? CameraStrings.statusMoveFaceNowToApplicationsBeforeInstallingTheExtension
             : CameraStrings.statusInvalidCameraBundle
         synchronizeReadiness()

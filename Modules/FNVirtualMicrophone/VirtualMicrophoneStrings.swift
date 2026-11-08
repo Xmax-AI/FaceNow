@@ -27,7 +27,8 @@ enum VirtualMicrophoneStrings {
         Localization.format(
             "microphone.instructions",
             table: "VirtualMicrophone",
-            defaultValue: "In your meeting app, select %1$@ as the microphone to keep audio and video in sync. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.",
+            defaultValue:
+                "In your meeting app, select %1$@ as the microphone to keep audio and video in sync. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.",
             arguments: [VirtualMicrophoneConfiguration.deviceName]
         )
     }
@@ -48,8 +49,10 @@ enum VirtualMicrophoneStrings {
         )
     }
 
-    /// Reports the explicit output switch independently of generation or audio activity.
+    /// The status shown when output is enabled.
     static var enabled: String { text("microphone.enabled", "Enabled") }
+
+    /// The status shown when output is disabled.
     static var disabled: String { text("microphone.disabled", "Disabled") }
 
     /// Explains that installation succeeded but system device publication has not completed.

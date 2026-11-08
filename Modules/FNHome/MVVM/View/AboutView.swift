@@ -12,6 +12,8 @@ final class AboutView: Canvas {
 
     /// Routes dismissal and explicit contact outside the content view.
     var onDismiss: (() -> Void)?
+
+    /// Requests the product contact page from the host.
     var onContact: (() -> Void)?
 
     /// Supplies the static card presentation without retaining business state in controls.
@@ -210,6 +212,9 @@ final class AboutView: Canvas {
         return view
     }()
 
+    /// Allows the overlay itself to consume events while its closing animation runs.
+    override var acceptsFirstResponder: Bool { true }
+
     /// Creates static content without opening a URL or requesting any camera or account operation.
     init(
         viewModel: AboutViewModel
@@ -235,9 +240,6 @@ final class AboutView: Canvas {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
-
-    /// Allows the overlay itself to consume events while its closing animation runs.
-    override var acceptsFirstResponder: Bool { true }
 
     /// Sizes the card from the viewport, independently of the paragraph's natural width.
     override func layout() {

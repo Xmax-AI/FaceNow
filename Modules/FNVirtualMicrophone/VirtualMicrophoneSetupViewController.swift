@@ -15,7 +15,7 @@ final class VirtualMicrophoneSetupViewController: NSViewController {
 
     /// Presents the current device state without installing anything until the user chooses an action.
     func presentSetup() {
-        let installed = microphoneRepo.isInstalled
+        let installed = microphoneRepo.driverInstalled
         let ready = microphoneRepo.deviceAvailable
         let alert = NSAlert()
         alert.messageText = VirtualMicrophoneStrings.title

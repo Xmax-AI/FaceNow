@@ -279,35 +279,6 @@ enum Typography {
         ) as NSFont
     }
 
-    /// Aligns ASCII digits while retaining normal DM Sans spacing for units and punctuation.
-    static func numericText(
-        _ text: String,
-        size: CGFloat,
-        weight: NSFont.Weight = .regular,
-        color: NSColor
-    ) -> NSAttributedString {
-        let base = font(
-            size: size,
-            weight: weight
-        )
-        let numeric = alignedNumericFont(base)
-        let result = NSMutableAttributedString(
-            string: text,
-            attributes: [.font: base, .foregroundColor: color]
-        )
-        for (index, character) in text.utf16.enumerated() where character >= 48 && character <= 57 {
-            result.addAttribute(
-                .font,
-                value: numeric,
-                range: NSRange(
-                    location: index,
-                    length: 1
-                )
-            )
-        }
-        return result
-    }
-
     /// Measures text using the same font and tracking as the drawing controls.
     static func size(
         _ text: String,
