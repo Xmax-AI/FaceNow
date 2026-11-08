@@ -189,8 +189,13 @@ public sealed partial class MainWindow
             else if (mode is "--smoke-test-camera" or "--smoke-test-live")
             {
                 string camera = Environment.GetEnvironmentVariable("FACENOW_SMOKE_CAMERA") ?? "MacBook";
-                Model.SelectedCamera = Model.Cameras.First(item => item.Name.Contains(camera, StringComparison.OrdinalIgnoreCase));
-                if (mode == "--smoke-test-camera") await Model.PreviewAsync();
+                Model.SelectCamera(Model.Cameras.First(item => item.Name.Contains(camera, StringComparison.OrdinalIgnoreCase)));
+                if (mode == "--smoke-test-camera")
+                {
+                    var aspect = Environment.GetEnvironmentVariable("FACENOW_SMOKE_ASPECT") ?? "16:9";
+                    Model.SelectedFormat = MainViewModel.CameraPresets.Single(preset => preset.Ratio == aspect).Format;
+                    await Model.PreviewAsync();
+                }
                 else
                 {
                     Model.StartCommand.Execute(null);
@@ -202,6 +207,15 @@ public sealed partial class MainWindow
                         "The generation page opened before RTC connected.");
                 }
                 await UntilAsync(() => localVideoView.PresentedFrameCount >= 10);
+                if (mode == "--smoke-test-camera")
+                {
+                    var format = Model.SelectedFormat;
+                    Check(localVideoView.VideoWidth == format.Width && localVideoView.VideoHeight == format.Height,
+                        $"Camera preview delivered {localVideoView.VideoWidth}×{localVideoView.VideoHeight}; expected {format.Width}×{format.Height}.");
+                    using var cameraFrame = Model.LocalVideo?.TryAcquireFrame();
+                    Check(cameraFrame is { Mirrored: false } && localVideoView.IsMirrored && resultVideoView.IsMirrored,
+                        "Camera and result must use presentation mirroring while the camera track remains unmirrored.");
+                }
                 if (mode == "--smoke-test-live")
                 {
                     await UntilAsync(() => resultVideoView.PresentedFrameCount >= 10);

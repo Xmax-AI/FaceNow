@@ -9,6 +9,7 @@
 //
 
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage.Streams;
 using Xmax.SDK;
@@ -50,9 +51,19 @@ public sealed partial class MainWindow
         await UntilAsync(() => localVideoView.PresentedFrameCount >= 1);
         workspace.Visibility = Visibility.Visible;
         await Task.Delay(100);
-        await VerifyFramePixelsAsync(localVideoView, false); await SaveScreenshotAsync("render-bgra", localVideoView);
-        await realtime.SetVideoMirrorAsync(new(true, false, false)); sink.PushBgra(pixels, 64, 2000);
-        await UntilAsync(() => localVideoView.PresentedFrameCount >= 2); await Task.Delay(100); await VerifyFramePixelsAsync(localVideoView, true); await SaveScreenshotAsync("render-mirrored", localVideoView);
+        await VerifyFramePixelsAsync(localVideoView, true);
+        await SaveScreenshotAsync("render-mirrored", localVideoView);
+        localVideoView.IsMirrored = false;
+        await Task.Delay(100);
+        await VerifyFramePixelsAsync(localVideoView, false);
+        await SaveScreenshotAsync("render-bgra", localVideoView);
+        await realtime.SetVideoMirrorAsync(new(true, false, false));
+        sink.PushBgra(pixels, 64, 2000);
+        await UntilAsync(() => localVideoView.PresentedFrameCount >= 2);
+        await Task.Delay(100);
+        await VerifyFramePixelsAsync(localVideoView, true);
+        await realtime.SetVideoMirrorAsync(default);
+        localVideoView.IsMirrored = true;
         await Task.Run(() => { for (int i = 3; i <= 100; ++i) sink.PushBgra(pixels, 64, i * 1000); });
         await UntilAsync(() => localVideoView.LastPresentedTimestampMicroseconds == 100000);
         localVideoPanel.Children.Remove(localVideoView); await Task.Delay(50); localVideoPanel.Children.Insert(0, localVideoView);
@@ -72,6 +83,36 @@ public sealed partial class MainWindow
         Check(resultVideoView.PresentedFrameCount == 0 && localVideoView.PresentedFrameCount > 0,
             "Clearing the result must leave the local preview running.");
         localVideoView.VideoSource = null;
+        await VerifyGenerationMicrophoneLevelAsync();
+    }
+
+    private async Task VerifyGenerationMicrophoneLevelAsync()
+    {
+        string Level() => AutomationProperties.GetItemStatus(sessionInputLevel);
+        Check(sessionInputLevel.Visibility == Visibility.Collapsed, "The input meter must start hidden with the microphone off.");
+        await Model.SelectMicrophoneAsync(RealtimeMicrophone.SystemDefault);
+        var receiveLevel = Model.CreateMicrophoneLevelHandler();
+        receiveLevel(.55f);
+        await UntilAsync(() => sessionInputLevel.Visibility == Visibility.Visible && Level() == "55%");
+        receiveLevel(.60f);
+        await UntilAsync(() => Level() == "60%");
+        await Task.Delay(350);
+        await SaveScreenshotAsync("generation-microphone-level", sessionAudioControls);
+
+        receiveLevel(null);
+        await UntilAsync(() => Level() == "0%");
+        await Model.SelectMicrophoneAsync(RealtimeMicrophone.Disabled);
+        receiveLevel(1);
+        await UntilAsync(() => sessionInputLevel.Visibility == Visibility.Collapsed);
+        Check(Level() == "0%", "A microphone-off generation page retained an input level.");
+
+        await Model.StopAsync();
+        await Model.StartLandingAsync();
+        await Model.SelectMicrophoneAsync(RealtimeMicrophone.SystemDefault);
+        receiveLevel(1);
+        await Task.Delay(100);
+        Check(Level() == "0%", "The input meter accepted a reading from the previous session.");
+        await Model.SelectMicrophoneAsync(RealtimeMicrophone.Disabled);
     }
     private static async Task VerifyFramePixelsAsync(XmaxRealtimeVideoView video, bool mirrored)
     {

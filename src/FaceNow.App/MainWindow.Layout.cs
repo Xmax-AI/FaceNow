@@ -60,13 +60,17 @@ public sealed partial class MainWindow
         startHost.Children.Add(startShadow); startHost.Children.Add(StartButton);
         actions.Children.Add(startHost);
         var inputPickers = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10,
-            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new(0, 12, 0, 0) };
+            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new(0, 16, 0, 0) };
         inputPickers.Children.Add(cameraButton);
         inputPickers.Children.Add(homeMicrophone);
         actions.Children.Add(inputPickers);
-        cameraAspect.Margin = new(0, 10, 0, 0);
+        cameraAspect.Margin = new(0, 14, 0, 0);
         cameraAspect.SelectionChanged += format => Model.SelectedFormat = format;
         actions.Children.Add(cameraAspect);
+        homeReferences.Margin = new(0, 16, 0, 0);
+        homeReferences.ReferenceSelected += Model.SelectHomeReference;
+        homeReferences.UploadRequested += async () => await ChooseHomeReferenceAsync();
+        actions.Children.Add(homeReferences);
         landingStage.Children.Add(actions);
         terms.TextAlignment = TextAlignment.Center; terms.TextWrapping = TextWrapping.Wrap; terms.HorizontalAlignment = HorizontalAlignment.Center; terms.VerticalAlignment = VerticalAlignment.Bottom; terms.Margin = new(20, 0, 20, 28);
         const string cameraNotice = "We access your camera and, when enabled, microphone in accordance with our {0} and {1}.";

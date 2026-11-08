@@ -19,6 +19,39 @@ using FaceNow.Windows.Studio.Services;
 
 var tests = new (string Name, Func<Task> Run)[]
 {
+    ("The selected home appearance becomes the initial generation reference", async () =>
+    {
+        var model = new MainViewModel(new FakeDispatcher(), new FakeThumbnails());
+        model.ConfigurePreview(false);
+        Check(model.HomeSelectedReference == model.HomeReferencePresets[0] && model.HomeReferencePresets.All(item => !item.IsUpload));
+        var appearance = model.HomeReferencePresets[4];
+        model.SelectHomeReference(appearance);
+        Check(model.HomeSelectedReference == appearance && !appearance.IsSelected);
+        await model.StartLandingAsync();
+        Check(model.Active && model.SelectedMode == "charx" && appearance.IsSelected && model.Session is null);
+        await model.StopAsync();
+        Check(model.HomeSelectedReference == appearance && !appearance.IsSelected);
+        model.ResetHomeReferences();
+        Check(model.HomeSelectedReference == model.HomeReferencePresets[0]);
+    }),
+    ("Reset cancels pending home uploads before SDK approval and unblocks Start", async () =>
+    {
+        var thumbnails = new PendingThumbnails();
+        var model = new MainViewModel(new FakeDispatcher(), thumbnails) { ApiKey = "isolated-test-key" };
+        var appearance = model.HomeReferencePresets[4];
+        model.SelectHomeReference(appearance);
+        var upload = model.UploadHomeReferenceAsync("test-image.png");
+        Check(model.HomeCustomReference is { IsUploading: true } && model.HomeSelectedReference == appearance);
+        Check(!model.StartCommand.CanExecute(null));
+        model.SelectHomeReference(model.HomeReferencePresets[1]);
+        await model.StartLandingAsync();
+        Check(model.HomeSelectedReference == appearance && !model.Active);
+        model.ResetHomeReferences();
+        thumbnails.Result.SetResult(new object());
+        await upload;
+        Check(model.HomeCustomReference is null && model.HomeSelectedReference == model.HomeReferencePresets[0]);
+        Check(model.StartCommand.CanExecute(null) && model.Error.Length == 0);
+    }),
     ("Elapsed time starts at Generating, survives condition updates and resets on stop", async () =>
     {
         var dispatcher = new FakeDispatcher();
@@ -308,6 +341,11 @@ sealed class FakeAccess : IGenerationAccess
 sealed class FakeThumbnails : IThumbnailLoader
 {
     public Task<object> LoadAsync(string source) => throw new Exception("Tests must not load images.");
+}
+sealed class PendingThumbnails : IThumbnailLoader
+{
+    internal readonly TaskCompletionSource<object> Result = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    public Task<object> LoadAsync(string source) => Result.Task;
 }
 sealed class FakeDispatcher : IUiDispatcher
 {

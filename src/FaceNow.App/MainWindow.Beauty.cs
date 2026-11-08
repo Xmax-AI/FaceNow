@@ -30,8 +30,8 @@ public sealed partial class MainWindow
     private void RefreshBeautyUi()
     {
         beautyButton.IsSelected = Model.Beauty.Enabled; beautyButton.IsEnabled = !Model.Busy; beautyButton.Text = AppText.Get("Beauty") + (Model.BeautyApplying ? "…" : "");
-        beautyPanel.Update(Model.Beauty);
         bool show = Model.Active && Model.Beauty.Enabled;
+        beautyPanel.Update(Model.Beauty, show && !Model.IsClosing);
         if (beautyPresented == show) return; beautyPresented = show; long current = ++beautyVisibilityIntent;
         if (show) beautyPanel.Visibility = Visibility.Visible;
         LoginMotion.Opacity(beautyPanel, show ? 1 : 0);

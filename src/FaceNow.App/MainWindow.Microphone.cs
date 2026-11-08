@@ -12,6 +12,7 @@ using FaceNow.App.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Foundation;
 using Xmax.SDK;
 
@@ -27,10 +28,14 @@ public sealed partial class MainWindow
         HorizontalAlignment = HorizontalAlignment.Left, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
     };
     private readonly InputLevelMeter sessionInputLevel = new();
+    private readonly ToolbarButton sessionAudioAdjustments = new(tone: ToolbarButtonTone.SoftAccent)
+    {
+        Text = AudioVideoAdjustmentView.Title, Glyph = "adjustments"
+    };
     private readonly Border sessionAudioControls = new() { Height = ToolbarButton.ControlHeight + 16, Margin = new(0, 12, 0, 0), Padding = new(8, 0, 8, 0),
         CornerRadius = new(16), Background = Theme.Brush("#FFFFFF"),
         BorderThickness = new(1), BorderBrush = Theme.Brush("#E5E7EB") };
-    private IReadOnlyList<MicrophoneDevice> microphoneDevices = [];
+    private Popup? audioAdjustmentPopup;
 
     private void BindMicrophones()
     {
@@ -43,19 +48,38 @@ public sealed partial class MainWindow
 
     private void BuildSessionAudioControls()
     {
-        sessionAudioControls.Child = new StackPanel
+        var row = new Grid { VerticalAlignment = VerticalAlignment.Center, ColumnSpacing = 20 };
+        row.ColumnDefinitions.Add(new());
+        row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        row.Children.Add(new StackPanel
         {
             Orientation = Orientation.Horizontal, Spacing = 12, VerticalAlignment = VerticalAlignment.Center,
             Children = { sessionMicrophone, sessionInputLevel }
-        };
+        });
+        Grid.SetColumn(sessionAudioAdjustments, 1);
+        row.Children.Add(sessionAudioAdjustments);
+        sessionAudioControls.Child = row;
         Model.MicrophoneLevelChanged += sessionInputLevel.Update;
+        sessionAudioAdjustments.Click += (_, _) => OpenAudioAdjustments();
+        root.SizeChanged += (_, _) => { if (audioAdjustmentPopup?.IsOpen == true) ClosePopups(); };
+    }
+
+    private void OpenAudioAdjustments()
+    {
+        if (audioAdjustmentPopup?.IsOpen == true) { ClosePopups(); return; }
+        var content = new AudioVideoAdjustmentView(Model.AudioSyncOffsetMilliseconds, Model.IsPreview,
+            Model.SetAudioSyncOffsetMilliseconds,
+            () => { ClosePopups(); sessionAudioAdjustments.Focus(FocusState.Programmatic); });
+        var popup = OpenPopup(sessionAudioAdjustments, content, 480, 23, above: null, cornerRadius: 16);
+        audioAdjustmentPopup = popup;
+        DispatcherQueue.TryEnqueue(() => { if (popup.IsOpen) content.FocusCloseButton(); });
     }
 
     private void RefreshMicrophoneUi()
     {
         var selection = Model.Microphone;
-        string name = selection.DeviceId is { } id
-            ? microphoneDevices.FirstOrDefault(device => device.Id == id)?.Name ?? "Select Microphone"
+        string name = selection.DeviceId is not null
+            ? Model.SelectedMicrophoneName ?? "Select Microphone"
             : selection.IsEnabled ? "System Default Microphone" : "Microphone Off";
         foreach (var button in new Pill[] { homeMicrophone, sessionMicrophone })
         {
@@ -64,9 +88,8 @@ public sealed partial class MainWindow
             ToolTipService.SetToolTip(button, button.Text);
         }
         sessionMicrophone.Glyph = selection.IsEnabled ? "microphone" : "microphoneOff";
-        bool showLevel = Model.Active && selection.IsEnabled;
-        sessionInputLevel.Visibility = showLevel ? Visibility.Visible : Visibility.Collapsed;
-        if (!showLevel) sessionInputLevel.Update(null);
+        sessionInputLevel.SetPresented(Model.Active && selection.IsEnabled, animateHide: Model.Active);
+        sessionAudioAdjustments.IsEnabled = Model.Active && !Model.IsClosing;
     }
 
     private async Task OpenMicrophonesAsync(Pill anchor)
@@ -76,7 +99,6 @@ public sealed partial class MainWindow
             var (devices, showSystemDefault) = await Model.ListMicrophonesAsync();
             if (closing || !anchor.IsEnabled || !anchor.IsLoaded || accountRepository?.CanAccessHome == false
                 || Model.Active != (anchor == sessionMicrophone)) return;
-            microphoneDevices = devices;
             RefreshMicrophoneUi();
 
             // The packaged WinUI runtime can fail to load RadioMenuFlyoutItem's default style.
@@ -84,7 +106,7 @@ public sealed partial class MainWindow
             Button? selectedItem = null;
             if (showSystemDefault)
                 Add(AppText.Get("System Default Microphone"), RealtimeMicrophone.SystemDefault);
-            foreach (var device in microphoneDevices)
+            foreach (var device in devices)
                 Add(device.Name, RealtimeMicrophone.Device(device.Id));
             Add(AppText.Get("Microphone Off"), RealtimeMicrophone.Disabled);
 

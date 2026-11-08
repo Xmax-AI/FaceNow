@@ -196,6 +196,7 @@ internal sealed partial class MainViewModel
         int closingRevision = revision;
         try
         {
+            await previous.SetMicrophoneLevelListenerAsync(null);
             await previous.SetStateListenerAsync(snapshot =>
             {
                 if (revision != closingRevision || idle.Task.IsCompleted) return;

@@ -80,7 +80,9 @@ internal sealed partial class MainViewModel
     {
         foreach (string mode in new[] { "charx", "clothx", "vibex", "dimx" }) References(mode).Add(new() { IsUpload = true, Mode = mode, Name = AppText.Get("Upload") });
         foreach (var item in ReferenceCatalog.Load()) References(item.Mode).Add(item);
-        StartCommand = new(() => GuardAsync(StartLandingAsync), () => !Busy);
+        HomeReferencePresets = CharacterReferences.Where(item => !item.IsUpload).ToArray();
+        HomeSelectedReference = HomeReferencePresets[0];
+        StartCommand = new(() => GuardAsync(StartLandingAsync), () => CanChooseHomeReference);
         SubmitPromptCommand = new(() => GuardAsync(SubmitPromptAsync), CanSubmitPrompt);
         elapsedTimer.Tick += (_, _) => Changed(nameof(Elapsed));
     }
@@ -88,22 +90,21 @@ internal sealed partial class MainViewModel
     {
         IsPreview = true;
         Active = sessionPage;
-        if (sessionPage) MarkSelected(CharacterReferences.First(item => !item.IsUpload));
+        if (sessionPage) ApplyHomeReference(HomeSelectedReference);
         Changed(nameof(LocalTitle));
     }
     public async Task StartLandingAsync()
     {
-        if (IsClosing) return;
-        if (IsPreview) { Active = true; MarkSelected(CharacterReferences.First(item => !item.IsUpload)); return; }
+        if (IsClosing || Active || homeReferenceUpload is not null) return;
+        var selected = HomeSelectedReference;
+        if (IsPreview) { ApplyHomeReference(selected); Active = true; return; }
         if (string.IsNullOrWhiteSpace(ApiKey)) { RequireKey(); return; }
         if (SelectedCamera is null) { RequireCamera(); return; }
         EnsureCreditsForStart();
-        var first = CharacterReferences.First(item => !item.IsUpload);
-        SelectedMode = "charx";
-        MarkSelected(first);
+        ApplyHomeReference(selected);
         string freePrompt = Prompt;
-        var context = ReferenceContext(first);
-        Prompt = context.Prompt; ReferenceImage = context.ReferencePath ?? ""; FaceRestoration = first.Mode == "clothx";
+        var context = ReferenceContext(selected);
+        Prompt = context.Prompt; ReferenceImage = context.ReferencePath ?? ""; FaceRestoration = false;
         try { await GenerateAsync(); }
         finally { Prompt = freePrompt; Changed(nameof(Prompt)); }
     }
@@ -208,17 +209,8 @@ internal sealed partial class MainViewModel
         int current = revision;
         try
         {
-            try { item.Thumbnail = await thumbnails.LoadAsync(path); } catch (Exception) { /* uploads can still accept encoded WebP without a local codec */ }
-            using var client = new XmaxClient(new() { ApiKey = sessionKey, Environment = ServiceEnvironment });
-            await using var storage = client.CreateStorage();
-            var progress = new Progress<TransferProgress>(value =>
-            {
-                if (item.IsUploading && !cancellation.IsCancellationRequested && value.Total > 0)
-                    item.UploadProgress = Math.Clamp((double)value.Completed / value.Total, 0, 1);
-            });
-            var uploaded = await storage.UploadImageWithSafetyCheckAsync(
-                path, progress: progress, cancellationToken: cancellation.Token);
-            item.ReferenceUrl = uploaded.Url; item.UploadProgress = 1; item.IsUploading = false;
+            item.ReferenceUrl = await UploadApprovedReferenceAsync(item, path, sessionKey, cancellation.Token);
+            item.UploadProgress = 1; item.IsUploading = false;
             if (current == revision && uploadIntent == intent && mode == SelectedMode && (mode != "free" || FreeReference == item)) await SelectReferenceAsync(item);
         }
         catch (OperationCanceledException) { item.IsUploading = false; item.HasError = true; item.Error = "Upload canceled — click to retry."; }
@@ -228,6 +220,21 @@ internal sealed partial class MainViewModel
             if (current == revision && uploadIntent == intent) ReportError(failure);
         }
         finally { uploadCancellations.Remove(item); cancellation.Dispose(); }
+    }
+
+    private async Task<string> UploadApprovedReferenceAsync(ReferenceItem item, string path, string key, CancellationToken cancellation)
+    {
+        try { item.Thumbnail = await thumbnails.LoadAsync(path); } catch (Exception) { /* uploads can still accept encoded WebP without a local codec */ }
+        cancellation.ThrowIfCancellationRequested();
+        using var client = new XmaxClient(new() { ApiKey = key, Environment = ServiceEnvironment });
+        await using var storage = client.CreateStorage();
+        var progress = new Progress<TransferProgress>(value =>
+        {
+            if (item.IsUploading && !cancellation.IsCancellationRequested && value.Total > 0)
+                item.UploadProgress = Math.Clamp((double)value.Completed / value.Total, 0, 1);
+        });
+        var uploaded = await storage.UploadImageWithSafetyCheckAsync(path, progress: progress, cancellationToken: cancellation);
+        return uploaded.Url;
     }
     public void RemoveFreeReference()
     {

@@ -21,14 +21,20 @@ public sealed partial class MainWindow
     private TextBox? apiKeyInput;
     private Action<string>? setKeyInput;
     internal Popup? KeyPopup { get; private set; }
-    private Popup OpenPopup(FrameworkElement target, FrameworkElement content, double width, double padding = 10, bool above = false)
+    private Popup OpenPopup(FrameworkElement target, FrameworkElement content, double width, double padding = 10,
+        bool? above = false, double cornerRadius = 12)
     {
         ClosePopups();
-        var surface = new Border { Width = width, Background = Theme.Brush("#FFFFFF"), BorderBrush = Theme.Brush("#E5E7EB"), BorderThickness = new(1), CornerRadius = new(12), Padding = new(padding), Child = content };
+        var surface = new Border { Width = width, Background = Theme.Brush("#FFFFFF"), BorderBrush = Theme.Brush("#E5E7EB"), BorderThickness = new(1), CornerRadius = new(cornerRadius), Padding = new(padding), Child = content };
         surface.Measure(new Size(width, double.PositiveInfinity));
         var popup = new Popup { Child = surface, IsLightDismissEnabled = true, XamlRoot = root.XamlRoot };
-        var point = target.TransformToVisual(root).TransformPoint(new Point(target.ActualWidth - width, above ? -surface.DesiredSize.Height - 8 : target.ActualHeight + 8));
-        popup.HorizontalOffset = Math.Clamp(point.X, 8, Math.Max(8, root.ActualWidth - width - 8)); popup.VerticalOffset = above ? Math.Max(8, point.Y) : point.Y;
+        var anchor = target.TransformToVisual(root).TransformPoint(new Point(target.ActualWidth - width, 0));
+        double below = anchor.Y + target.ActualHeight + 8;
+        double height = surface.DesiredSize.Height;
+        bool placeAbove = above ?? (below + height > root.ActualHeight - 8);
+        popup.HorizontalOffset = Math.Clamp(anchor.X, 8, Math.Max(8, root.ActualWidth - width - 8));
+        double top = placeAbove ? Math.Max(8, anchor.Y - height - 8) : below;
+        popup.VerticalOffset = above.HasValue ? top : Math.Clamp(top, 8, Math.Max(8, root.ActualHeight - height - 8));
         popups.Add(popup); popup.IsOpen = true;
         return popup;
     }
@@ -39,7 +45,7 @@ public sealed partial class MainWindow
         foreach (var camera in Model.Cameras)
         {
             var button = CreateInputPickerRow(camera.Name, Model.SelectedCamera?.Id == camera.Id);
-            button.Click += (_, _) => { Model.SelectedCamera = camera; ClosePopups(); }; list.Children.Add(button);
+            button.Click += (_, _) => { Model.SelectCamera(camera); ClosePopups(); }; list.Children.Add(button);
         }
         if (Model.Cameras.Count == 0) list.Children.Add(Theme.Text("No cameras found", 12, "#6B7380"));
         OpenPopup(cameraButton, list, 276, 8);
@@ -123,14 +129,30 @@ public sealed partial class MainWindow
         if (Model.IsPreview) { Model.ReportError(new InvalidOperationException("Reference uploads require a live session.")); return; }
         try
         {
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.PicturesLibrary };
-            foreach (string extension in new[] { ".jpg", ".jpeg", ".png", ".webp", ".bmp" }) picker.FileTypeFilter.Add(extension);
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
-            var file = await picker.PickSingleFileAsync();
-            if (file is not null) await Model.UploadReferenceAsync(file.Path);
+            if (await PickReferencePathAsync() is { } path) await Model.UploadReferenceAsync(path);
         }
         catch (Exception error) { Model.ReportError(error); }
     }
+
+    private async Task ChooseHomeReferenceAsync()
+    {
+        if (Model.IsPreview || !Model.CanChooseHomeReference) return;
+        try
+        {
+            if (await PickReferencePathAsync() is { } path && !closing && accountRepository?.CanAccessHome != false)
+                await Model.UploadHomeReferenceAsync(path);
+        }
+        catch (Exception error) { if (!closing) Model.ReportError(error); }
+    }
+
+    private async Task<string?> PickReferencePathAsync()
+    {
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.PicturesLibrary };
+        foreach (string extension in new[] { ".jpg", ".jpeg", ".png", ".webp", ".bmp" }) picker.FileTypeFilter.Add(extension);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
+        return (await picker.PickSingleFileAsync())?.Path;
+    }
+
     private async Task SelectReferenceAsync(ReferenceItem item)
     {
         try

@@ -59,6 +59,7 @@ public sealed partial class MainWindow
         {
             bool becameVerified = accountRepository.HasVerifiedSession && !lastVerified;
             lastVerified = accountRepository.HasVerifiedSession;
+            if (!accountRepository.CanAccessHome) Model.ResetHomeReferences();
             RefreshAccountUi();
             if (becameVerified) _ = RefreshCreditsQuietlyAsync();
             if (!accountRepository.HasVerifiedSession && Model.Session is not null && !accountStopping)
@@ -105,7 +106,7 @@ public sealed partial class MainWindow
         AutomationProperties.SetName(homeCredits, "Credits " + presentation.Credits);
         AutomationProperties.SetName(sessionCredits, "Credits " + presentation.Credits);
         accountCard?.Update(presentation, accountRepository.CanAccessHome, !accountRepository.IsBusy && !accountStopping);
-        StartButton.IsEnabled = Model.CanEdit && accountRepository.HasVerifiedSession && studioInitialized && !accountStopping;
+        StartButton.IsEnabled = Model.CanChooseHomeReference && accountRepository.HasVerifiedSession && studioInitialized && !accountStopping;
         if (home && !accountRepository.HasVerifiedSession) StartButton.Text = AppText.Get("Verifying account…");
         homeCredits.IsEnabled = sessionCredits.IsEnabled = accountRepository.HasVerifiedSession;
         if (accountRepository.HasVerifiedSession) creditsRefreshTimer.Start();
@@ -160,6 +161,7 @@ public sealed partial class MainWindow
         accountStopping = true; RefreshAccountUi();
         try
         {
+            Model.ResetHomeReferences();
             // Device registration survives sign-out; stopping switches its output back to the placeholder.
             try { await Model.StopAsync(); }
             finally

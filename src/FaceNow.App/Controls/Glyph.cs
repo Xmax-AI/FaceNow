@@ -28,6 +28,7 @@ internal sealed class Glyph : Grid
         ["key"] = "M11.4,11.6 L21,2 M15.5,7.5 L18.5,10.5 L22,7 L19,4",
         ["chevron"] = "M6,9 L12,15 L18,9",
         ["statistics"] = "M4,20 L4,11 M12,20 L12,4 M20,20 L20,14",
+        ["adjustments"] = "M3,5 H8 M12,5 H21 M3,12 H14 M18,12 H21 M3,19 H6 M10,19 H21 M8,3 H12 V7 H8 Z M14,10 H18 V14 H14 Z M6,17 H10 V21 H6 Z",
         ["volume"] = "M11,5 L5,9 L2,9 L2,15 L5,15 L11,19 Z M15,8 C19,10 19,14 15,16 M18,5 C24,9 24,15 18,19",
         ["muted"] = "M11,5 L5,9 L2,9 L2,15 L5,15 L11,19 Z M16,9 L22,15 M22,9 L16,15",
         ["plus"] = "M12,4 L12,20 M4,12 L20,12",

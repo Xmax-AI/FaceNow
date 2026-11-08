@@ -39,6 +39,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private Task cleanup = Task.CompletedTask;
     private string status = AppText.Get("Ready · camera preview does not require an API key"), error = "", metrics = AppText.Get("Waiting for video statistics");
     private CameraDevice? camera;
+    private string? preferredCameraId;
     internal static IReadOnlyList<(string Ratio, VideoFormat Format)> CameraPresets { get; } =
     [
         ("16:9", new(1920, 1080)),
@@ -63,7 +64,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     public CameraDevice? SelectedCamera
     {
         get => camera;
-        set { camera = value; if (value is not null && !IsPreview) CameraSelectionStore.Save(value.Id); Changed(); Changed(nameof(LocalTitle)); }
+        private set { if (camera == value) return; camera = value; Changed(); Changed(nameof(LocalTitle)); }
     }
     public VideoFormat SelectedFormat { get => format; set { if (format == value) return; format = value; Changed(); } }
     public bool Busy => foregroundOperations > 0 || IsClosing;
@@ -101,9 +102,13 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         try
         {
             if (IsPreview) return;
-            LoadVirtualMicrophonePreference();
+            LoadAudioOutputPreferences();
             _ = RefreshVirtualMicrophoneAsync();
-            await GuardAsync(RefreshCamerasAsync);
+            await GuardAsync(async () =>
+            {
+                await RefreshCamerasAsync();
+                await RestoreMicrophoneSelectionAsync();
+            });
         }
         catch (Exception failure) { ReportError(failure); }
     }
@@ -111,13 +116,21 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     {
         using var client = new XmaxClient();
         var devices = await client.ListCamerasAsync();
-        string? previous = SelectedCamera?.Id ?? CameraSelectionStore.Load();
+        if (!IsPreview) preferredCameraId ??= CaptureDeviceSelectionStore.LoadCamera();
         Cameras.Clear();
         foreach (var item in devices.Where(item => CameraFilter?.Invoke(item) ?? true)) Cameras.Add(item);
-        // Match Qt: preserve an explicit choice, auto-select only when there is exactly one device.
-        SelectedCamera = previous is not null ? Cameras.FirstOrDefault(item => item.Id == previous) : Cameras.Count == 1 ? Cameras[0] : null;
+        SelectedCamera = Cameras.FirstOrDefault(item => string.Equals(item.Id, preferredCameraId, StringComparison.OrdinalIgnoreCase))
+            ?? Cameras.FirstOrDefault(item => string.Equals(item.Id, SelectedCamera?.Id, StringComparison.OrdinalIgnoreCase))
+            ?? Cameras.FirstOrDefault(item => item.IsDefault)
+            ?? Cameras.FirstOrDefault();
         Status = Cameras.Count == 0 ? AppText.Get("No cameras found. Check your device and Windows camera permissions.") : AppText.Format("Found {0} cameras", Cameras.Count);
         RefreshCommands();
+    }
+    internal void SelectCamera(CameraDevice device)
+    {
+        preferredCameraId = device.Id;
+        SelectedCamera = device;
+        if (!IsPreview) CaptureDeviceSelectionStore.SaveCamera(device.Id);
     }
     public async Task PreviewAsync()
     {
@@ -135,6 +148,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
             return;
         await StopAsync();
         int current = ++revision;
+        var receiveMicrophoneLevel = CreateMicrophoneLevelHandler();
         using var client = new XmaxClient(new() { ApiKey = ApiKey, Environment = ServiceEnvironment });
         var next = client.CreateRealtime(new() { Model = ServiceModel, AdaptiveQualityEnabled = true });
         session = next;
@@ -145,10 +159,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         var receive = CreateSessionEventHandler();
         await next.SetUplinkVideoStatisticsListenerAsync(stats => { if (current == revision) ReceiveUplinkStatistics(stats); });
         await next.SetDownlinkVideoStatisticsListenerAsync(stats => { if (current == revision) ReceiveDownlinkStatistics(stats); });
-        await next.SetMicrophoneLevelListenerAsync(level => dispatcher.InvokeAsync(() =>
-        {
-            if (current == revision && Microphone.IsEnabled) MicrophoneLevelChanged?.Invoke(level);
-        }));
+        await next.SetMicrophoneLevelListenerAsync(receiveMicrophoneLevel);
         next.EventReceived += item => dispatcher.InvokeAsync(() => receive(item));
         next.CallbackFaulted += failure => dispatcher.InvokeAsync(() => { if (current == revision) ReportError(failure); });
         RefreshCommands();
@@ -165,14 +176,15 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
                 enableOutput: false, microphoneFaulted: VirtualMicrophoneStatus == VirtualMicrophoneState.Enabled ? failure => dispatcher.InvokeAsync(() =>
                 {
                     if (current == revision) ReportVirtualMicrophoneError(failure);
-                }) : null);
+                }) : null, audioSyncOffset: AudioSyncOffsetMilliseconds);
             if (current != revision) { await pipeline.DisposeAsync(); throw new OperationCanceledException(); }
             cameraPump = pipeline;
+            pipeline.SetAudioSyncOffset(AudioSyncOffsetMilliseconds);
             preparationToken.ThrowIfCancellationRequested();
             var cameraStream = await next.CreateLocalCameraStreamAsync(
                 videoFormat: requestedFormat,
                 deviceId: SelectedCamera.Id,
-                mirror: true,
+                mirror: false,
                 microphone: Microphone,
                 cancellationToken: preparationToken
             );
@@ -254,5 +266,5 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private void RefreshCommands()
     { RefreshCommand.Refresh(); PreviewCommand.Refresh(); GenerateCommand.Refresh(); StopCommand.Refresh(); StartCommand?.Refresh(); SubmitPromptCommand?.Refresh(); }
     private void Changed([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new(name));
-    public async ValueTask DisposeAsync() { await StopAsync(); await effects.FlushAsync(); effects.Changed -= EffectsChanged; }
+    public async ValueTask DisposeAsync() { ResetHomeReferences(); await StopAsync(); await effects.FlushAsync(); effects.Changed -= EffectsChanged; }
 }

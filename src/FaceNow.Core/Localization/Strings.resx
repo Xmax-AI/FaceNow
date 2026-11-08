@@ -4754,4 +4754,68 @@ Generation is disabled</comment>
     <value>Input Level</value>
     <comment>Input Level</comment>
   </data>
+  <data name="Text_EB2412BB260D6A55" xml:space="preserve">
+    <value>Speak into your microphone to check the input.</value>
+    <comment>Tooltip for the generation microphone input meter</comment>
+  </data>
+  <data name="Text_8071E3516DF00F17" xml:space="preserve">
+    <value>Audio &amp; Video</value>
+    <comment>Audio &amp; Video</comment>
+  </data>
+  <data name="Text_7319AD562BBA027A" xml:space="preserve">
+    <value>Close audio and video adjustments</value>
+    <comment>Close audio and video adjustments</comment>
+  </data>
+  <data name="Text_7B00BDC7791F429C" xml:space="preserve">
+    <value>Automatic A/V Sync</value>
+    <comment>Automatic A/V Sync</comment>
+  </data>
+  <data name="Text_0E4F6D4FB31964E1" xml:space="preserve">
+    <value>Automatically align audio with generated video</value>
+    <comment>Automatically align audio with generated video</comment>
+  </data>
+  <data name="Text_10AD4ECE9E9208B1" xml:space="preserve">
+    <value>Manual Sync Offset</value>
+    <comment>Manual Sync Offset</comment>
+  </data>
+  <data name="Text_D9083F31F02A5889" xml:space="preserve">
+    <value>Fine-tune the automatic synchronization</value>
+    <comment>Fine-tune the automatic synchronization</comment>
+  </data>
+  <data name="Text_9F637FC50C98AD28" xml:space="preserve">
+    <value>Audio earlier</value>
+    <comment>Audio earlier</comment>
+  </data>
+  <data name="Text_6539D798FABDD539" xml:space="preserve">
+    <value>Audio later</value>
+    <comment>Audio later</comment>
+  </data>
+  <data name="Text_B1A1E8E3CF7C522E" xml:space="preserve">
+    <value>Offset</value>
+    <comment>Offset</comment>
+  </data>
+  <data name="Text_EC6214C0A5E52F47" xml:space="preserve">
+    <value>Preview only. Changes do not affect meeting output.</value>
+    <comment>Preview only. Changes do not affect meeting output.</comment>
+  </data>
+  <data name="Text_E8DE72A87A7CA477" xml:space="preserve">
+    <value>Changes apply immediately to meeting output.</value>
+    <comment>Changes apply immediately to meeting output.</comment>
+  </data>
+  <data name="Text_4D295847DC55B369" xml:space="preserve">
+    <value>Beauty Controls</value>
+    <comment>Beauty Controls</comment>
+  </data>
+  <data name="Text_1187C9671073919E" xml:space="preserve">
+    <value>Hide beauty controls</value>
+    <comment>Hide beauty controls</comment>
+  </data>
+  <data name="Text_D7EAB3DB28E5F43F" xml:space="preserve">
+    <value>Show beauty controls</value>
+    <comment>Show beauty controls</comment>
+  </data>
+  <data name="Text_86E63929FEE2E70C" xml:space="preserve">
+    <value>Reference images</value>
+    <comment>Reference images</comment>
+  </data>
 </root>

@@ -42,23 +42,31 @@ internal sealed class CameraAspectPicker : UserControl
             CornerRadius = new(17), Padding = new(3), BorderThickness = new(1),
             Background = Theme.Brush("#47000000"), BorderBrush = Theme.Brush("#29FFFFFF"), Child = row
         };
-        foreach (var (ratio, format) in options)
+        var labels = options.Select(option =>
         {
-            var label = LoginTypography.Text(ratio, 13.5, "#D9FFFFFF");
+            var label = LoginTypography.Text(option.Ratio, 13.5, "#D9FFFFFF");
             label.FontWeight = FontWeights.Medium;
+            label.Measure(new(double.PositiveInfinity, double.PositiveInfinity));
+            return label;
+        }).ToArray();
+        double segmentWidth = Math.Ceiling(labels.Max(label => label.DesiredSize.Width)) + 24;
+        for (int i = 0; i < options.Count; i++)
+        {
+            var (ratio, format) = options[i];
+            var label = labels[i];
             var surface = Theme.Brush("#00000000");
             var foreground = Theme.Brush("#D9FFFFFF");
             label.Foreground = foreground;
             var segment = new RadioButton
             {
-                Template = SegmentTemplate, Content = label, Background = surface, Width = 52, Height = 26,
+                Template = SegmentTemplate, Content = label, Background = surface, Width = segmentWidth, Height = 26,
                 MinWidth = 0, MinHeight = 0, Padding = new(0), UseSystemFocusVisuals = true
             };
             bool hovered = false, pressed = false;
             void RefreshSegment()
             {
                 bool selected = segment.IsChecked == true;
-                LoginMotion.Color(segment, surface, selected ? (pressed ? "#2438C4" : "#2F46E2")
+                LoginMotion.Color(segment, surface, selected ? (pressed ? "#525252" : "#454545")
                     : pressed ? "#26FFFFFF" : hovered ? "#14FFFFFF" : "#00000000");
                 LoginMotion.Color(segment, foreground, selected || hovered ? "#FFFFFF" : "#D9FFFFFF");
             }

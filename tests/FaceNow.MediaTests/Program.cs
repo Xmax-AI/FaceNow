@@ -13,6 +13,7 @@ using FaceNow.Core.Product;
 using FaceNow.Core.Localization;
 using FaceNow.Windows.Media;
 using FaceNow.Windows.VirtualCamera;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Xmax.SDK;
 
@@ -28,6 +29,48 @@ Check(GenerationPrompts.ForMode("charx", overseas) == "Become the character in t
 new BeautySettings().Validate();
 Check(new BeautySettings().Enabled && new BeautySettings().Smoothness == 0 && new BeautySettings().Lightening == 0 && new BeautySettings().Sharpness == 0, "Beauty is enabled with zero default strengths");
 try { new BeautySettings(true, float.NaN).Validate(); throw new Exception("NaN accepted"); } catch (ArgumentOutOfRangeException) { Check(true, "Invalid beauty strengths rejected"); }
+
+var timing = new MeetingOutputTiming(0);
+long arrival = Stopwatch.GetTimestamp();
+var (videoTime, startsStream) = timing.Map(1, 900d, arrival);
+var (audioTime, _) = timing.Map(1, 900.025, arrival + MeetingOutputTiming.Ticks(70));
+Check(startsStream && audioTime - videoTime == MeetingOutputTiming.Ticks(25) && timing.Delay(true) == timing.Delay(false),
+    "Audio and video share SDK presentation time even when callbacks arrive at different times");
+var (newTime, newStream) = timing.Map(2, 12d, arrival);
+Check(newStream && newTime == videoTime, "A replacement stream starts a new output timeline");
+timing.SetOffset(200);
+Check(timing.Delay(true) == MeetingOutputTiming.Ticks(200) && timing.Delay(false) == 0, "Positive offset delays audio alone");
+timing.SetOffset(-5000);
+Check(timing.Delay(false) == MeetingOutputTiming.Ticks(5000) && timing.Delay(true) == 0, "Negative offset delays video alone");
+
+var delayedVideo = new MeetingOutputQueue<TestPacket>(timing, audio: false);
+var retained = new List<TestPacket>();
+for (int i = 0; i <= 150; i++)
+{
+    var packet = new TestPacket();
+    if (delayedVideo.TryWrite(packet, arrival + MeetingOutputTiming.Ticks(i * 33), 1920 * 1080 * 4, i == 0)) retained.Add(packet);
+    else packet.Dispose();
+}
+Check(retained.Count is > 1 and <= 32 && retained.All(packet => !packet.Disposed),
+    "A five-second video delay retains a bounded set without evicting the earliest frame before it is due");
+delayedVideo.Reset();
+Check(retained.All(packet => packet.Disposed), "Clearing delayed output releases every retained frame");
+delayedVideo.Complete();
+
+timing.SetOffset(5000);
+var delayedAudio = new MeetingOutputQueue<TestPacket>(timing, audio: true);
+using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+using var scheduledAudio = new TestPacket();
+long due = Stopwatch.GetTimestamp() + MeetingOutputTiming.Ticks(100);
+Check(delayedAudio.TryWrite(scheduledAudio, due, 0, false), "Audio is admitted during a live offset");
+var reading = delayedAudio.ReadAsync(timeout.Token).AsTask();
+Check(!reading.IsCompleted, "Audio waits for its scheduled time");
+timing.SetOffset(0);
+delayedAudio.OffsetChanged();
+var played = await reading;
+Check(played?.Packet == scheduledAudio && Stopwatch.GetTimestamp() >= due, "Reset reschedules pending audio and wakes its worker");
+delayedAudio.Complete();
+
 if (args.Length > 0)
 {
     if (args.Length > 1) Check(ProductProfile.Current.Edition.ToString() == args[1], "Compiled edition matches requested artifact");
@@ -107,4 +150,10 @@ Console.WriteLine($"{passed} media/edition checks passed; no account, camera or 
 static async Task WaitUntil(Func<bool> ready) {
     var deadline = DateTime.UtcNow.AddSeconds(5);
     while (!ready()) { if (DateTime.UtcNow >= deadline) throw new TimeoutException("SDK preference binding timed out"); await Task.Delay(10); }
+}
+
+sealed class TestPacket : IDisposable
+{
+    internal bool Disposed { get; private set; }
+    public void Dispose() => Disposed = true;
 }

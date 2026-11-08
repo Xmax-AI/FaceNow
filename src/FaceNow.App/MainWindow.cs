@@ -45,7 +45,10 @@ public sealed partial class MainWindow : Window
     private const double VideoPanelSpacing = 24;
     private readonly Grid videoRow = new() { ColumnSpacing = VideoPanelSpacing };
     private readonly Grid localVideoPanel = new(), resultVideoPanel = new();
-    private readonly XmaxRealtimeVideoView localVideoView = new() { IsHitTestVisible = false, FirstFrameFadeInDuration = 0 };
+    private readonly XmaxRealtimeVideoView localVideoView = new()
+    {
+        IsMirrored = true, IsHitTestVisible = false, FirstFrameFadeInDuration = 0
+    };
     private readonly XmaxRealtimeVideoView resultVideoView = new() { IsMirrored = true };
     private readonly TextBlock localPlaceholder = Theme.Text("", 14, "#8CFFFFFF");
     private readonly TextBlock resultPlaceholder = Theme.Text("", 14, "#8CFFFFFF");
@@ -67,6 +70,7 @@ public sealed partial class MainWindow : Window
     internal readonly CameraStartButton StartButton = new();
     private readonly LandingInputButton cameraButton = new("Select Camera");
     private readonly CameraAspectPicker cameraAspect = new(MainViewModel.CameraPresets);
+    private readonly HomeReferencePicker homeReferences;
     private readonly ToolbarButton modelButton = new(ToolbarButtonRole.Menu) { Text = "X2.1", Visibility = Visibility.Collapsed };
     private readonly ToolbarButton keyButton = new() { Glyph = "key" };
     private readonly WindowsVirtualCamera virtualCameraOutput = new();
@@ -89,6 +93,7 @@ public sealed partial class MainWindow : Window
         apiKeyStore = store;
         accountRepository = user;
         Model = new(new WinUiDispatcher(DispatcherQueue), new WinUiThumbnailLoader(), virtualCameraOutput, user);
+        homeReferences = new(Model.HomeReferencePresets);
         Model.CameraFilter = item => !virtualCameraOutput.IsOwnCamera(item.Id);
         if (preview) Model.ConfigurePreview(previewSession);
         root.DataContext = Model;
@@ -179,11 +184,12 @@ public sealed partial class MainWindow : Window
         cameraButton.Text = Model.SelectedCamera?.Name ?? "Select Camera";
         ToolTipService.SetToolTip(cameraButton, cameraButton.Text);
         keyButton.Text = Model.KeyLabel;
-        cameraButton.IsEnabled = modelButton.IsEnabled = keyButton.IsEnabled = StartButton.IsEnabled = Model.CanEdit;
-        if (cameraSetupPreview) StartButton.IsEnabled = false;
+        cameraButton.IsEnabled = modelButton.IsEnabled = keyButton.IsEnabled = Model.CanEdit;
+        StartButton.IsEnabled = Model.CanChooseHomeReference && !cameraSetupPreview;
         StartButton.Text = Model.StartLabel;
         StartButton.SetLoading(Model.Busy && !Model.IsClosing && !Model.Active);
         cameraAspect.Update(Model.SelectedFormat, Model.CanEdit);
+        homeReferences.Update(Model.HomeSelectedReference, Model.HomeCustomReference, Model.CanChooseHomeReference, Model.Busy);
         RefreshVideoPanels();
         stopButton.Text = Model.StopLabel;
         statisticsButton.IsSelected = Model.StatisticsVisible; elapsed.Text = Model.Elapsed;

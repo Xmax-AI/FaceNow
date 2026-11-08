@@ -11,7 +11,7 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using System.Threading.Channels;
+using FaceNow.Windows.Media;
 using FaceNow.Windows.VirtualCamera;
 using Xmax.SDK;
 
@@ -19,14 +19,19 @@ namespace FaceNow.Windows.VirtualMicrophone;
 
 internal sealed class RemoteMicrophonePump : IAsyncDisposable
 {
-    private readonly Channel<XmaxMediaFrame> frames = Channel.CreateBounded<XmaxMediaFrame>(new BoundedChannelOptions(12)
-        { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true }, frame => frame.Dispose());
+    private readonly MeetingOutputQueue<XmaxMediaFrame> frames;
     private readonly CancellationTokenSource lifetime = new();
     private readonly Task worker;
 
-    internal RemoteMicrophonePump(Action<Exception> faulted) => worker = Task.Run(() => PlayAsync(faulted));
+    internal RemoteMicrophonePump(MeetingOutputTiming timing, Action<Exception> faulted)
+    {
+        frames = new(timing, audio: true);
+        worker = Task.Run(() => PlayAsync(faulted));
+    }
 
-    internal bool TrySubmit(XmaxMediaFrame frame) => frames.Writer.TryWrite(frame);
+    internal bool TrySubmit(XmaxMediaFrame frame, long presentation) => frames.TryWrite(frame, presentation, 0, frame.IsDiscontinuous);
+    internal void OffsetChanged() => frames.OffsetChanged();
+    internal void ResetTiming() => frames.Reset();
 
     private async Task PlayAsync(Action<Exception> faulted)
     {
@@ -35,9 +40,9 @@ internal sealed class RemoteMicrophonePump : IAsyncDisposable
         long packets = 0;
         try
         {
-            await foreach (var packet in frames.Reader.ReadAllAsync(lifetime.Token))
-            using (packet)
+            while (await frames.ReadAsync(lifetime.Token) is { } frame)
             {
+                using var packet = frame.Packet;
                 if (lifetime.IsCancellationRequested) break;
                 // The SDK configures the result observer for 48 kHz mono PCM16.
                 if (packet.SampleRate != VbCablePlayback.SampleRate || packet.Channels != 1 || packet.SamplesPerChannel is 0 or > 4800)
@@ -51,8 +56,9 @@ internal sealed class RemoteMicrophonePump : IAsyncDisposable
                         if (pointer == 0 || size != count) throw new InvalidDataException("Invalid SDK audio frame.");
                         Marshal.Copy(pointer, pcm, 0, count);
                     });
-                    playback ??= new(error => { frames.Writer.TryComplete(error); });
-                    playback.Write(pcm, count, packet.IsDiscontinuous);
+                    if (!frames.IsCurrent(frame.Epoch)) continue;
+                    playback ??= new(error => frames.Complete(error));
+                    playback.Write(pcm, count, frame.Discontinuous);
                     packets++;
                     if (!audible && IsAudible(pcm.AsSpan(0, count)))
                     {
@@ -67,8 +73,7 @@ internal sealed class RemoteMicrophonePump : IAsyncDisposable
         catch (Exception error) { if (!lifetime.IsCancellationRequested) faulted(error); }
         finally
         {
-            frames.Writer.TryComplete();
-            while (frames.Reader.TryRead(out var pending)) pending.Dispose();
+            frames.Complete();
             playback?.Dispose();
             if (packets > 0) CameraDiagnostics.Write($"Virtual microphone stopped; packets={packets}; audible={audible}.");
         }
@@ -84,7 +89,7 @@ internal sealed class RemoteMicrophonePump : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         lifetime.Cancel();
-        frames.Writer.TryComplete();
+        frames.Complete();
         try { await worker; }
         finally { lifetime.Dispose(); }
     }

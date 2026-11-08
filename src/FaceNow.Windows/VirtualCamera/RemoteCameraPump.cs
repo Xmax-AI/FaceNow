@@ -10,7 +10,7 @@
 
 using System.Buffers;
 using System.Runtime.InteropServices;
-using System.Threading.Channels;
+using System.Diagnostics;
 using FaceNow.Core.VirtualCamera;
 using FaceNow.Core.Media;
 using FaceNow.Windows.Media;
@@ -29,24 +29,27 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
     private readonly FrameCompositor compositor = new();
     private readonly RemoteMicrophonePump? microphone;
     private SdkBeautyBinding? beauty;
-    private readonly Channel<XmaxMediaFrame> frames = Channel.CreateBounded<XmaxMediaFrame>(new BoundedChannelOptions(1)
-        { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true, SingleWriter = false }, frame => frame.Dispose());
+    private readonly object ingress = new();
+    private readonly MeetingOutputTiming timing;
+    private readonly MeetingOutputQueue<XmaxMediaFrame> frames;
     private readonly Task worker;
     private int stopped, outputEnabled;
     internal bool IsStopped => Volatile.Read(ref stopped) != 0;
     internal Guid SessionId => sessionId;
-    private RemoteCameraPump(IVirtualCameraOutput? output, Action<Exception> faulted, Action<Exception>? microphoneFaulted)
+    private RemoteCameraPump(IVirtualCameraOutput? output, Action<Exception> faulted, Action<Exception>? microphoneFaulted, int audioSyncOffset)
     {
         this.output = output;
         this.faulted = faulted;
-        if (microphoneFaulted is not null) microphone = new(microphoneFaulted);
+        timing = new(audioSyncOffset);
+        frames = new(timing, audio: false);
+        if (microphoneFaulted is not null) microphone = new(timing, microphoneFaulted);
         worker = Task.Run(ConsumeAsync);
     }
     internal static async Task<RemoteCameraPump> StartAsync(XmaxRealtime realtime, IVirtualCameraOutput? output, Action<Exception> faulted,
         GenerationEffectsController? effects = null, Action<Exception>? beautyFailed = null, bool enableOutput = true,
-        Action<Exception>? microphoneFaulted = null)
+        Action<Exception>? microphoneFaulted = null, int audioSyncOffset = 0)
     {
-        var pump = new RemoteCameraPump(output, faulted, microphoneFaulted);
+        var pump = new RemoteCameraPump(output, faulted, microphoneFaulted, audioSyncOffset);
         try {
             if (effects is not null) pump.beauty = await SdkBeautyBinding.StartAsync(realtime, effects, beautyFailed ?? (_ => { }));
             await realtime.SetRemoteMediaFrameListenerAsync(pump.Receive);
@@ -63,24 +66,49 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
         Volatile.Write(ref outputEnabled, 1);
     }
     internal async Task DisableOutputAsync()
-    { Interlocked.Exchange(ref outputEnabled, 0); if (output is not null) await output.StopAsync(); }
+    {
+        lock (ingress)
+        {
+            Volatile.Write(ref outputEnabled, 0);
+            frames.Reset();
+        }
+        if (output is not null) await output.StopAsync();
+    }
+
+    internal void SetAudioSyncOffset(int value)
+    {
+        timing.SetOffset(value);
+        frames.OffsetChanged();
+        microphone?.OffsetChanged();
+    }
+
     private void Receive(XmaxMediaFrame packet)
     {
-        if (!IsStopped && (packet.Type switch
+        lock (ingress)
         {
-            MediaType.Video => Volatile.Read(ref outputEnabled) != 0 && frames.Writer.TryWrite(packet),
-            MediaType.Audio => microphone?.TrySubmit(packet) == true,
-            _ => false
-        })) return;
+            if (!IsStopped)
+            {
+                var (presentation, reset) = timing.Map(packet.StreamId, packet.PresentationTime.Seconds, Stopwatch.GetTimestamp());
+                if (reset)
+                {
+                    frames.Reset();
+                    microphone?.ResetTiming();
+                }
+                if (packet.Type == MediaType.Video && Volatile.Read(ref outputEnabled) != 0 &&
+                    packet.VideoWidth is > 0 and <= 4096 && packet.VideoHeight is > 0 and <= 2160 &&
+                    frames.TryWrite(packet, presentation, (int)(packet.VideoWidth * packet.VideoHeight * 4), packet.IsDiscontinuous)) return;
+                if (packet.Type == MediaType.Audio && microphone?.TrySubmit(packet, presentation) == true) return;
+            }
+        }
         packet.Dispose();
     }
     private async Task ConsumeAsync()
     {
         try
         {
-            await foreach (var packet in frames.Reader.ReadAllAsync(lifetime.Token))
-            using (packet)
+            while (await frames.ReadAsync(lifetime.Token) is { } frame)
             {
+                using var packet = frame.Packet;
                 if (IsStopped || Volatile.Read(ref outputEnabled) == 0 || output is null) continue;
                 int width = checked((int)packet.VideoWidth), height = checked((int)packet.VideoHeight);
                 long timestamp = packet.PresentationTime.Seconds is { } seconds && double.IsFinite(seconds) ? checked((long)(seconds * 1_000_000)) : 0;
@@ -92,7 +120,8 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
                     try
                     {
                         using var canvas = compositor.Compose(result);
-                        output.TrySubmit(new(canvas.Pixels, canvas.Width, canvas.Height, canvas.Stride, canvas.TimestampMicroseconds, sessionId));
+                        if (frames.IsCurrent(frame.Epoch))
+                            output.TrySubmit(new(canvas.Pixels, canvas.Width, canvas.Height, canvas.Stride, canvas.TimestampMicroseconds, sessionId));
                     }
                     catch (Exception failure) { await DisableOutputAsync(); if (!IsStopped) faulted(failure); }
                 }
@@ -100,10 +129,7 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
         }
         catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
         catch (Exception failure) { if (!IsStopped) faulted(failure); }
-        finally
-        {
-            while (frames.Reader.TryRead(out var remaining)) remaining.Dispose();
-        }
+        finally { frames.Complete(); }
     }
     private static unsafe void CopyPixels(ResultFrame frame, nint pointer, int stride, int size)
     {
@@ -125,7 +151,7 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref stopped, 1) != 0) { await worker; return; }
-        lifetime.Cancel(); frames.Writer.TryComplete();
+        lifetime.Cancel(); frames.Complete();
         Task? microphoneStop = microphone?.DisposeAsync().AsTask();
         try { await DisableOutputAsync(); }
         finally {
