@@ -3601,7 +3601,8 @@ static OSStatus	FaceNowMicrophone_GetControlPropertyData(AudioServerPlugInDriver
 					FailWithAction(inDataSize < sizeof(CFStringRef), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetControlPropertyData: not enough space for the return value of kAudioSelectorControlPropertyItemName for the data source control");
 					FailWithAction(inQualifierDataSize != sizeof(UInt32), theAnswer = kAudioHardwareBadPropertySizeError, Done, "FaceNowMicrophone_GetControlPropertyData: wrong size for the qualifier of kAudioSelectorControlPropertyItemName for the data source control");
 					FailWithAction(*((const UInt32*)inQualifierData) >= kDataSource_NumberItems, theAnswer = kAudioHardwareIllegalOperationError, Done, "FaceNowMicrophone_GetControlPropertyData: the item in the qualifier is not valid for kAudioSelectorControlPropertyItemName for the data source control");
-					*((CFStringRef*)outData) = CFStringCreateWithFormat(NULL, NULL, CFSTR(kDataSource_ItemNamePattern));
+					*((CFStringRef*)outData) = CFRetain(inObjectID == kObjectID_DataSource_Input_Master
+						? CFSTR(FACENOW_MICROPHONE_NAME) : CFSTR(kDataSource_ItemNamePattern));
 					*outDataSize = sizeof(CFStringRef);
 					break;
 

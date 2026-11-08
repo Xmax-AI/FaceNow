@@ -29,6 +29,15 @@ static void testProperties(void) {
     address.mSelector = kAudioDevicePropertyLatency;
     address.mScope = kAudioObjectPropertyScopeInput;
     assert(FaceNowMicrophone_GetPropertyData(gAudioServerPlugInDriverRef, kObjectID_Device, 0, &address, 0, NULL, 4, &size, &object) == noErr && object == 512);
+
+    address.mSelector = kAudioSelectorControlPropertyItemName;
+    address.mScope = kAudioObjectPropertyScopeGlobal;
+    UInt32 item = 0;
+    CFStringRef inputSourceName = NULL;
+    assert(FaceNowMicrophone_GetPropertyData(gAudioServerPlugInDriverRef, kObjectID_DataSource_Input_Master, 0,
+        &address, sizeof(item), &item, sizeof(inputSourceName), &size, &inputSourceName) == noErr);
+    assert(size == sizeof(inputSourceName) && CFEqual(inputSourceName, CFSTR(FACENOW_MICROPHONE_NAME)));
+    CFRelease(inputSourceName);
 }
 
 static UInt32 deviceValue(AudioObjectID device, AudioObjectPropertySelector selector, AudioObjectPropertyScope scope) {
