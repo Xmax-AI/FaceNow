@@ -317,6 +317,9 @@ final class GenerationRepository: ObservableObject {
     /// The virtual-output connection task cancelled before teardown.
     private var outputStartup: Task<Void, Never>?
 
+    /// The virtual camera canvas chosen for the current generation session.
+    private var virtualCameraFormat = VirtualCameraConfiguration.videoFormat
+
     /// The shared physical and virtual device publication monitor.
     private var deviceMonitor: VirtualCameraDeviceMonitor { virtualCameraRepo.deviceMonitor }
 
@@ -712,7 +715,7 @@ final class GenerationRepository: ObservableObject {
         _ text: String,
         isFinal: Bool
     ) {
-        let pages = VideoSubtitle.pages(text: text, format: VirtualCameraConfiguration.videoFormat)
+        let pages = VideoSubtitle.pages(text: text, format: virtualCameraFormat)
         guard let firstPage = pages.first else { return }
         if !isFinal {
             if subtitlePaging != nil {
@@ -784,7 +787,18 @@ final class GenerationRepository: ObservableObject {
 
     /// Supplies the camera only while a generated stream is available.
     private func synchronizeVirtualCameraSubtitle() {
-        let image = state.connectionState == .generating && remoteStream != nil ? subtitleSubject.value : nil
+        let image: CGImage? =
+            if state.connectionState == .generating, remoteStream != nil, let displayedSubtitleText {
+                if virtualCameraFormat.width == VirtualCameraConfiguration.width,
+                    virtualCameraFormat.height == VirtualCameraConfiguration.height
+                {
+                    subtitleSubject.value
+                } else {
+                    VideoSubtitle.makeImage(text: displayedSubtitleText, format: virtualCameraFormat)
+                }
+            } else {
+                nil
+            }
         guard virtualCameraSubtitle !== image else { return }
         virtualCameraSubtitle = image
         output.setSubtitle(image)
@@ -859,6 +873,11 @@ final class GenerationRepository: ObservableObject {
         await cleanup?.value
         guard lifecycleID == operation else { return }
         beautyEnabled = UserDefaults.standard.object(forKey: "generation.beauty.enabled") as? Bool ?? false
+        let size = preset.size
+        virtualCameraFormat = VirtualCameraConfiguration.videoFormat(
+            width: Int(size.width),
+            height: Int(size.height)
+        )
         advanceStartup(
             to: .appSetup,
             operation: operation
@@ -1027,11 +1046,12 @@ final class GenerationRepository: ObservableObject {
     ) {
         virtualCameraRepo.synchronizeReadiness()
         guard virtualCameraRepo.isVirtualCameraReady, outputStartup == nil else { return }
-        outputStartup = Task { [weak self, output] in
+        outputStartup = Task { [weak self, output, virtualCameraFormat] in
             let startedAt = ContinuousClock.now
             do {
                 try Task.checkCancellation()
                 try await output.start(
+                    format: virtualCameraFormat,
                     generationCaption: GenerationStrings.controlsResult
                 )
                 try Task.checkCancellation()

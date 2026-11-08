@@ -7,7 +7,7 @@ import CoreMediaIO
 import Foundation
 import os
 
-/// Exposes negotiated source frame rates and a fixed 60 fps producer sink.
+/// Exposes the camera resolutions with separate source and producer cadences.
 final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
 
     /// The system-facing stream.
@@ -31,8 +31,11 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     /// The negotiated format determines source delivery cadence and sample duration.
     private(set) var activeFormatIndex = 0
 
+    /// The media description currently accepted or emitted by this stream.
+    var activeFormat: CMIOExtensionStreamFormat { formats[activeFormatIndex] }
+
     /// The sample duration of the currently negotiated stream format.
-    var frameDuration: CMTime { formats[activeFormatIndex].minFrameDuration }
+    var frameDuration: CMTime { activeFormat.minFrameDuration }
 
     /// The nominal samples per second derived from the negotiated frame duration.
     var frameRate: Int { Int((1 / frameDuration.seconds).rounded()) }
@@ -65,7 +68,7 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
         )
     }
 
-    /// Returns the fixed format and producer queue requirements.
+    /// Returns the active format and producer queue requirements.
     func streamProperties(
         forProperties properties: Set<CMIOExtensionProperty>
     ) throws -> CMIOExtensionStreamProperties {
@@ -81,28 +84,51 @@ final class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     func setStreamProperties(
         _ streamProperties: CMIOExtensionStreamProperties
     ) throws {
-        var index = streamProperties.activeFormatIndex ?? activeFormatIndex
+        let requestedIndex = streamProperties.activeFormatIndex
+        var index = requestedIndex ?? activeFormatIndex
         guard formats.indices.contains(index) else {
-            throw NSError(
-                domain: NSOSStatusErrorDomain,
-                code: Int(kCMIOHardwareUnsupportedOperationError)
-            )
+            throw Self.unsupportedFormat
         }
         if let duration = streamProperties.frameDuration {
-            guard let matchingIndex = formats.firstIndex(where: { $0.minFrameDuration == duration }),
-                streamProperties.activeFormatIndex == nil || matchingIndex == index
-            else {
-                throw NSError(
-                    domain: NSOSStatusErrorDomain,
-                    code: Int(kCMIOHardwareUnsupportedOperationError)
-                )
-            }
+            let description = formats[index].formatDescription
+            guard let matchingIndex = formatIndex(for: description, duration: duration),
+                requestedIndex == nil || matchingIndex == index
+            else { throw Self.unsupportedFormat }
             index = matchingIndex
         }
-        if activeFormatIndex != index {
-            activeFormatIndex = index
-            logger.notice("Negotiated virtual camera frame rate: \(self.frameRate) fps")
+        try device.selectFormat(index, for: direction)
+    }
+
+    /// Finds the entry for a given media description and cadence.
+    func formatIndex(
+        for description: CMFormatDescription,
+        duration: CMTime
+    ) -> Int? {
+        formats.firstIndex {
+            CMFormatDescriptionEqual($0.formatDescription, otherFormatDescription: description)
+                && $0.minFrameDuration == duration
         }
+    }
+
+    /// Publishes a new format after the device has prepared its output canvas.
+    func activateFormat(
+        _ index: Int,
+        notify: Bool
+    ) {
+        guard activeFormatIndex != index else { return }
+        activeFormatIndex = index
+        let dimensions = CMVideoFormatDescriptionGetDimensions(activeFormat.formatDescription)
+        logger.notice("Virtual camera format: \(dimensions.width)x\(dimensions.height) at \(self.frameRate) fps")
+        if notify {
+            let properties = CMIOExtensionStreamProperties(dictionary: [:])
+            properties.activeFormatIndex = index
+            stream.notifyPropertiesChanged(properties.propertiesDictionary)
+        }
+    }
+
+    /// The request is outside the stream's currently supported format and cadence.
+    static var unsupportedFormat: NSError {
+        NSError(domain: NSOSStatusErrorDomain, code: Int(kCMIOHardwareUnsupportedOperationError))
     }
 
     /// Meeting apps may read the source; the sink permits one active local producer.

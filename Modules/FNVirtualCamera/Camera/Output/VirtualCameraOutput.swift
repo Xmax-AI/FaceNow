@@ -103,6 +103,7 @@ final class VirtualCameraOutput: @unchecked Sendable {
     /// Waits for a usable sink and rejects late discovery results after stop or a newer start.
     /// The caller supplies the localized badge for generated video.
     func start(
+        format: VideoFormat,
         generationCaption: String
     ) async throws {
         let requestID = UUID()
@@ -147,7 +148,9 @@ final class VirtualCameraOutput: @unchecked Sendable {
                             }
                             do {
                                 self.stopOnWorker()
-                                let format = VirtualCameraConfiguration.videoFormat
+                                let device = sink.device
+                                let stream = sink.stream
+                                try Self.selectFormat(format, for: stream)
                                 let overlay = try VirtualCameraWatermark.makeImage(
                                     format: format,
                                     generationCaption: generationCaption
@@ -159,8 +162,6 @@ final class VirtualCameraOutput: @unchecked Sendable {
                                 )
                                 self.renderer = renderer
                                 self.waitingBuffer = try renderer.waiting()
-                                let device = sink.device
-                                let stream = sink.stream
                                 var queue: Unmanaged<CMSimpleQueue>?
                                 try Self.check(
                                     CMIOStreamCopyBufferQueue(
@@ -215,6 +216,8 @@ final class VirtualCameraOutput: @unchecked Sendable {
                 throw error
             } catch let error as VirtualCameraWatermark.RenderingError {
                 throw error
+            } catch VirtualCameraOutputError.formatUnavailable {
+                throw VirtualCameraOutputError.formatUnavailable
             } catch {
                 // The device may be published before its sink accepts a producer connection.
                 guard startState.withLock({ $0.id == requestID }) else { throw CancellationError() }
@@ -222,6 +225,53 @@ final class VirtualCameraOutput: @unchecked Sendable {
                 try await Task.sleep(for: .milliseconds(250))
             }
         }
+    }
+
+    /// Selects the advertised sink description before connecting the producer.
+    private static func selectFormat(
+        _ format: VideoFormat,
+        for stream: CMIOStreamID
+    ) throws {
+        var address = CMIOObjectPropertyAddress(
+            mSelector: UInt32(kCMIOStreamPropertyFormatDescription),
+            mScope: UInt32(kCMIOObjectPropertyScopeGlobal),
+            mElement: UInt32(kCMIOObjectPropertyElementMain)
+        )
+        func matches(_ description: CMFormatDescription) -> Bool {
+            let size = CMVideoFormatDescriptionGetDimensions(description)
+            return Int(size.width) == format.width && Int(size.height) == format.height
+                && CMFormatDescriptionGetMediaSubType(description) == format.pixelFormat
+        }
+        func activeFormatMatches() throws -> Bool {
+            var active: Unmanaged<CMFormatDescription>?
+            var size: UInt32 = 0
+            try check(CMIOObjectGetPropertyData(
+                stream, &address, 0, nil, UInt32(MemoryLayout.size(ofValue: active)), &size, &active
+            ))
+            return active.map { matches($0.takeRetainedValue()) } ?? false
+        }
+        if try activeFormatMatches() { return }
+
+        var formatsAddress = address
+        formatsAddress.mSelector = UInt32(kCMIOStreamPropertyFormatDescriptions)
+        guard CMIOObjectHasProperty(stream, &formatsAddress) else {
+            throw VirtualCameraOutputError.formatUnavailable
+        }
+        var available: Unmanaged<CFArray>?
+        var size: UInt32 = 0
+        try check(CMIOObjectGetPropertyData(
+            stream, &formatsAddress, 0, nil, UInt32(MemoryLayout.size(ofValue: available)), &size, &available
+        ))
+        guard let formats = available?.takeRetainedValue() as? [CMFormatDescription],
+            let description = formats.first(where: matches)
+        else { throw VirtualCameraOutputError.formatUnavailable }
+        var requested = Unmanaged.passUnretained(description)
+        try withExtendedLifetime(description) {
+            try check(CMIOObjectSetPropertyData(
+                stream, &address, 0, nil, UInt32(MemoryLayout.size(ofValue: requested)), &requested
+            ))
+        }
+        guard try activeFormatMatches() else { throw VirtualCameraOutputError.formatUnavailable }
     }
 
     /// Stops production and releases queued samples after the system stops consuming.
@@ -387,12 +437,16 @@ enum VirtualCameraOutputError: LocalizedError {
     /// The discovered producer stream did not provide a usable buffer queue.
     case sinkUnavailable
 
+    /// The installed extension could not accept the session resolution.
+    case formatUnavailable
+
     /// Setup guidance for missing devices or producer streams.
     var errorDescription: String? {
         switch self {
         case .cameraAccessDenied: "Allow FaceNow in System Settings → Privacy & Security → Camera, then try again."
         case .cameraUnavailable: VirtualCameraDiscovery.DiscoveryError.timedOut.errorDescription
         case .sinkUnavailable: "The virtual camera input queue is not ready. Wait a moment and try again."
+        case .formatUnavailable: CameraStrings.statusUpdateVirtualCameraToMatchThisVersionOfFaceNow
         }
     }
 }

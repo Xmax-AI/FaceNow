@@ -12,7 +12,7 @@ import Foundation
 final class VideoFrameRenderer {
 
     /// The renderer and color space reused between frames.
-    private let context = CIContext(options: [.cacheIntermediates: false])
+    private lazy var context = CIContext(options: [.cacheIntermediates: false])
 
     /// The BT.709 color space used consistently for rendered video.
     private let colorSpace = CGColorSpace(name: CGColorSpace.itur_709)!

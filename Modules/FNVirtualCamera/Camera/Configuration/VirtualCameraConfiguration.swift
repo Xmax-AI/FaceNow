@@ -68,31 +68,39 @@ enum VirtualCameraConfiguration {
         return CGImageSourceCreateImageAtIndex(source, 0, nil)
     }()
 
-    /// The fixed camera format supplied to generic renderers by the owning module.
-    static let videoFormat = VideoFormat(
-        width: 1920,
-        height: 1080,
-        frameRate: 60,
-        pixelFormat: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-    )
+    /// The camera resolutions advertised to Core Media IO in stable order.
+    static let videoFormats = [
+        (1920, 1080), (1080, 1920), (1408, 1408), (1152, 1536), (1536, 1152),
+    ].map { videoFormat(width: $0.0, height: $0.1) }
 
-    /// The camera canvas width in pixels.
+    /// The initial camera format before the first generation session.
+    static var videoFormat: VideoFormat { videoFormats[0] }
+
+    /// Pairs a selected canvas with the camera's producer format.
+    static func videoFormat(
+        width: Int,
+        height: Int
+    ) -> VideoFormat {
+        VideoFormat(width: width, height: height, frameRate: frameRate, pixelFormat: pixelFormat)
+    }
+
+    /// The default canvas width in pixels.
     static var width: Int { videoFormat.width }
 
-    /// The camera canvas height in pixels.
+    /// The default canvas height in pixels.
     static var height: Int { videoFormat.height }
 
     /// The preferred producer cadence in samples per second.
-    static var frameRate: Int { videoFormat.frameRate }
+    static let frameRate = 60
 
     /// The negotiated video-range NV12 representation.
-    static var pixelFormat: OSType { videoFormat.pixelFormat }
+    static let pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
 
     /// The preferred producer sample duration.
     static var frameDuration: CMTime { videoFormat.frameDuration }
 
     /// Source formats retain 30 fps compatibility while preferring 60 fps.
-    static let sourceFrameRates = [60, 30]
+    static let sourceFrameRates = [frameRate, 30]
 
     /// The maximum frame age before replacing interrupted video with a waiting image.
     static let staleInterval: TimeInterval = 2

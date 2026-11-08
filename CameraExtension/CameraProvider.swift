@@ -77,11 +77,14 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     /// The shared serialization queue and reusable output renderer.
     private let queue: DispatchQueue
 
-    /// The queue-confined renderer normalizing output to the shared camera format.
-    private let renderer: VideoFrameRenderer
+    /// The queue-confined renderer for the active source format.
+    private var renderer: VideoFrameRenderer
 
     /// The cached offline artwork used when a producer is absent or its input expires.
-    private let waitingBuffer: CVPixelBuffer
+    private var waitingBuffer: CVPixelBuffer
+
+    /// Marks the first sample sent with a new source resolution.
+    private var formatChanged = false
 
     /// The output clock runs while a producer or consumer is active.
     private var timer: DispatchSourceTimer?
@@ -152,27 +155,29 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
             legacyDeviceID: nil,
             source: self
         )
-        let formats = VirtualCameraConfiguration.sourceFrameRates.map { rate in
-            let duration = CMTime(
-                value: 1,
-                timescale: Int32(rate)
-            )
-            return CMIOExtensionStreamFormat(
-                formatDescription: renderer.formatDescription,
-                maxFrameDuration: duration,
-                minFrameDuration: duration,
-                validFrameDurations: nil
-            )
+        let descriptions = [renderer.formatDescription] + (try VirtualCameraConfiguration.videoFormats.dropFirst().map {
+            try VideoFrameRenderer(format: $0).formatDescription
+        })
+        let formats = descriptions.map { description in
+            VirtualCameraConfiguration.sourceFrameRates.map { rate in
+                let duration = CMTime(value: 1, timescale: Int32(rate))
+                return CMIOExtensionStreamFormat(
+                    formatDescription: description,
+                    maxFrameDuration: duration,
+                    minFrameDuration: duration,
+                    validFrameDurations: nil
+                )
+            }
         }
         source = CameraStreamSource(
             device: self,
             direction: .source,
-            formats: formats
+            formats: formats.flatMap { $0 }
         )
         sink = CameraStreamSource(
             device: self,
             direction: .sink,
-            formats: [formats[0]]
+            formats: formats.map { $0[0] }
         )
         try device.addStream(source.stream)
         try device.addStream(sink.stream)
@@ -192,6 +197,41 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
     func setDeviceProperties(
         _ deviceProperties: CMIOExtensionDeviceProperties
     ) throws {}
+
+    /// Accepts consumer cadence changes while the producer owns the resolution.
+    func selectFormat(
+        _ index: Int,
+        for direction: CMIOExtensionStream.Direction
+    ) throws {
+        if direction == .sink {
+            guard !producerIsRunning || index == sink.activeFormatIndex else {
+                throw CameraStreamSource.unsupportedFormat
+            }
+            sink.activateFormat(index, notify: false)
+        } else {
+            try selectSourceFormat(index, notify: false)
+        }
+    }
+
+    /// Updates the waiting canvas before publishing a new consumer resolution.
+    private func selectSourceFormat(
+        _ index: Int,
+        notify: Bool
+    ) throws {
+        if !CMFormatDescriptionEqual(
+            source.formats[index].formatDescription,
+            otherFormatDescription: source.activeFormat.formatDescription
+        ) {
+            guard !producerIsRunning else { throw CameraStreamSource.unsupportedFormat }
+            let format = VirtualCameraConfiguration.videoFormats[index / VirtualCameraConfiguration.sourceFrameRates.count]
+            let next = try VideoFrameRenderer(format: format, waitingArtwork: VirtualCameraConfiguration.waitingArtwork)
+            let waiting = try next.waiting()
+            renderer = next
+            waitingBuffer = waiting
+            formatChanged = true
+        }
+        source.activateFormat(index, notify: notify)
+    }
 
     /// Allows one active local producer; DAL does not reliably expose its signing identity.
     func authorizeProducer(
@@ -218,6 +258,9 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
             )
         } else {
             guard producerClient != nil else { throw CameraExtensionError.noProducer }
+            guard let index = source.formatIndex(for: sink.activeFormat.formatDescription, duration: source.frameDuration)
+            else { throw CameraStreamSource.unsupportedFormat }
+            try selectSourceFormat(index, notify: true)
             producerIsRunning = true
             producerToken = UUID()
             consumeIsPending = false
@@ -299,9 +342,10 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
             )
             source.stream.send(
                 sample,
-                discontinuity: [],
+                discontinuity: formatChanged ? .unknown : [],
                 hostTimeInNanoseconds: UInt64(time.seconds * 1_000_000_000)
             )
+            formatChanged = false
             statistics.submitted += 1
             if let frame {
                 if Self.isDifferentSurface(
@@ -356,9 +400,10 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, @unchecked 
                     self.statistics.emptyConsumes += 1
                     return
                 }
+                let dimensions = CMVideoFormatDescriptionGetDimensions(self.sink.activeFormat.formatDescription)
                 guard let buffer = CMSampleBufferGetImageBuffer(sample),
-                    CVPixelBufferGetWidth(buffer) == VirtualCameraConfiguration.width,
-                    CVPixelBufferGetHeight(buffer) == VirtualCameraConfiguration.height,
+                    CVPixelBufferGetWidth(buffer) == Int(dimensions.width),
+                    CVPixelBufferGetHeight(buffer) == Int(dimensions.height),
                     CVPixelBufferGetPixelFormatType(buffer) == VirtualCameraConfiguration.pixelFormat
                 else {
                     self.statistics.invalidSamples += 1
