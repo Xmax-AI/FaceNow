@@ -73,6 +73,24 @@
         }
       }
     },
+    "beauty.panel_title": {
+      "comment": "Titles the beauty controls displayed over the generated result.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beauty Controls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美颜控制面板"
+          }
+        }
+      }
+    },
     "beauty.redness": {
       "comment": "Result beauty control or recoverable effect status.",
       "extractionState": "manual",
@@ -2737,6 +2755,420 @@
         }
       }
     },
+    "translation.input": {
+      "comment": "Labels the shared physical audio input.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风"
+          }
+        }
+      }
+    },
+    "translation.source_language": {
+      "comment": "Labels the language spoken into the microphone.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoken language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "识别语言"
+          }
+        }
+      }
+    },
+    "translation.target_language": {
+      "comment": "Labels the translation language used for subtitles.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subtitle language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字幕语言"
+          }
+        }
+      }
+    },
+    "translation.status": {
+      "comment": "Labels the live translation state.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行状态"
+          }
+        }
+      }
+    },
+    "translation.status_interrupted": {
+      "comment": "Shows that an active translation stopped unexpectedly.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrupted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已中断"
+          }
+        }
+      }
+    },
+    "translation.status_needs_permission": {
+      "comment": "Shows that translation needs microphone permission.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone access required"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要麦克风权限"
+          }
+        }
+      }
+    },
+    "translation.status_needs_microphone": {
+      "comment": "Shows that translation needs a selected microphone.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a microphone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择麦克风"
+          }
+        }
+      }
+    },
+    "translation.language_packs": {
+      "comment": "Labels the speech and translation resource status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language packs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言包"
+          }
+        }
+      }
+    },
+    "translation.speech_language": {
+      "comment": "Distinguishes the speech asset from the translation languages in the same list.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech pack: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测包：%@"
+          }
+        }
+      }
+    },
+    "translation.pack_direction": {
+      "comment": "Names the language pack row using the selected translation direction.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation: %1$@ → %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻译包：%1$@ → %2$@"
+          }
+        }
+      }
+    },
+    "translation.status_needs_languages": {
+      "comment": "Explains why translation cannot start until the required languages are installed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation languages needed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需下载翻译语言"
+          }
+        }
+      }
+    },
+    "translation.resources_checking": {
+      "comment": "Shows that the app is checking language availability.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查…"
+          }
+        }
+      }
+    },
+    "translation.resources_ready": {
+      "comment": "Shows that the selected language resources are installed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已安装"
+          }
+        }
+      }
+    },
+    "translation.resources_unavailable": {
+      "comment": "Marks a resource that the system cannot use.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不可用"
+          }
+        }
+      }
+    },
+    "translation.resource_downloading": {
+      "comment": "Shows a download without a reported percentage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载中…"
+          }
+        }
+      }
+    },
+    "translation.resource_failed": {
+      "comment": "Reports an unsuccessful resource download.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载失败"
+          }
+        }
+      }
+    },
+    "translation.download_resource": {
+      "comment": "Downloads the language resource shown in a single row.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载"
+          }
+        }
+      }
+    },
+    "translation.retry_download": {
+      "comment": "Retries a failed language resource download.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "translation.resource_action": {
+      "comment": "Distinguishes identical row actions for VoiceOver.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "translation.resource_progress": {
+      "comment": "Shows the localized percentage reported by a speech download.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载中 %@"
+          }
+        }
+      }
+    },
+    "translation.start": {
+      "comment": "Starts listening and translating with the current settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Translation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启传译"
+          }
+        }
+      }
+    },
+    "translation.stop": {
+      "comment": "Stops listening and clears subtitles.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop Translation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止传译"
+          }
+        }
+      }
+    },
+    "translation.close_dialog": {
+      "comment": "Labels the close control on the translation configuration dialog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close live translation settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭同声传译设置"
+          }
+        }
+      }
+    },
     "translation.choose_microphone": {
       "comment": "Prompts the user to select an input before enabling translation.",
       "extractionState": "manual",
@@ -2755,38 +3187,74 @@
         }
       }
     },
-    "translation.listening": {
-      "comment": "Explains that live translation is listening and can be turned off.",
+    "translation.downloading_languages": {
+      "comment": "Identifies the first-run language download separately from microphone startup.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Listening for Mandarin. Click to turn off."
+            "value": "Downloading language packs…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在聆听普通话，点击关闭。"
+            "value": "正在下载语言包…"
+          }
+        }
+      }
+    },
+    "translation.listening": {
+      "comment": "Explains that live translation is listening to the selected microphone.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening to the selected microphone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在聆听所选麦克风。"
+          }
+        }
+      }
+    },
+    "translation.microphone_access": {
+      "comment": "Prompts for microphone authorization before the first translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow microphone access to start live translation."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先授权麦克风，再开启同声传译。"
           }
         }
       }
     },
     "translation.off": {
-      "comment": "Explains the subtitle outputs and how to enable them.",
+      "comment": "Explains that live translation is stopped.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Click to translate spoken Mandarin into English subtitles on the preview and virtual camera."
+            "value": "Off"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击开启，将普通话翻译成英文字幕，显示在结果预览和虚拟摄像头画面上。"
+            "value": "已关闭"
           }
         }
       }
@@ -2798,13 +3266,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preparing live translation. A system language download may be required. Click to cancel."
+            "value": "Preparing live translation…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在准备同声传译，可能需要下载系统语言包。点击取消。"
+            "value": "正在准备同声传译…"
           }
         }
       }
@@ -2828,7 +3296,7 @@
       }
     },
     "translation.title": {
-      "comment": "Names the live translation toggle.",
+      "comment": "Names the live translation configuration.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2870,13 +3338,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Waiting for the microphone. Click to cancel."
+            "value": "Waiting for the microphone…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在等待麦克风，点击取消。"
+            "value": "正在等待麦克风…"
           }
         }
       }

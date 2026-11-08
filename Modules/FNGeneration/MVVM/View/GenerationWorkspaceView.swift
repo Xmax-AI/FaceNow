@@ -531,7 +531,7 @@ private final class GenerationBeautyPanelView: Canvas {
 
     /// Names the effect while its strength controls are expanded or collapsed.
     private lazy var titleLabel: NSTextField = {
-        let view = NSTextField(labelWithString: GenerationStrings.beauty)
+        let view = NSTextField(labelWithString: GenerationStrings.beautyPanelTitle)
         view.font = .systemFont(ofSize: 12, weight: .semibold)
         view.textColor = .white.withAlphaComponent(0.9)
         return view

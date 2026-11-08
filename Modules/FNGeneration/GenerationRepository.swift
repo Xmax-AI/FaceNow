@@ -4,6 +4,7 @@
 //
 
 @preconcurrency import Factory
+import AppKit
 import AVFoundation
 import Combine
 import CoreMedia
@@ -22,6 +23,7 @@ final class GenerationRepository: ObservableObject {
         case off
         case waitingForMicrophone
         case preparing
+        case downloadingLanguages
         case listening
     }
 
@@ -79,8 +81,57 @@ final class GenerationRepository: ObservableObject {
     /// The latest input strength, kept outside page-wide publications to avoid redrawing generation on every sample.
     private let microphoneLevelSubject = CurrentValueSubject<Float?, Never>(nil)
 
-    /// Translation starts only after an explicit request in the current session.
+    /// The live capture state in the current workspace.
     @Published private(set) var translationState: TranslationState = .off
+
+    /// Stores the last explicit start or stop across workspace sessions.
+    private static let translationEnabledPreference = "generation.translation.enabled"
+
+    /// Checks the saved configuration without holding up the camera preview.
+    private var translationRestoreTask: Task<Void, Never>?
+
+    /// Retains the selected speech and subtitle languages across sessions.
+    @Published private(set) var translationLanguages = MicrophoneTranslation.LanguagePair(
+        source: UserDefaults.standard.string(forKey: "generation.translation.source")
+            ?? MicrophoneTranslation.LanguagePair.defaultPair.source,
+        target: UserDefaults.standard.string(forKey: "generation.translation.target")
+            ?? MicrophoneTranslation.LanguagePair.defaultPair.target
+    )
+
+    /// Tracks each resource for the selected pair across dialog presentations.
+    @Published private(set) var translationResources: [MicrophoneTranslation.ResourceKind: MicrophoneTranslation.ResourceStatus] = [:]
+
+    /// Owns at most one download for each language resource, independently of capture.
+    @Published private var translationResourceDownloads: [MicrophoneTranslation.ResourceKind: Task<Void, Never>] = [:]
+
+    /// Invalidates availability queries when the pair changes or a newer operation starts.
+    private var translationResourceQueryRevision = UUID()
+
+    /// Whether the selected language pair has an in-flight download request.
+    var isDownloadingTranslationResources: Bool { !translationResourceDownloads.isEmpty }
+
+    /// Allows downloading either resource while capture is stopped.
+    func canDownloadTranslationResource(
+        _ kind: MicrophoneTranslation.ResourceKind
+    ) -> Bool {
+        guard sessionActive, !isClosing, Self.supportsTranslation, translationState == .off,
+            translationResourceDownloads[kind] == nil, let status = translationResources[kind]
+        else { return false }
+        return status == .needsDownload || status == .failed
+    }
+
+    /// Distinguishes an interrupted translation from one the user stopped.
+    @Published private(set) var translationFailed = false
+
+    /// Requires an authorized physical input and installed translation languages.
+    var canStartTranslation: Bool {
+        guard sessionActive, !isClosing, !microphoneSwitching, Self.supportsTranslation,
+            !isDownloadingTranslationResources, translationResources[.translation] == .installed,
+            let recognition = translationResources[.recognition], recognition != .unavailable,
+            microphoneAuthorization == .authorized, case .device = selectedMicrophone
+        else { return false }
+        return true
+    }
 
     /// Whether this system can start the speech capture used by live translation.
     static var supportsTranslation: Bool {
@@ -88,7 +139,7 @@ final class GenerationRepository: ObservableObject {
         return false
     }
 
-    /// Owns speech translation for the selected input while SDK microphone capture is active.
+    /// Owns speech translation for the explicitly selected input.
     private lazy var microphoneTranslation: MicrophoneTranslation = {
         let translation = MicrophoneTranslation { [weak self] event in self?.handleTranslationEvent(event) }
         return translation
@@ -102,8 +153,29 @@ final class GenerationRepository: ObservableObject {
         subtitleSubject.eraseToAnyPublisher()
     }
 
-    /// Clears a subtitle after five seconds without another translation.
+    /// Clears the last visible subtitle after an idle period.
     private var subtitleExpiration: Task<Void, Never>?
+
+    /// Holds finalized subtitle pages on screen long enough to read.
+    private var subtitlePaging: Task<Void, Never>?
+
+    /// The newest finalized phrase awaiting display, separate from the active page.
+    private var pendingSubtitlePages: [String] = []
+
+    /// The newest draft to show if it is still current when final pages finish.
+    private var pendingSubtitleDraft: (text: String, receivedAt: ContinuousClock.Instant)?
+
+    /// A newer draft may replace old pages only while it is fresh enough for live display.
+    private var freshSubtitleDraft: String? {
+        guard let draft = pendingSubtitleDraft, draft.receivedAt.duration(to: .now) < .seconds(2) else { return nil }
+        return draft.text
+    }
+
+    /// Avoids redrawing identical text when a draft becomes final.
+    private var displayedSubtitleText: String?
+
+    /// The last artwork committed to the virtual camera, tracked independently of preview.
+    private var virtualCameraSubtitle: CGImage?
 
     /// Emits current physical microphone strength on the main actor, independently of generated audio output.
     var microphoneLevels: AnyPublisher<Float?, Never> {
@@ -131,7 +203,9 @@ final class GenerationRepository: ObservableObject {
     @Published private(set) var localStream: RealtimeMediaStream?
 
     /// The generated result stream currently bound to the result preview.
-    @Published private(set) var remoteStream: RealtimeMediaStream?
+    @Published private(set) var remoteStream: RealtimeMediaStream? {
+        didSet { synchronizeVirtualCameraSubtitle() }
+    }
 
     /// The latest committed SDK connection and generation state.
     @Published private(set) var state = RealtimeState(connectionState: .idle)
@@ -448,21 +522,130 @@ final class GenerationRepository: ObservableObject {
         }
     }
 
-    /// Toggles English captions without changing the selected microphone or the session.
-    func toggleTranslation() {
-        guard sessionActive, !isClosing, Self.supportsTranslation else { return }
+    /// Changes the language pair while capture is stopped.
+    func selectTranslationLanguages(
+        _ languages: MicrophoneTranslation.LanguagePair
+    ) {
+        guard translationState == .off, !isDownloadingTranslationResources, languages != translationLanguages else { return }
+        var statuses = translationResources
+        if languages.source != translationLanguages.source { statuses[.recognition] = nil }
+        statuses[.translation] = nil
+
+        translationResourceQueryRevision = UUID()
+        translationLanguages = languages
+        if statuses != translationResources { translationResources = statuses }
+        if translationFailed { translationFailed = false }
+        UserDefaults.standard.set(languages.source, forKey: "generation.translation.source")
+        UserDefaults.standard.set(languages.target, forKey: "generation.translation.target")
+    }
+
+    /// Refreshes availability without overwriting active progress or retryable failures.
+    func refreshTranslationResources() async {
+        guard translationState == .off else { return }
+        let revision = translationResourceQueryRevision
+        var statuses = await MicrophoneTranslation.resourceStatus(for: translationLanguages)
+        guard !Task.isCancelled, translationResourceQueryRevision == revision else { return }
+        for kind in MicrophoneTranslation.ResourceKind.allCases {
+            let current = translationResources[kind]
+            if translationResourceDownloads[kind] != nil || (current == .failed && statuses[kind] == .needsDownload) {
+                statuses[kind] = current
+            }
+        }
+        if statuses != translationResources { translationResources = statuses }
+    }
+
+    /// Downloads the chosen resource, presenting macOS approval for translation packs.
+    func downloadTranslationResource(
+        _ kind: MicrophoneTranslation.ResourceKind,
+        in window: NSWindow
+    ) {
+        guard #available(macOS 27.0, *), canDownloadTranslationResource(kind) else { return }
+        let operation = lifecycleID
+        let languages = translationLanguages
+        translationResourceQueryRevision = UUID()
+        translationResourceDownloads[kind] = Task { [weak self] in
+            defer {
+                if let self, self.lifecycleID == operation {
+                    self.translationResourceQueryRevision = UUID()
+                    self.translationResourceDownloads[kind] = nil
+                }
+            }
+            do {
+                switch kind {
+                case .recognition:
+                    try await MicrophoneTranslation.downloadSpeechResource(for: languages.source) { [weak self] kind, status in
+                        guard let self, !Task.isCancelled, self.lifecycleID == operation else { return }
+                        self.setTranslationResourceStatus(status, for: kind)
+                    }
+                case .translation:
+                    let status = try await MicrophoneTranslation.downloadTranslationResource(for: languages, in: window)
+                    guard let self, !Task.isCancelled, self.lifecycleID == operation else { return }
+                    self.setTranslationResourceStatus(status, for: kind)
+                }
+            } catch {
+                guard let self, !Task.isCancelled, self.lifecycleID == operation else { return }
+                if kind == .translation { self.setTranslationResourceStatus(.failed, for: kind) }
+                self.startupLogger.error("Live translation language download failed: \(error.localizedDescription, privacy: .private)")
+            }
+        }
+        if kind == .translation { setTranslationResourceStatus(.downloading(percent: nil), for: kind) }
+    }
+
+    /// Publishes only a changed resource status or progress percentage.
+    private func setTranslationResourceStatus(
+        _ status: MicrophoneTranslation.ResourceStatus,
+        for kind: MicrophoneTranslation.ResourceKind
+    ) {
+        if translationResources[kind] != status { translationResources[kind] = status }
+    }
+
+    /// Applies an explicit choice and reports whether a new translation started preparing.
+    func toggleTranslation() -> Bool {
+        guard sessionActive, !isClosing, Self.supportsTranslation else { return false }
         if translationState != .off {
+            UserDefaults.standard.set(false, forKey: Self.translationEnabledPreference)
             stopTranslation()
-            return
+            return false
         }
         guard case .device = selectedMicrophone else {
             errorMessage = GenerationStrings.translationChooseMicrophone
-            return
+            return false
         }
         guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
             errorMessage = GenerationStrings.microphonePermissionRequired
-            return
+            return false
         }
+        guard canStartTranslation else { return false }
+        UserDefaults.standard.set(true, forKey: Self.translationEnabledPreference)
+        beginTranslation()
+        return true
+    }
+
+    /// Restores the saved choice when the microphone and both language resources are ready.
+    private func restoreTranslation(
+        operation: UUID
+    ) {
+        guard UserDefaults.standard.bool(forKey: Self.translationEnabledPreference), Self.supportsTranslation,
+            microphoneAuthorization == .authorized, case let .device(id) = selectedMicrophone
+        else { return }
+
+        let revision = translationResourceQueryRevision
+        translationRestoreTask = Task { [weak self] in
+            guard let self else { return }
+            defer { if self.lifecycleID == operation { self.translationRestoreTask = nil } }
+            await self.refreshTranslationResources()
+            guard !Task.isCancelled, self.lifecycleID == operation, self.translationResourceQueryRevision == revision,
+                self.translationState == .off, self.microphoneID == id,
+                self.microphones.contains(where: { $0.id == id }),
+                self.translationResources[.recognition] == .installed
+            else { return }
+            self.synchronizeMicrophoneAuthorization()
+            if self.canStartTranslation { self.beginTranslation() }
+        }
+    }
+
+    /// Starts capture after the caller has verified the current prerequisites.
+    private func beginTranslation() {
         if let errorMessage, [
             GenerationStrings.translationChooseMicrophone,
             GenerationStrings.translationUnavailable,
@@ -470,28 +653,33 @@ final class GenerationRepository: ObservableObject {
         ].contains(errorMessage) {
             self.errorMessage = nil
         }
+        translationFailed = false
+        translationResourceQueryRevision = UUID()
         translationState = .waitingForMicrophone
         synchronizeMicrophoneTranslation()
     }
 
-    /// Follows microphone capture and route changes after the user turns translation on.
+    /// Follows the selected input independently of the audio level meter.
     private func synchronizeMicrophoneTranslation() {
         guard translationState != .off else { return }
-        guard sessionActive, !microphoneSwitching, microphoneLevelSubject.value != nil,
-            case let .device(id) = selectedMicrophone
-        else {
+        guard sessionActive, !isClosing, !microphoneSwitching, case let .device(id) = selectedMicrophone else {
             if translationState != .waitingForMicrophone { translationState = .waitingForMicrophone }
             microphoneTranslation.setDevice(nil)
             return
         }
-        if translationState == .waitingForMicrophone { translationState = .preparing }
-        microphoneTranslation.setDevice(id)
+        guard translationState == .waitingForMicrophone else { return }
+        translationState = .preparing
+        microphoneTranslation.setDevice(id, languages: translationLanguages)
     }
 
     /// Stops speech capture and clears subtitles from both outputs.
     private func stopTranslation() {
         guard translationState != .off else { return }
+        translationResourceQueryRevision = UUID()
         translationState = .off
+        for (kind, status) in translationResources where status.isDownloading {
+            setTranslationResourceStatus(.needsDownload, for: kind)
+        }
         microphoneTranslation.setDevice(nil)
     }
 
@@ -500,33 +688,129 @@ final class GenerationRepository: ObservableObject {
         _ event: MicrophoneTranslation.Event
     ) {
         switch event {
+        case let .resourceStatus(kind, status):
+            setTranslationResourceStatus(status, for: kind)
+            if status.isDownloading, translationState == .preparing { translationState = .downloadingLanguages }
+        case .preparingCapture:
+            if translationState == .downloadingLanguages { translationState = .preparing }
         case .ready:
             if translationState == .preparing { translationState = .listening }
-        case let .subtitle(text):
-            if text == nil || translationState == .listening { updateSubtitle(text) }
+        case let .subtitle(text, isFinal):
+            if translationState == .listening { receiveSubtitle(text, isFinal: isFinal) }
+        case .clear:
+            clearSubtitles()
         case let .failed(message):
             stopTranslation()
+            translationFailed = true
             errorMessage = GenerationStrings.translationUnavailable
             startupLogger.error("Live translation stopped: \(message, privacy: .private)")
         }
     }
 
-    /// Rasterizes each translated caption once for both the preview and virtual camera.
-    private func updateSubtitle(
-        _ text: String?
+    /// Shows drafts immediately and keeps finalized phrases readable across page breaks.
+    private func receiveSubtitle(
+        _ text: String,
+        isFinal: Bool
     ) {
-        if text != nil, state.connectionState != .generating || remoteStream == nil { return }
+        let pages = VideoSubtitle.pages(text: text, format: VirtualCameraConfiguration.videoFormat)
+        guard let firstPage = pages.first else { return }
+        if !isFinal {
+            if subtitlePaging != nil {
+                pendingSubtitleDraft = (firstPage, .now)
+            } else {
+                displaySubtitle(firstPage)
+                expireSubtitle(after: .seconds(4))
+            }
+            return
+        }
+
+        pendingSubtitleDraft = nil
+        pendingSubtitlePages = pages
+        guard subtitlePaging == nil else { return }
         subtitleExpiration?.cancel()
         subtitleExpiration = nil
-        let image = text.flatMap { VideoSubtitle.makeImage(text: $0, format: VirtualCameraConfiguration.videoFormat) }
-        guard image != nil || subtitleSubject.value != nil else { return }
-        output.setSubtitle(image)
-        subtitleSubject.send(image)
-        guard image != nil else { return }
-        subtitleExpiration = Task { [weak self] in
-            do { try await Task.sleep(for: .seconds(5)) } catch { return }
-            self?.updateSubtitle(nil)
+        subtitlePaging = Task { [weak self] in await self?.playSubtitlePages() }
+    }
+
+    /// Reads each page in order until newer speech is ready to display.
+    private func playSubtitlePages() async {
+        let language = Locale.Language(identifier: translationLanguages.target)
+        while !pendingSubtitlePages.isEmpty {
+            let pages = pendingSubtitlePages
+            pendingSubtitlePages = []
+            for page in pages {
+                guard !Task.isCancelled else { return }
+                displaySubtitle(page)
+                let duration = VideoSubtitle.readingDuration(for: page, language: language)
+                do { try await holdSubtitlePage(for: duration) } catch { return }
+                if !pendingSubtitlePages.isEmpty || freshSubtitleDraft != nil { break }
+            }
         }
+        guard !Task.isCancelled else { return }
+        subtitlePaging = nil
+        if let draft = freshSubtitleDraft {
+            displaySubtitle(draft)
+            expireSubtitle(after: .seconds(4))
+        } else {
+            expireSubtitle(after: .seconds(2))
+        }
+        pendingSubtitleDraft = nil
+    }
+
+    /// Gives each page its full reading time during pauses and yields sooner to newer speech.
+    private func holdSubtitlePage(
+        for duration: Duration
+    ) async throws {
+        let clock = ContinuousClock()
+        let startedAt = clock.now
+        let readingDeadline = startedAt + duration
+        try await clock.sleep(until: min(readingDeadline, startedAt + .seconds(2.2)))
+        while clock.now < readingDeadline, pendingSubtitlePages.isEmpty, freshSubtitleDraft == nil {
+            try await clock.sleep(until: min(readingDeadline, clock.now + .milliseconds(150)))
+        }
+    }
+
+    /// Rasterizes changed text once and immediately updates the local preview.
+    private func displaySubtitle(
+        _ text: String?
+    ) {
+        guard displayedSubtitleText != text else { return }
+        displayedSubtitleText = text
+        let image = text.flatMap { VideoSubtitle.makeImage(text: $0, format: VirtualCameraConfiguration.videoFormat) }
+        guard subtitleSubject.value !== image else { return }
+        subtitleSubject.send(image)
+        synchronizeVirtualCameraSubtitle()
+    }
+
+    /// Supplies the camera only while a generated stream is available.
+    private func synchronizeVirtualCameraSubtitle() {
+        let image = state.connectionState == .generating && remoteStream != nil ? subtitleSubject.value : nil
+        guard virtualCameraSubtitle !== image else { return }
+        virtualCameraSubtitle = image
+        output.setSubtitle(image)
+    }
+
+    /// Clears the current subtitle unless another caption supersedes the timer.
+    private func expireSubtitle(
+        after delay: Duration
+    ) {
+        subtitleExpiration?.cancel()
+        subtitleExpiration = Task { [weak self] in
+            do { try await Task.sleep(for: delay) } catch { return }
+            guard !Task.isCancelled else { return }
+            self?.displaySubtitle(nil)
+        }
+    }
+
+    /// Invalidates queued pages and both outputs when capture stops or changes input.
+    private func clearSubtitles() {
+        subtitlePaging?.cancel()
+        subtitlePaging = nil
+        subtitleExpiration?.cancel()
+        subtitleExpiration = nil
+        pendingSubtitlePages.removeAll()
+        pendingSubtitleDraft = nil
+        displaySubtitle(nil)
     }
 
     /// A capture choice does not retain an AVFoundation device.
@@ -600,7 +884,6 @@ final class GenerationRepository: ObservableObject {
         await manager.setMicrophoneLevelListener { [weak self] level in
             guard let self, self.lifecycleID == operation, !self.isClosing else { return }
             self.microphoneLevelSubject.send(level)
-            self.synchronizeMicrophoneTranslation()
         }
         await manager.setLaunchTimingListener { [weak self] timing in
             guard let self, self.lifecycleID == operation else { return }
@@ -620,12 +903,13 @@ final class GenerationRepository: ObservableObject {
         }
         await manager.setStateListener { [weak self] state in
             guard let self, self.lifecycleID == operation else { return }
+            let previousConnectionState = self.state.connectionState
             self.state = state
             if state.connectionState == .generating, self.sessionStartedAt == nil {
                 self.sessionStartedAt = Date()
             }
             if ![.connected, .generating].contains(state.connectionState) { self.remoteStream = nil }
-            if state.connectionState != .generating { self.updateSubtitle(nil) }
+            if previousConnectionState != state.connectionState { self.synchronizeVirtualCameraSubtitle() }
             if case let .failure(error) = state.reason {
                 self.handleGenerationFailure(error, endsSession: true)
                 return
@@ -692,6 +976,7 @@ final class GenerationRepository: ObservableObject {
             }
             selectedReferenceID = initialReference.id
             sessionActive = true
+            restoreTranslation(operation: operation)
             await manager.setRemoteVideoBeautyErrorListener { [weak self] error in
                 guard let self, self.lifecycleID == operation else { return }
                 self.disableBeautyAfterFailure(error)
@@ -1276,6 +1561,13 @@ final class GenerationRepository: ObservableObject {
         lifecycleID = UUID()
         microphoneLevelSubject.send(nil)
         stopTranslation()
+        translationRestoreTask?.cancel()
+        translationRestoreTask = nil
+        translationResourceQueryRevision = UUID()
+        for download in translationResourceDownloads.values { download.cancel() }
+        translationResourceDownloads.removeAll()
+        translationResources.removeAll()
+        translationFailed = false
         appLaunchTiming = AppLaunchTiming()
         let operation = lifecycleID
         selectionIntent = UUID()

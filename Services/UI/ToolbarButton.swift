@@ -125,6 +125,18 @@ final class ToolbarButton: Button {
         return NSSize(width: preferredWidth(controlHeight: height), height: height)
     }
 
+    /// Places the native keyboard indicator around the painted capsule.
+    override var focusRingMaskBounds: NSRect {
+        bounds.insetBy(dx: backgroundInset + 0.5, dy: backgroundInset + 0.5)
+    }
+
+    /// Supplies the toolbar's rounded silhouette to AppKit's focus ring.
+    override func drawFocusRingMask() {
+        let rect = focusRingMaskBounds
+        let radius = min(rect.height / 2, max(0, cornerRadius ?? rect.height / 2))
+        NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+    }
+
     /// Measures circles using the same row height that their constraints follow.
     func preferredWidth(
         controlHeight: CGFloat

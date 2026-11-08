@@ -73,6 +73,9 @@ final class HomeViewController: NSViewController {
     /// The company and model information modal, mutually exclusive with onboarding.
     private var aboutPage: AboutViewController?
 
+    /// Retains the centered live translation configuration while the workspace is active.
+    private var translationDialog: GenerationTranslationDialogView?
+
     /// Retains one credit overlay and the account notice it acknowledges.
     private var rechargeDialog: (id: UUID, view: RechargeDialogView)?
 
@@ -182,6 +185,7 @@ final class HomeViewController: NSViewController {
         let view = GenerationToolbarView()
         view.onWidthChange = { [weak self] in self?.view.needsLayout = true }
         view.onToggleBeauty = { [weak self] in self?.workspace.toggleBeauty() }
+        view.onConfigureTranslation = { [weak self] in self?.showTranslationDialog() }
         return view
     }()
 
@@ -333,6 +337,7 @@ final class HomeViewController: NSViewController {
     /// Stops view work before awaiting generation and virtual-output cleanup.
     func shutdown() async {
         isShuttingDown = true
+        dismissTranslationDialog()
         dismissRechargeDialog()
         cameraNoticeTask?.cancel()
         cameraNoticeTask = nil
@@ -473,7 +478,48 @@ final class HomeViewController: NSViewController {
         synchronizeAccountRefresh()
         updateError()
         updateRechargeDialog()
+        if active, !generationRepo.isClosing, !viewModel.needsLogin {
+            translationDialog?.update()
+        } else {
+            dismissTranslationDialog()
+        }
         onUpdateInstallationAvailabilityChanged?()
+    }
+
+    /// Opens live translation configuration without starting or stopping capture.
+    private func showTranslationDialog() {
+        guard translationDialog == nil, generationRepo.sessionActive, !generationRepo.isClosing,
+            !isShuttingDown, !viewModel.needsLogin, onboardingPage == nil, aboutPage == nil, rechargeDialog == nil,
+            let window = view.window, window.attachedSheet == nil
+        else { return }
+        userView.closePopover()
+        let dialog = GenerationTranslationDialogView(repository: generationRepo)
+        dialog.onClose = { [weak self] in self?.dismissTranslationDialog(animated: true) }
+        dialog.onShowMicrophoneSetup = { [weak self] in self?.showOnboarding(at: .microphone) }
+        translationDialog = dialog
+        root.addSubview(dialog)
+        dialog.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        root.layoutSubtreeIfNeeded()
+        dialog.present()
+    }
+
+    /// Removes configuration after user dismissal or immediately when the session changes.
+    private func dismissTranslationDialog(
+        animated: Bool = false
+    ) {
+        guard let dialog = translationDialog else { return }
+        // Capture the input before the animated completion runs outside the original event.
+        let eventType = NSApp.currentEvent?.type
+        let restoresToolbarFocus = eventType != .leftMouseDown && eventType != .leftMouseUp
+        dialog.dismiss(animated: animated) { [weak self, weak dialog] in
+            guard let self, let dialog, self.translationDialog === dialog else { return }
+            self.translationDialog = nil
+            dialog.shutdown()
+            dialog.removeFromSuperview()
+            if animated, self.generationRepo.sessionActive {
+                self.view.window?.makeFirstResponder(restoresToolbarFocus ? self.toolbar.translationControl : nil)
+            }
+        }
     }
 
     /// Presents the same centered credit dialog for rejected startup and exhausted generation.
@@ -491,6 +537,7 @@ final class HomeViewController: NSViewController {
             dismissRechargeDialog()
         }
         guard let window = view.window, window.isVisible, window.attachedSheet == nil else { return }
+        dismissTranslationDialog()
         landing.closeCameraPicker()
         cameraControls.closePopover()
         userView.closePopover()
@@ -712,6 +759,7 @@ final class HomeViewController: NSViewController {
         dismissesOnBackdropClick: Bool = true
     ) {
         guard !isShuttingDown, !viewModel.needsLogin, view.window != nil else { return }
+        dismissTranslationDialog()
         dismissAbout(animated: false)
         onboardingPresentationTask?.cancel()
         onboardingPresentationTask = nil
@@ -1002,8 +1050,9 @@ final class HomeViewController: NSViewController {
         let toolbarWidth = toolbar.preferredWidth
         let interpolationWidth = toolbar.interpolationControl.preferredWidth
         let beautyWidth = toolbar.beautyControl.preferredWidth
+        let translationWidth = toolbar.translationControl.preferredWidth
         let signature =
-            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(interpolationWidth)|\(beautyWidth)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
+            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(interpolationWidth)|\(beautyWidth)|\(translationWidth)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
         guard signature != layoutSignature else { return }
         layoutSignature = signature
         let contentWidth = max(0, width - 56)
@@ -1043,6 +1092,7 @@ final class HomeViewController: NSViewController {
         toolbar.snp.updateConstraints { make in make.width.equalTo(toolbarWidth) }
         toolbar.interpolationControl.snp.updateConstraints { make in make.width.equalTo(interpolationWidth) }
         toolbar.beautyControl.snp.updateConstraints { make in make.width.equalTo(beautyWidth) }
+        toolbar.translationControl.snp.updateConstraints { make in make.width.equalTo(translationWidth) }
         errorView.place(in: root.bounds)
         if signInToastVisible { signInToast.place(in: root.bounds) }
     }

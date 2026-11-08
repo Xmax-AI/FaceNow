@@ -19,6 +19,8 @@
 		F66AA695D8E44066BD09CB03 /* MicrophoneTranslation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB01 /* MicrophoneTranslation.swift */; };
 		F66AA695D8E44066BD09CB05 /* VideoSubtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */; };
 		F66AA695D8E44066BD09CB06 /* VideoSubtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */; };
+		F66AA695D8E44066BD09CB08 /* SpeechTranslationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB07 /* SpeechTranslationQueue.swift */; };
+		F66AA695D8E44066BD09CB09 /* SpeechTranslationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB07 /* SpeechTranslationQueue.swift */; };
 		087C70DA6D2D8CF4C2C2C803 /* UserDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7CC7779097DC637510EFE9 /* UserDTO.swift */; };
 		087CBB224E4A4D81A74E387D /* CameraNoticePresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF937DDFB58473798EEE6F4 /* CameraNoticePresentation.swift */; };
 		08E19AFDB70BAB4F7BF8E719 /* ResponseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0E77F328EB384E0885F980 /* ResponseModel.swift */; };
@@ -297,6 +299,10 @@
 		AA0C5D199BE2406BAF680E40 /* GenerationAudioControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */; };
 		4FB733F718EC446EAAE1B0A1 /* GenerationAdjustmentPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */; };
 		09AEF5760A6145E3921A7709 /* GenerationAdjustmentPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */; };
+		F66AA695D8E44066BD09CB11 /* GenerationTranslationDialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB10 /* GenerationTranslationDialogView.swift */; };
+		F66AA695D8E44066BD09CB12 /* GenerationTranslationDialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB10 /* GenerationTranslationDialogView.swift */; };
+		F66AA695D8E44066BD09CB14 /* GenerationTranslationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB13 /* GenerationTranslationViewModel.swift */; };
+		F66AA695D8E44066BD09CB15 /* GenerationTranslationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66AA695D8E44066BD09CB13 /* GenerationTranslationViewModel.swift */; };
 		D75624EA5B734BCC86AF540A /* GenerationAudioControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */; };
 		7F108C87185243D0B2E92BAD /* GenerationAudioControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */; };
 		00B5CEDDFE9E4FACB348564E /* VideoFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */; };
@@ -420,6 +426,7 @@
 		218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VideoFrameRenderer.swift; sourceTree = "<group>"; };
 		F66AA695D8E44066BD09CB01 /* MicrophoneTranslation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneTranslation.swift; sourceTree = "<group>"; };
 		F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSubtitle.swift; sourceTree = "<group>"; };
+		F66AA695D8E44066BD09CB07 /* SpeechTranslationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechTranslationQueue.swift; sourceTree = "<group>"; };
 		25C9544BB828164310554C78 /* GenerationReferenceLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationReferenceLayout.swift; sourceTree = "<group>"; };
 		2B4EC551B300E50D51DFCD3E /* GenerationStatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationStatisticsViewModel.swift; sourceTree = "<group>"; };
 		2E4472C395F34A648AA1A4A1 /* VideoCallGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCallGuide.swift; sourceTree = "<group>"; };
@@ -562,6 +569,8 @@
 		C2FFEB5F0B884CEC8C76D3FD /* VirtualMicrophoneStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMicrophoneStatus.swift; sourceTree = "<group>"; };
 		60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAudioControlsView.swift; sourceTree = "<group>"; };
 		3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAdjustmentPopoverView.swift; sourceTree = "<group>"; };
+		F66AA695D8E44066BD09CB10 /* GenerationTranslationDialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationTranslationDialogView.swift; sourceTree = "<group>"; };
+		F66AA695D8E44066BD09CB13 /* GenerationTranslationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationTranslationViewModel.swift; sourceTree = "<group>"; };
 		B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationAudioControlsViewModel.swift; sourceTree = "<group>"; };
 		23EE524E7A7F42AC97803C96 /* com.xmax.meeting.camera.oversea.extension.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.xmax.meeting.camera.oversea.extension.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF4B30260714AA0B8FD9928 /* FaceNowOverseaCameraProbe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FaceNowOverseaCameraProbe; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -931,6 +940,7 @@
 			children = (
 				B72C300D75974F55B8A374C5 /* GenerationAudioControlsViewModel.swift */,
 				2B4EC551B300E50D51DFCD3E /* GenerationStatisticsViewModel.swift */,
+				F66AA695D8E44066BD09CB13 /* GenerationTranslationViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1055,6 +1065,7 @@
 				FD6255C8E5D4462EC1B5B53F /* GenerationVideoPanel.swift */,
 				60820B414B4543FDA33F45FA /* GenerationAudioControlsView.swift */,
 				3F70CD91A19C489EBC51E81A /* GenerationAdjustmentPopoverView.swift */,
+				F66AA695D8E44066BD09CB10 /* GenerationTranslationDialogView.swift */,
 				A4C174A9084F61A056530525 /* GenerationWorkspaceView.swift */,
 			);
 			path = View;
@@ -1089,6 +1100,7 @@
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
 				F66AA695D8E44066BD09CB01 /* MicrophoneTranslation.swift */,
 				F66AA695D8E44066BD09CB04 /* VideoSubtitle.swift */,
+				F66AA695D8E44066BD09CB07 /* SpeechTranslationQueue.swift */,
 				5DD8BABE45D62C6E551B7B31 /* VideoFormat.swift */,
 			);
 			path = Media;
@@ -1688,11 +1700,13 @@
 				A8A9D32EE8BF3C62D0593E80 /* GenerationPromptTextView.swift in Sources */,
 				8ED300F0992B952805FF2BCC /* GenerationReferenceListView.swift in Sources */,
 				14CED7409AD6D1D6721FF203 /* GenerationStatisticsViewModel.swift in Sources */,
+				F66AA695D8E44066BD09CB14 /* GenerationTranslationViewModel.swift in Sources */,
 				822D19FB12DD1579D4B8CF5E /* GenerationStatisticsPanel.swift in Sources */,
 				3ECA980840B8B45413957AFC /* GenerationToolbarView.swift in Sources */,
 				83A4BA4A7D937E4BAB76EB39 /* GenerationVideoPanel.swift in Sources */,
 				7443AD1B70A442DFB68B96B4 /* GenerationAudioControlsView.swift in Sources */,
 				4FB733F718EC446EAAE1B0A1 /* GenerationAdjustmentPopoverView.swift in Sources */,
+				F66AA695D8E44066BD09CB11 /* GenerationTranslationDialogView.swift in Sources */,
 				D75624EA5B734BCC86AF540A /* GenerationAudioControlsViewModel.swift in Sources */,
 				22221881296C7A34A0BAE2C3 /* GenerationWorkspaceView.swift in Sources */,
 				266EDFC1E1DDAAF2EE480DB6 /* HomeInputPickerView.swift in Sources */,
@@ -1737,6 +1751,7 @@
 				73D18CE376E376C0E691134D /* XmaxCameraApp.swift in Sources */,
 				F66AA695D8E44066BD09CB02 /* MicrophoneTranslation.swift in Sources */,
 				F66AA695D8E44066BD09CB05 /* VideoSubtitle.swift in Sources */,
+				F66AA695D8E44066BD09CB08 /* SpeechTranslationQueue.swift in Sources */,
 				681D846BD11FADB799CE8535 /* VirtualCameraConfiguration.swift in Sources */,
 				65C6C412AAB6AFB9FA600929 /* VideoFrameRenderer.swift in Sources */,
 				7F10D4988EE9A6A193CC4E90 /* ScheduledFrameStore.swift in Sources */,
@@ -1830,11 +1845,13 @@
 				6A9ADBC735EF4548A553D4AB /* GenerationPromptTextView.swift in Sources */,
 				53D8DBA17A9AA25A41EAC170 /* GenerationReferenceListView.swift in Sources */,
 				83EFF417B6E567D8E5E26A56 /* GenerationStatisticsViewModel.swift in Sources */,
+				F66AA695D8E44066BD09CB15 /* GenerationTranslationViewModel.swift in Sources */,
 				A4CC22971872B9C1D808CF6B /* GenerationStatisticsPanel.swift in Sources */,
 				9A0586F4E153B22C559BB5C6 /* GenerationToolbarView.swift in Sources */,
 				B6CEC4DBFDCB5ABD5C478BE8 /* GenerationVideoPanel.swift in Sources */,
 				AA0C5D199BE2406BAF680E40 /* GenerationAudioControlsView.swift in Sources */,
 				09AEF5760A6145E3921A7709 /* GenerationAdjustmentPopoverView.swift in Sources */,
+				F66AA695D8E44066BD09CB12 /* GenerationTranslationDialogView.swift in Sources */,
 				7F108C87185243D0B2E92BAD /* GenerationAudioControlsViewModel.swift in Sources */,
 				8AE2364A8A6CBAFE13319C39 /* GenerationWorkspaceView.swift in Sources */,
 				7B40BF71B83B42AD86AE3C58 /* HomeInputPickerView.swift in Sources */,
@@ -1879,6 +1896,7 @@
 				072D6FAED342845FBE531B5B /* XmaxCameraApp.swift in Sources */,
 				F66AA695D8E44066BD09CB03 /* MicrophoneTranslation.swift in Sources */,
 				F66AA695D8E44066BD09CB06 /* VideoSubtitle.swift in Sources */,
+				F66AA695D8E44066BD09CB09 /* SpeechTranslationQueue.swift in Sources */,
 				FBB1B12A3D6744AC6004BA41 /* VirtualCameraConfiguration.swift in Sources */,
 				CEC0F5157FC06BC079B5640C /* VideoFrameRenderer.swift in Sources */,
 				2C39C162ED9051E8FD5C7FEC /* ScheduledFrameStore.swift in Sources */,

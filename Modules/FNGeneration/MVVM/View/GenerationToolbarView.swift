@@ -17,6 +17,9 @@ final class GenerationToolbarView: Canvas {
     /// Requests the workspace-owned result overlay without retaining a separate popover.
     var onToggleBeauty: (() -> Void)?
 
+    /// Opens the centered live translation configuration.
+    var onConfigureTranslation: (() -> Void)?
+
     /// Lets the header place statistics at the start of the generation controls.
     var statisticsControl: NSView { statisticsButton }
 
@@ -68,14 +71,14 @@ final class GenerationToolbarView: Canvas {
         return view
     }()
 
-    /// Toggles English subtitles for the result preview and virtual camera.
+    /// Opens the live translation dialog and reflects the current capture state.
     private lazy var translationButton: ToolbarButton = {
         let view = ToolbarButton(
             content: .labeled(GenerationStrings.translation, icon: .system("captions.bubble")),
             role: .toggle,
             tone: .warm
         )
-        view.onClick = { [weak self] in self?.generationRepo.toggleTranslation() }
+        view.onClick = { [weak self] in self?.onConfigureTranslation?() }
         return view
     }()
 
@@ -132,6 +135,7 @@ final class GenerationToolbarView: Canvas {
     /// Applies the latest generation state without replacing controls.
     func update() {
         let previousWidth = preferredWidth
+        let previousTranslationWidth = translationButton.preferredWidth
         beautyButton.isSelected = generationRepo.beautyEnabled
         beautyButton.isEnabled = generationRepo.sessionActive && !generationRepo.isClosing
         beautyButton.toolTip = GenerationStrings.beautyDescription
@@ -166,29 +170,22 @@ final class GenerationToolbarView: Canvas {
         stopButton.isEnabled = !generationRepo.isClosing
         updateElapsed()
         needsLayout = true
-        if preferredWidth != previousWidth {
+        if preferredWidth != previousWidth || translationButton.preferredWidth != previousTranslationWidth {
             onWidthChange?()
         }
     }
 
-    /// Shows setup progress while keeping the toggle available for cancellation.
+    /// Shows setup progress while keeping the configuration entry available.
     private func updateTranslation() {
         let state = generationRepo.translationState
-        let supported = GenerationRepository.supportsTranslation
-        translationButton.isEnabled = supported && generationRepo.sessionActive && !generationRepo.isClosing
+        translationButton.isEnabled = generationRepo.sessionActive && !generationRepo.isClosing
         translationButton.isSelected = state != .off
-        translationButton.isLoading = state == .preparing || state == .waitingForMicrophone
-        let status: String
-        switch state {
-        case .off:
-            status = supported ? GenerationStrings.translationOff : GenerationStrings.translationRequiresMacOS
-        case .waitingForMicrophone:
-            status = GenerationStrings.translationWaitingForMicrophone
-        case .preparing:
-            status = GenerationStrings.translationPreparing
-        case .listening:
-            status = GenerationStrings.translationListening
-        }
+        translationButton.content = .labeled(
+            state == .downloadingLanguages ? GenerationStrings.translationDownloadingLanguages : GenerationStrings.translation,
+            icon: .system("captions.bubble")
+        )
+        let status = GenerationTranslationViewModel.status(for: generationRepo).detail
+        translationButton.isLoading = state == .preparing || state == .waitingForMicrophone || state == .downloadingLanguages
         translationButton.toolTip = status
         translationButton.setAccessibilityValue(status)
     }

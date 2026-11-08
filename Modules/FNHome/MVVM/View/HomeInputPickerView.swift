@@ -103,6 +103,9 @@ final class HomeInputPickerView: Canvas, NSPopoverDelegate {
         return view
     }()
 
+    /// Allows a containing dialog to include the selector in its keyboard loop.
+    var focusControl: NSView { button }
+
     /// Separates the microphone glyph and disclosure region without intercepting button input.
     private lazy var toolbarDecoration: HomeInputPickerToolbarDecoration = {
         let view = HomeInputPickerToolbarDecoration()

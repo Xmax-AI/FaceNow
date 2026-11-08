@@ -20,12 +20,21 @@ enum GenerationStrings {
         )
     }
 
-    /// Names the live translation toggle.
+    /// Names the live translation configuration.
     static var translation: String {
         Localization.string(
             "translation.title",
             table: "Generation",
             defaultValue: "Live Translation"
+        )
+    }
+
+    /// Labels the close control on the translation configuration dialog.
+    static var translationCloseDialog: String {
+        Localization.string(
+            "translation.close_dialog",
+            table: "Generation",
+            defaultValue: "Close live translation settings"
         )
     }
 
@@ -38,21 +47,21 @@ enum GenerationStrings {
         )
     }
 
-    /// Explains that live translation is listening and can be turned off.
+    /// Explains that live translation is listening to the selected microphone.
     static var translationListening: String {
         Localization.string(
             "translation.listening",
             table: "Generation",
-            defaultValue: "Listening for Mandarin. Click to turn off."
+            defaultValue: "Listening to the selected microphone."
         )
     }
 
-    /// Explains the subtitle outputs and how to enable them.
+    /// Explains that live translation is stopped.
     static var translationOff: String {
         Localization.string(
             "translation.off",
             table: "Generation",
-            defaultValue: "Click to translate spoken Mandarin into English subtitles on the preview and virtual camera."
+            defaultValue: "Off"
         )
     }
 
@@ -61,7 +70,16 @@ enum GenerationStrings {
         Localization.string(
             "translation.preparing",
             table: "Generation",
-            defaultValue: "Preparing live translation. A system language download may be required. Click to cancel."
+            defaultValue: "Preparing live translation…"
+        )
+    }
+
+    /// Identifies the first-run language download separately from microphone startup.
+    static var translationDownloadingLanguages: String {
+        Localization.string(
+            "translation.downloading_languages",
+            table: "Generation",
+            defaultValue: "Downloading language packs…"
         )
     }
 
@@ -88,9 +106,231 @@ enum GenerationStrings {
         Localization.string(
             "translation.waiting_for_microphone",
             table: "Generation",
-            defaultValue: "Waiting for the microphone. Click to cancel."
+            defaultValue: "Waiting for the microphone…"
         )
     }
+
+    /// Labels the shared physical audio input.
+    static var translationInput: String {
+        Localization.string(
+            "translation.input",
+            table: "Generation",
+            defaultValue: "Microphone"
+        )
+    }
+
+    /// Prompts for microphone authorization before the first translation.
+    static var translationMicrophoneAccess: String {
+        Localization.string(
+            "translation.microphone_access",
+            table: "Generation",
+            defaultValue: "Allow microphone access to start live translation."
+        )
+    }
+
+    /// Labels the language spoken into the microphone.
+    static var translationSourceLanguage: String {
+        Localization.string(
+            "translation.source_language",
+            table: "Generation",
+            defaultValue: "Spoken language"
+        )
+    }
+
+    /// Labels the translation language used for subtitles.
+    static var translationTargetLanguage: String {
+        Localization.string(
+            "translation.target_language",
+            table: "Generation",
+            defaultValue: "Subtitle language"
+        )
+    }
+
+    /// Labels the live translation state.
+    static var translationStatus: String {
+        Localization.string(
+            "translation.status",
+            table: "Generation",
+            defaultValue: "Status"
+        )
+    }
+
+    /// Shows that an active translation stopped unexpectedly.
+    static var translationStatusInterrupted: String {
+        Localization.string(
+            "translation.status_interrupted",
+            table: "Generation",
+            defaultValue: "Interrupted"
+        )
+    }
+
+    /// Shows that translation needs microphone permission.
+    static var translationStatusNeedsPermission: String {
+        Localization.string(
+            "translation.status_needs_permission",
+            table: "Generation",
+            defaultValue: "Microphone access required"
+        )
+    }
+
+    /// Shows that translation needs a selected microphone.
+    static var translationStatusNeedsMicrophone: String {
+        Localization.string(
+            "translation.status_needs_microphone",
+            table: "Generation",
+            defaultValue: "Select a microphone"
+        )
+    }
+
+    /// Labels the speech and translation resource status.
+    static var translationLanguagePacks: String {
+        Localization.string(
+            "translation.language_packs",
+            table: "Generation",
+            defaultValue: "Language packs"
+        )
+    }
+
+    /// Distinguishes the speech asset from the translation languages in the same list.
+    static func translationSpeechLanguage(
+        _ language: String
+    ) -> String {
+        Localization.format(
+            "translation.speech_language",
+            table: "Generation",
+            defaultValue: "Speech pack: %@",
+            arguments: [language]
+        )
+    }
+
+    /// Names the language pack row using the selected translation direction.
+    static func translationPackDirection(
+        from source: String,
+        to target: String
+    ) -> String {
+        Localization.format(
+            "translation.pack_direction",
+            table: "Generation",
+            defaultValue: "Translation: %1$@ → %2$@",
+            arguments: [source, target]
+        )
+    }
+
+    /// Explains why translation cannot start until the required languages are installed.
+    static var translationStatusNeedsLanguages: String {
+        Localization.string(
+            "translation.status_needs_languages",
+            table: "Generation",
+            defaultValue: "Translation languages needed"
+        )
+    }
+
+    /// Shows that the app is checking language availability.
+    static var translationResourcesChecking: String {
+        Localization.string(
+            "translation.resources_checking",
+            table: "Generation",
+            defaultValue: "Checking…"
+        )
+    }
+
+    /// Shows that the selected language resources are installed.
+    static var translationResourcesReady: String {
+        Localization.string(
+            "translation.resources_ready",
+            table: "Generation",
+            defaultValue: "Installed"
+        )
+    }
+
+    /// Marks a resource that the system cannot use.
+    static var translationResourcesUnavailable: String {
+        Localization.string(
+            "translation.resources_unavailable",
+            table: "Generation",
+            defaultValue: "Unavailable"
+        )
+    }
+
+    /// Shows a download without a reported percentage.
+    static var translationResourceDownloading: String {
+        Localization.string(
+            "translation.resource_downloading",
+            table: "Generation",
+            defaultValue: "Downloading…"
+        )
+    }
+
+    /// Reports an unsuccessful resource download.
+    static var translationResourceFailed: String {
+        Localization.string(
+            "translation.resource_failed",
+            table: "Generation",
+            defaultValue: "Download failed"
+        )
+    }
+
+    /// Downloads the language resource shown in a single row.
+    static var translationDownloadResource: String {
+        Localization.string(
+            "translation.download_resource",
+            table: "Generation",
+            defaultValue: "Download"
+        )
+    }
+
+    /// Retries a failed language resource download.
+    static var translationRetryDownload: String {
+        Localization.string(
+            "translation.retry_download",
+            table: "Generation",
+            defaultValue: "Retry"
+        )
+    }
+
+    /// Distinguishes identical row actions for VoiceOver.
+    static func translationResourceAction(
+        _ action: String,
+        resource: String
+    ) -> String {
+        Localization.format(
+            "translation.resource_action",
+            table: "Generation",
+            defaultValue: "%1$@, %2$@",
+            arguments: [action, resource]
+        )
+    }
+
+    /// Formats the percentage reported by the system's speech download.
+    static func translationResourceProgress(
+        percent: Int
+    ) -> String {
+        Localization.format(
+            "translation.resource_progress",
+            table: "Generation",
+            defaultValue: "Downloading %@",
+            arguments: [(Double(percent) / 100).formatted(.percent.locale(Localization.locale))]
+        )
+    }
+
+    /// Starts listening and translating with the current settings.
+    static var translationStart: String {
+        Localization.string(
+            "translation.start",
+            table: "Generation",
+            defaultValue: "Start Translation"
+        )
+    }
+
+    /// Stops listening and clears subtitles.
+    static var translationStop: String {
+        Localization.string(
+            "translation.stop",
+            table: "Generation",
+            defaultValue: "Stop Translation"
+        )
+    }
+
 
     /// Opens the audio and video synchronization settings card.
     static var audioVideoAdjustments: String {
@@ -272,6 +512,15 @@ enum GenerationStrings {
             "controls.beauty",
             table: "Generation",
             defaultValue: "Beauty"
+        )
+    }
+
+    /// Titles the beauty controls displayed over the generated result.
+    static var beautyPanelTitle: String {
+        Localization.string(
+            "beauty.panel_title",
+            table: "Generation",
+            defaultValue: "Beauty Controls"
         )
     }
 
