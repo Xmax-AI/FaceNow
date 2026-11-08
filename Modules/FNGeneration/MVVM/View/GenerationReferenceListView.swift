@@ -97,6 +97,7 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
         collection.snp.makeConstraints { make in
             make.leading.top.equalTo(scroll.contentView)
             if singleRow {
+                make.width.greaterThanOrEqualTo(scroll.contentView)
                 make.width.equalTo(0).priority(490)
                 make.height.equalTo(scroll.contentView)
             } else {
@@ -124,15 +125,11 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     /// Places the current reference content within the host-provided bounds.
     override func layout() {
         super.layout()
-        let width = scroll.contentSize.width
         if singleRow {
-            let documentWidth = max(width, Self.singleRowWidth(itemCount: itemCount))
-            if collection.frame.width != documentWidth {
-                collection.snp.updateConstraints { make in make.width.equalTo(documentWidth).priority(490) }
-            }
             updateScrollEdgeFade()
             return
         }
+        let width = scroll.contentSize.width
         let columns = max(1, Int((width + 14) / 90))
         let rows = (itemCount + columns - 1) / columns
         let size = NSSize(
@@ -188,6 +185,11 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
             on: self
         )
         if changed {
+            if singleRow {
+                collection.snp.updateConstraints { make in
+                    make.width.equalTo(Self.singleRowWidth(itemCount: itemCount)).priority(490)
+                }
+            }
             collection.reloadData()
             needsLayout = true
         } else {
@@ -255,7 +257,25 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
 }
 
 /// Supports horizontal scrolling without displaying a scroller over the avatars.
-private final class ReferenceStripScrollView: NSScrollView {
+private final class ReferenceStripScrollView: NSScrollView, NSGestureRecognizerDelegate {
+
+    private var canScrollHorizontally: Bool {
+        (documentView?.frame.width ?? 0) > contentView.bounds.width
+    }
+
+    override init(
+        frame frameRect: NSRect
+    ) {
+        super.init(frame: frameRect)
+        let pan = NSPanGestureRecognizer(target: self, action: #selector(scrollByDragging(_:)))
+        pan.delegate = self
+        pan.delaysPrimaryMouseButtonEvents = true
+        addGestureRecognizer(pan)
+    }
+
+    required init?(
+        coder: NSCoder
+    ) { fatalError("init(coder:) has not been implemented") }
 
     /// Prevents the collection view from enabling a scroller when it lays out its items.
     override var hasHorizontalScroller: Bool {
@@ -263,17 +283,47 @@ private final class ReferenceStripScrollView: NSScrollView {
         set { super.hasHorizontalScroller = false }
     }
 
+    /// Routes empty space between avatars to the scroll view's drag gesture.
+    override func hitTest(
+        _ point: NSPoint
+    ) -> NSView? {
+        guard let target = super.hitTest(point) else { return nil }
+        return target === documentView ? self : target
+    }
+
+    override func acceptsFirstMouse(
+        for event: NSEvent?
+    ) -> Bool { true }
+
     override func scrollWheel(
         with event: NSEvent
     ) {
         let horizontalDelta = event.scrollingDeltaX
-        guard horizontalDelta != 0, abs(horizontalDelta) >= abs(event.scrollingDeltaY),
-            let documentView, documentView.frame.width > contentView.bounds.width
+        guard horizontalDelta != 0, abs(horizontalDelta) >= abs(event.scrollingDeltaY), canScrollHorizontally
         else {
             super.scrollWheel(with: event)
             return
         }
         let distance = event.hasPreciseScrollingDeltas ? horizontalDelta : horizontalDelta * horizontalLineScroll
+        scrollHorizontally(by: distance)
+    }
+
+    /// Keeps native click tracking when the list has no overflow to drag through.
+    func gestureRecognizerShouldBegin(
+        _ gestureRecognizer: NSGestureRecognizer
+    ) -> Bool { canScrollHorizontally }
+
+    @objc private func scrollByDragging(
+        _ pan: NSPanGestureRecognizer
+    ) {
+        guard pan.state == .began || pan.state == .changed || pan.state == .ended else { return }
+        scrollHorizontally(by: pan.translation(in: self).x)
+        pan.setTranslation(.zero, in: self)
+    }
+
+    private func scrollHorizontally(
+        by distance: CGFloat
+    ) {
         let visible = contentView.bounds.offsetBy(dx: -distance, dy: 0)
         contentView.scroll(to: contentView.constrainBoundsRect(visible).origin)
         reflectScrolledClipView(contentView)

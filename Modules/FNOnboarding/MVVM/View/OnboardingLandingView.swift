@@ -115,10 +115,14 @@ final class OnboardingLandingView: Canvas {
     private lazy var previewUpload: Button = {
         let view = Button(icon: .plus, style: .plain)
         view.iconSize = 17
-        view.foregroundColor = Palette.secondary
+        view.foregroundColor = .white
         view.disabledOpacity = 1
-        view.restingBackgroundColor = .white.withAlphaComponent(0.52)
-        view.hoverBackgroundColor = .white.withAlphaComponent(0.76)
+        view.backgroundInset = -0.5
+        view.restingBackgroundColor = .black.withAlphaComponent(0.42)
+        view.hoverBackgroundColor = .black.withAlphaComponent(0.58)
+        view.layer?.cornerRadius = GenerationReferenceListView.singleRowAvatarSize / 2
+        view.layer?.borderWidth = 1
+        view.layer?.borderColor = NSColor.white.withAlphaComponent(0.55).cgColor
         view.toolTip = GenerationStrings.controlsUploadYourOwnReferenceImage
         view.setAccessibilityLabel(GenerationStrings.controlsUploadYourOwnReferenceImage)
         view.onClick = { [weak self] in self?.chooseReferenceImage() }
