@@ -8,7 +8,7 @@ import Foundation
 /// Defines the regional platform origins shared by account, API-key, and credit requests.
 public enum NetworkEnvironment: String, CaseIterable, Equatable, Sendable {
 
-    /// The domestic platform used by XmaxCamera.
+    /// The platform used by the domestic edition.
     case china
 
     /// The overseas platform used by FaceNow-oversea.

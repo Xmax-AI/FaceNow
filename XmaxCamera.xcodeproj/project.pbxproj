@@ -1305,9 +1305,9 @@
 			productReference = 31626DE0A2F7B97F1E04ED35 /* FaceNow.app */;
 			productType = "com.apple.product-type.application";
 		};
-		7EF4C081D4D1FA0411233A3C /* XmaxCamera */ = {
+		7EF4C081D4D1FA0411233A3C /* FaceNow */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E4FC42A2B10522F7176D923C /* Build configuration list for PBXNativeTarget "XmaxCamera" */;
+			buildConfigurationList = E4FC42A2B10522F7176D923C /* Build configuration list for PBXNativeTarget "FaceNow" */;
 			buildPhases = (
 				43D7AC59414069D5DC3C5CC5 /* Build Virtual Microphone Installer */,
 				F139991591ADFB02DE333939 /* Sources */,
@@ -1324,7 +1324,7 @@
 				ED10A600000000000000000E /* PBXTargetDependency */,
 				ED10B700000000000000000E /* PBXTargetDependency */,
 			);
-			name = XmaxCamera;
+			name = FaceNow;
 			packageProductDependencies = (
 				A7F488488899F50ECA5164BB /* Sparkle */,
 				3C05224961A3EAE9F4CBFAD3 /* Factory */,
@@ -1494,7 +1494,7 @@
 			targets = (
 				F63E821F45674A28B652AC65 /* FaceNowOverseaCameraExtension */,
 				C74CDCA7BC55402487C08AAD /* FaceNowOverseaCameraProbe */,
-				7EF4C081D4D1FA0411233A3C /* XmaxCamera */,
+				7EF4C081D4D1FA0411233A3C /* FaceNow */,
 				17CB8784BD0FAC4A3278BF0A /* FaceNow-oversea */,
 				BD76D3D724D4D028F97D966F /* XmaxCameraExtension */,
 				ED10A6000000000000000009 /* FaceNowCameraProbe */,
@@ -2483,7 +2483,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E4FC42A2B10522F7176D923C /* Build configuration list for PBXNativeTarget "XmaxCamera" */ = {
+		E4FC42A2B10522F7176D923C /* Build configuration list for PBXNativeTarget "FaceNow" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D84E18F7B19BBA7EF1EEEC0B /* Release */,
