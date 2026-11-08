@@ -7,6 +7,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Windows.Foundation;
@@ -393,6 +394,10 @@ public sealed partial class MainWindow : Window
     {
         stopButton.Text = Model.StopLabel;
         statisticsButton.IsSelected = Model.StatisticsVisible;
+        string statisticsAction = AppText.Get(Model.StatisticsVisible
+            ? "Hide statistics (collection and logging continue)" : "Show statistics");
+        AutomationProperties.SetName(statisticsButton, statisticsAction);
+        ToolTipService.SetToolTip(statisticsButton, statisticsAction);
         elapsed.Text = Model.Elapsed;
         foreach (var (mode, viewer) in referenceScrollers)
             viewer.Visibility = mode == Model.SelectedMode ? Visibility.Visible : Visibility.Collapsed;

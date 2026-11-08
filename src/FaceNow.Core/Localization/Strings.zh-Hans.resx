@@ -99,7 +99,7 @@
     <comment>removed preset 4</comment>
   </data>
   <data xml:space="preserve" name="Text_8C466ED2A9F7538B">
-    <value>AI 生成</value>
+    <value>AI生成</value>
     <comment>AI Generation</comment>
   </data>
   <data xml:space="preserve" name="Text_0249B02376A57788">
@@ -143,7 +143,7 @@
     <comment>About Us</comment>
   </data>
   <data xml:space="preserve" name="Text_7E1B0D5641F2640C">
-    <value>账户</value>
+    <value>账号</value>
     <comment>Account</comment>
   </data>
   <data xml:space="preserve" name="Text_E42CC1F0613EEA1C">
@@ -1727,7 +1727,7 @@ Allow the FaceNow system extension</comment>
     <comment>Stream publication</comment>
   </data>
   <data xml:space="preserve" name="Text_F0CE96F9701BAAE9">
-    <value>风格转换</value>
+    <value>风格迁移</value>
     <comment>Style Transfer</comment>
   </data>
   <data xml:space="preserve" name="Text_5130E6A5B92752B4">
@@ -1771,7 +1771,7 @@ Allow the FaceNow system extension</comment>
     <comment>Test Video</comment>
   </data>
   <data xml:space="preserve" name="Text_DE036004EB26E8AE">
-    <value>此 API Key 不属于当前账户。</value>
+    <value>账号信息与此 API Key 不匹配。</value>
     <comment>The API key does not belong to this account.</comment>
   </data>
   <data xml:space="preserve" name="Text_0BA0A52304655A69">
@@ -1851,7 +1851,7 @@ Allow the FaceNow system extension</comment>
     <comment>The virtual camera operation timed out.</comment>
   </data>
   <data xml:space="preserve" name="Text_4CD1D1AD8354631A">
-    <value>此 API Key 未激活或不可用。</value>
+    <value>此 API Key 无效或已停用。</value>
     <comment>This API key is inactive or unavailable.</comment>
   </data>
   <data xml:space="preserve" name="Text_2CA31A0F96862748">
@@ -1875,7 +1875,7 @@ Allow the FaceNow system extension</comment>
     <comment>This feature requires Windows 11. Use FaceNow on a Windows 11 computer to continue.</comment>
   </data>
   <data xml:space="preserve" name="Text_B76A7287D90D0659">
-    <value>此登录方式暂不可用。</value>
+    <value>验证码登录暂不可用。</value>
     <comment>This sign-in method is currently unavailable.</comment>
   </data>
   <data xml:space="preserve" name="Text_776442F656CA084C">
@@ -2247,7 +2247,7 @@ Allow the FaceNow system extension</comment>
     <comment>Your selected camera is disconnected.</comment>
   </data>
   <data xml:space="preserve" name="Text_B529FCE2BFAE76BD">
-    <value>登录已过期，请重新登录。</value>
+    <value>登录状态已过期，请重新登录。</value>
     <comment>Your session has expired. Please sign in again.</comment>
   </data>
   <data xml:space="preserve" name="Text_4DDB3E96801A1EE2">
@@ -4793,5 +4793,21 @@ Generation is disabled</comment>
   <data name="Text_ECE62B5F534749AB" xml:space="preserve">
     <value>虚拟摄像头需要 Windows 10 2004 或更新版本（x64），或 Windows 11。</value>
     <comment>The virtual camera requires Windows 10 version 2004 or later (x64), or Windows 11.</comment>
+  </data>
+  <data name="Text_C0B3AC1FD3F78CD8" xml:space="preserve">
+    <value>调整实时生效，仅影响会议输出</value>
+    <comment>Adjustments apply to meeting output</comment>
+  </data>
+  <data name="Text_383A17BE18BCD3CF" xml:space="preserve">
+    <value>积分不足，充值后可继续</value>
+    <comment>Insufficient credits. Top up to continue.</comment>
+  </data>
+  <data name="Text_45E899EE8447BCAE" xml:space="preserve">
+    <value>去充值</value>
+    <comment>Top Up</comment>
+  </data>
+  <data name="Text_B9C763F3B30F4AC4" xml:space="preserve">
+    <value>参考图未通过安全检测，请换一张图片。</value>
+    <comment>This reference image did not pass the safety check. Choose a different image.</comment>
   </data>
 </root>

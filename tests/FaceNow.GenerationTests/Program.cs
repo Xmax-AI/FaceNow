@@ -108,11 +108,12 @@ var tests = new (string Name, Func<Task> Run)[]
         {
             var profile = new ProductProfile(edition); var presets = ReferenceCatalog.Load(profile);
             ReferenceItem Find(string file) => presets.Single(item => item.ReferenceUrl.Contains("/" + file + "?"));
+            Check(Find("removed-preset-1.png").Prompt == (profile.IsOverseas ? "Become the character in the reference image" : "视频中人物替换成参考图中角色"));
             Check(Find("clothx_image11.jpeg").Prompt == (profile.IsOverseas ? "Apply the cap from the reference image to the video character." : "将参考图棒球帽应用到视频角色身上"));
             Check(Find("clothx_image12.jpeg").Prompt == (profile.IsOverseas ? "Apply the glasses from the reference image to the video character." : "将参考图眼镜应用到视频角色身上"));
             Check(Find("clothx_image6.png").Prompt == (profile.IsOverseas ? "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit." : "将参考图的上衣穿到视频人物身上，其他保持不变"));
             Check(Find("clothx_image8.png").Prompt == (profile.IsOverseas ? "Put the bottoms from the reference image on the video character. Keep everything else unchanged." : "将参考图的下装穿到视频人物身上，其他保持不变"));
-            Check(Find("vibex_real_image1.png").Prompt == (profile.IsOverseas ? "The reference character performs the motions from the video." : "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。"));
+            Check(Find("vibex_real_image1.png").Prompt == (profile.IsOverseas ? "The character from the reference image recreates the actions in the video. Preserve all appearance details of the reference character exactly, and keep the original background from the reference image unchanged." : "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景。"));
         }
         return Task.CompletedTask;
     }),
@@ -133,7 +134,8 @@ var tests = new (string Name, Func<Task> Run)[]
                 Check(context.ReferencePath == item.ReferenceUrl);
                 Check(item.LocalPath == "my-reference.png" && !item.IsPromptOnly);
             }
-            Check(GenerationPrompts.ForMode("vibex", profile) == (profile.IsOverseas ? "The reference character performs the motions from the video." : "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景"));
+            Check(GenerationPrompts.ForMode("charx", profile) == (profile.IsOverseas ? "Become the character in the reference image" : "视频中人物替换成参考图中角色"));
+            Check(GenerationPrompts.ForMode("vibex", profile) == (profile.IsOverseas ? "The character from the reference image recreates the actions in the video. Preserve all appearance details of the reference character exactly, and keep the original background from the reference image unchanged." : "参考图角色重现视频动作，角色全部外观细节保留，保留并使用参考图的背景"));
             Check(GenerationPrompts.ForMode("dimx", profile) == (profile.IsOverseas
                 ? "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the reference character onto the shoulder or hand of the person in the video."
                 : "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图角色召唤到视频人物的肩膀上或者手上"));

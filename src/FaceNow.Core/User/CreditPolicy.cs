@@ -10,7 +10,7 @@ public static class CreditPolicy
 {
     public const int InsufficientCode = 43001;
 
-    public static string InsufficientMessage => Localization.AppText.Get("Insufficient credits. Please top up on the Xmax Open Platform first.");
+    public static string InsufficientMessage => Localization.AppText.Get("Insufficient credits. Top up to continue.");
 
     // An unknown balance is not evidence of insufficient credits. Positive balances below
     // the low-credit warning threshold are also allowed to start.

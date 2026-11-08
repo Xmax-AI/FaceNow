@@ -59,11 +59,9 @@ public sealed partial class MainWindow
             sessionControls.Children.Add(element);
         BindMicrophones();
         homeVirtualCamera.Click += (_, _) => OpenVirtualCameraSettings(homeVirtualCamera);
-        AutomationProperties.SetName(cameraButton, "Select Camera");
-        AutomationProperties.SetName(keyButton, "API Key");
-        AutomationProperties.SetName(StartButton, "Start Camera");
-        AutomationProperties.SetName(statisticsButton, "Show / hide statistics");
-        ToolTipService.SetToolTip(statisticsButton, AppText.Get("Show / hide statistics"));
+        AutomationProperties.SetName(cameraButton, AppText.Get("Select Camera"));
+        AutomationProperties.SetName(keyButton, AppText.Get("API Key"));
+        AutomationProperties.SetName(StartButton, AppText.Get("Start Camera"));
         ToolTipService.SetToolTip(keyButton, AppText.Get("API Key"));
         cameraButton.Click += (_, _) => OpenCameras();
         modelButton.Click += (_, _) => OpenModels();

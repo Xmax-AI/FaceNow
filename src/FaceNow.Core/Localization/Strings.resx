@@ -1771,7 +1771,7 @@ Allow the FaceNow system extension</comment>
     <comment>Test Video</comment>
   </data>
   <data xml:space="preserve" name="Text_DE036004EB26E8AE">
-    <value>The API key does not belong to this account.</value>
+    <value>The account profile does not match this API key.</value>
     <comment>The API key does not belong to this account.</comment>
   </data>
   <data xml:space="preserve" name="Text_0BA0A52304655A69">
@@ -1851,7 +1851,7 @@ Allow the FaceNow system extension</comment>
     <comment>The virtual camera operation timed out.</comment>
   </data>
   <data xml:space="preserve" name="Text_4CD1D1AD8354631A">
-    <value>This API key is inactive or unavailable.</value>
+    <value>This API key is invalid or no longer active.</value>
     <comment>This API key is inactive or unavailable.</comment>
   </data>
   <data xml:space="preserve" name="Text_2CA31A0F96862748">
@@ -1875,7 +1875,7 @@ Allow the FaceNow system extension</comment>
     <comment>This feature requires Windows 11. Use FaceNow on a Windows 11 computer to continue.</comment>
   </data>
   <data xml:space="preserve" name="Text_B76A7287D90D0659">
-    <value>This sign-in method is currently unavailable.</value>
+    <value>Verification-code login is currently unavailable.</value>
     <comment>This sign-in method is currently unavailable.</comment>
   </data>
   <data xml:space="preserve" name="Text_776442F656CA084C">
@@ -4793,5 +4793,21 @@ Generation is disabled</comment>
   <data name="Text_ECE62B5F534749AB" xml:space="preserve">
     <value>The virtual camera requires Windows 10 version 2004 or later (x64), or Windows 11.</value>
     <comment>The virtual camera requires Windows 10 version 2004 or later (x64), or Windows 11.</comment>
+  </data>
+  <data name="Text_C0B3AC1FD3F78CD8" xml:space="preserve">
+    <value>Adjustments apply to meeting output</value>
+    <comment>Adjustments apply to meeting output</comment>
+  </data>
+  <data name="Text_383A17BE18BCD3CF" xml:space="preserve">
+    <value>Insufficient credits. Top up to continue.</value>
+    <comment>Insufficient credits. Top up to continue.</comment>
+  </data>
+  <data name="Text_45E899EE8447BCAE" xml:space="preserve">
+    <value>Top Up</value>
+    <comment>Top Up</comment>
+  </data>
+  <data name="Text_B9C763F3B30F4AC4" xml:space="preserve">
+    <value>This reference image did not pass the safety check. Choose a different image.</value>
+    <comment>This reference image did not pass the safety check. Choose a different image.</comment>
   </data>
 </root>

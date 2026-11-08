@@ -242,7 +242,7 @@ internal sealed partial class MainViewModel
         {
             item.IsUploading = false;
             item.HasError = true;
-            item.Error = failure.Message;
+            item.Error = GenerationErrorMessage(failure);
             if (current == revision && uploadIntent == intent)
                 ReportError(failure);
         }

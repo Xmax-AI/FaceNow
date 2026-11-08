@@ -97,12 +97,18 @@ internal sealed partial class MainViewModel
         if (IsClosing)
             return; // Cleanup failures and duplicate SDK reports must not replace the initiating error.
         bool insufficient = IsCreditFailure(failure);
-        Error = insufficient ? CreditPolicy.InsufficientMessage : failure.Message;
+        Error = insufficient ? CreditPolicy.InsufficientMessage : GenerationErrorMessage(failure);
         if (endsSession || insufficient)
             _ = StopAsync();
         // Credit failures are not authentication failures, even if the service returns HTTP 403.
         NotifyAuthenticationFailure(failure, insufficient);
     }
+
+    private static string GenerationErrorMessage(
+        Exception failure
+    ) => failure is XmaxException { Code: XmaxErrorCode.UnsafeImage }
+        ? "This reference image did not pass the safety check. Choose a different image."
+        : failure.Message;
 
     private void NotifyAuthenticationFailure(
         Exception failure,

@@ -33,7 +33,7 @@ internal sealed class AccountPresentation
             Title = user.SessionApiKeySuffix is { } suffix ? new string(
                 '•',
                 12 - suffix.Length
-            ) + suffix : email ?? phone ?? "Account",
+            ) + suffix : email ?? phone ?? AppText.Get("Account"),
             Credits = user.RemainingCredits?.ToString("#,0.######", CultureInfo.InvariantCulture) ?? "—"
         };
     }

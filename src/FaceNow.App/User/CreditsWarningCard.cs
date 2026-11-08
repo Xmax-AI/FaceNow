@@ -4,13 +4,14 @@
 //
 
 using FaceNow.App.Controls;
+using FaceNow.Core.User;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 
 namespace FaceNow.App.User;
 
-/// <summary>Contents of the 280-point low-credit popover with 16-point outer insets.</summary>
+/// <summary>Prompts the user to top up when their credits are exhausted.</summary>
 internal sealed class CreditsWarningCard : UserControl
 {
     internal CreditsWarningCard(
@@ -18,7 +19,9 @@ internal sealed class CreditsWarningCard : UserControl
     )
     {
         var body = new StackPanel();
-        var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
+        var header = new Grid { ColumnSpacing = 10, Margin = new(0, 0, 0, 14) };
+        header.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        header.ColumnDefinitions.Add(new() { Width = new(1, GridUnitType.Star) });
         header.Children.Add(new Border
         {
             Width = 32,
@@ -35,20 +38,14 @@ internal sealed class CreditsWarningCard : UserControl
                 Foreground = Theme.Brush("#DC2626")
             }
         });
-        var title = LoginTypography.Text("Low credits", 14);
+        var title = LoginTypography.Text(CreditPolicy.InsufficientMessage, 14);
         title.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
         title.VerticalAlignment = VerticalAlignment.Center;
+        title.TextWrapping = TextWrapping.Wrap;
+        Grid.SetColumn(title, 1);
         header.Children.Add(title);
         body.Children.Add(header);
-        var message = LoginTypography.Text(
-            "You're running low on credits. Top up to avoid interruptions.",
-            12,
-            "#6B7380"
-        );
-        message.TextWrapping = TextWrapping.Wrap;
-        message.Margin = new(0, 12, 0, 14);
-        body.Children.Add(message);
-        var label = LoginTypography.Text("Buy Credits", 12, "#FFFFFF");
+        var label = LoginTypography.Text("Top Up", 12, "#FFFFFF");
         label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
         var fill = Theme.Brush("#2F46E2");
         var buy = new Button
@@ -76,7 +73,7 @@ internal sealed class CreditsWarningCard : UserControl
         buy.PointerPressed += (_, _) => LoginMotion.Opacity(buy, .85);
         buy.PointerReleased += (_, _) => LoginMotion.Opacity(buy, 1);
         buy.Click += (_, _) => recharge();
-        AutomationProperties.SetName(buy, "Buy Credits");
+        AutomationProperties.SetName(buy, label.Text);
         body.Children.Add(buy);
         Content = body;
     }

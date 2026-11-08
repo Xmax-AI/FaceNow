@@ -176,7 +176,7 @@ internal sealed class AudioVideoAdjustmentView : UserControl
             Children = { Label("Offset", 14), input, reset }
         });
         var footer = Label(
-            preview ? "Preview only. Changes do not affect meeting output." : "Changes apply immediately to meeting output.",
+            preview ? "Preview only. Changes do not affect meeting output." : "Adjustments apply to meeting output",
             secondary: true
         );
         footer.Margin = new(0, 24, 0, 0);
