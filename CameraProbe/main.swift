@@ -1,3 +1,8 @@
+//
+//  main.swift
+//  FaceNow
+//
+
 import Foundation
 
 // This tool is launched only by the sandboxed host. It inherits the host's sandbox

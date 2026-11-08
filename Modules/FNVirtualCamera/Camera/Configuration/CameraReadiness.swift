@@ -1,11 +1,6 @@
 //
 //  CameraReadiness.swift
-//  XmaxCamera
-//
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/WengYuehTing
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//  FaceNow
 //
 
 /// Selects a preparation projection without creating another source of device facts.

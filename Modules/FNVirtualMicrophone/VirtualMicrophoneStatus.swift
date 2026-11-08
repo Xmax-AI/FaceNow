@@ -1,11 +1,6 @@
 //
 //  VirtualMicrophoneStatus.swift
-//  XmaxCamera
-//
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/WengYuehTing
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//  FaceNow
 //
 
 /// Combines driver availability and explicit output intent for every microphone status surface.

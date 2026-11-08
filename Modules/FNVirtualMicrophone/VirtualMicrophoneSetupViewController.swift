@@ -1,4 +1,7 @@
-// Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+//  VirtualMicrophoneSetupViewController.swift
+//  FaceNow
+//
 
 import AppKit
 import Factory

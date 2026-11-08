@@ -1,11 +1,6 @@
 //
 //  HomeCameraControlsView.swift
-//  XmaxCamera
-//
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/WengYuehTing
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//  FaceNow
 //
 
 import AppKit

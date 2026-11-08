@@ -1,3 +1,8 @@
+//
+//  AppShutdownCoordinator.swift
+//  FaceNow
+//
+
 import Foundation
 
 /// Remains armed through AppKit's final termination notifications, even if the main thread blocks.

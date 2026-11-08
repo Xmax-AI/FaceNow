@@ -1,7 +1,6 @@
 //
 //  VideoSubtitle.swift
-//  XmaxCamera
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
+//  FaceNow
 //
 
 import AppKit

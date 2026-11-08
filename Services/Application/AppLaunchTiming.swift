@@ -1,3 +1,8 @@
+//
+//  AppLaunchTiming.swift
+//  FaceNow
+//
+
 import Foundation
 
 /// Measures one accepted Start click through binding the first display-ready result to the app's view.

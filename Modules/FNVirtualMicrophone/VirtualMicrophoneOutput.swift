@@ -1,4 +1,7 @@
-// Copyright (c) 2026 XMAX.AI PTE. LTD.
+//
+//  VirtualMicrophoneOutput.swift
+//  FaceNow
+//
 
 @preconcurrency import AVFoundation
 import AudioUnit
