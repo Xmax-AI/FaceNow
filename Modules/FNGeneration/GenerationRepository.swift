@@ -714,7 +714,7 @@ final class GenerationRepository: ObservableObject {
             )
             let stream = try await manager.createLocalCameraStream(
                 preset: preset,
-                deviceID: cameraID,
+                cameraId: cameraID,
                 mirror: false,
                 microphone: selectedMicrophone
             )
