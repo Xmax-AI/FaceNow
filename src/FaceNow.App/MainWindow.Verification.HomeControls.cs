@@ -1,3 +1,8 @@
+//
+//  MainWindow.Verification.HomeControls.cs
+//  FaceNow
+//
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
@@ -49,7 +54,10 @@ public sealed partial class MainWindow
             var referencePeer = FrameworkElementAutomationPeer.CreatePeerForElement(references[2])!;
             ((IInvokeProvider)referencePeer.GetPattern(PatternInterface.Invoke)).Invoke();
             await UntilAsync(() => Model.HomeSelectedReference == references[2].Item);
-            Check(AutomationProperties.GetItemStatus(references[2]) == AppText.Get("Selected"), "The home reference selection must be visible.");
+            Check(
+                AutomationProperties.GetItemStatus(references[2]) == AppText.Get("Selected"),
+                "The home reference selection must be visible."
+            );
             Model.ResetHomeReferences();
             await SaveScreenshotAsync("aligned-home-references", homeReferences);
             var keyPeer = FrameworkElementAutomationPeer.CreatePeerForElement(keyButton)!;
@@ -63,6 +71,10 @@ public sealed partial class MainWindow
             apiKeyInput.Text = "";
             await UntilAsync(() => Model.ApiKey.Length == 0 && keyButton.Text.Length == 0);
         }
-        finally { SetApiKey(original); ClosePopups(); }
+        finally
+        {
+            SetApiKey(original);
+            ClosePopups();
+        }
     }
 }

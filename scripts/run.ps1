@@ -36,7 +36,7 @@ if (!$NoBuild) {
 }
 $app = Join-Path $BuildRoot 'bin/FaceNow.App/x64/Release/net10.0-windows10.0.26100.0/win-x64/FaceNow.exe'
 if (!(Test-Path $app)) { throw "Build output was not found: $app" }
-foreach ($architecture in @('x64','arm64')) {
+foreach ($architecture in @('x64','arm64','directshow-x64')) {
     $nativeCamera = Join-Path $CameraBuildRoot $architecture
     if ((Test-Path "$nativeCamera/FaceNow.CameraControl.exe") -and (Test-Path "$nativeCamera/FaceNow.CameraSource.dll")) {
         $destination = Join-Path (Split-Path $app) "Camera/$architecture"

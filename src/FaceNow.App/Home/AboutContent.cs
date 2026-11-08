@@ -1,3 +1,8 @@
+//
+//  AboutContent.cs
+//  FaceNow
+//
+
 namespace FaceNow.App.Home;
 
 /// <summary>English product copy for the About dialog.</summary>

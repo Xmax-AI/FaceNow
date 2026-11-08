@@ -1,3 +1,8 @@
+//
+//  MainViewModel.HomeReference.cs
+//  FaceNow
+//
+
 using Xmax.SDK;
 
 namespace FaceNow.Windows.Studio.ViewModels;
@@ -10,23 +15,36 @@ internal sealed partial class MainViewModel
     private readonly HashSet<ReferenceItem> homeSessionReferences = [];
 
     internal IReadOnlyList<ReferenceItem> HomeReferencePresets { get; private set; } = [];
+
     internal ReferenceItem HomeSelectedReference { get; private set; } = null!;
+
     internal ReferenceItem? HomeCustomReference => pendingHomeReference ?? importedHomeReference;
+
     internal bool CanChooseHomeReference => !Active && !Busy && homeReferenceUpload is null;
 
-    internal void SelectHomeReference(ReferenceItem item)
+    internal void SelectHomeReference(
+        ReferenceItem item
+    )
     {
         if (!CanChooseHomeReference || HomeSelectedReference == item ||
-            (item != importedHomeReference && !HomeReferencePresets.Contains(item))) return;
+            (item != importedHomeReference && !HomeReferencePresets.Contains(item)))
+            return;
         HomeSelectedReference = item;
         ClearError();
         HomeReferenceChanged();
     }
 
-    internal async Task UploadHomeReferenceAsync(string path)
+    internal async Task UploadHomeReferenceAsync(
+        string path
+    )
     {
-        if (!CanChooseHomeReference || IsPreview) return;
-        if (string.IsNullOrWhiteSpace(ApiKey)) { RequireKey(); return; }
+        if (!CanChooseHomeReference || IsPreview)
+            return;
+        if (string.IsNullOrWhiteSpace(ApiKey))
+        {
+            RequireKey();
+            return;
+        }
         string key = generationAccess?.GetVerifiedGenerationKey() ?? ApiKey;
         var item = ReferenceItem.FromUpload(path, "charx", "");
         using var cancellation = new CancellationTokenSource();
@@ -44,7 +62,8 @@ internal sealed partial class MainViewModel
         }
         catch (Exception failure)
         {
-            if (!cancellation.IsCancellationRequested) ReportError(failure);
+            if (!cancellation.IsCancellationRequested)
+                ReportError(failure);
         }
         finally
         {
@@ -62,14 +81,16 @@ internal sealed partial class MainViewModel
     {
         var original = HomeReferencePresets[0];
         if (homeReferenceUpload is null && importedHomeReference is null &&
-            homeSessionReferences.Count == 0 && HomeSelectedReference == original) return;
+            homeSessionReferences.Count == 0 && HomeSelectedReference == original)
+            return;
 
         var cancellation = homeReferenceUpload;
         homeReferenceUpload = null;
         pendingHomeReference = importedHomeReference = null;
         HomeSelectedReference = original;
         cancellation?.Cancel();
-        foreach (var item in homeSessionReferences) CharacterReferences.Remove(item);
+        foreach (var item in homeSessionReferences)
+            CharacterReferences.Remove(item);
         homeSessionReferences.Clear();
         HomeReferenceChanged();
     }
@@ -80,9 +101,12 @@ internal sealed partial class MainViewModel
         StartCommand.Refresh();
     }
 
-    private void ApplyHomeReference(ReferenceItem item)
+    private void ApplyHomeReference(
+        ReferenceItem item
+    )
     {
-        if (item.LocalPath is not null && homeSessionReferences.Add(item)) CharacterReferences.Insert(1, item);
+        if (item.LocalPath is not null && homeSessionReferences.Add(item))
+            CharacterReferences.Insert(1, item);
         SelectedMode = "charx";
         MarkSelected(item);
     }

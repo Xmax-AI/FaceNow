@@ -2,11 +2,6 @@
 //  MainViewModel.Generation.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using Xmax.SDK;
@@ -17,16 +12,21 @@ internal sealed partial class MainViewModel
 {
     public async Task GenerateAsync()
     {
-        if (IsClosing) return;
-        if (generationAccess is not null) ApiKey = generationAccess.GetVerifiedGenerationKey();
+        if (IsClosing)
+            return;
+        if (generationAccess is not null)
+            ApiKey = generationAccess.GetVerifiedGenerationKey();
         EnsureCreditsForStart();
-        if (string.IsNullOrWhiteSpace(ApiKey)) throw new InvalidOperationException("实时生成需要 Xmax API Key；摄像头预览可以单独使用。");
-        if (string.IsNullOrWhiteSpace(Prompt)) throw new InvalidOperationException("请输入生成提示词。");
+        if (string.IsNullOrWhiteSpace(ApiKey))
+            throw new InvalidOperationException("实时生成需要 Xmax API Key；摄像头预览可以单独使用。");
+        if (string.IsNullOrWhiteSpace(Prompt))
+            throw new InvalidOperationException("请输入生成提示词。");
         var selectedReference = AllReferences.FirstOrDefault(item => item.IsSelected);
         await EnsureSessionAsync();
         var currentSession = session ?? throw new OperationCanceledException();
         int current = revision;
-        if (selectedReference is not null) MarkSelected(selectedReference);
+        if (selectedReference is not null)
+            MarkSelected(selectedReference);
         bool wasGenerating = RemoteVideo is not null || RemoteReady;
         var generation = new CancellationTokenSource();
         operationCancellation = generation;
@@ -46,11 +46,18 @@ internal sealed partial class MainViewModel
             HandleGenerationFailure(failure, endsSession: !wasGenerating);
             await cleanup;
         }
-        finally { if (current == revision) { operationCancellation?.Dispose(); operationCancellation = null; } }
+        finally
+        {
+            if (current == revision)
+            {
+                operationCancellation?.Dispose();
+                operationCancellation = null;
+            }
+        }
     }
 
     private async Task GenerateOnStreamAsync(
-        XmaxRealtime target,
+        IXmaxRealtimeManaging target,
         GenerationContext context,
         bool faceRestoration,
         int current,
@@ -59,8 +66,10 @@ internal sealed partial class MainViewModel
     {
         var stream = localStream ?? throw new OperationCanceledException();
         var result = await target.StartGenerationAsync(stream, context, faceRestoration, cancellationToken);
-        if (current != revision) return;
-        if (RemoteVideo == result.VideoTrack) return;
+        if (current != revision)
+            return;
+        if (RemoteVideo == result.VideoTrack)
+            return;
         RemoteVideo = result.VideoTrack;
         await EnsureCameraOutputAsync(current);
     }

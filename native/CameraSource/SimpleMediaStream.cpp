@@ -4,12 +4,6 @@
 
 #include "pch.h"
 
-#define NUM_IMAGE_ROWS 1080
-#define NUM_IMAGE_COLS 1920
-#define BYTES_PER_PIXEL 4
-#define IMAGE_BUFFER_SIZE_BYTES (NUM_IMAGE_ROWS * NUM_IMAGE_COLS * BYTES_PER_PIXEL)
-#define IMAGE_ROW_SIZE_BYTES (NUM_IMAGE_COLS * BYTES_PER_PIXEL)
-
 namespace winrt::FaceNow::implementation
 {
     HRESULT SimpleMediaStream::Initialize(
@@ -21,16 +15,28 @@ namespace winrt::FaceNow::implementation
     {
         winrt::slim_lock_guard lock(m_Lock);
 
-        wil::com_ptr_nothrow<IMFMediaTypeHandler> spTypeHandler;
-        wil::com_ptr_nothrow<IMFAttributes> attrs;
-
         RETURN_HR_IF_NULL(E_INVALIDARG, pSource);
-        m_parent = pSource;
         m_sourceAttributes = sourceAttributes;
 
         m_dwStreamId = dwStreamId;
         m_allocatorUsage = allocatorUsage;
 
+        RETURN_IF_FAILED(MFCreateAttributes(&m_spAttributes, 10));
+        RETURN_IF_FAILED(_SetStreamAttributes(m_spAttributes.get()));
+        RETURN_IF_FAILED(MFCreateEventQueue(&m_spEventQueue));
+        m_parent = pSource;
+        return S_OK;
+    }
+
+    HRESULT SimpleMediaStream::_CreateStreamDescriptor(IMFStreamDescriptor** descriptor)
+    try
+    {
+        UINT width = 1920, height = 1080;
+        {
+            FramePipe configuration;
+            configuration.Configure(m_sourceAttributes.get());
+            configuration.TryReadFormat(width, height);
+        }
         const uint32_t NUM_MEDIATYPES = 2;
         wil::unique_cotaskmem_array_ptr<wil::com_ptr_nothrow<IMFMediaType>> mediaTypeList = wilEx::make_unique_cotaskmem_array<wil::com_ptr_nothrow<IMFMediaType>>(NUM_MEDIATYPES);
 
@@ -41,10 +47,10 @@ namespace winrt::FaceNow::implementation
         spMediaType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_NV12);
         spMediaType->SetUINT32(MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive);
         spMediaType->SetUINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE);
-        MFSetAttributeSize(spMediaType.get(), MF_MT_FRAME_SIZE, NUM_IMAGE_COLS, NUM_IMAGE_ROWS);
+        RETURN_IF_FAILED(MFSetAttributeSize(spMediaType.get(), MF_MT_FRAME_SIZE, width, height));
         MFSetAttributeRatio(spMediaType.get(), MF_MT_FRAME_RATE, 30, 1);
         // frame size * pixle bit size * framerate
-        uint32_t bitrate = (uint32_t)(NUM_IMAGE_COLS * 1.5 * NUM_IMAGE_ROWS * 8* 30);
+        uint32_t bitrate = width * height * 12 * 30;
         spMediaType->SetUINT32(MF_MT_AVG_BITRATE, bitrate);
         MFSetAttributeRatio(spMediaType.get(), MF_MT_PIXEL_ASPECT_RATIO, 1, 1);
         mediaTypeList[0] = spMediaType.detach();
@@ -54,28 +60,24 @@ namespace winrt::FaceNow::implementation
         spMediaType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
         spMediaType->SetUINT32(MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive);
         spMediaType->SetUINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE);
-        MFSetAttributeSize(spMediaType.get(), MF_MT_FRAME_SIZE, NUM_IMAGE_COLS, NUM_IMAGE_ROWS);
+        RETURN_IF_FAILED(MFSetAttributeSize(spMediaType.get(), MF_MT_FRAME_SIZE, width, height));
         MFSetAttributeRatio(spMediaType.get(), MF_MT_FRAME_RATE, 30, 1);
         // frame size * pixle bit size * framerate
-        bitrate = (uint32_t)(NUM_IMAGE_COLS * NUM_IMAGE_ROWS * 4 * 8* 30);
+        bitrate = width * height * 32 * 30;
         spMediaType->SetUINT32(MF_MT_AVG_BITRATE, bitrate);
         MFSetAttributeRatio(spMediaType.get(), MF_MT_PIXEL_ASPECT_RATIO, 1, 1);
         mediaTypeList[1] = spMediaType.detach();
 
-        RETURN_IF_FAILED(MFCreateAttributes(&m_spAttributes, 10));
-        RETURN_IF_FAILED(_SetStreamAttributes(m_spAttributes.get()));
-
-        RETURN_IF_FAILED(MFCreateEventQueue(&m_spEventQueue));
-
-        // Initialize stream descriptors
-        RETURN_IF_FAILED(MFCreateStreamDescriptor(m_dwStreamId /*StreamId*/, NUM_MEDIATYPES /*MT count*/, mediaTypeList.get(), &m_spStreamDesc));
-
-        RETURN_IF_FAILED(m_spStreamDesc->GetMediaTypeHandler(&spTypeHandler));
+        wil::com_ptr_nothrow<IMFStreamDescriptor> stream;
+        RETURN_IF_FAILED(MFCreateStreamDescriptor(m_dwStreamId, NUM_MEDIATYPES, mediaTypeList.get(), &stream));
+        wil::com_ptr_nothrow<IMFMediaTypeHandler> spTypeHandler;
+        RETURN_IF_FAILED(stream->GetMediaTypeHandler(&spTypeHandler));
         RETURN_IF_FAILED(spTypeHandler->SetCurrentMediaType(mediaTypeList[0]));
-        RETURN_IF_FAILED(_SetStreamDescriptorAttributes(m_spStreamDesc.get()));
+        RETURN_IF_FAILED(_SetStreamDescriptorAttributes(stream.get()));
 
+        *descriptor = stream.detach();
         return S_OK;
-    }
+    } CATCH_RETURN()
 
     // IMFMediaEventGenerator
     IFACEMETHODIMP SimpleMediaStream::BeginGetEvent(
@@ -170,16 +172,11 @@ namespace winrt::FaceNow::implementation
 
         RETURN_IF_FAILED(_CheckShutdownRequiresLock());
 
-        if (m_spStreamDesc != nullptr)
-        {
-            RETURN_IF_FAILED(m_spStreamDesc.copy_to(ppStreamDescriptor));
-        }
-        else
-        {
-            return E_UNEXPECTED;
-        }
-
-        return S_OK;
+        RETURN_HR_IF_NULL(E_POINTER, ppStreamDescriptor);
+        *ppStreamDescriptor = nullptr;
+        if (!m_spStreamDesc)
+            RETURN_IF_FAILED(_CreateStreamDescriptor(&m_spStreamDesc));
+        return m_spStreamDesc.copy_to(ppStreamDescriptor);
     }
 
     IFACEMETHODIMP SimpleMediaStream::RequestSample(
@@ -218,7 +215,6 @@ namespace winrt::FaceNow::implementation
 
         auto unlock = wil::scope_exit([&] { buffer2D->Unlock2D(); });
         RETURN_IF_FAILED(m_spFrameGenerator->CreateFrame(pbuf, bufferLength, pitch, m_rgbMask));
-        //RETURN_IF_FAILED(WriteSampleData(pbuf, bufferLength, pitch, NUM_IMAGE_COLS, NUM_IMAGE_ROWS));
         RETURN_IF_FAILED(buffer2D->Unlock2D());
         unlock.release();
 

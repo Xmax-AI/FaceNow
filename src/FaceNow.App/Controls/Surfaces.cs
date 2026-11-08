@@ -1,3 +1,8 @@
+//
+//  Surfaces.cs
+//  FaceNow
+//
+
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.Numerics;
 using Microsoft.UI.Xaml;
@@ -10,7 +15,10 @@ namespace FaceNow.App.Controls;
 
 internal static class RoundedClip
 {
-    internal static void Attach(FrameworkElement element, float radius)
+    internal static void Attach(
+        FrameworkElement element,
+        float radius
+    )
     {
         void Apply()
         {
@@ -36,8 +44,15 @@ internal sealed class CheckerboardSurface : Canvas
             for (int row = 0; row * 38 < ActualHeight; ++row)
                 for (int column = 0; column * 38 < ActualWidth; ++column)
                 {
-                    var cell = new Rectangle { Width = 38, Height = 38, Fill = Theme.Brush((row + column) % 2 == 0 ? "#434347" : "#37373B") };
-                    SetLeft(cell, column * 38); SetTop(cell, row * 38); Children.Add(cell);
+                    var cell = new Rectangle
+                    {
+                        Width = 38,
+                        Height = 38,
+                        Fill = Theme.Brush((row + column) % 2 == 0 ? "#434347" : "#37373B")
+                    };
+                    SetLeft(cell, column * 38);
+                    SetTop(cell, row * 38);
+                    Children.Add(cell);
                 }
         };
     }
@@ -47,26 +62,44 @@ internal sealed class CenteredWrapPanel : Panel
     internal const double CellWidth = 76, CellHeight = 84;
     private const double Gap = 14, ColumnPitch = CellWidth + Gap, RowPitch = CellHeight + Gap;
 
-    protected override Size MeasureOverride(Size available)
+    protected override Size MeasureOverride(
+        Size available
+    )
     {
-        foreach (UIElement child in Children) child.Measure(new(CellWidth, CellHeight));
+        foreach (UIElement child in Children)
+            child.Measure(new(CellWidth, CellHeight));
         bool unbounded = double.IsInfinity(available.Width);
         int columns = Columns(unbounded ? 1304 : available.Width);
         int rows = (Children.Count + columns - 1) / columns;
-        return new(unbounded ? columns * ColumnPitch - Gap : available.Width, Math.Max(0, rows * RowPitch - Gap));
+        return new(
+            unbounded ? columns * ColumnPitch - Gap : available.Width,
+            Math.Max(
+            0,
+            rows * RowPitch - Gap
+        )
+        );
     }
 
-    protected override Size ArrangeOverride(Size final)
+    protected override Size ArrangeOverride(
+        Size final
+    )
     {
         int columns = Columns(final.Width);
         for (int i = 0; i < Children.Count; ++i)
         {
             int row = i / columns, count = Math.Min(columns, Children.Count - row * columns);
             double left = (final.Width - (count * ColumnPitch - Gap)) / 2;
-            Children[i].Arrange(new Rect(left + i % columns * ColumnPitch, row * RowPitch, CellWidth, CellHeight));
+            Children[i].Arrange(new Rect(
+                left + i % columns * ColumnPitch,
+                row * RowPitch,
+                CellWidth,
+                CellHeight
+            ));
         }
         return final;
     }
 
-    private static int Columns(double width) => Math.Max(1, (int)((width + Gap) / ColumnPitch));
+    private static int Columns(
+        double width
+    ) => Math.Max(1, (int)((width + Gap) / ColumnPitch));
 }

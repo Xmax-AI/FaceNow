@@ -1,3 +1,8 @@
+//
+//  Glyph.cs
+//  FaceNow
+//
+
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -14,10 +19,37 @@ internal sealed class Glyph : Grid
     private readonly Viewbox viewbox = new();
     private Canvas? artworkFrame;
     private double artworkSize;
-    public static readonly DependencyProperty KindProperty = DependencyProperty.Register(nameof(Kind), typeof(string), typeof(Glyph), new PropertyMetadata("", Changed));
-    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(Brush), typeof(Glyph), new PropertyMetadata(null, Changed));
-    public string Kind { get => (string)GetValue(KindProperty); set => SetValue(KindProperty, value); }
-    public Brush Foreground { get => (Brush)GetValue(ForegroundProperty); set => SetValue(ForegroundProperty, value); }
+    public static readonly DependencyProperty KindProperty = DependencyProperty.Register(
+        nameof(Kind),
+        typeof(string),
+        typeof(Glyph),
+        new PropertyMetadata(
+        "",
+        Changed
+    )
+    );
+    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
+        nameof(Foreground),
+        typeof(Brush),
+        typeof(Glyph),
+        new PropertyMetadata(
+        null,
+        Changed
+    )
+    );
+
+    public string Kind
+    {
+        get => (string)GetValue(KindProperty);
+        set => SetValue(KindProperty, value);
+    }
+
+    public Brush Foreground
+    {
+        get => (Brush)GetValue(ForegroundProperty);
+        set => SetValue(ForegroundProperty, value);
+    }
+
     private const string MicrophonePath = "M9,5 Q9,2 12,2 Q15,2 15,5 L15,11 Q15,14 12,14 Q9,14 9,11 Z M5,10 L5,12 C5,21 19,21 19,12 L19,10 M12,19 L12,22 M8,22 L16,22";
     private static readonly Dictionary<string, string> Paths = new()
     {
@@ -49,6 +81,7 @@ internal sealed class Glyph : Grid
         ["document"] = "M4,2 L14,2 L20,8 L20,22 L4,22 Z M14,2 L14,8 L20,8 M8,12 L16,12 M8,16 L16,16",
         ["logout"] = "M14,5 L14,3 L4,3 L4,21 L14,21 L14,19 M10,12 L22,12 M18,8 L22,12 L18,16",
     };
+
     public Glyph()
     {
         viewbox.Child = canvas;
@@ -56,7 +89,9 @@ internal sealed class Glyph : Grid
         IsHitTestVisible = false;
     }
 
-    internal void FitArtwork(double size)
+    internal void FitArtwork(
+        double size
+    )
     {
         artworkSize = size;
         viewbox.Child = null;
@@ -66,21 +101,44 @@ internal sealed class Glyph : Grid
         ResizeArtwork();
     }
 
-    private static void Changed(DependencyObject sender, DependencyPropertyChangedEventArgs args) => ((Glyph)sender).Draw();
+    private static void Changed(
+        DependencyObject sender,
+        DependencyPropertyChangedEventArgs args
+    ) => ((Glyph)sender).Draw();
+
     private void Draw()
     {
         canvas.Children.Clear();
-        if (Foreground is null) return;
+        if (Foreground is null)
+            return;
         if (Kind is "key" or "warning" or "globe" or "record" or "money")
         {
             double radius = Kind == "key" ? 5.5 : Kind == "warning" ? 9 : Kind == "record" ? 8 : 10;
-            var circle = new Ellipse { Width = radius * 2, Height = radius * 2, Stroke = Foreground, StrokeThickness = 1.8, Fill = Kind == "record" ? Foreground : null };
-            Canvas.SetLeft(circle, (Kind == "key" ? 7.5 : 12) - radius); Canvas.SetTop(circle, (Kind == "key" ? 15.5 : 12) - radius); canvas.Children.Add(circle);
+            var circle = new Ellipse
+            {
+                Width = radius * 2,
+                Height = radius * 2,
+                Stroke = Foreground,
+                StrokeThickness = 1.8,
+                Fill = Kind == "record" ? Foreground : null
+            };
+            Canvas.SetLeft(circle, (Kind == "key" ? 7.5 : 12) - radius);
+            Canvas.SetTop(circle, (Kind == "key" ? 15.5 : 12) - radius);
+            canvas.Children.Add(circle);
         }
         if (Kind == "stop")
         {
-            var square = new Rectangle { Width = 10, Height = 10, RadiusX = 1, RadiusY = 1, Fill = Foreground };
-            Canvas.SetLeft(square, 7); Canvas.SetTop(square, 7); canvas.Children.Add(square);
+            var square = new Rectangle
+            {
+                Width = 10,
+                Height = 10,
+                RadiusX = 1,
+                RadiusY = 1,
+                Fill = Foreground
+            };
+            Canvas.SetLeft(square, 7);
+            Canvas.SetTop(square, 7);
+            canvas.Children.Add(square);
         }
         else if (Paths.TryGetValue(Kind, out string? data))
         {
@@ -88,11 +146,15 @@ internal sealed class Glyph : Grid
             if (Kind is "wechat" or "socialX" or "person" or "boltFilled" or "sparkles" or "warningTriangle")
             {
                 path.Fill = Foreground;
-                if (Kind == "wechat") path.RenderTransform = new MatrixTransform { Matrix = new(1.15, 0, 0, 1.15, -1.8, -1.8) };
+                if (Kind == "wechat")
+                    path.RenderTransform = new MatrixTransform { Matrix = new(1.15, 0, 0, 1.15, -1.8, -1.8) };
             }
             else
             {
-                path.Stroke = Foreground; path.StrokeThickness = 1.8; path.StrokeStartLineCap = path.StrokeEndLineCap = PenLineCap.Round; path.StrokeLineJoin = PenLineJoin.Round;
+                path.Stroke = Foreground;
+                path.StrokeThickness = 1.8;
+                path.StrokeStartLineCap = path.StrokeEndLineCap = PenLineCap.Round;
+                path.StrokeLineJoin = PenLineJoin.Round;
             }
             canvas.Children.Add(path);
         }
@@ -101,14 +163,20 @@ internal sealed class Glyph : Grid
 
     private void ResizeArtwork()
     {
-        if (artworkFrame is null || canvas.Children.Count == 0) return;
+        if (artworkFrame is null || canvas.Children.Count == 0)
+            return;
 
         var bounds = Rect.Empty;
         foreach (Shape shape in canvas.Children)
         {
             if (shape is not Microsoft.UI.Xaml.Shapes.Path path)
             {
-                bounds.Union(new Rect(Canvas.GetLeft(shape), Canvas.GetTop(shape), shape.Width, shape.Height));
+                bounds.Union(new Rect(
+                    Canvas.GetLeft(shape),
+                    Canvas.GetTop(shape),
+                    shape.Width,
+                    shape.Height
+                ));
                 continue;
             }
 

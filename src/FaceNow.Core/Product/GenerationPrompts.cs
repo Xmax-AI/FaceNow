@@ -1,9 +1,17 @@
+//
+//  GenerationPrompts.cs
+//  FaceNow
+//
+
 namespace FaceNow.Core.Product;
 
 /// <summary>Provides regional default prompts for the built-in generation modes.</summary>
 public static class GenerationPrompts
 {
-    public static string ForMode(string mode, ProductProfile? profile = null) => ((profile ?? ProductProfile.Current).IsOverseas, mode) switch
+    public static string ForMode(
+        string mode,
+        ProductProfile? profile = null
+    ) => ((profile ?? ProductProfile.Current).IsOverseas, mode) switch
     {
         (true, "charx") => "Become the character in the reference image",
         (true, "clothx") => "Keep the character and background unchanged, only replace clothing with the reference‑image outfit.",

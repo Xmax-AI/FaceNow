@@ -27,21 +27,14 @@ namespace winrt::FaceNow::implementation
         m_streamList = wilEx::make_unique_cotaskmem_array<wil::com_ptr_nothrow<SimpleMediaStream>>(NUM_STREAMS);
         RETURN_IF_NULL_ALLOC(m_streamList.get());
 
-        wil::unique_cotaskmem_array_ptr<wil::com_ptr_nothrow<IMFStreamDescriptor>> streamDescriptorList = wilEx::make_unique_cotaskmem_array<wil::com_ptr_nothrow<IMFStreamDescriptor>>(NUM_STREAMS);
-
         // This example showcase one stream (i.e. NUM_STREAMS == 1),
         // it can be extended to multiple streams by changing NUM_STREAMS
         for (unsigned int i = 0; i < NUM_STREAMS; i++)
         {
             auto ptr = winrt::make_self<SimpleMediaStream>();
+            RETURN_IF_FAILED(ptr->Initialize(this, i, MFSampleAllocatorUsage_UsesCustomAllocator, m_spAttributes.get()));
             m_streamList[i] = ptr.detach();
-            RETURN_IF_FAILED(m_streamList[i]->Initialize(this, i, MFSampleAllocatorUsage_UsesCustomAllocator, m_spAttributes.get()));
-
-            RETURN_IF_FAILED(m_streamList[i]->GetStreamDescriptor(&streamDescriptorList[i]));
         }
-
-        RETURN_IF_FAILED(MFCreatePresentationDescriptor((DWORD)m_streamList.size(), streamDescriptorList.get(), &m_spPresentationDescriptor));
-        RETURN_IF_FAILED(m_spPresentationDescriptor->SelectStream(0));
 
         m_sourceState = SourceState::Stopped;
         m_initalized = true;
@@ -125,6 +118,20 @@ namespace winrt::FaceNow::implementation
         *ppPresentationDescriptor = nullptr;
 
         RETURN_IF_FAILED(_CheckShutdownRequiresLock());
+        if (!m_spPresentationDescriptor)
+        {
+            // Frame Server can supply or replace the device link after activation.
+            // Probe the publisher when the caller first negotiates a format.
+            auto descriptors = wilEx::make_unique_cotaskmem_array<wil::com_ptr_nothrow<IMFStreamDescriptor>>(NUM_STREAMS);
+            RETURN_IF_NULL_ALLOC(descriptors.get());
+            for (DWORD i = 0; i < NUM_STREAMS; ++i)
+                RETURN_IF_FAILED(m_streamList[i]->GetStreamDescriptor(&descriptors[i]));
+
+            wil::com_ptr_nothrow<IMFPresentationDescriptor> presentation;
+            RETURN_IF_FAILED(MFCreatePresentationDescriptor(NUM_STREAMS, descriptors.get(), &presentation));
+            RETURN_IF_FAILED(presentation->SelectStream(0));
+            m_spPresentationDescriptor = std::move(presentation);
+        }
         RETURN_IF_FAILED(m_spPresentationDescriptor->Clone(ppPresentationDescriptor));
 
         return S_OK;
@@ -197,7 +204,7 @@ namespace winrt::FaceNow::implementation
 
         RETURN_IF_FAILED(_CheckShutdownRequiresLock());
 
-        if (m_sourceState == SourceState::Invalid)
+        if (m_sourceState == SourceState::Invalid || !m_spPresentationDescriptor)
         {
             return MF_E_INVALID_STATE_TRANSITION;
         }

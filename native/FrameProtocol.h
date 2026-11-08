@@ -1,3 +1,8 @@
+//
+//  FrameProtocol.h
+//  FaceNow
+//
+
 #pragma once
 #include <windows.h>
 #include <cstdint>
@@ -10,6 +15,7 @@
 
 namespace FaceNowFrames {
 constexpr uint32_t Magic = 0x314e4346; // FCN1, little endian
+constexpr uint32_t FormatRequest = 0x31464346; // FCF1, reads the configured size without frame pixels
 constexpr uint32_t Version = 1;
 constexpr uint32_t MaxBytes = 64 * 1024 * 1024;
 #pragma pack(push, 1)

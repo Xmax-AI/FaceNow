@@ -1,3 +1,8 @@
+//
+//  ApiKeyStore.cs
+//  FaceNow
+//
+
 // Adapted from XmaxSDK ApiKeyStore (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -7,7 +12,9 @@ using System.Text;
 namespace FaceNow.Windows.Security;
 
 // Generic credentials belong to the signed-in Windows user and survive app restarts.
-public sealed class ApiKeyStore(string? target = null)
+public sealed class ApiKeyStore(
+    string? target = null
+)
 {
     private readonly string target = target ?? FaceNow.Core.Product.ProductProfile.Current.CredentialPrefix + "/ApiKey";
     private const uint Generic = 1, LocalMachine = 2;
@@ -18,7 +25,8 @@ public sealed class ApiKeyStore(string? target = null)
         if (!CredRead(target, Generic, 0, out var pointer))
         {
             int error = Marshal.GetLastWin32Error();
-            if (error == NotFound) return "";
+            if (error == NotFound)
+                return "";
             throw new Win32Exception(error, "Could not restore the saved API Key.");
         }
         try
@@ -26,17 +34,23 @@ public sealed class ApiKeyStore(string? target = null)
             var credential = Marshal.PtrToStructure<Credential>(pointer);
             return Marshal.PtrToStringUni(credential.Blob, checked((int)credential.BlobSize / 2)) ?? "";
         }
-        finally { CredFree(pointer); }
+        finally
+        {
+            CredFree(pointer);
+        }
     }
 
-    public unsafe void Save(string key)
+    public unsafe void Save(
+        string key
+    )
     {
         if (string.IsNullOrWhiteSpace(key))
         {
             if (!CredDelete(target, Generic, 0))
             {
                 int error = Marshal.GetLastWin32Error();
-                if (error != NotFound) throw new Win32Exception(error, "Could not remove the saved API Key.");
+                if (error != NotFound)
+                    throw new Win32Exception(error, "Could not remove the saved API Key.");
             }
             return;
         }
@@ -47,14 +61,24 @@ public sealed class ApiKeyStore(string? target = null)
             {
                 var credential = new Credential
                 {
-                    Type = Generic, TargetName = target, Persist = LocalMachine,
-                    UserName = "API Key", BlobSize = checked((uint)bytes.Length), Blob = (IntPtr)blob
+                    Type = Generic,
+                    TargetName = target,
+                    Persist = LocalMachine,
+                    UserName = "API Key",
+                    BlobSize = checked((uint)bytes.Length),
+                    Blob = (IntPtr)blob
                 };
                 if (!CredWrite(ref credential, 0))
-                    throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not remember the API Key. Please enter it again next time.");
+                    throw new Win32Exception(
+                        Marshal.GetLastWin32Error(),
+                        "Could not remember the API Key. Please enter it again next time."
+                    );
             }
         }
-        finally { CryptographicOperations.ZeroMemory(bytes); }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(bytes);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -69,15 +93,33 @@ public sealed class ApiKeyStore(string? target = null)
         internal IntPtr Attributes;
         internal string? TargetAlias, UserName;
     }
+
     [DllImport("advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool CredRead(string target, uint type, uint flags, out IntPtr credential);
+    private static extern bool CredRead(
+        string target,
+        uint type,
+        uint flags,
+        out IntPtr credential
+    );
+
     [DllImport("advapi32.dll", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool CredWrite(ref Credential credential, uint flags);
+    private static extern bool CredWrite(
+        ref Credential credential,
+        uint flags
+    );
+
     [DllImport("advapi32.dll", EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool CredDelete(string target, uint type, uint flags);
+    private static extern bool CredDelete(
+        string target,
+        uint type,
+        uint flags
+    );
+
     [DllImport("advapi32.dll", ExactSpelling = true)]
-    private static extern void CredFree(IntPtr credential);
+    private static extern void CredFree(
+        IntPtr credential
+    );
 }

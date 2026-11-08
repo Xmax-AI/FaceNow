@@ -1,3 +1,8 @@
+//
+//  MainWindow.Credits.cs
+//  FaceNow
+//
+
 using FaceNow.App.User;
 
 namespace FaceNow.App;
@@ -6,7 +11,8 @@ public sealed partial class MainWindow
 {
     private void ShowCreditsWarning()
     {
-        if (closing || closed || accountRepository?.HasInsufficientCredits != true) return;
+        if (closing || closed || accountRepository?.HasInsufficientCredits != true)
+            return;
         var card = new CreditsWarningCard(() =>
         {
             ClosePopups();

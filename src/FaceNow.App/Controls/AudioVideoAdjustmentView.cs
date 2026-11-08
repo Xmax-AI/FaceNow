@@ -1,3 +1,8 @@
+//
+//  AudioVideoAdjustmentView.cs
+//  FaceNow
+//
+
 using System.Globalization;
 using FaceNow.Windows.Media;
 using Microsoft.UI.Text;
@@ -41,7 +46,12 @@ internal sealed class AudioVideoAdjustmentView : UserControl
         """);
     private readonly Button closeButton;
 
-    internal AudioVideoAdjustmentView(int initialOffset, bool preview, Action<int> offsetChanged, Action close)
+    internal AudioVideoAdjustmentView(
+        int initialOffset,
+        bool preview,
+        Action<int> offsetChanged,
+        Action close
+    )
     {
         AutomationProperties.SetName(this, AppText.Get(Title));
         var content = new StackPanel();
@@ -49,9 +59,21 @@ internal sealed class AudioVideoAdjustmentView : UserControl
 
         closeButton = new Button
         {
-            Content = new Glyph { Kind = "close", Width = 18, Height = 18, Foreground = Theme.Brush("#6B7380") },
-            Width = 30, Height = 30, MinWidth = 0, MinHeight = 0, Padding = new(0), BorderThickness = new(0),
-            Background = Theme.Brush("#00FFFFFF"), HorizontalAlignment = HorizontalAlignment.Right
+            Content = new Glyph
+            {
+                Kind = "close",
+                Width = 18,
+                Height = 18,
+                Foreground = Theme.Brush("#6B7380")
+            },
+            Width = 30,
+            Height = 30,
+            MinWidth = 0,
+            MinHeight = 0,
+            Padding = new(0),
+            BorderThickness = new(0),
+            Background = Theme.Brush("#00FFFFFF"),
+            HorizontalAlignment = HorizontalAlignment.Right
         };
         AutomationProperties.SetName(closeButton, AppText.Get("Close audio and video adjustments"));
         closeButton.Click += (_, _) => close();
@@ -64,14 +86,22 @@ internal sealed class AudioVideoAdjustmentView : UserControl
         automatic.Children.Add(Label("Automatic A/V Sync", 16, strong: true));
         automatic.Children.Add(new Border
         {
-            Background = Theme.Brush(preview ? "#F3F4F6" : "#E8F6ED"), CornerRadius = new(10), Padding = new(9, 3, 9, 3),
-            HorizontalAlignment = HorizontalAlignment.Right, Child = Label(preview ? "Preview" : "Enabled", 12, strong: true, secondary: preview)
+            Background = Theme.Brush(preview ? "#F3F4F6" : "#E8F6ED"),
+            CornerRadius = new(10),
+            Padding = new(9, 3, 9, 3),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Child = Label(preview ? "Preview" : "Enabled", 12, strong: true, secondary: preview)
         });
         content.Children.Add(automatic);
         var automaticHint = Label("Automatically align audio with generated video", secondary: true);
         automaticHint.Margin = new(0, 6, 0, 0);
         content.Children.Add(automaticHint);
-        content.Children.Add(new Border { Height = 1, Margin = new(0, 18, 0, 18), Background = Theme.Brush("#E5E7EB") });
+        content.Children.Add(new Border
+        {
+            Height = 1,
+            Margin = new(0, 18, 0, 18),
+            Background = Theme.Brush("#E5E7EB")
+        });
 
         content.Children.Add(Label("Manual Sync Offset", 16, strong: true));
         var manualHint = Label("Fine-tune the automatic synchronization", secondary: true);
@@ -80,9 +110,16 @@ internal sealed class AudioVideoAdjustmentView : UserControl
         var slider = new Slider
         {
             Template = OffsetSliderTemplate,
-            Minimum = -OffsetLimit, Maximum = OffsetLimit, StepFrequency = 1, LargeChange = 100,
-            Height = 26, MinHeight = 0, Margin = new(0, 20, 0, 0), IsThumbToolTipEnabled = false,
-            Background = Theme.Brush("#D6D9E2"), Foreground = Theme.Brush("#2F46E2")
+            Minimum = -OffsetLimit,
+            Maximum = OffsetLimit,
+            StepFrequency = 1,
+            LargeChange = 100,
+            Height = 26,
+            MinHeight = 0,
+            Margin = new(0, 20, 0, 0),
+            IsThumbToolTipEnabled = false,
+            Background = Theme.Brush("#D6D9E2"),
+            Foreground = Theme.Brush("#2F46E2")
         };
         AutomationProperties.SetName(slider, AppText.Get("Manual Sync Offset"));
         content.Children.Add(slider);
@@ -99,9 +136,18 @@ internal sealed class AudioVideoAdjustmentView : UserControl
 
         var editor = new TextBox
         {
-            Width = 126, Height = 32, MinHeight = 0, Padding = new(11, 4, 36, 4), FontFamily = SystemFont, FontSize = 14,
-            BorderThickness = new(1), CornerRadius = new(7), BorderBrush = Theme.Brush("#E5E7EB"), Background = Theme.Brush("#FFFFFF"),
-            IsSpellCheckEnabled = false, IsTextPredictionEnabled = false
+            Width = 126,
+            Height = 32,
+            MinHeight = 0,
+            Padding = new(11, 4, 36, 4),
+            FontFamily = SystemFont,
+            FontSize = 14,
+            BorderThickness = new(1),
+            CornerRadius = new(7),
+            BorderBrush = Theme.Brush("#E5E7EB"),
+            Background = Theme.Brush("#FFFFFF"),
+            IsSpellCheckEnabled = false,
+            IsTextPredictionEnabled = false
         };
         AutomationProperties.SetName(editor, AppText.Get("Offset"));
         AutomationProperties.SetHelpText(editor, "−5000 … 5000 ms");
@@ -112,34 +158,58 @@ internal sealed class AudioVideoAdjustmentView : UserControl
         var input = new Grid { Children = { editor, unit } };
         var reset = new Button
         {
-            Content = Label("Reset", 13), Width = 82, Height = 32, MinHeight = 0, Padding = new(0),
-            CornerRadius = new(7), Background = Theme.Brush("#FFFFFF"), BorderBrush = Theme.Brush("#E5E7EB"), BorderThickness = new(1)
+            Content = Label("Reset", 13),
+            Width = 82,
+            Height = 32,
+            MinHeight = 0,
+            Padding = new(0),
+            CornerRadius = new(7),
+            Background = Theme.Brush("#FFFFFF"),
+            BorderBrush = Theme.Brush("#E5E7EB"),
+            BorderThickness = new(1)
         };
         content.Children.Add(new StackPanel
         {
-            Orientation = Orientation.Horizontal, Spacing = 18, Margin = new(0, 24, 0, 0),
+            Orientation = Orientation.Horizontal,
+            Spacing = 18,
+            Margin = new(0, 24, 0, 0),
             Children = { Label("Offset", 14), input, reset }
         });
-        var footer = Label(preview ? "Preview only. Changes do not affect meeting output." : "Changes apply immediately to meeting output.", secondary: true);
+        var footer = Label(
+            preview ? "Preview only. Changes do not affect meeting output." : "Changes apply immediately to meeting output.",
+            secondary: true
+        );
         footer.Margin = new(0, 24, 0, 0);
         content.Children.Add(footer);
 
         int offset = initialOffset;
         bool updating = false;
-        void DisplayOffset(int value, bool updateEditor = true)
+        void DisplayOffset(
+            int value,
+            bool updateEditor = true
+        )
         {
             value = Math.Clamp(value, -OffsetLimit, OffsetLimit);
             string text = value.ToString(CultureInfo.InvariantCulture);
             updating = true;
             slider.Value = value;
-            if (updateEditor) editor.Text = text;
+            if (updateEditor)
+                editor.Text = text;
             offsetLabel.Text = $"{text} ms";
             updating = false;
-            if (offset == value) return;
+            if (offset == value)
+                return;
             offset = value;
             offsetChanged(value);
         }
-        bool ReadOffset(out int value) => int.TryParse(editor.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+        bool ReadOffset(
+            out int value
+        ) => int.TryParse(
+            editor.Text,
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out value
+        );
         void Commit() => DisplayOffset(ReadOffset(out int value) ? value : offset);
 
         DisplayOffset(initialOffset);
@@ -150,14 +220,33 @@ internal sealed class AudioVideoAdjustmentView : UserControl
                 DisplayOffset(value, updateEditor: false);
         };
         editor.LostFocus += (_, _) => Commit();
-        editor.KeyDown += (_, args) => { if (args.Key == VirtualKey.Enter) { Commit(); args.Handled = true; } };
+        editor.KeyDown += (_, args) =>
+        {
+            if (args.Key == VirtualKey.Enter)
+            {
+                Commit();
+                args.Handled = true;
+            }
+        };
         reset.Click += (_, _) => DisplayOffset(0);
-        KeyDown += (_, args) => { if (args.Key == VirtualKey.Escape) { close(); args.Handled = true; } };
+        KeyDown += (_, args) =>
+        {
+            if (args.Key == VirtualKey.Escape)
+            {
+                close();
+                args.Handled = true;
+            }
+        };
     }
 
     internal void FocusCloseButton() => closeButton.Focus(FocusState.Programmatic);
 
-    private static TextBlock Label(string text, double size = 13, bool strong = false, bool secondary = false)
+    private static TextBlock Label(
+        string text,
+        double size = 13,
+        bool strong = false,
+        bool secondary = false
+    )
     {
         var label = Theme.Text(text, size, secondary ? "#6B7380" : "#111318");
         label.FontFamily = SystemFont;

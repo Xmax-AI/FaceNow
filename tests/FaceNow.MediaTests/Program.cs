@@ -2,11 +2,6 @@
 //  Program.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.Core.Media;
 using FaceNow.Core.Product;
@@ -85,20 +80,27 @@ if (args.Length > 0)
         Check(canvas.Pixels.Span[..(640 * 70 * 4)].ToArray().Any(v => v != 80), "Readable watermark survives final canvas composition");
         Check(raw.Pixels.Span.ToArray().All(v => v == 80), "Watermark composition does not mutate the result source");
     }
-    foreach (var (width, height, fittedWidth) in new[] { (90, 160, 203), (100, 100, 360), (90, 120, 270), (120, 90, 480) })
+    foreach (var (width, height) in new[] { (90, 160), (100, 100), (90, 120), (120, 90) })
     {
         using var raw = new ResultFrame(width, height, 321, Guid.NewGuid());
         raw.Pixels.Span.Fill(80);
         raw.Pixels.Span[..raw.Stride].Fill(50);
         raw.Pixels.Span[^raw.Stride..].Fill(90);
-        using var canvas = new FrameCompositor(640, 360).Compose(raw);
-        int left = (640 - fittedWidth) / 2;
-        var centerRow = canvas.Pixels.Span.Slice(180 * canvas.Stride, canvas.Stride);
-        Check(centerRow.Slice((left - 1) * 4, 4).SequenceEqual(new byte[] { 0, 0, 0, 255 }) &&
-            centerRow[left * 4] == 80 && centerRow[(left + fittedWidth - 1) * 4] == 80 &&
-            centerRow.Slice((left + fittedWidth) * 4, 4).SequenceEqual(new byte[] { 0, 0, 0, 255 }) &&
-            canvas.Pixels.Span[320 * 4] == 50 && canvas.Pixels.Span[359 * canvas.Stride + 320 * 4] == 90,
-            $"{width}×{height} fits the widescreen output with opaque black bars and both frame edges intact");
+        using var canvas = new FrameCompositor(width * 4, height * 4).Compose(raw);
+        var centerRow = canvas.Pixels.Span.Slice(canvas.Height / 2 * canvas.Stride, canvas.Stride);
+        int center = canvas.Width / 2 * 4;
+        Check(canvas.Width == width * 4 && canvas.Height == height * 4 &&
+            centerRow[0] == 80 && centerRow[^4] == 80 &&
+            canvas.Pixels.Span[center] == 50 &&
+            canvas.Pixels.Span[(canvas.Height - 1) * canvas.Stride + center] == 90,
+            $"{width}×{height} fills the selected output aspect with all edges intact");
+    }
+    using (var raw = new ResultFrame(160, 90, 321, Guid.NewGuid()))
+    {
+        raw.Pixels.Span.Fill(80);
+        using var canvas = new FrameCompositor(180, 320).Compose(raw);
+        var row = canvas.Pixels.Span.Slice(canvas.Height / 2 * canvas.Stride, canvas.Stride);
+        Check(row[0] == 80 && row[^4] == 80, "A differently shaped result fills the portrait canvas without bars");
     }
     string settingsPath = Path.Combine(Path.GetTempPath(), "FaceNow-effects-" + Guid.NewGuid().ToString("N"), "beauty.json");
     var settings = new GenerationEffectsController(settingsPath); int failures = 0;

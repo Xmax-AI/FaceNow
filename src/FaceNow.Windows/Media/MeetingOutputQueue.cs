@@ -1,9 +1,17 @@
+//
+//  MeetingOutputQueue.cs
+//  FaceNow
+//
+
 using System.Diagnostics;
 
 namespace FaceNow.Windows.Media;
 
 /// <summary>Owns buffered packets until they are due, discarded, or handed to the output worker.</summary>
-internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool audio) where T : class, IDisposable
+internal sealed class MeetingOutputQueue<T>(
+    MeetingOutputTiming timing,
+    bool audio
+) where T : class, IDisposable
 {
     private const int VideoByteLimit = 256 * 1024 * 1024;
     private const int VideoFrameLimit = 180;
@@ -17,13 +25,24 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
     private Exception? failure;
     private long? lastPresentation;
 
-    internal bool TryWrite(T packet, long presentation, int packetBytes, bool discontinuous)
+    /// <summary>
+    /// Attempts to enqueue a packet. A successful write transfers disposal responsibility to the queue.
+    /// </summary>
+    internal bool TryWrite(
+        T packet,
+        long presentation,
+        int packetBytes,
+        bool discontinuous
+    )
     {
         lock (gate)
         {
-            if (completed) return false;
-            if (lastPresentation is long last && presentation < last && discontinuous) ClearPending();
-            if (lastPresentation is long previous && presentation <= previous) return false;
+            if (completed)
+                return false;
+            if (lastPresentation is long last && presentation < last && discontinuous)
+                ClearPending();
+            if (lastPresentation is long previous && presentation <= previous)
+                return false;
 
             if (!audio)
             {
@@ -31,10 +50,13 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
                 int slots = Math.Clamp(VideoByteLimit / Math.Max(1, packetBytes), 1, VideoFrameLimit);
                 long interval = (timing.Delay(audio: false) + MeetingOutputTiming.Ticks(MeetingOutputTiming.BufferMilliseconds))
                     / Math.Max(1, slots - 2);
-                if (lastPresentation is long latest && presentation - latest < interval) return false;
-                while (pending.Count >= VideoFrameLimit || (pending.Count > 0 && bytes + packetBytes > VideoByteLimit)) Drop();
+                if (lastPresentation is long latest && presentation - latest < interval)
+                    return false;
+                while (pending.Count >= VideoFrameLimit || (pending.Count > 0 && bytes + packetBytes > VideoByteLimit))
+                    Drop();
             }
-            else if (pending.Count >= AudioFrameLimit) Drop();
+            else if (pending.Count >= AudioFrameLimit)
+                Drop();
 
             pending.Enqueue((packet, presentation, packetBytes, discontinuous));
             bytes += packetBytes;
@@ -44,7 +66,13 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
         }
     }
 
-    internal async ValueTask<(T Packet, bool Discontinuous, int Epoch)?> ReadAsync(CancellationToken cancellation)
+    /// <summary>
+    /// Waits for the next due packet and transfers its ownership to the reader.
+    /// </summary>
+    /// <returns>The due packet and its epoch, or null after normal completion.</returns>
+    internal async ValueTask<(T Packet, bool Discontinuous, int Epoch)?> ReadAsync(
+        CancellationToken cancellation
+    )
     {
         while (true)
         {
@@ -52,8 +80,10 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
             TimeSpan wait = Timeout.InfiniteTimeSpan;
             lock (gate)
             {
-                if (failure is not null) throw failure;
-                if (completed) return null;
+                if (failure is not null)
+                    throw failure;
+                if (completed)
+                    return null;
                 long now = Stopwatch.GetTimestamp();
                 long delay = timing.Delay(audio);
                 while (pending.TryPeek(out var item))
@@ -64,7 +94,11 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
                         wait = TimeSpan.FromMilliseconds(Math.Ceiling(remaining * 1000d / Stopwatch.Frequency));
                         break;
                     }
-                    if (remaining < -maxLateness) { Drop(); continue; }
+                    if (remaining < -maxLateness)
+                    {
+                        Drop();
+                        continue;
+                    }
 
                     pending.Dequeue();
                     bytes -= item.Bytes;
@@ -82,23 +116,30 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
         }
     }
 
-    internal bool IsCurrent(int value) => value == Volatile.Read(ref epoch);
+    internal bool IsCurrent(
+        int value
+    ) => value == Volatile.Read(ref epoch);
 
     internal void OffsetChanged()
     {
-        lock (gate) Signal();
+        lock (gate)
+            Signal();
     }
 
     internal void Reset()
     {
-        lock (gate) ClearPending();
+        lock (gate)
+            ClearPending();
     }
 
-    internal void Complete(Exception? error = null)
+    internal void Complete(
+        Exception? error = null
+    )
     {
         lock (gate)
         {
-            if (completed) return;
+            if (completed)
+                return;
             completed = true;
             failure = error;
             ClearPending();
@@ -108,7 +149,8 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
     private void ClearPending()
     {
         Interlocked.Increment(ref epoch);
-        while (pending.Count > 0) Drop();
+        while (pending.Count > 0)
+            Drop();
         outputGap = true;
         lastPresentation = null;
         Signal();
@@ -124,6 +166,7 @@ internal sealed class MeetingOutputQueue<T>(MeetingOutputTiming timing, bool aud
 
     private void Signal()
     {
-        if (changed.CurrentCount == 0) changed.Release();
+        if (changed.CurrentCount == 0)
+            changed.Release();
     }
 }

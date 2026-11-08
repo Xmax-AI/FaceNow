@@ -2,11 +2,6 @@
 //  MainWindow.VirtualMicrophone.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.App.Controls;
 using FaceNow.Windows.Studio.ViewModels;
@@ -21,17 +16,23 @@ namespace FaceNow.App;
 public sealed partial class MainWindow
 {
     private ContentDialog? virtualMicrophoneDialog;
+
     private string GetMicrophoneInstructions()
     {
         string name = Model.VirtualMicrophoneOutputName;
-        string instructions = AppText.Format("In your meeting app, select “{0}” as the microphone. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.", name);
+        string instructions = AppText.Format(
+            "In your meeting app, select “{0}” as the microphone. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.",
+            name
+        );
         if (name.StartsWith(VbCablePlayback.OutputEndpointLabel, StringComparison.OrdinalIgnoreCase))
             instructions += "\n\n" + AppText.Format("To show it as “{0}”, open Sound Settings, choose “{1}” under Input, and rename it.",
                 AppText.Get("FaceNow Virtual Microphone"), name);
         return instructions;
     }
 
-    private static (string Label, string Color) DescribeVirtualMicrophone(VirtualMicrophoneState state) => state switch
+    private static (string Label, string Color) DescribeVirtualMicrophone(
+        VirtualMicrophoneState state
+    ) => state switch
     {
         VirtualMicrophoneState.Enabled => ("Enabled", "#15803D"),
         VirtualMicrophoneState.Disabled => ("Disabled", "#DC2626"),
@@ -41,7 +42,10 @@ public sealed partial class MainWindow
         _ => ("Checking", "#6B7380")
     };
 
-    private ContentDialog CreateVirtualMicrophoneDialog(VirtualMicrophoneState state, Action<ContentDialogResult>? choose = null)
+    private ContentDialog CreateVirtualMicrophoneDialog(
+        VirtualMicrophoneState state,
+        Action<ContentDialogResult>? choose = null
+    )
     {
         string primary = state switch
         {
@@ -72,7 +76,10 @@ public sealed partial class MainWindow
         var panel = new StackPanel();
         panel.Children.Add(new Image
         {
-            Width = 64, Height = 64, HorizontalAlignment = HorizontalAlignment.Left, Margin = new(4, 0, 0, 16),
+            Width = 64,
+            Height = 64,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new(4, 0, 0, 16),
             Source = new BitmapImage(new Uri("ms-appx:///Assets/FaceNow.png"))
         });
         var title = Theme.Text("Virtual Microphone", 13, "#222222");
@@ -91,40 +98,61 @@ public sealed partial class MainWindow
         panel.Children.Add(actions);
         dialog.Content = new Border
         {
-            Width = 260, Padding = new(16, 20, 16, 16), CornerRadius = new(28),
-            Background = Theme.Brush("#EEEEEE"), Child = panel
+            Width = 260,
+            Padding = new(16, 20, 16, 16),
+            CornerRadius = new(28),
+            Background = Theme.Brush("#EEEEEE"),
+            Child = panel
         };
         dialog.Opened += (_, _) => primaryButton.Focus(FocusState.Programmatic);
         dialog.KeyDown += (_, args) =>
         {
-            if (args.Key != global::Windows.System.VirtualKey.Escape) return;
+            if (args.Key != global::Windows.System.VirtualKey.Escape)
+                return;
             args.Handled = true;
             dialog.Hide();
         };
         return dialog;
 
-        Button AddAction(string label, string id, ContentDialogResult result)
+        Button AddAction(
+            string label,
+            string id,
+            ContentDialogResult result
+        )
         {
             var button = new Button
             {
-                Template = Theme.ButtonTemplate, Content = Theme.Text(label, 13, "#222222"), Height = 28,
-                HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Center,
-                VerticalContentAlignment = VerticalAlignment.Center, Padding = new(0), BorderThickness = new(0),
-                CornerRadius = new(14), Background = Theme.Brush("#DDDDDD")
+                Template = Theme.ButtonTemplate,
+                Content = Theme.Text(label, 13, "#222222"),
+                Height = 28,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new(0),
+                BorderThickness = new(0),
+                CornerRadius = new(14),
+                Background = Theme.Brush("#DDDDDD")
             };
             AutomationProperties.SetName(button, AppText.Get(label));
             AutomationProperties.SetAutomationId(button, id);
             button.PointerEntered += (_, _) => button.Background = Theme.Brush("#D2D2D2");
             button.PointerExited += (_, _) => button.Background = Theme.Brush("#DDDDDD");
-            button.Click += (_, _) => { choose?.Invoke(result); dialog.Hide(); };
+            button.Click += (_, _) =>
+            {
+                choose?.Invoke(result);
+                dialog.Hide();
+            };
             actions.Children.Add(button);
             return button;
         }
     }
 
-    private async Task ShowVirtualMicrophoneSetupAsync(FrameworkElement anchor)
+    private async Task ShowVirtualMicrophoneSetupAsync(
+        FrameworkElement anchor
+    )
     {
-        if (virtualMicrophoneDialog is not null || closing || Model.Active) return;
+        if (virtualMicrophoneDialog is not null || closing || Model.Active)
+            return;
         ClosePopups();
         var state = Model.VirtualMicrophoneStatus;
         var result = ContentDialogResult.None;
@@ -133,9 +161,12 @@ public sealed partial class MainWindow
         try
         {
             await dialog.ShowAsync();
-            if (closing || Model.IsPreview) return;
-            if (result == ContentDialogResult.Secondary) OpenLink("ms-settings:sound");
-            if (result != ContentDialogResult.Primary) return;
+            if (closing || Model.IsPreview)
+                return;
+            if (result == ContentDialogResult.Secondary)
+                OpenLink("ms-settings:sound");
+            if (result != ContentDialogResult.Primary)
+                return;
             switch (state)
             {
                 case VirtualMicrophoneState.Enabled:
@@ -147,11 +178,19 @@ public sealed partial class MainWindow
                     break;
                 default:
                     await Model.RefreshVirtualMicrophoneAsync(retry: true);
-                    if (!closing) OpenVirtualCameraSettings(anchor);
+                    if (!closing)
+                        OpenVirtualCameraSettings(anchor);
                     break;
             }
         }
-        catch (Exception error) { if (!closing) Model.ReportError(error); }
-        finally { virtualMicrophoneDialog = null; }
+        catch (Exception error)
+        {
+            if (!closing)
+                Model.ReportError(error);
+        }
+        finally
+        {
+            virtualMicrophoneDialog = null;
+        }
     }
 }

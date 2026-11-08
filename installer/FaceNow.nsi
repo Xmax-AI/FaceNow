@@ -17,8 +17,7 @@
 !define PRODUCT_ID "FaceNowOverseas"
 !define OTHER_ID "FaceNow"
 !define WEBSITE "https://xmax.ai"
-!define REQUIRE_WINDOWS "FaceNow requires 64-bit Windows 11."
-!define REQUIRE_WINDOWS_VERSION "FaceNow requires Windows 11 or later."
+!define REQUIRE_WINDOWS "FaceNow requires Windows 10 version 2004 or later (x64), or 64-bit Windows 11."
 !define CLOSE_FIRST "Please close FaceNow before continuing."
 !define REMOVE_FAILED "The virtual camera could not be removed. Close apps using FaceNow, then try again."
 !define LAUNCH_LABEL "Launch FaceNow"
@@ -29,8 +28,7 @@
 !define PRODUCT_ID "FaceNow"
 !define OTHER_ID "FaceNowOverseas"
 !define WEBSITE "https://xmaxai.com"
-!define REQUIRE_WINDOWS "FaceNow 需要 64 位 Windows 11。"
-!define REQUIRE_WINDOWS_VERSION "FaceNow 需要 Windows 11 或更新版本。"
+!define REQUIRE_WINDOWS "FaceNow 需要 Windows 10 2004 或更新版本（x64），或 64 位 Windows 11。"
 !define CLOSE_FIRST "请先关闭 FaceNow 后继续。"
 !define REMOVE_FAILED "无法移除虚拟摄像头，请关闭正在使用它的应用后重试。"
 !define LAUNCH_LABEL "启动 FaceNow"
@@ -118,8 +116,14 @@ Function .onInit
     Abort
   ${EndIf}
   ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuildNumber"
+  ${If} $0 < 19041
+    MessageBox MB_ICONSTOP "${REQUIRE_WINDOWS}"
+    SetErrorLevel 2
+    Abort
+  ${EndIf}
   ${If} $0 < 22000
-    MessageBox MB_ICONSTOP "${REQUIRE_WINDOWS_VERSION}"
+  ${AndIf} ${IsNativeARM64}
+    MessageBox MB_ICONSTOP "${REQUIRE_WINDOWS}"
     SetErrorLevel 2
     Abort
   ${EndIf}
@@ -183,12 +187,24 @@ check_camera_remove:
   ClearErrors
   ${GetOptions} $0 "/KEEP_CAMERA" $1
   ${If} ${Errors}
-    ${If} ${IsNativeARM64}
-      ExecWait '$\"$INSTDIR\Camera\arm64\FaceNow.CameraControl.exe$\" --remove' $0
-    ${Else}
-      ExecWait '$\"$INSTDIR\Camera\x64\FaceNow.CameraControl.exe$\" --remove' $0
+    ClearErrors
+    ReadRegStr $1 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuildNumber"
+    StrCpy $0 0
+    ${If} $1 >= 22000
+      ${If} ${IsNativeARM64}
+        ExecWait '$\"$INSTDIR\Camera\arm64\FaceNow.CameraControl.exe$\" --remove' $0
+      ${Else}
+        ExecWait '$\"$INSTDIR\Camera\x64\FaceNow.CameraControl.exe$\" --remove' $0
+      ${EndIf}
     ${EndIf}
-    ${If} $0 != 0
+    ${IfNot} ${Errors}
+    ${AndIf} $0 == 0
+    ${AndIf} ${FileExists} "$INSTDIR\Camera\directshow-x64\FaceNow.CameraControl.exe"
+      ; Also remove a DirectShow device left after an upgrade from Windows 10 to 11.
+      ExecWait '$\"$INSTDIR\Camera\directshow-x64\FaceNow.CameraControl.exe$\" --remove' $0
+    ${EndIf}
+    ${If} ${Errors}
+    ${OrIf} $0 != 0
       IfSilent +2
         MessageBox MB_ICONEXCLAMATION "${REMOVE_FAILED}"
       SetErrorLevel 2

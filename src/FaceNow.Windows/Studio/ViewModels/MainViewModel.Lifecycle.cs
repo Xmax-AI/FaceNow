@@ -2,11 +2,6 @@
 //  MainViewModel.Lifecycle.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.Core.User;
 using FaceNow.Windows.VirtualCamera;
@@ -23,7 +18,8 @@ internal sealed partial class MainViewModel
         get => connectionState;
         private set
         {
-            if (connectionState == value) return;
+            if (connectionState == value)
+                return;
             connectionState = value;
             Changed();
             Changed(nameof(RemoteReady));
@@ -39,20 +35,14 @@ internal sealed partial class MainViewModel
         int current = revision;
         return state =>
         {
-            if (current == revision) ReceiveState(state);
+            if (current == revision)
+                ReceiveState(state);
         };
     }
 
-    internal Action<RealtimeEvent> CreateSessionEventHandler()
-    {
-        int current = revision;
-        return item =>
-        {
-            if (current == revision) Receive(item);
-        };
-    }
-
-    private void ReceiveState(RealtimeState snapshot)
+    private void ReceiveState(
+        RealtimeState snapshot
+    )
     {
         State = snapshot.ConnectionState;
         if (snapshot.Reason is RealtimeReason.Failure failure)
@@ -73,7 +63,8 @@ internal sealed partial class MainViewModel
         CameraDiagnostics.Write($"RTC state={State}");
         if (!Active && State is RealtimeConnectionState.Connected or RealtimeConnectionState.Generating)
             Active = true;
-        if (State == RealtimeConnectionState.Generating) BeginElapsed();
+        if (State == RealtimeConnectionState.Generating)
+            BeginElapsed();
         Status = State switch
         {
             RealtimeConnectionState.Preparing => "正在准备摄像头…",
@@ -85,91 +76,151 @@ internal sealed partial class MainViewModel
         };
     }
 
-    private static XmaxException EventFailure(RealtimeEvent item) => new(item.Code,
-        string.IsNullOrWhiteSpace(item.Message) ? "The generation session ended unexpectedly. Please try again." : item.Message,
-        item.ApiCode, item.HttpStatus);
-
-    private static bool IsCreditFailure(Exception failure) => failure switch
+    private static bool IsCreditFailure(
+        Exception failure
+    ) => failure switch
     {
         // Read billing error details from platform API and session failures.
-        XmaxException sdk when sdk.Result is -4 or -15 => GenerationFailure.IsInsufficientCredits(sdk.ApiCode, sdk.Message),
+        XmaxException sdk when sdk.Code is XmaxErrorCode.ApiError or XmaxErrorCode.SessionError => GenerationFailure.IsInsufficientCredits(
+            sdk.ApiCode,
+            sdk.Message
+        ),
         AccountException account => account.Code == CreditPolicy.InsufficientCode,
         _ => false
     };
 
-    private void HandleGenerationFailure(Exception failure, bool endsSession = false)
+    private void HandleGenerationFailure(
+        Exception failure,
+        bool endsSession = false
+    )
     {
-        if (IsClosing) return; // Cleanup failures and duplicate SDK reports must not replace the initiating error.
+        if (IsClosing)
+            return; // Cleanup failures and duplicate SDK reports must not replace the initiating error.
         bool insufficient = IsCreditFailure(failure);
         Error = insufficient ? CreditPolicy.InsufficientMessage : failure.Message;
-        if (endsSession || insufficient) _ = StopAsync();
+        if (endsSession || insufficient)
+            _ = StopAsync();
         // Credit failures are not authentication failures, even if the service returns HTTP 403.
         NotifyAuthenticationFailure(failure, insufficient);
     }
 
-    private void NotifyAuthenticationFailure(Exception failure, bool insufficient)
+    private void NotifyAuthenticationFailure(
+        Exception failure,
+        bool insufficient
+    )
     {
         if (!insufficient && generationAccess is not null && failure is XmaxException sdk
-            && (sdk.HttpStatus is 401 or 403 || sdk.ApiCode == 46002)) AuthenticationRejected?.Invoke();
+            && (sdk.HttpStatus is 401 or 403 || sdk.ApiCode == 46002))
+            AuthenticationRejected?.Invoke();
     }
 
     /// <summary>Returns home immediately; all callers join one cleanup task before another session can start.</summary>
     public Task StopAsync()
     {
-        if (IsClosing) return cleanup;
+        if (IsClosing)
+            return cleanup;
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         cleanup = completion.Task;
         closingSession = true;
         ++revision;
         pendingConditions = null;
         ++intent;
-        var previous = session; session = null;
+        var previous = session;
+        session = null;
         localStream = null;
-        var previousPump = cameraPump; cameraPump = null;
-        var previousOutputStartup = outputStartup; outputStartup = null;
-        var cancellation = operationCancellation; operationCancellation = null;
+        var previousPump = cameraPump;
+        cameraPump = null;
+        var previousOutputStartup = outputStartup;
+        outputStartup = null;
+        var cancellation = operationCancellation;
+        operationCancellation = null;
         Active = false;
         elapsedTimer.Stop();
-        startedAt = null; Changed(nameof(Elapsed));
+        startedAt = null;
+        Changed(nameof(Elapsed));
         foreach (var upload in uploadCancellations.Values.ToArray())
         {
-            try { upload.Cancel(); }
-            catch (Exception failure) { ReportCleanupFailure(failure); }
+            try
+            {
+                upload.Cancel();
+            }
+            catch (Exception failure)
+            {
+                ReportCleanupFailure(failure);
+            }
         }
-        foreach (var reference in AllReferences) reference.IsSelected = false;
+        foreach (var reference in AllReferences)
+            reference.IsSelected = false;
         Status = "正在关闭会话…";
         RefreshBusy();
         _ = CompleteStopAsync(previous, previousPump, previousOutputStartup, cancellation, completion);
         return completion.Task;
     }
 
-    private async Task CompleteStopAsync(XmaxRealtime? previous, RemoteCameraPump? previousPump,
-        Task? previousOutputStartup, CancellationTokenSource? cancellation, TaskCompletionSource completion)
+    private async Task CompleteStopAsync(
+        IXmaxRealtimeManaging? previous,
+        RemoteCameraPump? previousPump,
+        Task? previousOutputStartup,
+        CancellationTokenSource? cancellation,
+        TaskCompletionSource completion
+    )
     {
         async Task StopOutputAsync()
         {
             try
             {
-                if (previousPump is not null) await previousPump.DisposeAsync();
-                else if (cameraOutput is not null) await cameraOutput.StopAsync();
+                if (previousPump is not null)
+                    await previousPump.DisposeAsync();
+                else if (cameraOutput is not null)
+                    await cameraOutput.StopAsync();
             }
-            catch (Exception failure) { ReportCleanupFailure(failure); }
+            catch (Exception failure)
+            {
+                ReportCleanupFailure(failure);
+            }
             if (previousOutputStartup is not null)
             {
                 // A late startup observes the invalidated revision and disposes its pump.
                 // Join it before allowing a new session to reuse the output transport.
-                try { await previousOutputStartup; }
-                catch (Exception failure) { ReportCleanupFailure(failure); }
-                try { if (cameraOutput is not null) await cameraOutput.StopAsync(); }
-                catch (Exception failure) { ReportCleanupFailure(failure); }
+                try
+                {
+                    await previousOutputStartup;
+                }
+                catch (Exception failure)
+                {
+                    ReportCleanupFailure(failure);
+                }
+                try
+                {
+                    if (cameraOutput is not null)
+                        await cameraOutput.StopAsync();
+                }
+                catch (Exception failure)
+                {
+                    ReportCleanupFailure(failure);
+                }
             }
         }
         async Task StopMediaAsync()
         {
-            try { if (cancellation is not null) await cancellation.CancelAsync(); }
-            catch (Exception failure) { ReportCleanupFailure(failure); }
-            try { if (previous is not null) await CloseRealtimeAsync(previous); }
-            catch (Exception failure) { ReportCleanupFailure(failure); }
+            try
+            {
+                if (cancellation is not null)
+                    await cancellation.CancelAsync();
+            }
+            catch (Exception failure)
+            {
+                ReportCleanupFailure(failure);
+            }
+            try
+            {
+                if (previous is not null)
+                    await CloseRealtimeAsync(previous);
+            }
+            catch (Exception failure)
+            {
+                ReportCleanupFailure(failure);
+            }
         }
         try
         {
@@ -181,7 +232,8 @@ internal sealed partial class MainViewModel
             cancellation?.Dispose();
             LocalVideo = RemoteVideo = null;
             sessionKey = sessionCamera = "";
-            foreach (var row in TimingRows.Concat(UplinkRows).Concat(UplinkNetworkRows).Concat(DownlinkRows).Concat(DownlinkNetworkRows)) row.Value = "—";
+            foreach (var row in TimingRows.Concat(UplinkRows).Concat(UplinkNetworkRows).Concat(DownlinkRows).Concat(DownlinkNetworkRows))
+                row.Value = "—";
             Metrics = "等待视频统计";
             Status = "会话已关闭";
             closingSession = false;
@@ -190,7 +242,9 @@ internal sealed partial class MainViewModel
         }
     }
 
-    private async Task CloseRealtimeAsync(XmaxRealtime previous)
+    private async Task CloseRealtimeAsync(
+        IXmaxRealtimeManaging previous
+    )
     {
         var idle = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         int closingRevision = revision;
@@ -199,7 +253,8 @@ internal sealed partial class MainViewModel
             await previous.SetMicrophoneLevelListenerAsync(null);
             await previous.SetStateListenerAsync(snapshot =>
             {
-                if (revision != closingRevision || idle.Task.IsCompleted) return;
+                if (revision != closingRevision || idle.Task.IsCompleted)
+                    return;
                 if (snapshot.ConnectionState == RealtimeConnectionState.Disconnecting)
                     State = snapshot.ConnectionState;
                 if (snapshot.ConnectionState == RealtimeConnectionState.Idle)
@@ -211,12 +266,18 @@ internal sealed partial class MainViewModel
             await previous.CloseAsync();
             await idle.Task.WaitAsync(TimeSpan.FromSeconds(5));
         }
-        finally { await previous.DisposeAsync(); }
+        finally
+        {
+            await previous.DisposeAsync();
+        }
     }
 
-    private void ReportCleanupFailure(Exception failure)
+    private void ReportCleanupFailure(
+        Exception failure
+    )
     {
         CameraDiagnostics.Error("Session cleanup failed", failure);
-        if (Error.Length == 0) Error = failure.Message;
+        if (Error.Length == 0)
+            Error = failure.Message;
     }
 }

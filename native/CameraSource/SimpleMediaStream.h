@@ -46,6 +46,7 @@ namespace winrt::FaceNow::implementation
 
     private:
         _Requires_lock_held_(m_Lock) HRESULT _CheckShutdownRequiresLock();
+        _Requires_lock_held_(m_Lock) HRESULT _CreateStreamDescriptor(IMFStreamDescriptor** descriptor);
         _Requires_lock_held_(m_Lock) HRESULT _SetStreamAttributes(IMFAttributes* pAttributeStore);
         _Requires_lock_held_(m_Lock) HRESULT _SetStreamDescriptorAttributes(IMFAttributes* pAttributeStore);
 

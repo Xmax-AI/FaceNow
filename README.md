@@ -8,9 +8,9 @@ Windows/
   FaceNow/
 ```
 
-已接入 SDK 摄像头、显式启动/停止生成、参考图选择、上传流程、自由提示词、统计和凭据保存。Windows 11 虚拟摄像头已实现注册、SDK 远端视频回调接入和 1080p 跨进程输出，停止或断流时切回占位。真实云端到会议的完整链路、会议兼容、录制和托盘仍待验收或实现。已提供自包含 EXE 安装器。关闭窗口停止并释放 AI 会话；卸载应用时移除当前用户的虚拟摄像头设备。
+已接入 SDK 摄像头、显式启动/停止生成、参考图选择、上传流程、自由提示词、统计和凭据保存。虚拟摄像头接收 SDK 远端视频，按所选比例跨进程输出，停止或断流时切回占位。Windows 11 使用 Media Foundation，Windows 10 x64 使用 [DirectShow](native/DirectShow/README.md)。真实云端到会议的完整链路、会议兼容、录制和托盘仍待验收或实现。已提供自包含 EXE 安装器。关闭窗口停止并释放 AI 会话。
 
-首页右上角保留 Virtual Camera 入口，面板只显示 Setup needed（需要设置）、Ready to use（已设置好）和 Unavailable（暂不可用）。不可用时在正文解释原因和下一步，检查与安装仅显示短暂进度；生成页面不显示此入口。首次使用才显示 Set up camera（Windows UAC 提权仅用于安装组件）；检查与权限设置收在帮助中。设备是否可用仍依据 symbolic link 枚举确认。默认使用 X2.1，采集与生成基准为 1920×1080，启用动态画质调档。虚拟摄像头输出固定为 1920×1080，同尺寸 BGRA 帧按行直接复制；回传尺寸变化时等比铺满、居中裁剪，不拉伸或补黑边；空闲时为与 macOS 一致的纯色灰底（RGB 241/243/244，#F1F3F4）。SDK 回调已接入，传帧通道以本地合成帧验证，真实云端生成未在本次运行。Windows 注册流程见 [原生组件注册说明](native/Registration.md)。
+首页右上角保留 Virtual Camera 入口，面板只显示 Setup needed（需要设置）、Ready to use（已设置好）和 Unavailable（暂不可用）。不可用时在正文解释原因和下一步，检查与安装仅显示短暂进度；生成页面不显示此入口。首次使用才显示 Set up camera（Windows UAC 提权仅用于安装组件）；检查与权限设置收在帮助中。设备是否可用仍依据 symbolic link 枚举确认。默认使用 X2.1，采集与生成基准为 1920×1080，启用动态画质调档。虚拟摄像头在生成会话中使用首页所选比例的尺寸。回传画面等比铺满输出画布，比例不同时居中裁剪。同尺寸 BGRA 帧按行复制。空闲时显示纯色灰底（RGB 241/243/244，#F1F3F4）。SDK 回调已接入，传帧通道以本地合成帧验证，真实云端生成未在本次运行。Windows 注册流程见 [原生组件注册说明](native/Registration.md)。
 
 ## 国内、海外、美颜与水印
 
@@ -20,7 +20,7 @@ Windows/
 
 生成页增加美颜开关，以及磨皮、美白、锐化、红润四项调节；默认开启，四项强度为 0，与 macOS SDK 一致。已有用户保存的设置继续保留。美颜只处理生成结果，调用 XmaxSDK 封装的美颜接口，由 SDK 管理独立进程中的 Agora ClearVision 本地媒体图，不改变上传的实体摄像头画面。预览和虚拟输出使用同一处理结果。效果故障只关闭美颜并恢复原视频；IPC、首帧和处理等待均有界，不结束生成会话。
 
-生成预览左上角显示 `✦ FaceNow`，右上角显示“AI 生成”或“AI Generation”。虚拟输出在等比 Fill 到 1920×1080 后再合成同款水印，因此会议软件收到的像素也包含标识；预览仅镜像视频，标识保持正常方向。当前输出仍为 30 fps，不包含 macOS 的插帧功能。
+生成预览左上角显示 `✦ FaceNow`，右上角显示“AI 生成”或“AI Generation”。虚拟输出等比铺满所选尺寸后再合成同款水印，因此会议软件收到的像素也包含标识；预览仅镜像视频，标识保持正常方向。当前输出仍为 30 fps，不包含 macOS 的插帧功能。
 
 ```powershell
 # 构建 FaceNow 最终画布组件；美颜由 XmaxSDK 原生分发提供
@@ -40,7 +40,7 @@ FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xma
 
 正常启动先进入账户流程：手机号验证码、邮箱验证码和 API Key 登录按构建版本使用与 macOS 相同的国内或海外平台接口。保存的账户会先显示缓存首页并在后台验证，验证完成前不能生成。旧版保存的 API Key 只在服务确认有效记录及所属用户后迁移；登录成功后通过账户菜单选择或显式创建生成 Key，不会自动创建 Key。登录架构及验收边界见 [账户模块](Docs/Accounts.md)。
 
-需要 .NET 10 SDK、相邻 XmaxSDK 源码、带摄像头和 Agora 支持的原生 SDK 及匹配运行依赖。安全验证弹层使用 Microsoft Edge WebView2 Runtime。EXE 安装器会尝试联网补装缺失的 Runtime，失败时继续安装 FaceNow。登录时如缺少 Runtime，用户可在弹窗中前往微软官网下载，或切换到 API Key 登录。首版目标为 Windows 11 x64；目前也在 Windows 11 ARM 虚拟机中以 x64 仿真验证。
+需要 .NET 10 SDK、相邻 XmaxSDK 源码、带摄像头和 Agora 支持的原生 SDK 及匹配运行依赖。安全验证弹层使用 Microsoft Edge WebView2 Runtime。EXE 安装器会尝试联网补装缺失的 Runtime，失败时继续安装 FaceNow。登录时如缺少 Runtime，用户可在弹窗中前往微软官网下载，或切换到 API Key 登录。安装器支持 Windows 10 2004 及以上版本（x64）和 Windows 11（x64 或 ARM64 上的 x64 仿真）。
 
 ```powershell
 ./scripts/run.ps1
@@ -61,15 +61,15 @@ FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xma
 ./scripts/verify-login-layout.ps1
 # 编译并验证界面、帧显示、缺 Key 拦截和隔离的凭据恢复
 ./scripts/run.ps1 -Verify
-# 已安装并启用摄像头后，通过系统管线验证虚拟摄像头读帧
+# Windows 11 已安装并启用摄像头后，通过 Frame Server 验证读帧
 ./scripts/run.ps1 -NoBuild -VerifyCamera
-# 本地合成视频经过完整跨进程/系统管线，检查断流与重启
+# Windows 11 本地合成视频经过 Frame Server，检查断流与重启
 ./scripts/run.ps1 -NoBuild -VerifyRelay
 ```
 
 默认 .NET 位于 `C:/dev/dotnet/dotnet.exe`，不存在则查找 PATH；原生 SDK 默认位于 `C:/dev/XmaxSDK-build/Sources/XmaxSDK/RelWithDebInfo`。使用 `-DotNet`、`-NativeDirectory`、`-XmaxSdkRoot`、`-BuildRoot` 覆盖。构建产物放在 Windows 本地 `C:/dev/FaceNow-build`，避免在共享目录运行 XAML 编译。
 
-虚拟摄像头组件需先用 Visual Studio C++ 工具构建：`./scripts/build-camera.ps1`，默认生成 x64 / ARM64 两套到 `C:/dev/FaceNow-camera`。之后 `run.ps1` 自动复制到应用的 `Camera/{architecture}`，可用 `-CameraBuildRoot` 覆盖路径。Frame Server 使用系统原生架构：ARM64 Windows 使用 ARM64 媒体源，即使主程序以 x64 仿真运行。缺少组件时仍能打开主程序，并显示 Not installed。
+虚拟摄像头组件需先用 Visual Studio C++ 工具构建：`./scripts/build-camera.ps1 -DirectShowBaseClasses C:/dev/baseclasses`，默认将 Media Foundation 的 x64、ARM64 组件和 DirectShow 的 x64 组件输出到 `C:/dev/FaceNow-camera`。之后 `run.ps1` 自动复制到应用的 `Camera` 目录，可用 `-CameraBuildRoot` 覆盖路径。ARM64 Windows 11 的 Frame Server 使用 ARM64 媒体源，主程序以 x64 仿真运行。缺少组件时仍能打开主程序，并显示 Not installed。
 
 macOS + Parallels：
 
@@ -87,7 +87,7 @@ bash scripts/run.sh -NoBuild
 
 ## 发布免安装版
 
-在 Windows 中运行 `scripts/publish.ps1 -DependencyNoticesDirectory <原生依赖说明目录>`，使用新的本地 `-BuildRoot`。脚本生成 `publish/FaceNow-版本-win-x64/FaceNow.exe` 和 `packages/FaceNow-版本-win-x64.zip`，包含 .NET、WinUI、Visual C++ 运行库、原生 SDK、两种架构的摄像头组件及依赖说明。解压整个 ZIP 后运行 FaceNow.exe，保留同目录的 DLL、Assets 和 Camera；无需安装开发环境。该包不携带用户 API Key，摄像头注册仍由首次使用时的 Set up camera 完成。
+在 Windows 中运行 `scripts/publish.ps1 -DependencyNoticesDirectory <原生依赖说明目录>`，使用新的本地 `-BuildRoot`。脚本生成 `publish/FaceNow-版本-win-x64/FaceNow.exe` 和 `packages/FaceNow-版本-win-x64.zip`，包含 .NET、WinUI、Visual C++ 运行库、原生 SDK、Windows 10 和 Windows 11 的摄像头组件及依赖说明。解压整个 ZIP 后运行 FaceNow.exe，保留同目录的 DLL、Assets 和 Camera；无需安装开发环境。该包不携带用户 API Key，摄像头注册仍由首次使用时的 Set up camera 完成。
 
 ## EXE 安装包
 
@@ -109,13 +109,15 @@ bash scripts/run.sh -NoBuild
 4. 内置参考图与 macOS `20261030` 预设一致：角色替换 19 项、虚拟试衣 12 项、风格转换 8 项、虚拟召唤 8 项。召唤前两项为小狗、小鼠的纯提示词，其余 6 项带图；缩略图和生成使用同一张原图，预设各自保留匹配的中英文提示词。帽子、眼镜、上衣及下装使用各自的专用指令。
 5. Upload 使用 macOS 对应模式的默认提示词，独立于当前选中的内置预设；虚拟召唤上传图使用保留原主体并新增参考角色到肩膀或手上的指令。Free Prompt 上传保留当前自写文本，显式提交使用编辑器当前文本。上传完成仅在选择仍有效时自动应用；服务上传和真实生成需要使用有效 Key 验收。
 6. 顶部可控制统计显示，Stop Session 返回首页并关闭会话。FaceNow 不采集麦克风，会议软件中的麦克风由用户独立选择。
-7. 打开 Virtual Camera，首次使用按提示 Set up camera。点击 Start Camera 后，在会议或直播软件中选择 FaceNow - Xmax Virtual Camera。生成开始后自动传输远端视频，Stop Session 后切回占位；生成期间安装成功也会接入已有会话。此流程已实现，真实云端与会议客户端尚需完整验收。
+7. 打开 Virtual Camera，首次使用按提示 Set up camera。点击 Start Camera 后，在会议或直播软件中选择 FaceNow 虚拟摄像头。Windows 会追加本地化的设备后缀。生成开始后自动传输远端视频，Stop Session 后切回占位；生成期间安装成功也会接入已有会话。此流程已实现，真实云端与会议客户端尚需完整验收。
 
 `-Preview` 中 Start 按钮显示 Preview UI，点击只切换页面，不创建摄像头或生成会话；仍可通过 HTTPS 加载缩略图。`-PreviewCameraSetup` 打开可交互的首次摄像头设置演示：Setup needed → 权限步骤模拟 → Setting up camera… → Ready to use，支持取消与 Restart setup preview。此模式不启动真实安装、不读写 API Key、不改动摄像头注册，权限步骤明确标为模拟，不是 Windows UAC 弹窗。`-PreviewLogin` 使用内存中的模拟账户，可用模拟 Key `uk-facenow-isolated-preview` 查看登录后的首页，界面明确显示模拟说明。`XMAX_API_KEY` 仍供显式 SDK 冒烟诊断使用，普通启动的账户流程不使用它绕过身份验证或覆盖账户选择。真实生成使用当前构建版本的区域服务，可能按服务规则计费；默认验收不执行真实生成。
 
 FaceNow 的账户凭据保存在国内版 `XMAX.AI/FaceNow/Account` 或海外版 `XMAX.AI/FaceNowOverseas/Account`，包含明确的凭据类型及所选 Key 的记录 ID；普通磁盘缓存只保存账户资料及凭据摘要。旧版 `XMAX.AI/FaceNow/ApiKey` 在验证并迁移成功后清空。退出先停止生成，再清理账户凭据与缓存，保留虚拟摄像头安装。摄像头选择和缩略图缓存使用 FaceNow 独立位置，不读写 XLab 的用户设置。
 
 ## 工程边界
+
+FaceNow 源码文件头使用文件名和产品名。第三方源码和改编代码的版权及来源见 [第三方声明](THIRD_PARTY.md)。
 
 - `src/FaceNow.App`：基于 XLab WinUI 适配的窗口、控件、UI 调度、缩略图与冒烟验证。
 - `src/FaceNow.App/User`：原生登录页、表单状态与验证码安全验证；窗口协调首页、账户菜单及生成退出。
@@ -125,7 +127,7 @@ FaceNow 的账户凭据保存在国内版 `XMAX.AI/FaceNow/Account` 或海外版
 - `src/FaceNow.Windows/Security`：FaceNow 独立的 Windows 凭据管理器接入。
 - `src/FaceNow.Core`：与 UI 框架无关的虚拟输出契约。
 - `src/FaceNow.Windows/VirtualCamera`：设备管理、SDK 包所有权与后台队列、受限命名管道最新帧发布。
-- `native/CameraSource`：基于微软示例适配的 COM 媒体源，接收 BGRA，提供 1080p RGB32/NV12 和占位图。
+- `native/CameraSource`：基于微软示例适配的 COM 媒体源，接收 BGRA，按会话尺寸提供 RGB32/NV12 和占位图。
 - `native/CameraControl.cpp`：架构匹配的组件安装、设备注册、移除、查询和帧读取辅助程序。
 
 运行时只通过公开接口依赖 `Xmax.SDK` 和 `Xmax.SDK.WinUI`，不引用 XLab 示例程序集。界面与会话代码保留 MIT 来源声明，由 FaceNow 自身维护；后续 XLab 修改不会自动改变产品界面。
@@ -143,3 +145,5 @@ FaceNow 将本地与生成轨道绑定到 SDK 双路控件，首张结果帧呈�
 - `smoke-test-*.json`：各检查报告。
 
 详细结果见 [验证记录](Docs/Verification.md)。这些验证不代表真实摄像头、云端生成、上传或会议兼容性已经通过。
+
+Copyright (c) 2026 XMAX.AI PTE. LTD.

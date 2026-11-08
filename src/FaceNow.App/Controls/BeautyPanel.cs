@@ -1,3 +1,8 @@
+//
+//  BeautyPanel.cs
+//  FaceNow
+//
+
 using FaceNow.Core.Media;
 using FaceNow.App.User;
 using Microsoft.UI.Text;
@@ -78,19 +83,30 @@ internal sealed class BeautyPanel : UserControl
 
         var chevron = new Glyph
         {
-            Kind = "chevron", Foreground = Theme.Brush("#E6FFFFFF"),
-            RenderTransformOrigin = new(.5, .5), RenderTransform = chevronRotation
+            Kind = "chevron",
+            Foreground = Theme.Brush("#E6FFFFFF"),
+            RenderTransformOrigin = new(.5, .5),
+            RenderTransform = chevronRotation
         };
         chevron.FitArtwork(10);
         disclosure = new Button
         {
-            Template = DisclosureTemplate, Content = chevron, Width = DisclosureSize, Height = DisclosureSize,
-            MinWidth = 0, MinHeight = 0, Padding = new(0), UseSystemFocusVisuals = true
+            Template = DisclosureTemplate,
+            Content = chevron,
+            Width = DisclosureSize,
+            Height = DisclosureSize,
+            MinWidth = 0,
+            MinHeight = 0,
+            Padding = new(0),
+            UseSystemFocusVisuals = true
         };
         disclosure.Click += (_, _) => SetExpanded(rows.Visibility == Visibility.Collapsed);
         var header = new Grid { Height = DisclosureSize };
         header.ColumnDefinitions.Add(new());
-        header.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        header.ColumnDefinitions.Add(new()
+        {
+            Width = GridLength.Auto
+        });
         header.Children.Add(title);
         Grid.SetColumn(disclosure, 1);
         header.Children.Add(disclosure);
@@ -102,25 +118,44 @@ internal sealed class BeautyPanel : UserControl
         {
             int index = i;
             var row = new Grid { Height = 22, ColumnSpacing = ColumnSpacing };
-            row.ColumnDefinitions.Add(new() { Width = new(labelWidth) });
+            row.ColumnDefinitions.Add(new()
+            {
+                Width = new(labelWidth)
+            });
             row.ColumnDefinitions.Add(new());
-            row.ColumnDefinitions.Add(new() { Width = new(ValueWidth) });
+            row.ColumnDefinitions.Add(new()
+            {
+                Width = new(ValueWidth)
+            });
             row.Children.Add(labels[i]);
             var slider = new Slider
             {
-                Template = SliderTemplate, Minimum = 0, Maximum = 100, StepFrequency = 1,
-                MinWidth = 0, MinHeight = 0, Height = 22, IsThumbToolTipEnabled = false, UseSystemFocusVisuals = true
+                Template = SliderTemplate,
+                Minimum = 0,
+                Maximum = 100,
+                StepFrequency = 1,
+                MinWidth = 0,
+                MinHeight = 0,
+                Height = 22,
+                IsThumbToolTipEnabled = false,
+                UseSystemFocusVisuals = true
             };
             // The fill uses the full track width while the thumb stays within its own travel range.
             var fill = new Border
             {
-                Width = 0, HorizontalAlignment = HorizontalAlignment.Left,
-                Background = Theme.Brush("#0095FF"), CornerRadius = new(2)
+                Width = 0,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Background = Theme.Brush("#0095FF"),
+                CornerRadius = new(2)
             };
             var track = new Border
             {
-                Height = 4, VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false,
-                Background = Theme.Brush("#21FFFFFF"), CornerRadius = new(2), Child = fill
+                Height = 4,
+                VerticalAlignment = VerticalAlignment.Center,
+                IsHitTestVisible = false,
+                Background = Theme.Brush("#21FFFFFF"),
+                CornerRadius = new(2),
+                Child = fill
             };
             Grid.SetColumn(track, 1);
             row.Children.Add(track);
@@ -138,9 +173,16 @@ internal sealed class BeautyPanel : UserControl
             slider.ValueChanged += (_, args) =>
             {
                 UpdateFill();
-                if (updating || !slider.IsEnabled) return;
+                if (updating || !slider.IsEnabled)
+                    return;
                 float strength = (float)args.NewValue / 100;
-                current = index switch { 0 => current with { Smoothness = strength }, 1 => current with { Lightening = strength }, 2 => current with { Sharpness = strength }, _ => current with { Redness = strength } };
+                current = index switch
+                {
+                    0 => current with { Smoothness = strength },
+                    1 => current with { Lightening = strength },
+                    2 => current with { Sharpness = strength },
+                    _ => current with { Redness = strength }
+                };
                 values[index].Text = $"{args.NewValue:0}%";
                 SettingsChanged?.Invoke(current);
             };
@@ -149,8 +191,11 @@ internal sealed class BeautyPanel : UserControl
 
         Content = new Border
         {
-            Padding = new(Inset - 1), CornerRadius = new(8), Background = Theme.Brush("#99000000"),
-            BorderBrush = Theme.Brush("#1FFFFFFF"), BorderThickness = new(1),
+            Padding = new(Inset - 1),
+            CornerRadius = new(8),
+            Background = Theme.Brush("#99000000"),
+            BorderBrush = Theme.Brush("#1FFFFFFF"),
+            BorderThickness = new(1),
             Child = new StackPanel { Children = { header, rows } }
         };
         SetExpanded(true);
@@ -158,7 +203,9 @@ internal sealed class BeautyPanel : UserControl
         LoginMotion.Opacity(this, 0);
     }
 
-    private void SetExpanded(bool expanded)
+    private void SetExpanded(
+        bool expanded
+    )
     {
         Width = expanded ? expandedWidth : collapsedWidth;
         rows.Visibility = expanded ? Visibility.Visible : Visibility.Collapsed;
@@ -168,7 +215,10 @@ internal sealed class BeautyPanel : UserControl
         ToolTipService.SetToolTip(disclosure, action);
     }
 
-    internal void Update(BeautySettings value, bool editable)
+    internal void Update(
+        BeautySettings value,
+        bool editable
+    )
     {
         current = value;
         updating = true;
@@ -184,14 +234,19 @@ internal sealed class BeautyPanel : UserControl
         updating = false;
     }
 
-    private static TextBlock Label(string text, double size = 11)
+    private static TextBlock Label(
+        string text,
+        double size = 11
+    )
     {
         var label = Theme.Text(text, size, "#E6FFFFFF");
         label.FontFamily = SystemFont;
         return label;
     }
 
-    private static double MeasureWidth(TextBlock label)
+    private static double MeasureWidth(
+        TextBlock label
+    )
     {
         label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         return Math.Ceiling(label.DesiredSize.Width);

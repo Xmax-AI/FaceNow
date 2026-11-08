@@ -1,8 +1,15 @@
+//
+//  MeetingOutputTiming.cs
+//  FaceNow
+//
+
 using System.Diagnostics;
 
 namespace FaceNow.Windows.Media;
 
-/// <summary>Maps the SDK's shared audio and video clock onto a local monotonic timeline.</summary>
+/// <summary>
+/// Maps the SDK's shared audio and video clock onto a local monotonic timeline.
+/// </summary>
 internal sealed class MeetingOutputTiming
 {
     internal const int OffsetLimit = 5000;
@@ -13,18 +20,37 @@ internal sealed class MeetingOutputTiming
     private long localOrigin;
     private int offset;
 
-    internal MeetingOutputTiming(int offset) => SetOffset(offset);
+    internal MeetingOutputTiming(
+        int offset
+    ) => SetOffset(offset);
 
-    internal void SetOffset(int value) => Volatile.Write(ref offset, Math.Clamp(value, -OffsetLimit, OffsetLimit));
+    /// <summary>
+    /// Updates the user offset in milliseconds. Positive values delay audio, and negative values delay video.
+    /// </summary>
+    internal void SetOffset(
+        int value
+    ) => Volatile.Write(ref offset, Math.Clamp(value, -OffsetLimit, OffsetLimit));
 
-    internal long Delay(bool audio)
+    internal long Delay(
+        bool audio
+    )
     {
         int value = Volatile.Read(ref offset);
         return Ticks(Math.Max(0, audio ? value : -value));
     }
 
-    // Called by the serialized SDK callback before handing frames to the two output workers.
-    internal (long Presentation, bool Reset) Map(ulong stream, double? source, long arrival)
+    /// <summary>
+    /// Maps a packet timestamp before the serialized SDK callback hands it to an output worker.
+    /// </summary>
+    /// <param name="stream">The SDK output stream identifier.</param>
+    /// <param name="source">The presentation timestamp in seconds, if available.</param>
+    /// <param name="arrival">The local arrival timestamp in stopwatch ticks.</param>
+    /// <returns>The local presentation time and whether the output queues need a new epoch.</returns>
+    internal (long Presentation, bool Reset) Map(
+        ulong stream,
+        double? source,
+        long arrival
+    )
     {
         bool reset = streamId != stream;
         if (reset)
@@ -33,13 +59,15 @@ internal sealed class MeetingOutputTiming
             sourceOrigin = null;
         }
         long bufferedArrival = arrival + Ticks(BufferMilliseconds);
-        if (source is not > 0 || !double.IsFinite(source.Value)) return (bufferedArrival, reset);
+        if (source is not > 0 || !double.IsFinite(source.Value))
+            return (bufferedArrival, reset);
 
         if (sourceOrigin is double origin)
         {
             double delta = (source.Value - origin) * Stopwatch.Frequency;
             double fromArrival = delta + (localOrigin - bufferedArrival);
-            if (Math.Abs(fromArrival) <= Ticks(ClockJumpMilliseconds)) return (localOrigin + (long)Math.Round(delta), reset);
+            if (Math.Abs(fromArrival) <= Ticks(ClockJumpMilliseconds))
+                return (localOrigin + (long)Math.Round(delta), reset);
             reset = true;
         }
         sourceOrigin = source;
@@ -47,5 +75,7 @@ internal sealed class MeetingOutputTiming
         return (bufferedArrival, reset);
     }
 
-    internal static long Ticks(int milliseconds) => Stopwatch.Frequency * milliseconds / 1000;
+    internal static long Ticks(
+        int milliseconds
+    ) => Stopwatch.Frequency * milliseconds / 1000;
 }

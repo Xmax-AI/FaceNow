@@ -2,11 +2,6 @@
 //  LandingInputButton.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.App.User;
 using Microsoft.UI.Text;
@@ -16,7 +11,9 @@ namespace FaceNow.App.Controls;
 /// <summary>The translucent device selectors on the home canvas.</summary>
 internal sealed class LandingInputButton : Pill
 {
-    internal LandingInputButton(string label)
+    internal LandingInputButton(
+        string label
+    )
     {
         FontFamily = LoginTypography.Font;
         FontSize = 13;

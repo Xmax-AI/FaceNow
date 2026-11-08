@@ -2,11 +2,6 @@
 //  InputLevelMeter.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.App.User;
 using Microsoft.UI.Text;
@@ -29,13 +24,21 @@ internal sealed class InputLevelMeter : UserControl
         Height = ToolbarButton.ControlHeight;
         VerticalAlignment = VerticalAlignment.Center;
         var row = new Grid { ColumnSpacing = 8 };
-        row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new()
+        {
+            Width = GridLength.Auto
+        });
         row.ColumnDefinitions.Add(new());
         var title = Theme.Text("Input Level", 13, "#424954");
         title.FontFamily = new("Segoe UI");
         title.FontWeight = FontWeights.SemiBold;
         row.Children.Add(title);
-        var bar = new Grid { Height = 8, ColumnSpacing = 2, VerticalAlignment = VerticalAlignment.Center };
+        var bar = new Grid
+        {
+            Height = 8,
+            ColumnSpacing = 2,
+            VerticalAlignment = VerticalAlignment.Center
+        };
         for (int index = 0; index < segments.Length; ++index)
         {
             bar.ColumnDefinitions.Add(new());
@@ -55,27 +58,38 @@ internal sealed class InputLevelMeter : UserControl
         Collapse();
     }
 
-    internal void SetPresented(bool visible, bool animateHide)
+    internal void SetPresented(
+        bool visible,
+        bool animateHide
+    )
     {
         if (visible == presented)
         {
-            if (!visible && !animateHide) Collapse();
+            if (!visible && !animateHide)
+                Collapse();
             return;
         }
         presented = visible;
         int current = ++presentationRevision;
         IsHitTestVisible = visible;
-        if (visible) Visibility = Visibility.Visible;
+        if (visible)
+            Visibility = Visibility.Visible;
         LoginMotion.Opacity(this, visible ? 1 : 0);
-        if (visible) return;
-        if (animateHide && IsLoaded && LoginMotion.Enabled) _ = CollapseAfterTransitionAsync(current);
-        else Collapse();
+        if (visible)
+            return;
+        if (animateHide && IsLoaded && LoginMotion.Enabled)
+            _ = CollapseAfterTransitionAsync(current);
+        else
+            Collapse();
     }
 
-    private async Task CollapseAfterTransitionAsync(int current)
+    private async Task CollapseAfterTransitionAsync(
+        int current
+    )
     {
         await Task.Delay(300);
-        if (current == presentationRevision) Collapse();
+        if (current == presentationRevision)
+            Collapse();
     }
 
     private void Collapse()
@@ -84,7 +98,9 @@ internal sealed class InputLevelMeter : UserControl
         Update(null);
     }
 
-    internal void Update(float? level)
+    internal void Update(
+        float? level
+    )
     {
         float value = level is { } sample && float.IsFinite(sample) ? Math.Clamp(sample, 0, 1) : 0;
         int count = (int)Math.Ceiling(value * segments.Length);
@@ -95,7 +111,8 @@ internal sealed class InputLevelMeter : UserControl
                 LoginMotion.Color(this, segments[index], index < count ? "#34C759" : "#E5E7EB");
         }
         int nextPercent = (int)Math.Round(value * 100, MidpointRounding.AwayFromZero);
-        if (percent == nextPercent) return;
+        if (percent == nextPercent)
+            return;
         percent = nextPercent;
         AutomationProperties.SetItemStatus(this, $"{percent}%");
     }

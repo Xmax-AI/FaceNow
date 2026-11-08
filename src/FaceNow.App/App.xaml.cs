@@ -1,3 +1,8 @@
+//
+//  App.xaml.cs
+//  FaceNow
+//
+
 // Adapted from XmaxSDK XLab WinUI (MIT); see THIRD_PARTY.md and licenses/XmaxSDK-MIT.txt.
 using Microsoft.UI.Xaml;
 using System.IO;
@@ -13,7 +18,11 @@ public partial class App : Application
 {
     private Window? window;
     // The installer checks this named object before replacing or removing running binaries.
-    private readonly Mutex installerMutex = new(false, @"Local\XMAX.AI." + FaceNow.Core.Product.ProductProfile.Current.Id + ".Running");
+    private readonly Mutex installerMutex = new(
+        false,
+        @"Local\XMAX.AI." + FaceNow.Core.Product.ProductProfile.Current.Id + ".Running"
+    );
+
     public App()
     {
         InitializeComponent();
@@ -21,10 +30,16 @@ public partial class App : Application
         {
             string? output = Environment.GetEnvironmentVariable("FACENOW_SMOKE_OUTPUT");
             if (!string.IsNullOrEmpty(output))
-            { Directory.CreateDirectory(output); File.WriteAllText(Path.Combine(output, "unhandled.txt"), args.Exception.ToString()); }
+            {
+                Directory.CreateDirectory(output);
+                File.WriteAllText(Path.Combine(output, "unhandled.txt"), args.Exception.ToString());
+            }
         };
     }
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+
+    protected override void OnLaunched(
+        LaunchActivatedEventArgs args
+    )
     {
         string[] arguments = Environment.GetCommandLineArgs();
         string? mode = arguments.FirstOrDefault(value => value.StartsWith("--smoke-test"));
@@ -35,13 +50,25 @@ public partial class App : Application
         if (mode?.StartsWith("--smoke-test-key-memory-") == true)
             store = new ApiKeyStore("XMAX.AI/FaceNow/ApiKey.Smoke." + Guid.Parse(Environment.GetEnvironmentVariable("FACENOW_SMOKE_CREDENTIAL_ID") ?? "").ToString("N"));
         AccountApi? accountApi = !preview && mode is null ? new() : null;
-        UserRepository? user = loginPreview ? new(new PreviewAccountApi(), new PreviewAccountStorage(mode == "--smoke-test-signout-cached"))
+        UserRepository? user = loginPreview ? new(
+            new PreviewAccountApi(),
+            new PreviewAccountStorage(mode == "--smoke-test-signout-cached")
+        )
             : accountApi is null ? null : new(accountApi, new AccountStorage());
         user?.LoadCachedSession();
-        var main = new MainWindow(preview, arguments.Contains("--preview-session") || mode == "--smoke-test-frames", store, mode is null or "--smoke-test-camera" or "--smoke-test-live", setupPreview, user);
+        var main = new MainWindow(
+            preview,
+            arguments.Contains("--preview-session") || mode == "--smoke-test-frames",
+            store,
+            mode is null or "--smoke-test-camera" or "--smoke-test-live",
+            setupPreview,
+            user
+        );
         main.Closed += (_, _) => accountApi?.Dispose();
-        if (setupPreview) main.Ready += main.ResetCameraSetupPreview;
-        if (mode is not null) main.Ready += async () => await main.RunSmokeAsync(mode);
+        if (setupPreview)
+            main.Ready += main.ResetCameraSetupPreview;
+        if (mode is not null)
+            main.Ready += async () => await main.RunSmokeAsync(mode);
         window = main;
         window.Activate();
     }

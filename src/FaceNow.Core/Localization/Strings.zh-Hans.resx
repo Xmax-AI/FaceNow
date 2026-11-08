@@ -166,10 +166,6 @@
     <value>呆萌仓鼠</value>
     <comment>Adorable Hamster</comment>
   </data>
-  <data xml:space="preserve" name="Text_31C2409394574EA7">
-    <value>设置后请重新打开其他应用的摄像头列表。如果仍找不到 FaceNow，请重启该应用。</value>
-    <comment>After setup, reopen the camera list in your other app. If FaceNow is still missing, restart that app.</comment>
-  </data>
   <data xml:space="preserve" name="Text_5272E5DFE3A9656C">
     <value>removed preset 13</value>
     <comment>removed preset 5</comment>
@@ -390,10 +386,6 @@
     <value>摄像头权限 · macOS 弹窗示意图</value>
     <comment>Camera permission · macOS dialog illustration</comment>
   </data>
-  <data xml:space="preserve" name="Text_850C89CC7E792C9F">
-    <value>摄像头权限</value>
-    <comment>Camera permissions</comment>
-  </data>
   <data xml:space="preserve" name="Text_713B32283B98E35F">
     <value>摄像头已就绪</value>
     <comment>Camera ready</comment>
@@ -425,10 +417,6 @@
   <data xml:space="preserve" name="Text_32E60E730D2E6845">
     <value>重新检查</value>
     <comment>Check Again</comment>
-  </data>
-  <data xml:space="preserve" name="Text_FB7099AD8E818D42">
-    <value>重新检查</value>
-    <comment>Check again</comment>
   </data>
   <data xml:space="preserve" name="Text_C372F825B04EDAC5">
     <value>检查更新…</value>
@@ -3086,10 +3074,6 @@ Choose your video input</comment>
     <value>摄像头扩展权限弹窗。请选择“打开系统设置”。</value>
     <comment>摄像头扩展权限弹窗。请选择“打开系统设置”。</comment>
   </data>
-  <data xml:space="preserve" name="Text_C251C50237F3C320">
-    <value>摄像头权限</value>
-    <comment>摄像头权限</comment>
-  </data>
   <data xml:space="preserve" name="Text_C877740BF3BD0966">
     <value>摄像头权限 · macOS 弹窗示意图</value>
     <comment>摄像头权限 · macOS 弹窗示意图</comment>
@@ -3926,10 +3910,6 @@ Choose your video input</comment>
     <value>让每个镜头时刻都焕然一新</value>
     <comment>让每个镜头时刻都焕然一新</comment>
   </data>
-  <data xml:space="preserve" name="Text_EF70DF3DE06153A0">
-    <value>设置后请重新打开其他应用的摄像头列表。如果仍找不到 FaceNow，请重启该应用。</value>
-    <comment>设置后请重新打开其他应用的摄像头列表。如果仍找不到 FaceNow，请重启该应用。</comment>
-  </data>
   <data xml:space="preserve" name="Text_70345C484F79DB67">
     <value>设置摄像头</value>
     <comment>设置摄像头</comment>
@@ -4211,10 +4191,6 @@ Choose your video input</comment>
   <data xml:space="preserve" name="Text_93D70FBE80C48980">
     <value>重新安装虚拟摄像头</value>
     <comment>重新安装虚拟摄像头</comment>
-  </data>
-  <data xml:space="preserve" name="Text_C25FB86B1E96E063">
-    <value>重新检查</value>
-    <comment>重新检查</comment>
   </data>
   <data xml:space="preserve" name="Text_CB5D682BAC3D1A2D">
     <value>重置</value>
@@ -4666,10 +4642,6 @@ Generation is disabled</comment>
     <value>去设置</value>
     <comment>Set Up</comment>
   </data>
-  <data xml:space="preserve" name="Text_94FE00057ABCB088">
-    <value>查看接入教程</value>
-    <comment>View Integration Guide</comment>
-  </data>
   <data xml:space="preserve" name="Text_C55A4E6D0A2F5B05">
     <value>虚拟麦克风</value>
     <comment>Virtual Microphone</comment>
@@ -4817,5 +4789,9 @@ Generation is disabled</comment>
   <data name="Text_86E63929FEE2E70C" xml:space="preserve">
     <value>参考图</value>
     <comment>Reference images</comment>
+  </data>
+  <data name="Text_ECE62B5F534749AB" xml:space="preserve">
+    <value>虚拟摄像头需要 Windows 10 2004 或更新版本（x64），或 Windows 11。</value>
+    <comment>The virtual camera requires Windows 10 version 2004 or later (x64), or Windows 11.</comment>
   </data>
 </root>

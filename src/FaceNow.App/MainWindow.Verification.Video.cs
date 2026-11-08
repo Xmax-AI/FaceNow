@@ -37,15 +37,23 @@ public sealed partial class MainWindow
     private async Task VerifyFramesAsync()
     {
         VerifyGenerationLayout();
-        using var client = new XmaxClient(); await using var realtime = client.CreateRealtime();
+        using var client = new XmaxClient();
+        await using var realtime = client.CreateRealtimeManager();
         var source = new VideoVerificationSource();
         var stream = await realtime.CreateExternalVideoStreamAsync(source);
         var sink = source.Sink!;
-        localVideoView.VideoSource = stream.VideoTrack;
+        localVideoView.Track = stream.VideoTrack;
         Model.StatisticsVisible = false;
-        localVideoView.Width = 160; localVideoView.Height = 80;
+        localVideoView.Width = 160;
+        localVideoView.Height = 80;
         byte[] pixels = new byte[64 * 8];
-        for (int y = 0; y < 8; ++y) for (int x = 0; x < 16; ++x) { int i = y * 64 + x * 4; pixels[i + (x < 8 ? 2 : 0)] = 255; pixels[i + 3] = 255; }
+        for (int y = 0; y < 8; ++y)
+            for (int x = 0; x < 16; ++x)
+            {
+                int i = y * 64 + x * 4;
+                pixels[i + (x < 8 ? 2 : 0)] = 255;
+                pixels[i + 3] = 255;
+            }
         workspace.Visibility = Visibility.Collapsed;
         sink.PushBgra(pixels, 64, 1000);
         await UntilAsync(() => localVideoView.PresentedFrameCount >= 1);
@@ -57,39 +65,45 @@ public sealed partial class MainWindow
         await Task.Delay(100);
         await VerifyFramePixelsAsync(localVideoView, false);
         await SaveScreenshotAsync("render-bgra", localVideoView);
-        await realtime.SetVideoMirrorAsync(new(true, false, false));
+        localVideoView.IsMirrored = true;
         sink.PushBgra(pixels, 64, 2000);
         await UntilAsync(() => localVideoView.PresentedFrameCount >= 2);
         await Task.Delay(100);
         await VerifyFramePixelsAsync(localVideoView, true);
-        await realtime.SetVideoMirrorAsync(default);
-        localVideoView.IsMirrored = true;
         await Task.Run(() => { for (int i = 3; i <= 100; ++i) sink.PushBgra(pixels, 64, i * 1000); });
         await UntilAsync(() => localVideoView.LastPresentedTimestampMicroseconds == 100000);
-        localVideoPanel.Children.Remove(localVideoView); await Task.Delay(50); localVideoPanel.Children.Insert(0, localVideoView);
-        sink.PushBgra(pixels, 64, 101000); await UntilAsync(() => localVideoView.LastPresentedTimestampMicroseconds == 101000);
-        await using var resultController = client.CreateRealtime();
+        localVideoPanel.Children.Remove(localVideoView);
+        await Task.Delay(50);
+        localVideoPanel.Children.Insert(0, localVideoView);
+        sink.PushBgra(pixels, 64, 101000);
+        await UntilAsync(() => localVideoView.LastPresentedTimestampMicroseconds == 101000);
+        await using var resultController = client.CreateRealtimeManager();
         var resultSource = new VideoVerificationSource();
         var result = await resultController.CreateExternalVideoStreamAsync(resultSource);
-        resultVideoView.Width = 160; resultVideoView.Height = 80;
-        resultVideoView.VideoSource = result.VideoTrack;
+        resultVideoView.Width = 160;
+        resultVideoView.Height = 80;
+        resultVideoView.Track = result.VideoTrack;
         Check(resultVideoView.PresentedFrameCount == 0, "Result appeared before its first frame.");
         resultSource.Sink!.PushBgra(pixels, 64, 1000);
         await UntilAsync(() => resultVideoView.PresentedFrameCount == 1);
-        await Task.Delay(350); await VerifyFramePixelsAsync(resultVideoView, true);
+        await Task.Delay(350);
+        await VerifyFramePixelsAsync(resultVideoView, true);
         sink.PushBgra(pixels, 64, 102000);
         await UntilAsync(() => localVideoView.LastPresentedTimestampMicroseconds == 102000);
-        resultVideoView.VideoSource = null;
+        resultVideoView.Track = null;
         Check(resultVideoView.PresentedFrameCount == 0 && localVideoView.PresentedFrameCount > 0,
             "Clearing the result must leave the local preview running.");
-        localVideoView.VideoSource = null;
+        localVideoView.Track = null;
         await VerifyGenerationMicrophoneLevelAsync();
     }
 
     private async Task VerifyGenerationMicrophoneLevelAsync()
     {
         string Level() => AutomationProperties.GetItemStatus(sessionInputLevel);
-        Check(sessionInputLevel.Visibility == Visibility.Collapsed, "The input meter must start hidden with the microphone off.");
+        Check(
+            sessionInputLevel.Visibility == Visibility.Collapsed,
+            "The input meter must start hidden with the microphone off."
+        );
         await Model.SelectMicrophoneAsync(RealtimeMicrophone.SystemDefault);
         var receiveLevel = Model.CreateMicrophoneLevelHandler();
         receiveLevel(.55f);
@@ -114,21 +128,35 @@ public sealed partial class MainWindow
         Check(Level() == "0%", "The input meter accepted a reading from the previous session.");
         await Model.SelectMicrophoneAsync(RealtimeMicrophone.Disabled);
     }
-    private static async Task VerifyFramePixelsAsync(XmaxRealtimeVideoView video, bool mirrored)
+
+    private static async Task VerifyFramePixelsAsync(
+        XmaxRealtimeVideoView video,
+        bool mirrored
+    )
     {
-        var bitmap = new RenderTargetBitmap(); await bitmap.RenderAsync(video, 160, 80);
-        using var reader = DataReader.FromBuffer(await bitmap.GetPixelsAsync()); byte[] bytes = new byte[reader.UnconsumedBufferLength]; reader.ReadBytes(bytes);
+        var bitmap = new RenderTargetBitmap();
+        await bitmap.RenderAsync(video, 160, 80);
+        using var reader = DataReader.FromBuffer(await bitmap.GetPixelsAsync());
+        byte[] bytes = new byte[reader.UnconsumedBufferLength];
+        reader.ReadBytes(bytes);
         int left = (bitmap.PixelHeight / 2 * bitmap.PixelWidth + bitmap.PixelWidth / 8) * 4;
         int right = (bitmap.PixelHeight / 2 * bitmap.PixelWidth + bitmap.PixelWidth * 7 / 8) * 4;
-        Check(bytes[left + (mirrored ? 0 : 2)] > 200 && bytes[right + (mirrored ? 2 : 0)] > 200, "WinUI displayed pixels or mirror metadata differ from the input.");
+        Check(
+            bytes[left + (mirrored ? 0 : 2)] > 200 && bytes[right + (mirrored ? 2 : 0)] > 200,
+            "WinUI displayed pixels or mirror metadata differ from the input."
+        );
     }
 
     private sealed class VideoVerificationSource : IRealtimeExternalVideoSource
     {
         public VideoFormat VideoFormat => new(16, 8);
-        public ExternalFrameSink? Sink { get; private set; }
 
-        public Task StartAsync(ExternalFrameSink sink, CancellationToken cancellationToken)
+        public IRealtimeExternalFrameSink? Sink { get; private set; }
+
+        public Task StartAsync(
+            IRealtimeExternalFrameSink sink,
+            CancellationToken cancellationToken
+        )
         {
             Sink = sink;
             return Task.CompletedTask;

@@ -2,11 +2,6 @@
 //  Program.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.Core.Localization;
 using FaceNow.Core.User;
@@ -184,14 +179,13 @@ var tests = new (string Name, Func<Task> Run)[]
     {
         var output = new FakeOutput { Gate = new() }; var access = new FakeAccess();
         var model = ActiveModel(output, access); var receive = model.CreateSessionStateHandler();
-        var events = model.CreateSessionEventHandler();
         receive(FailedState(-15, "Session heartbeat timed out"));
         Check(!model.Active && model.IsClosing && model.Busy && !model.CanEdit);
         Check(model.Error == AppText.Get("Session heartbeat timed out") && !model.StartCommand.CanExecute(null));
         await model.StartLandingAsync(); await model.GenerateAsync();
         Check(!model.Active && access.KeyReads == 0 && access.CreditChecks == 0);
         receive(new RealtimeState(RealtimeConnectionState.Generating));
-        events(Event(RealtimeEventType.Error, code: -4, message: "Late unrelated error"));
+        receive(FailedState(-4, "Late unrelated error"));
         Check(!model.Active && model.Error == AppText.Get("Session heartbeat timed out") && output.Stops == 1);
         Task cleanup = model.StopAsync(); output.Gate.SetResult(); await cleanup;
         Check(!model.IsClosing && !model.Busy && model.State == RealtimeConnectionState.Ready && model.Session is null,
@@ -205,7 +199,7 @@ var tests = new (string Name, Func<Task> Run)[]
         {
             var output = new FakeOutput(); var access = new FakeAccess(); var model = ActiveModel(output, access);
             int rejected = 0; model.AuthenticationRejected += () => rejected++;
-            model.CreateSessionEventHandler()(Event(RealtimeEventType.Error, code: -4, apiCode: apiCode, http: 403, message: "Billing refused"));
+            model.CreateSessionStateHandler()(FailedState(-4, "Billing refused", apiCode, 403));
             Check(!model.Active && model.Error == CreditPolicy.InsufficientMessage && rejected == 0);
             Check(output.Stops == 1 && access.CreditChecks == 0 && access.KeyReads == 0 && access.HasVerifiedSession);
             await model.StopAsync();
@@ -214,16 +208,16 @@ var tests = new (string Name, Func<Task> Run)[]
     ("SDK operation credit failures normalize the notice and end the session", async () =>
     {
         var output = new FakeOutput(); var model = ActiveModel(output);
-        model.ReportError(new XmaxException(-15, "INSUFFICIENT_CREDITS"));
+        model.ReportError(new XmaxException(XmaxErrorCode.SessionError, "INSUFFICIENT_CREDITS"));
         Check(!model.Active && model.Error == CreditPolicy.InsufficientMessage && output.Stops == 1);
         await model.StopAsync();
     }),
     ("Transient and non-platform errors preserve generation", () =>
     {
-        var output = new FakeOutput(); var model = ActiveModel(output); var receive = model.CreateSessionEventHandler();
-        receive(Event(RealtimeEventType.Error, code: -4, message: "Request timed out"));
+        var output = new FakeOutput(); var model = ActiveModel(output);
+        model.ReportError(new XmaxException(XmaxErrorCode.ApiError, "Request timed out"));
         Check(model.Active && output.Stops == 0 && model.Error == AppText.Get("Request timed out"));
-        model.ReportError(new XmaxException(-1, "Insufficient credits"));
+        model.ReportError(new XmaxException(XmaxErrorCode.InvalidConfiguration, "Insufficient credits"));
         Check(model.Active && output.Stops == 0 && model.Error == AppText.Get("Insufficient credits"));
         return Task.CompletedTask;
     }),
@@ -255,17 +249,16 @@ var tests = new (string Name, Func<Task> Run)[]
         Task cleanup = model.StopAsync(); startup.SetException(new IOException("Late output startup failed"));
         await cleanup; Check(!model.Busy && output.Stops == 2 && model.Error == AppText.Get("Session ended"));
     }),
-    ("Terminal state preserves its full error and ignores later diagnostic events", async () =>
+    ("Terminal state preserves its full error and ignores later state callbacks", async () =>
     {
         var output = new FakeOutput { Gate = new() }; var model = ActiveModel(output);
         var receive = model.CreateSessionStateHandler();
-        var events = model.CreateSessionEventHandler();
         receive(FailedState(-15, "Heartbeat connection lost"));
         Check(!model.Active && model.IsClosing && model.Error == AppText.Get("Heartbeat connection lost"));
-        events(Event(RealtimeEventType.Error, code: -15, message: "Unrelated failure"));
+        receive(FailedState(-15, "Unrelated failure"));
         Check(model.Error == AppText.Get("Heartbeat connection lost") && output.Stops == 1);
         model.ClearError();
-        events(Event(RealtimeEventType.Error, code: -15, message: "Heartbeat connection lost"));
+        receive(FailedState(-15, "Heartbeat connection lost"));
         Check(model.Error == AppText.Get(""));
         output.Gate.SetResult();
         await model.StopAsync();
@@ -285,16 +278,15 @@ var tests = new (string Name, Func<Task> Run)[]
         old(FailedState(-15, "Stale failure"));
         old(new RealtimeState(RealtimeConnectionState.Generating));
         Check(model.Active && model.Error == AppText.Get(""));
-        model.CreateSessionEventHandler()(Event(RealtimeEventType.Error, code: -4, message: "Current notice"));
+        model.ReportError(new XmaxException(XmaxErrorCode.ApiError, "Current notice"));
         Check(model.Active && model.Error == AppText.Get("Current notice"));
     }),
     ("Authentication uses the service ApiCode, never the SDK result field", () =>
     {
         var model = ActiveModel(new FakeOutput(), new FakeAccess()); int rejected = 0;
         model.AuthenticationRejected += () => rejected++;
-        var receive = model.CreateSessionEventHandler();
-        receive(Event(RealtimeEventType.Error, code: 46002, message: "SDK result is not a business code")); Check(rejected == 0);
-        receive(Event(RealtimeEventType.Error, code: -4, apiCode: 46002, message: "Session expired")); Check(rejected == 1);
+        model.ReportError(new XmaxException(46002, "SDK result is not a business code")); Check(rejected == 0);
+        model.ReportError(new XmaxException(XmaxErrorCode.ApiError, "Session expired", apiCode: 46002)); Check(rejected == 1);
         return Task.CompletedTask;
     }),
 };
@@ -314,11 +306,8 @@ static MainViewModel ActiveModel(FakeOutput output, IGenerationAccess? access = 
     model.ConfigurePreview(true);
     return model;
 }
-static RealtimeState FailedState(int code, string message) =>
-    new(RealtimeConnectionState.Ready, "test-session", null, new RealtimeReason.Failure(new(code, message)));
-
-static RealtimeEvent Event(RealtimeEventType type, int code = 0, int apiCode = 0, int http = 0, string message = "") =>
-    new(type, RealtimeConnectionState.Ready, code, message, "test-session", "test-task", 0, apiCode, http, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+static RealtimeState FailedState(int code, string message, int apiCode = 0, int http = 0) =>
+    new(RealtimeConnectionState.Ready, "test-session", null, new RealtimeReason.Failure(new(code, message, apiCode, http)));
 
 sealed class FakeOutput : IVirtualCameraOutput
 {

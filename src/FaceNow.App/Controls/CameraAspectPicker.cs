@@ -2,11 +2,6 @@
 //  CameraAspectPicker.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.App.User;
 using Microsoft.UI.Text;
@@ -30,17 +25,24 @@ internal sealed class CameraAspectPicker : UserControl
         """);
 
     private readonly Dictionary<VideoFormat, RadioButton> segments = [];
+
     internal event Action<VideoFormat>? SelectionChanged;
 
-    internal CameraAspectPicker(IReadOnlyList<(string Ratio, VideoFormat Format)> options)
+    internal CameraAspectPicker(
+        IReadOnlyList<(string Ratio, VideoFormat Format)> options
+    )
     {
         Height = 34;
         HorizontalAlignment = HorizontalAlignment.Center;
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2 };
         Content = new Border
         {
-            CornerRadius = new(17), Padding = new(3), BorderThickness = new(1),
-            Background = Theme.Brush("#47000000"), BorderBrush = Theme.Brush("#29FFFFFF"), Child = row
+            CornerRadius = new(17),
+            Padding = new(3),
+            BorderThickness = new(1),
+            Background = Theme.Brush("#47000000"),
+            BorderBrush = Theme.Brush("#29FFFFFF"),
+            Child = row
         };
         var labels = options.Select(option =>
         {
@@ -59,8 +61,15 @@ internal sealed class CameraAspectPicker : UserControl
             label.Foreground = foreground;
             var segment = new RadioButton
             {
-                Template = SegmentTemplate, Content = label, Background = surface, Width = segmentWidth, Height = 26,
-                MinWidth = 0, MinHeight = 0, Padding = new(0), UseSystemFocusVisuals = true
+                Template = SegmentTemplate,
+                Content = label,
+                Background = surface,
+                Width = segmentWidth,
+                Height = 26,
+                MinWidth = 0,
+                MinHeight = 0,
+                Padding = new(0),
+                UseSystemFocusVisuals = true
             };
             bool hovered = false, pressed = false;
             void RefreshSegment()
@@ -70,12 +79,31 @@ internal sealed class CameraAspectPicker : UserControl
                     : pressed ? "#26FFFFFF" : hovered ? "#14FFFFFF" : "#00000000");
                 LoginMotion.Color(segment, foreground, selected || hovered ? "#FFFFFF" : "#D9FFFFFF");
             }
-            segment.RegisterPropertyChangedCallback(ToggleButton.IsCheckedProperty, (_, _) => RefreshSegment());
+            segment.RegisterPropertyChangedCallback(
+                ToggleButton.IsCheckedProperty,
+                (_, _) => RefreshSegment()
+            );
             segment.Checked += (_, _) => SelectionChanged?.Invoke(format);
-            segment.PointerEntered += (_, _) => { hovered = true; RefreshSegment(); };
-            segment.PointerExited += (_, _) => { hovered = pressed = false; RefreshSegment(); };
-            segment.PointerPressed += (_, _) => { pressed = true; RefreshSegment(); };
-            segment.PointerReleased += (_, _) => { pressed = false; RefreshSegment(); };
+            segment.PointerEntered += (_, _) =>
+            {
+                hovered = true;
+                RefreshSegment();
+            };
+            segment.PointerExited += (_, _) =>
+            {
+                hovered = pressed = false;
+                RefreshSegment();
+            };
+            segment.PointerPressed += (_, _) =>
+            {
+                pressed = true;
+                RefreshSegment();
+            };
+            segment.PointerReleased += (_, _) =>
+            {
+                pressed = false;
+                RefreshSegment();
+            };
             AutomationProperties.SetName(segment, ratio);
             ToolTipService.SetToolTip(segment, $"{format.Width} × {format.Height}");
             segments.Add(format, segment);
@@ -83,9 +111,13 @@ internal sealed class CameraAspectPicker : UserControl
         }
     }
 
-    internal void Update(VideoFormat format, bool enabled)
+    internal void Update(
+        VideoFormat format,
+        bool enabled
+    )
     {
-        if (segments.TryGetValue(format, out var selected)) selected.IsChecked = true;
+        if (segments.TryGetValue(format, out var selected))
+            selected.IsChecked = true;
         IsEnabled = enabled;
         LoginMotion.Opacity(this, enabled ? 1 : .5);
     }

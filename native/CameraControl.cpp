@@ -1,10 +1,20 @@
+//
+//  CameraControl.cpp
+//  FaceNow
+//
+
 // FaceNow's native, architecture-matched camera installer and diagnostic host.
 #include <windows.h>
+#ifdef FACENOW_DIRECTSHOW_BACKEND
+#include <dshow.h>
+#include <shellapi.h>
+#else
 #include <mfapi.h>
 #include <mfidl.h>
 #include <mfreadwrite.h>
 #include <mfvirtualcamera.h>
 #include <mferror.h>
+#endif
 #include <wrl/client.h>
 #include <shlobj.h>
 #include <wincrypt.h>
@@ -12,13 +22,16 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
 #include "Identity.h"
+#ifndef FACENOW_DIRECTSHOW_BACKEND
 #include "FrameProtocol.h"
+#endif
 
 using Microsoft::WRL::ComPtr;
 namespace fs = std::filesystem;
@@ -53,9 +66,15 @@ void WriteString(HKEY root, const wchar_t* key, const wchar_t* name, const std::
     auto code = RegSetValueExW(handle, name, 0, REG_SZ, (const BYTE*)value.c_str(), (DWORD)((value.size() + 1) * sizeof(wchar_t)));
     RegCloseKey(handle); Check(HRESULT_FROM_WIN32(code), "write registry");
 }
-fs::path Directory() { wchar_t path[32768]; auto length = GetModuleFileNameW(nullptr, path, 32768); if (!length || length >= 32768) throw Failure{E_FAIL,"locate camera helper"}; return fs::path(path).parent_path(); }
-std::wstring InstalledSource() { return ReadString(HKEY_LOCAL_MACHINE, ClassKey, nullptr); }
-std::wstring DeviceLink() { return ReadString(HKEY_CURRENT_USER, UserKey, L"SymbolicLink"); }
+fs::path ExecutablePath() { wchar_t path[32768]; auto length = GetModuleFileNameW(nullptr, path, 32768); if (!length || length >= 32768) throw Failure{E_FAIL,"locate camera helper"}; return path; }
+fs::path Directory() { return ExecutablePath().parent_path(); }
+std::wstring InstalledSource() {
+#ifdef FACENOW_DIRECTSHOW_BACKEND
+    return ReadString(HKEY_LOCAL_MACHINE, DirectShowClassKey, nullptr);
+#else
+    return ReadString(HKEY_LOCAL_MACHINE, ClassKey, nullptr);
+#endif
+}
 bool IsCurrentSource(const fs::path& installed) {
     if (!fs::is_regular_file(installed)) return false;
     auto hashFile = [](const fs::path& path) {
@@ -69,6 +88,27 @@ bool IsCurrentSource(const fs::path& installed) {
     auto expected = hashFile(Directory() / SourceFile);
     return !expected.empty() && expected == hashFile(installed);
 }
+fs::path DeploySource() {
+    // The elevated command accepts no path from the UI: only our sibling source DLL is installed.
+    auto source = Directory() / SourceFile;
+    std::ifstream input(source, std::ios::binary); if (!input) throw Failure{HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND),"locate camera DLL"};
+    std::vector<BYTE> bytes((std::istreambuf_iterator<char>(input)), {});
+    if (bytes.empty() || bytes.size() > 32 * 1024 * 1024) throw Failure{E_INVALIDARG,"validate camera DLL size"};
+    BYTE hash[32]; DWORD hashSize = sizeof(hash);
+    if (!CryptHashCertificate2(L"SHA256", 0, nullptr, bytes.data(), (DWORD)bytes.size(), hash, &hashSize)) throw Failure{HRESULT_FROM_WIN32(GetLastError()),"hash camera DLL"};
+    std::wostringstream version; for (unsigned i = 0; i < 12; i++) version << std::hex << std::setw(2) << std::setfill(L'0') << (unsigned)hash[i];
+    wchar_t* programFiles = nullptr; Check(SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, nullptr, &programFiles), "locate Program Files");
+    fs::path destination = fs::path(programFiles) / L"FaceNow" / L"Camera" / version.str(); CoTaskMemFree(programFiles);
+    fs::create_directories(destination);
+    destination /= SourceFile;
+    if (!CopyFileW(source.c_str(), destination.c_str(), TRUE) && GetLastError() != ERROR_FILE_EXISTS) throw Failure{HRESULT_FROM_WIN32(GetLastError()),"deploy camera DLL"};
+    return destination;
+}
+
+#ifdef FACENOW_DIRECTSHOW_BACKEND
+#include "DirectShow/DeviceControl.h"
+#else
+std::wstring DeviceLink() { return ReadString(HKEY_CURRENT_USER, UserKey, L"SymbolicLink"); }
 ComPtr<IMFMediaSource> FindDevice(const std::wstring& link) {
     if (link.empty()) return {};
     ComPtr<IMFAttributes> attributes; Check(MFCreateAttributes(&attributes, 1), "create enumeration attributes");
@@ -88,17 +128,26 @@ ComPtr<IMFMediaSource> FindDevice(const std::wstring& link) {
     if (!match) return {};
     ComPtr<IMFMediaSource> source; Check(match->ActivateObject(IID_PPV_ARGS(&source)), "activate registered camera"); return source;
 }
-bool DeviceExists(const std::wstring& link) {
+bool DeviceExists(const std::wstring& link, bool& nameCurrent, const wchar_t* expectedName = CameraName) {
     // Enumeration only: querying status must not activate a stream.
-    if (link.empty()) return false;
     ComPtr<IMFAttributes> attributes; Check(MFCreateAttributes(&attributes, 1), "create enumeration attributes");
     Check(attributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID), "set camera type");
     IMFActivate** devices = nullptr; UINT32 count = 0; bool found = false;
     Check(MFEnumDeviceSources(attributes.Get(), &devices, &count), "enumerate camera status");
     for (UINT32 i = 0; i < count; ++i) {
+        bool match = link.empty();
         wchar_t* id = nullptr; UINT32 size = 0;
-        if (SUCCEEDED(devices[i]->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, &id, &size))) {
-            found |= _wcsicmp(id, link.c_str()) == 0; CoTaskMemFree(id);
+        if (!match && SUCCEEDED(devices[i]->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, &id, &size))) {
+            match = _wcsicmp(id, link.c_str()) == 0;
+            CoTaskMemFree(id);
+        }
+        if (match) {
+            wchar_t* name = nullptr;
+            if (SUCCEEDED(devices[i]->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, &name, &size))) {
+                nameCurrent |= std::wstring_view(name).rfind(expectedName, 0) == 0;
+                CoTaskMemFree(name);
+            }
+            found |= !link.empty() || nameCurrent;
         }
         devices[i]->Release();
     }
@@ -107,48 +156,56 @@ bool DeviceExists(const std::wstring& link) {
 void Status() {
     auto path = InstalledSource(); auto link = DeviceLink();
     bool installed = !path.empty() && fs::is_regular_file(path);
+    bool nameCurrent = false;
+    bool registered = !link.empty() && DeviceExists(link, nameCurrent);
     std::cout << "{\"installed\":" << (installed ? "true" : "false") << ",\"current\":" << (installed && IsCurrentSource(path) ? "true" : "false") << ",\"registered\":"
-        << (DeviceExists(link) ? "true" : "false") << ",\"symbolicLink\":" << Json(link) << "}\n";
+        << (registered ? "true" : "false") << ",\"nameCurrent\":" << (nameCurrent ? "true" : "false")
+        << ",\"symbolicLink\":" << Json(link) << "}\n";
 }
 void Install() {
-    // The elevated command accepts no path from the UI: only our sibling source DLL is installed.
-    auto source = Directory() / SourceFile;
-    std::ifstream input(source, std::ios::binary); if (!input) throw Failure{HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND),"locate camera DLL"};
-    std::vector<BYTE> bytes((std::istreambuf_iterator<char>(input)), {});
-    if (bytes.empty() || bytes.size() > 32 * 1024 * 1024) throw Failure{E_INVALIDARG,"validate camera DLL size"};
-    BYTE hash[32]; DWORD hashSize = sizeof(hash);
-    if (!CryptHashCertificate2(L"SHA256", 0, nullptr, bytes.data(), (DWORD)bytes.size(), hash, &hashSize)) throw Failure{HRESULT_FROM_WIN32(GetLastError()),"hash camera DLL"};
-    std::wostringstream version; for (unsigned i = 0; i < 12; i++) version << std::hex << std::setw(2) << std::setfill(L'0') << (unsigned)hash[i];
-    wchar_t* programFiles = nullptr; Check(SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, nullptr, &programFiles), "locate Program Files");
-    fs::path destination = fs::path(programFiles) / L"FaceNow" / L"Camera" / version.str(); CoTaskMemFree(programFiles);
-    fs::create_directories(destination);
-    destination /= SourceFile;
-    if (!CopyFileW(source.c_str(), destination.c_str(), TRUE) && GetLastError() != ERROR_FILE_EXISTS) throw Failure{HRESULT_FROM_WIN32(GetLastError()),"deploy camera DLL"};
+    auto destination = DeploySource();
     WriteString(HKEY_LOCAL_MACHINE, ClassKey, nullptr, destination.wstring());
     WriteString(HKEY_LOCAL_MACHINE, ClassKey, L"ThreadingModel", L"Both");
     std::cout << "{\"installed\":true}\n";
 }
-ComPtr<IMFVirtualCamera> OpenCamera() {
+ComPtr<IMFVirtualCamera> OpenCamera(const wchar_t* name) {
     ComPtr<IMFVirtualCamera> camera;
     Check(MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_System,
-        MFVirtualCameraAccess_CurrentUser, CameraName, SourceId, nullptr, 0, &camera), "create virtual camera");
+        MFVirtualCameraAccess_CurrentUser, name, SourceId, nullptr, 0, &camera), "create virtual camera");
     return camera;
+}
+void RemoveCamera(const wchar_t* name) {
+    auto camera = OpenCamera(name);
+    HRESULT result = camera->Remove();
+    camera->Shutdown();
+    if (result == MF_E_INVALIDREQUEST) {
+        bool namePresent = false;
+        if (!DeviceExists({}, namePresent, name))
+            return;
+    }
+    if (result != MF_E_NOT_FOUND && result != HRESULT_FROM_WIN32(ERROR_NOT_FOUND) &&
+        result != HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+        Check(result, "remove virtual camera");
 }
 void Enable() {
     auto path = InstalledSource(); if (path.empty() || !fs::is_regular_file(path)) throw Failure{REGDB_E_CLASSNOTREG,"camera component not installed"};
-    auto camera = OpenCamera(); Check(camera->Start(nullptr), "register virtual camera");
+    auto camera = OpenCamera(CameraName); Check(camera->Start(nullptr), "register virtual camera");
     wchar_t* link = nullptr; UINT32 size = 0;
     Check(camera->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, &link, &size), "read camera symbolic link");
     std::wstring value(link); CoTaskMemFree(link); WriteString(HKEY_CURRENT_USER, UserKey, L"SymbolicLink", value);
-    camera->Shutdown(); Status();
+    camera->Shutdown();
+    // The friendly name is part of the Windows device identity. Publish the new link before retiring the old one.
+    RemoveCamera(LegacyCameraName);
+    Status();
 }
 void Remove() {
-    auto camera = OpenCamera(); Check(camera->Remove(), "remove virtual camera"); camera->Shutdown();
+    RemoveCamera(CameraName);
+    RemoveCamera(LegacyCameraName);
     auto code = RegDeleteKeyValueW(HKEY_CURRENT_USER, UserKey, L"SymbolicLink");
     if (code != ERROR_FILE_NOT_FOUND) Check(HRESULT_FROM_WIN32(code), "remove camera selection record");
     Status();
 }
-ComPtr<IMFMediaSource> LocalSource(const std::wstring& relayLink = {}) {
+ComPtr<IMFMediaSource> LocalSource(const std::wstring& relayLink, bool lateLink) {
     static HMODULE module = LoadLibraryExW((Directory() / SourceFile).c_str(), nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (!module) throw Failure{HRESULT_FROM_WIN32(GetLastError()),"load local camera source"};
     auto factoryMethod = (HRESULT(__stdcall*)(REFCLSID,REFIID,void**))GetProcAddress(module, "DllGetClassObject");
@@ -156,11 +213,20 @@ ComPtr<IMFMediaSource> LocalSource(const std::wstring& relayLink = {}) {
     CLSID clsid; Check(CLSIDFromString(SourceId, &clsid), "parse camera identity");
     ComPtr<IClassFactory> factory; Check(factoryMethod(clsid, IID_PPV_ARGS(&factory)), "get camera factory");
     ComPtr<IMFActivate> activation; Check(factory->CreateInstance(nullptr, IID_PPV_ARGS(&activation)), "create camera activation");
-    if (!relayLink.empty()) Check(activation->SetString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, relayLink.c_str()), "set isolated relay test identity");
-    ComPtr<IMFMediaSource> source; Check(activation->ActivateObject(IID_PPV_ARGS(&source)), "activate local camera source"); return source;
+    if (!relayLink.empty() && !lateLink)
+        Check(activation->SetString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, relayLink.c_str()), "set isolated relay test identity");
+    ComPtr<IMFMediaSource> source; Check(activation->ActivateObject(IID_PPV_ARGS(&source)), "activate local camera source");
+    if (lateLink) {
+        ComPtr<IMFMediaSourceEx> extended;
+        ComPtr<IMFAttributes> attributes;
+        Check(source.As(&extended), "get extended camera source");
+        Check(extended->GetSourceAttributes(&attributes), "get camera source attributes");
+        Check(attributes->SetString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, relayLink.c_str()), "set late relay test identity");
+    }
+    return source;
 }
-void Verify(bool local, const fs::path& screenshot, const std::wstring& relayLink = {}) {
-    auto source = local ? LocalSource(relayLink) : FindDevice(DeviceLink());
+void Verify(bool local, const fs::path& screenshot, const std::wstring& relayLink = {}, bool lateLink = false) {
+    auto source = local ? LocalSource(relayLink, lateLink) : FindDevice(DeviceLink());
     if (!source) throw Failure{MF_E_NOT_FOUND,"find FaceNow camera"};
     try {
         ComPtr<IMFAttributes> attributes; Check(MFCreateAttributes(&attributes, 2), "create reader attributes");
@@ -219,27 +285,46 @@ void Verify(bool local, const fs::path& screenshot, const std::wstring& relayLin
         std::cout << "{\"passed\":true,\"frames\":" << count << ",\"width\":" << width << ",\"height\":" << height << ",\"local\":" << (local ? "true" : "false") << "}\n";
     } catch (...) { source->Shutdown(); throw; }
 }
+#endif
+
 int wmain(int argc, wchar_t** argv) {
-    HRESULT com = CoInitializeEx(nullptr, COINIT_MULTITHREADED); HRESULT media = E_FAIL;
+#ifdef FACENOW_DIRECTSHOW_BACKEND
+    HRESULT com = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+#else
+    HRESULT com = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    HRESULT media = E_FAIL;
+#endif
     int result = 0;
     try {
-        Check(com, "initialize COM"); media = MFStartup(MF_VERSION); Check(media, "initialize Media Foundation");
+        Check(com, "initialize COM");
+#ifndef FACENOW_DIRECTSHOW_BACKEND
+        media = MFStartup(MF_VERSION); Check(media, "initialize Media Foundation");
+#endif
         std::wstring command = argc > 1 ? argv[1] : L"--status";
         if (command == L"--install") Install();
         else if (command == L"--enable") Enable();
         else if (command == L"--remove") Remove();
         else if (command == L"--status") Status();
+#ifdef FACENOW_DIRECTSHOW_BACKEND
+        else if (command == L"--remove-elevated") RemoveInstalledDirectShow();
+#else
         else if (command == L"--self-test" || command == L"--verify") Verify(command == L"--self-test", argc > 2 ? fs::path(argv[2]) : fs::path());
         // Offline integration test: instantiate only the sibling DLL, with no device registration.
         else if (command == L"--self-test-relay" && argc == 4) Verify(true, fs::path(argv[3]), argv[2]);
+        else if (command == L"--self-test-relay-late-link" && argc == 4) Verify(true, fs::path(argv[3]), argv[2], true);
         else if (command == L"--self-test-relay-capture" && argc == 4) {
             auto capture = FaceNowFrames::DeviceInterfaceLink(argv[2], FaceNowFrames::CaptureCategory);
             if (_wcsicmp(capture.c_str(), argv[2]) == 0) throw Failure{MF_E_NOT_FOUND,"resolve DirectShow camera interface"};
             Verify(true, fs::path(argv[3]), capture);
         }
+#endif
         else throw Failure{E_INVALIDARG,"unknown camera command"};
     } catch (const Failure& error) {
         std::cerr << "{\"error\":\"" << error.operation << "\",\"hresult\":\"0x" << std::hex << (unsigned long)error.code << "\"}\n"; result = 1;
     } catch (const std::exception& error) { std::cerr << "Camera operation failed: " << error.what() << '\n'; result = 1; }
-    if (SUCCEEDED(media)) MFShutdown(); if (SUCCEEDED(com)) CoUninitialize(); return result;
+#ifndef FACENOW_DIRECTSHOW_BACKEND
+    if (SUCCEEDED(media)) MFShutdown();
+#endif
+    if (SUCCEEDED(com)) CoUninitialize();
+    return result;
 }

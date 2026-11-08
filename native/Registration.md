@@ -15,7 +15,7 @@
 ## 原生实现
 
 - CLSID：`{C1EF1269-DBA1-473B-BD21-7F3695635A11}`。
-- friendly name：`FaceNow - Xmax Virtual Camera`；系统可能追加名称后缀。
+- 注册名称为 `FaceNow 虚拟摄像头`。Windows 会在设备列表中追加本地化的系统后缀。设备设置会注册新名称，再移除旧名称的注册。
 - `MFVirtualCameraType_SoftwareCameraSource`、`MFVirtualCameraLifetime_System`、`MFVirtualCameraAccess_CurrentUser`。
 - 安装目录：`Program Files/FaceNow/Camera/<DLL SHA256 前 12 字节>/FaceNow.CameraSource.dll`。新版本使用新目录，避免覆盖被占用 DLL；历史版本清理由正式安装器实现。
 - COM：HKLM `Software/Classes/CLSID/{CLSID}/InProcServer32`，线程模型 Both。

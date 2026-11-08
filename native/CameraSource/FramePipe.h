@@ -1,3 +1,8 @@
+//
+//  FramePipe.h
+//  FaceNow
+//
+
 #pragma once
 #include "../FrameProtocol.h"
 #include "CenterFill.h"
@@ -73,6 +78,24 @@ class FramePipe {
         }
         return true;
     }
+
+    bool Connect(bool* publisherMissing = nullptr) {
+        if (pipe) return true;
+        if (name.empty() || !event || GetTickCount64() < retryAt) return false;
+        // Request only data rights; GENERIC_WRITE also asks for pipe-instance creation.
+        pipe.reset(CreateFileW(name.c_str(), FILE_READ_DATA | FILE_WRITE_DATA | SYNCHRONIZE, 0, nullptr, OPEN_EXISTING,
+            FILE_FLAG_OVERLAPPED | SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, nullptr));
+        if (!pipe || pipe.get() == INVALID_HANDLE_VALUE) {
+            DWORD error = GetLastError();
+            if (publisherMissing) *publisherMissing = error == ERROR_FILE_NOT_FOUND;
+            Record(L"connect", error);
+            pipe.reset();
+            retryAt = GetTickCount64() + 250;
+            return false;
+        }
+        Record(L"connected", ERROR_SUCCESS);
+        return true;
+    }
 public:
     void Configure(IMFAttributes* attributes) {
         fixedEndpoint = false;
@@ -83,23 +106,34 @@ public:
         fixedEndpoint = true;
         SetEndpoint(endpoint);
     }
+
+    // Each activation samples the producer's format before advertising its stream.
+    bool TryReadFormat(UINT& width, UINT& height, bool* publisherMissing = nullptr) {
+        if (publisherMissing) *publisherMissing = false;
+        if (!Connect(publisherMissing)) return false;
+        const auto deadline = GetTickCount64() + 100;
+        FaceNowFrames::Request request{FaceNowFrames::FormatRequest, FaceNowFrames::Version};
+        if (!Transfer(&request, sizeof(request), true, deadline) ||
+            !Transfer(&header, sizeof(header), false, deadline) ||
+            header.magic != FaceNowFrames::Magic || header.version != FaceNowFrames::Version ||
+            header.reserved || header.active || header.length || header.width < 2 || header.width > 4096 ||
+            header.height < 2 || header.height > 2160 || (header.width | header.height) % 2)
+            return false;
+        width = outputWidth = header.width;
+        height = outputHeight = header.height;
+        Record(L"format-selected", ERROR_SUCCESS);
+        return true;
+    }
+
     bool Draw(BYTE* output, DWORD length, LONG pitch, UINT width, UINT height) {
         outputPitch = pitch; outputWidth = width; outputHeight = height;
         if (!describedBuffer) { SourceDiagnostic(L"buffer", ERROR_SUCCESS, pitch, width, height, name); describedBuffer = true; }
         // Frame Server may replace an existing activation link after Initialize.
         // Keep reading the shared attributes; a nonempty early link is not final.
         if (!fixedEndpoint) ResolveName();
-        if (name.empty() || !event) return false;
         if (!output || !FaceNowFrames::BgraLayoutFits(width, height, pitch, length)) { Record(L"buffer-invalid", ERROR_INVALID_PARAMETER); return false; }
         auto fail = [&] { pipe.reset(); retryAt = GetTickCount64() + 250; return false; };
-        if (!pipe) {
-            if (GetTickCount64() < retryAt) return false;
-            // Request only data rights; GENERIC_WRITE also asks for pipe-instance creation.
-            pipe.reset(CreateFileW(name.c_str(), FILE_READ_DATA | FILE_WRITE_DATA | SYNCHRONIZE, 0, nullptr, OPEN_EXISTING,
-                FILE_FLAG_OVERLAPPED | SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, nullptr));
-            if (!pipe || pipe.get() == INVALID_HANDLE_VALUE) { Record(L"connect", GetLastError()); return fail(); }
-            Record(L"connected", ERROR_SUCCESS);
-        }
+        if (!Connect()) return false;
         auto deadline = GetTickCount64() + 100;
         FaceNowFrames::Request request;
         if (!Transfer(&request, sizeof(request), true, deadline) ||

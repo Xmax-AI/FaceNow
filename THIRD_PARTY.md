@@ -12,6 +12,7 @@
 - **Windows App SDK / Windows SDK BuildTools / .NET**：按所固定依赖版本的许可证和再分发要求使用。
 - **NAudio.Wasapi / NAudio.Core**：用于将生成音频写入 VB-CABLE 的 WASAPI 播放端点。MIT 许可证见 `licenses/NAudio-MIT.txt`。VB-CABLE 由 VB-Audio 单独分发和安装。
 - **Microsoft Windows-Camera**：`native/CameraSource` 改编自 [VirtualCamera 示例](https://github.com/microsoft/Windows-Camera/tree/master/Samples/VirtualCamera)，保留版权声明，使用 FaceNow 独立 CLSID，简化为合成测试源并修正流选择、分配器和帧生成。MIT 许可证见 `licenses/Windows-Camera-MIT.txt`。
+- Windows 10 x64 摄像头使用 **Microsoft DirectShow BaseClasses**，MIT 许可证随发布包保存在 `licenses/native/DirectShow-BaseClasses-MIT.txt`。[Windows classic samples](https://github.com/microsoft/Windows-classic-samples/tree/434f6002bdf9cf9829406c3ff2b33387982d6168/Samples/Win7Samples/multimedia/directshow/baseclasses)
 - **Windows Implementation Libraries (WIL)**：`native/third_party/wil` 包含 [microsoft/wil](https://github.com/microsoft/wil) 的头文件，供原生媒体源使用。MIT 许可证见 `licenses/WIL-MIT.txt`，构建时不下载依赖。
 
 - **NSIS 3.12**：EXE 安装包使用 [NSIS](https://nsis.sourceforge.io/) 构建，保留官方 `COPYING`，随安装文件置于 `licenses/NSIS-COPYING.txt`；包含其 zlib/libpng 与 LZMA 模块许可证。未修改的对应源码可从 [NSIS 3.12 官方发行目录](https://sourceforge.net/projects/nsis/files/NSIS%203/3.12/) 获取。

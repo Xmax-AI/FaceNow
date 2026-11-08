@@ -1,3 +1,8 @@
+//
+//  UnavailableCameraOutput.cs
+//  FaceNow
+//
+
 using FaceNow.Core.VirtualCamera;
 
 namespace FaceNow.Windows.VirtualCamera;
@@ -12,9 +17,18 @@ public sealed class UnavailableCameraOutput : IVirtualCameraOutput
         : new(CameraOutputState.Unavailable,
             "This virtual camera requires Windows 11. Video is currently available only inside FaceNow.",
             CameraRegistrationState.Unsupported);
-    public Task StartAsync(OutputFormat format, CancellationToken cancellationToken = default) =>
+
+    public Task StartAsync(
+        OutputFormat format,
+        CancellationToken cancellationToken = default
+    ) =>
         Task.FromException(new NotSupportedException(Status.Message));
-    public bool TrySubmit(OutputFrame frame) => false;
+
+    public bool TrySubmit(
+        OutputFrame frame
+    ) => false;
+
     public Task StopAsync() => Task.CompletedTask;
+
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

@@ -1,3 +1,8 @@
+//
+//  SourceDiagnostics.h
+//  FaceNow
+//
+
 #pragma once
 #include <windows.h>
 #include <cstdio>

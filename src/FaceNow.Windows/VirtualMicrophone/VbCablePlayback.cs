@@ -2,11 +2,6 @@
 //  VbCablePlayback.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using Microsoft.Win32;
 using NAudio.CoreAudioApi;
@@ -14,7 +9,10 @@ using NAudio.Wave;
 
 namespace FaceNow.Windows.VirtualMicrophone;
 
-internal enum VbCableDeviceState { NotInstalled, Pending, Ready }
+internal enum VbCableDeviceState
+{
+    NotInstalled, Pending, Ready
+}
 
 internal sealed class VbCablePlayback : IDisposable
 {
@@ -34,7 +32,8 @@ internal sealed class VbCablePlayback : IDisposable
         using var enumerator = new MMDeviceEnumerator();
         using var input = FindEndpoint(enumerator, DataFlow.Render, "CABLE Input");
         using var output = FindEndpoint(enumerator, DataFlow.Capture, OutputEndpointLabel);
-        if (input is not null && output is not null) return (VbCableDeviceState.Ready, output.FriendlyName);
+        if (input is not null && output is not null)
+            return (VbCableDeviceState.Ready, output.FriendlyName);
         using var driver = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\VBAudioVACMME");
         return (driver is null ? VbCableDeviceState.NotInstalled : VbCableDeviceState.Pending, null);
     }
@@ -46,12 +45,20 @@ internal sealed class VbCablePlayback : IDisposable
         return output?.ID;
     }
 
-    private static MMDevice? FindEndpoint(MMDeviceEnumerator enumerator, DataFlow flow, string label)
+    private static MMDevice? FindEndpoint(
+        MMDeviceEnumerator enumerator,
+        DataFlow flow,
+        string label
+    )
     {
         foreach (var device in enumerator.EnumerateAudioEndPoints(flow, DeviceState.Active))
         {
             // Windows can rename the capture endpoint without changing its adapter or endpoint ID.
-            if (flow == DataFlow.Capture && string.Equals(device.DeviceFriendlyName, AdapterName, StringComparison.OrdinalIgnoreCase))
+            if (flow == DataFlow.Capture && string.Equals(
+                device.DeviceFriendlyName,
+                AdapterName,
+                StringComparison.OrdinalIgnoreCase
+            ))
                 return device;
             string name = device.FriendlyName;
             if (name.StartsWith(label + " (", StringComparison.OrdinalIgnoreCase) &&
@@ -62,30 +69,59 @@ internal sealed class VbCablePlayback : IDisposable
         return null;
     }
 
-    internal VbCablePlayback(Action<Exception> faulted)
+    internal VbCablePlayback(
+        Action<Exception> faulted
+    )
     {
         using var enumerator = new MMDeviceEnumerator();
-        device = FindEndpoint(enumerator, DataFlow.Render, "CABLE Input") ?? throw new InvalidOperationException("VB-CABLE is not available.");
-        try { player = new(device, AudioClientShareMode.Shared, true, 40); }
-        catch { device.Dispose(); throw; }
+        device = FindEndpoint(
+            enumerator,
+            DataFlow.Render,
+            "CABLE Input"
+        ) ?? throw new InvalidOperationException("VB-CABLE is not available.");
+        try
+        {
+            player = new(device, AudioClientShareMode.Shared, true, 40);
+        }
+        catch
+        {
+            device.Dispose();
+            throw;
+        }
         try
         {
             player.PlaybackStopped += (_, args) => { if (args.Exception is { } error) faulted(error); };
             player.Init(buffer);
             player.Play();
         }
-        catch { Dispose(); throw; }
+        catch
+        {
+            Dispose();
+            throw;
+        }
     }
 
-    internal void Write(byte[] pcm, int count, bool discontinuous)
+    internal void Write(
+        byte[] pcm,
+        int count,
+        bool discontinuous
+    )
     {
-        if (discontinuous || buffer.BufferedBytes + count > buffer.BufferLength) buffer.ClearBuffer();
+        if (discontinuous || buffer.BufferedBytes + count > buffer.BufferLength)
+            buffer.ClearBuffer();
         buffer.AddSamples(pcm, 0, count);
     }
 
     public void Dispose()
     {
-        try { player.Dispose(); }
-        finally { buffer.ClearBuffer(); device.Dispose(); }
+        try
+        {
+            player.Dispose();
+        }
+        finally
+        {
+            buffer.ClearBuffer();
+            device.Dispose();
+        }
     }
 }

@@ -2,11 +2,6 @@
 //  ToolbarButton.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.App.User;
 using Microsoft.UI.Text;
@@ -15,8 +10,14 @@ using Microsoft.UI.Xaml.Media;
 
 namespace FaceNow.App.Controls;
 
-internal enum ToolbarButtonRole { Action, Menu, Toggle, Status }
-internal enum ToolbarButtonTone { Neutral, Accent, Warm, Danger, FilledAccent, SoftAccent }
+internal enum ToolbarButtonRole
+{
+    Action, Menu, Toggle, Status
+}
+internal enum ToolbarButtonTone
+{
+    Neutral, Accent, Warm, Danger, FilledAccent, SoftAccent
+}
 
 /// <summary>Shared geometry and interaction states for home and generation toolbar controls.</summary>
 internal class ToolbarButton : Pill
@@ -37,8 +38,11 @@ internal class ToolbarButton : Pill
     private readonly GradientStop bottom = new() { Offset = 1 };
     private ToolbarButtonTone tone;
 
-    internal ToolbarButton(ToolbarButtonRole role = ToolbarButtonRole.Action,
-        ToolbarButtonTone tone = ToolbarButtonTone.Neutral, bool circular = false)
+    internal ToolbarButton(
+        ToolbarButtonRole role = ToolbarButtonRole.Action,
+        ToolbarButtonTone tone = ToolbarButtonTone.Neutral,
+        bool circular = false
+    )
     {
         this.role = role;
         this.tone = tone;
@@ -71,7 +75,8 @@ internal class ToolbarButton : Pill
         get => tone;
         set
         {
-            if (tone == value) return;
+            if (tone == value)
+                return;
             tone = value;
             Refresh();
         }
@@ -94,7 +99,11 @@ internal class ToolbarButton : Pill
         base.Refresh();
     }
 
-    protected override void ApplyAppearance(bool hot, bool pressed, bool focused)
+    protected override void ApplyAppearance(
+        bool hot,
+        bool pressed,
+        bool focused
+    )
     {
         bool interactive = IsEnabled && role != ToolbarButtonRole.Status;
         hot &= interactive;

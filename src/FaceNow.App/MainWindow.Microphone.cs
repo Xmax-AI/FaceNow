@@ -2,11 +2,6 @@
 //  MainWindow.Microphone.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.App.Controls;
 using Microsoft.UI.Xaml;
@@ -22,19 +17,34 @@ public sealed partial class MainWindow
 {
     private const double ModeTabsTopSpacing = 24;
     private readonly LandingInputButton homeMicrophone = new("Microphone Off");
-    private readonly ToolbarButton sessionMicrophone = new(ToolbarButtonRole.Menu, ToolbarButtonTone.SoftAccent)
+    private readonly ToolbarButton sessionMicrophone = new(
+        ToolbarButtonRole.Menu,
+        ToolbarButtonTone.SoftAccent
+    )
     {
-        Text = "Microphone Off", Glyph = "microphoneOff", MaxWidth = 280, LabelMaxWidth = 190,
-        HorizontalAlignment = HorizontalAlignment.Left, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        Text = "Microphone Off",
+        Glyph = "microphoneOff",
+        MaxWidth = 280,
+        LabelMaxWidth = 190,
+        HorizontalAlignment = HorizontalAlignment.Left,
+        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
     };
     private readonly InputLevelMeter sessionInputLevel = new();
     private readonly ToolbarButton sessionAudioAdjustments = new(tone: ToolbarButtonTone.SoftAccent)
     {
-        Text = AudioVideoAdjustmentView.Title, Glyph = "adjustments"
+        Text = AudioVideoAdjustmentView.Title,
+        Glyph = "adjustments"
     };
-    private readonly Border sessionAudioControls = new() { Height = ToolbarButton.ControlHeight + 16, Margin = new(0, 12, 0, 0), Padding = new(8, 0, 8, 0),
-        CornerRadius = new(16), Background = Theme.Brush("#FFFFFF"),
-        BorderThickness = new(1), BorderBrush = Theme.Brush("#E5E7EB") };
+    private readonly Border sessionAudioControls = new()
+    {
+        Height = ToolbarButton.ControlHeight + 16,
+        Margin = new(0, 12, 0, 0),
+        Padding = new(8, 0, 8, 0),
+        CornerRadius = new(16),
+        Background = Theme.Brush("#FFFFFF"),
+        BorderThickness = new(1),
+        BorderBrush = Theme.Brush("#E5E7EB")
+    };
     private Popup? audioAdjustmentPopup;
 
     private void BindMicrophones()
@@ -50,10 +60,15 @@ public sealed partial class MainWindow
     {
         var row = new Grid { VerticalAlignment = VerticalAlignment.Center, ColumnSpacing = 20 };
         row.ColumnDefinitions.Add(new());
-        row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new()
+        {
+            Width = GridLength.Auto
+        });
         row.Children.Add(new StackPanel
         {
-            Orientation = Orientation.Horizontal, Spacing = 12, VerticalAlignment = VerticalAlignment.Center,
+            Orientation = Orientation.Horizontal,
+            Spacing = 12,
+            VerticalAlignment = VerticalAlignment.Center,
             Children = { sessionMicrophone, sessionInputLevel }
         });
         Grid.SetColumn(sessionAudioAdjustments, 1);
@@ -66,10 +81,18 @@ public sealed partial class MainWindow
 
     private void OpenAudioAdjustments()
     {
-        if (audioAdjustmentPopup?.IsOpen == true) { ClosePopups(); return; }
+        if (audioAdjustmentPopup?.IsOpen == true)
+        {
+            ClosePopups();
+            return;
+        }
         var content = new AudioVideoAdjustmentView(Model.AudioSyncOffsetMilliseconds, Model.IsPreview,
             Model.SetAudioSyncOffsetMilliseconds,
-            () => { ClosePopups(); sessionAudioAdjustments.Focus(FocusState.Programmatic); });
+            () =>
+            {
+                ClosePopups();
+                sessionAudioAdjustments.Focus(FocusState.Programmatic);
+            });
         var popup = OpenPopup(sessionAudioAdjustments, content, 480, 23, above: null, cornerRadius: 16);
         audioAdjustmentPopup = popup;
         DispatcherQueue.TryEnqueue(() => { if (popup.IsOpen) content.FocusCloseButton(); });
@@ -92,13 +115,16 @@ public sealed partial class MainWindow
         sessionAudioAdjustments.IsEnabled = Model.Active && !Model.IsClosing;
     }
 
-    private async Task OpenMicrophonesAsync(Pill anchor)
+    private async Task OpenMicrophonesAsync(
+        Pill anchor
+    )
     {
         try
         {
             var (devices, showSystemDefault) = await Model.ListMicrophonesAsync();
             if (closing || !anchor.IsEnabled || !anchor.IsLoaded || accountRepository?.CanAccessHome == false
-                || Model.Active != (anchor == sessionMicrophone)) return;
+                || Model.Active != (anchor == sessionMicrophone))
+                return;
             RefreshMicrophoneUi();
 
             // The packaged WinUI runtime can fail to load RadioMenuFlyoutItem's default style.
@@ -113,23 +139,34 @@ public sealed partial class MainWindow
             const double width = 276, padding = 8;
             var scroll = new ScrollViewer
             {
-                Content = list, MaxHeight = 250, HorizontalScrollMode = ScrollMode.Disabled,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+                Content = list,
+                MaxHeight = 250,
+                HorizontalScrollMode = ScrollMode.Disabled,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
             };
             scroll.Measure(new Size(width - padding * 2, double.PositiveInfinity));
-            double anchorBottom = anchor.TransformToVisual(root).TransformPoint(new Point(0, anchor.ActualHeight)).Y;
+            double anchorBottom = anchor.TransformToVisual(root).TransformPoint(new Point(
+                0,
+                anchor.ActualHeight
+            )).Y;
             var popup = OpenPopup(anchor, scroll, width, padding,
                 above: anchorBottom + 8 + padding * 2 + scroll.DesiredSize.Height > root.ActualHeight);
             DispatcherQueue.TryEnqueue(() =>
             {
-                if (popup.IsOpen) (selectedItem ?? (Button)list.Children[0]).Focus(FocusState.Programmatic);
+                if (popup.IsOpen)
+                    (selectedItem ?? (Button)list.Children[0]).Focus(FocusState.Programmatic);
             });
 
-            void Add(string label, RealtimeMicrophone selection)
+            void Add(
+                string label,
+                RealtimeMicrophone selection
+            )
             {
                 bool selected = selection == Model.Microphone;
                 var item = CreateInputPickerRow(label, selected);
-                if (selected) selectedItem = item;
+                if (selected)
+                    selectedItem = item;
                 item.Click += async (_, _) =>
                 {
                     ClosePopups();
@@ -139,6 +176,9 @@ public sealed partial class MainWindow
                 list.Children.Add(item);
             }
         }
-        catch (Exception error) { Model.ReportError(error); }
+        catch (Exception error)
+        {
+            Model.ReportError(error);
+        }
     }
 }

@@ -1,3 +1,8 @@
+//
+//  ReferenceUploadOverlay.cs
+//  FaceNow
+//
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -11,31 +16,61 @@ internal sealed class ReferenceUploadOverlay : Grid
     private readonly TextBlock progressLabel;
     private bool uploading;
 
-    internal ReferenceUploadOverlay(bool compact = false)
+    internal ReferenceUploadOverlay(
+        bool compact = false
+    )
     {
-        Children.Add(new Border { Background = Theme.Brush("#8C000000"), CornerRadius = new(compact ? 22 : 32) });
+        Children.Add(new Border
+        {
+            Background = Theme.Brush("#8C000000"),
+            CornerRadius = new(compact ? 22 : 32)
+        });
         IsHitTestVisible = false;
         Visibility = Visibility.Collapsed;
         var content = new StackPanel
         {
-            Spacing = 3, HorizontalAlignment = HorizontalAlignment.Center,
+            Spacing = 3,
+            HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
         // Use XAML geometry, as in XLab; the default Lottie ProgressRing can crash on Windows ARM.
-        var spinner = new Grid { Width = 14, Height = 14, HorizontalAlignment = HorizontalAlignment.Center };
+        var spinner = new Grid
+        {
+            Width = 14,
+            Height = 14,
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
         var transform = new RotateTransform { CenterX = 7, CenterY = 7 };
         var arc = new Microsoft.UI.Xaml.Shapes.Path
         {
-            Stroke = Theme.Brush("#FFFFFF"), StrokeThickness = 1.8,
-            StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round,
+            Stroke = Theme.Brush("#FFFFFF"),
+            StrokeThickness = 1.8,
+            StrokeStartLineCap = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
             RenderTransform = transform,
-            Data = new PathGeometry { Figures = { new PathFigure { StartPoint = new(7, 1.5),
-                Segments = { new ArcSegment { Point = new(1.5, 7), Size = new(5.5, 5.5), IsLargeArc = true, SweepDirection = SweepDirection.Clockwise } } } } }
+            Data = new PathGeometry
+            {
+                Figures = { new PathFigure { StartPoint = new(7, 1.5),
+                Segments = { new ArcSegment
+{
+Point = new(1.5, 7),
+Size = new(5.5, 5.5),
+IsLargeArc = true,
+SweepDirection = SweepDirection.Clockwise
+} } } }
+            }
         };
         spinner.Children.Add(arc);
-        var animation = new DoubleAnimation { From = 0, To = 360, Duration = new(TimeSpan.FromMilliseconds(800)),
-            RepeatBehavior = RepeatBehavior.Forever, EnableDependentAnimation = true };
-        Storyboard.SetTarget(animation, transform); Storyboard.SetTargetProperty(animation, "Angle");
+        var animation = new DoubleAnimation
+        {
+            From = 0,
+            To = 360,
+            Duration = new(TimeSpan.FromMilliseconds(800)),
+            RepeatBehavior = RepeatBehavior.Forever,
+            EnableDependentAnimation = true
+        };
+        Storyboard.SetTarget(animation, transform);
+        Storyboard.SetTargetProperty(animation, "Angle");
         rotation.Children.Add(animation);
         content.Children.Add(spinner);
         progressLabel = Theme.Text("", compact ? 9 : 10, "#FFFFFF");
@@ -47,11 +82,19 @@ internal sealed class ReferenceUploadOverlay : Grid
         Unloaded += (_, _) => rotation.Stop();
     }
 
-    internal void SetUploading(bool uploading, double? progress)
+    internal void SetUploading(
+        bool uploading,
+        double? progress
+    )
     {
-        progressLabel.Text = progress is double value ? $"{Math.Floor(Math.Clamp(value, 0, 1) * 100):0}%" : "";
+        progressLabel.Text = progress is double value ? $"{Math.Floor(Math.Clamp(
+            value,
+            0,
+            1
+        ) * 100):0}%" : "";
         progressLabel.Visibility = progress.HasValue ? Visibility.Visible : Visibility.Collapsed;
-        if (this.uploading == uploading) return;
+        if (this.uploading == uploading)
+            return;
         this.uploading = uploading;
         Visibility = uploading ? Visibility.Visible : Visibility.Collapsed;
         UpdateAnimation();
@@ -60,6 +103,7 @@ internal sealed class ReferenceUploadOverlay : Grid
     private void UpdateAnimation()
     {
         rotation.Stop();
-        if (uploading && IsLoaded) rotation.Begin();
+        if (uploading && IsLoaded)
+            rotation.Begin();
     }
 }

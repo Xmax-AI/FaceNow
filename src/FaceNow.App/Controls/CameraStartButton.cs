@@ -2,11 +2,6 @@
 //  CameraStartButton.cs
 //  FaceNow
 //
-//  Author: 翁跃庭 (Yueting Weng)
-//  GitHub: https://github.com/Xmax-AI/FaceNow-Windows
-//
-//  Copyright (c) 2026 XMAX.AI PTE. LTD.
-//
 
 using FaceNow.App.User;
 using Microsoft.UI.Text;
@@ -37,7 +32,9 @@ internal sealed class CameraStartButton : Pill
         Text = "Start Camera";
     }
 
-    internal void SetViewportWidth(double width)
+    internal void SetViewportWidth(
+        double width
+    )
     {
         FontSize = Math.Clamp(width * .003 + 12, 15, 18);
         double inset = Math.Clamp(width * .0075 + 18, 25, 40);
@@ -45,27 +42,49 @@ internal sealed class CameraStartButton : Pill
         measureLabel.FontSize = FontSize;
         var idle = MeasureLabel("Start Camera");
         var starting = MeasureLabel("Starting…");
-        MinWidth = Math.Ceiling(Math.Max(idle.Width, starting.Width) + IconSize + ContentSpacing + Padding.Left + Padding.Right);
-        Height = Math.Max(20, Math.Ceiling(Math.Max(idle.Height, starting.Height))) + Math.Clamp(width * .0028 + 9, 12, 16) * 2;
+        MinWidth = Math.Ceiling(Math.Max(
+            idle.Width,
+            starting.Width
+        ) + IconSize + ContentSpacing + Padding.Left + Padding.Right);
+        Height = Math.Max(
+            20,
+            Math.Ceiling(Math.Max(
+            idle.Height,
+            starting.Height
+        ))
+        ) + Math.Clamp(
+            width * .0028 + 9,
+            12,
+            16
+        ) * 2;
         Refresh();
     }
 
-    private Size MeasureLabel(string text)
+    private Size MeasureLabel(
+        string text
+    )
     {
         measureLabel.Text = AppText.Get(text);
         measureLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         return measureLabel.DesiredSize;
     }
 
-    internal void SetLoading(bool value)
+    internal void SetLoading(
+        bool value
+    )
     {
-        if (loading == value) return;
+        if (loading == value)
+            return;
         loading = value;
         ShowLoadingIcon(value);
         Refresh();
     }
 
-    protected override void ApplyAppearance(bool hot, bool pressed, bool focused)
+    protected override void ApplyAppearance(
+        bool hot,
+        bool pressed,
+        bool focused
+    )
     {
         SetContentForeground(textBrush);
         BorderThickness = new(0);
