@@ -10,9 +10,10 @@ import SnapKit
 import Speech
 import SwiftUI
 import Translation
+import XmaxSDK
 import os
 
-/// Publishes translated subtitles while the app's selected microphone is capturing.
+/// Publishes translated subtitles from the SDK's active microphone.
 @MainActor
 final class MicrophoneTranslation {
 
@@ -52,9 +53,9 @@ final class MicrophoneTranslation {
     /// Returns the system translation languages and the subset supported by on-device recognition.
     @concurrent
     static func availableLanguages() async -> (sources: [String], targets: [String]) {
-        guard #available(macOS 27.0, *) else { return ([], []) }
+        guard #available(macOS 26.0, *) else { return ([], []) }
         async let recognized = SpeechTranscriber.supportedLocales
-        let languages = await LanguageAvailability(preferredStrategy: .lowLatency).supportedLanguages
+        let languages = await makeLanguageAvailability().supportedLanguages
         let recognitionLanguages = await recognized.map(\.language)
         let sources = languages.filter { language in
             recognitionLanguages.contains { $0.isEquivalent(to: language) }
@@ -75,7 +76,7 @@ final class MicrophoneTranslation {
     static func resourceStatus(
         for languages: LanguagePair
     ) async -> [ResourceKind: ResourceStatus] {
-        guard #available(macOS 27.0, *) else {
+        guard #available(macOS 26.0, *) else {
             return [.recognition: .unavailable, .translation: .unavailable]
         }
         let transcriber = await makeTranscriber(for: languages.source)
@@ -83,7 +84,7 @@ final class MicrophoneTranslation {
     }
 
     /// Returns separate framework statuses without reserving or downloading any assets.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func resourceStatus(
         for languages: LanguagePair,
@@ -95,13 +96,13 @@ final class MicrophoneTranslation {
     }
 
     /// Checks the translation pair independently of speech recognition.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func translationStatus(
         for languages: LanguagePair
     ) async -> ResourceStatus {
         guard languages.source != languages.target else { return .unavailable }
-        switch await LanguageAvailability(preferredStrategy: .lowLatency).status(
+        switch await makeLanguageAvailability().status(
             from: Locale.Language(identifier: languages.source),
             to: Locale.Language(identifier: languages.target)
         ) {
@@ -111,8 +112,17 @@ final class MicrophoneTranslation {
         }
     }
 
+    /// Uses the low-latency language catalog where strategy selection is available.
+    @available(macOS 26.0, *)
+    private nonisolated static func makeLanguageAvailability() -> LanguageAvailability {
+        if #available(macOS 26.4, *) {
+            return LanguageAvailability(preferredStrategy: .lowLatency)
+        }
+        return LanguageAvailability()
+    }
+
     /// Preserves the system's distinct background download status for speech assets.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func recognitionStatus(
         for transcriber: SpeechTranscriber?
@@ -127,7 +137,7 @@ final class MicrophoneTranslation {
     }
 
     /// Resolves a translation language to a compatible on-device speech locale.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func makeTranscriber(
         for language: String
@@ -161,39 +171,56 @@ final class MicrophoneTranslation {
     }
 
     /// Gives macOS a view in which to confirm the requested translation download.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     private struct LanguageDownloadPrompt: View {
+        /// The languages whose system assets the user requested.
         let languages: LanguagePair
+
+        /// Signals that the system finished prompting or downloading.
         let completion: AsyncThrowingStream<Void, any Error>.Continuation
 
+        /// Binds the download to the current window using the available strategy API.
         var body: some View {
+            if #available(macOS 26.4, *) {
+                prompt.translationTask(
+                    source: Locale.Language(identifier: languages.source),
+                    target: Locale.Language(identifier: languages.target),
+                    preferredStrategy: .lowLatency,
+                    action: prepare
+                )
+            } else {
+                prompt.translationTask(
+                    source: Locale.Language(identifier: languages.source),
+                    target: Locale.Language(identifier: languages.target),
+                    action: prepare
+                )
+            }
+        }
+
+        /// An invisible view hosting the system approval prompt.
+        private var prompt: some View {
             Color.clear
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
-                .translationTask(
-                    source: Locale.Language(identifier: languages.source),
-                    target: Locale.Language(identifier: languages.target),
-                    preferredStrategy: .lowLatency
-                ) { @concurrent session in
-                    do {
-                        try await session.prepareTranslation()
-                        // The framework can return while an existing system download is still running.
-                        let deadline = ContinuousClock.now + .seconds(600)
-                        while ContinuousClock.now < deadline, !(await session.isReady) {
-                            try await Task.sleep(for: .seconds(1))
-                        }
-                        completion.finish()
-                    } catch CocoaError.userCancelled {
-                        completion.finish()
-                    } catch {
-                        completion.finish(throwing: error)
-                    }
+        }
+
+        /// Waits for an existing system download if preparation returns before readiness.
+        @concurrent
+        private func prepare(_ session: TranslationSession) async {
+            do {
+                try await session.prepareTranslation()
+                let deadline = ContinuousClock.now + .seconds(600)
+                while ContinuousClock.now < deadline, !(await session.isReady) {
+                    try await Task.sleep(for: .seconds(1))
                 }
+                completion.finish()
+            } catch CocoaError.userCancelled {
+                completion.finish()
+            } catch {
+                completion.finish(throwing: error)
+            }
         }
     }
-
-    /// The currently requested input, including attempts that failed for this capture.
-    private var deviceID: String?
 
     /// The current or most recently cancelled task, retained until a replacement can start.
     private var task: Task<Void, Never>?
@@ -208,45 +235,48 @@ final class MicrophoneTranslation {
         self.onEvent = onEvent
     }
 
-    /// Cancels capture when the owner is released.
+    /// Cancels translation when the owner is released.
     deinit {
         task?.cancel()
     }
 
-    /// Translates the active input or stops when the ID is nil.
-    /// Waits for the previous capture to release its microphone before opening another.
-    func setDevice(
-        _ deviceID: String?,
-        languages: LanguagePair = .defaultPair
+    /// Translates SDK microphone frames after the previous subscription has been removed.
+    func start(
+        using manager: any XmaxRealtimeManaging,
+        languages: LanguagePair
     ) {
-        guard self.deviceID != deviceID else { return }
-        self.deviceID = deviceID
+        guard #available(macOS 26.0, *) else { return }
         let previous = task
         previous?.cancel()
-        onEvent(.clear)
-        guard let deviceID, #available(macOS 27.0, *) else { return }
         let requestedAt = ContinuousClock.now
         task = Task { [onEvent] in
             await previous?.value
             guard !Task.isCancelled else { return }
             do {
                 try await Self.translate(
-                    deviceID: deviceID,
+                    manager: manager,
                     languages: languages,
                     requestedAt: requestedAt,
                     onEvent: { event in
                         if !Task.isCancelled { onEvent(event) }
                     }
                 )
-                if !Task.isCancelled { onEvent(.failed("Speech capture ended unexpectedly.")) }
+                if !Task.isCancelled { onEvent(.failed("Speech analysis ended unexpectedly.")) }
             } catch {
                 if !Task.isCancelled { onEvent(.failed(error.localizedDescription)) }
             }
         }
     }
 
+    /// Cancels speech processing and clears the current subtitle.
+    func stop() {
+        guard let task, !task.isCancelled else { return }
+        task.cancel()
+        onEvent(.clear)
+    }
+
     /// Installs the selected speech recognition asset without starting capture.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     static func downloadSpeechResource(
         for language: String,
@@ -263,7 +293,7 @@ final class MicrophoneTranslation {
     }
 
     /// Requests macOS approval in the originating window and returns the latest readiness.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     static func downloadTranslationResource(
         for languages: LanguagePair,
         in window: NSWindow
@@ -291,7 +321,7 @@ final class MicrophoneTranslation {
     }
 
     /// Requires installed translation languages and prepares speech recognition before capture.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func prepareResources(
         for languages: LanguagePair,
@@ -312,7 +342,7 @@ final class MicrophoneTranslation {
     }
 
     /// Shares speech installation progress and failure handling with capture startup.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func installSpeechResource(
         _ transcriber: SpeechTranscriber,
@@ -334,7 +364,7 @@ final class MicrophoneTranslation {
     }
 
     /// Samples the framework's actual progress until installation completes or fails.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func downloadRecognition(
         _ request: AssetInstallationRequest,
@@ -359,97 +389,108 @@ final class MicrophoneTranslation {
         }
     }
 
-    /// Streams recognition and publishes translated drafts followed by finalized segments.
-    @available(macOS 27.0, *)
+    /// Analyzes the SDK's PCM and publishes translated drafts followed by finalized segments.
+    @available(macOS 26.0, *)
     @concurrent
     private static func translate(
-        deviceID: String,
+        manager: any XmaxRealtimeManaging,
         languages: LanguagePair,
         requestedAt: ContinuousClock.Instant,
         onEvent: @escaping @MainActor @Sendable (Event) -> Void
     ) async throws {
-        guard let microphone = AVCaptureDevice(uniqueID: deviceID), microphone.hasMediaType(.audio) else {
-            throw Failure(message: "The selected microphone is unavailable.")
-        }
-        guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
-            throw Failure(message: "Allow microphone access in System Settings > Privacy & Security > Microphone.")
-        }
-
         let (transcriber, downloadedLanguages) = try await prepareResources(for: languages) { kind, status in
             onEvent(.resourceStatus(kind, status))
         }
         let translator = makeTranslationSession(for: languages)
         try await translator.prepareTranslation()
-
-        try Task.checkCancellation()
         await onEvent(.preparingCapture)
-        let provider = try await CaptureInputSequenceProvider.providerWithSession(
-            from: microphone,
-            compatibleWith: [transcriber]
-        )
-        let analyzer = SpeechAnalyzer(modules: [transcriber])
-        try await withTaskCancellationHandler { @concurrent in
-            try Task.checkCancellation()
-            try await analyzer.start(inputSequence: provider.analyzerInputs)
-            try Task.checkCancellation()
-
-            let capture = provider.captureSession
-            let notifications = NotificationCenter.default
-            let captureStopped = notifications.addObserver(
-                forName: AVCaptureSession.didStopRunningNotification,
-                object: capture,
-                queue: nil
-            ) { _ in
-                Task { await analyzer.cancelAndFinishNow() }
-            }
-            let microphoneDisconnected = notifications.addObserver(
-                forName: AVCaptureDevice.wasDisconnectedNotification,
-                object: microphone,
-                queue: nil
-            ) { _ in
-                Task { await analyzer.cancelAndFinishNow() }
-            }
-            defer {
-                notifications.removeObserver(captureStopped)
-                notifications.removeObserver(microphoneDisconnected)
-                capture.stopRunning()
-            }
-            capture.startRunning()
-            try Task.checkCancellation()
-            guard capture.isRunning else {
-                throw Failure(message: "Could not start the selected microphone for translation.")
-            }
-            let captureStartedAt = ContinuousClock.now
-            let setup = requestedAt.duration(to: captureStartedAt).description
-            logger.notice("Capture ready after \(setup, privacy: .public) (downloaded languages: \(downloadedLanguages, privacy: .public))")
-            await onEvent(.ready)
-            try await streamTranslations(
-                from: transcriber,
-                using: translator,
-                languages: languages,
-                analyzer: analyzer,
-                captureStartedAt: captureStartedAt,
-                onEvent: onEvent
-            )
-        } onCancel: {
-            Task { await analyzer.cancelAndFinishNow() }
+        guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber]),
+              format.commonFormat == .pcmFormatInt16, format.channelCount == 1 else {
+            throw Failure(message: "No compatible mono PCM16 format is available for speech analysis.")
         }
+        let analyzer = SpeechAnalyzer(modules: [transcriber])
+        try await analyzer.prepareToAnalyze(in: format)
+        try Task.checkCancellation()
+
+        let audio = SpeechAudioInput(outputFormat: format)
+        let (frames, continuation) = AsyncStream<RealtimeMediaFrame>.makeStream(
+            bufferingPolicy: .bufferingNewest(20)
+        )
+        let inputs = frames.compactMap { event -> AnalyzerInput? in
+            guard case let .audio(frame) = event.content,
+                  let (input, isFirst) = try await audio.convert(frame, discontinuous: event.isDiscontinuous)
+            else { return nil }
+            if isFirst {
+                let setup = requestedAt.duration(to: .now).description
+                logger.notice("SDK microphone ready after \(setup, privacy: .public) (downloaded languages: \(downloadedLanguages, privacy: .public))")
+                await onEvent(.ready)
+            }
+            return input
+        }
+
+        await manager.setLocalMediaFrameListener(tracks: [.audio]) { frame in
+            continuation.yield(frame)
+        }
+        do {
+            try await withTaskCancellationHandler {
+                try Task.checkCancellation()
+                let captureStartedAt = ContinuousClock.now
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    group.addTask {
+                        do {
+                            _ = try await analyzer.analyzeSequence(inputs)
+                        } catch {
+                            await analyzer.cancelAndFinishNow()
+                            throw error
+                        }
+                        await analyzer.cancelAndFinishNow()
+                    }
+                    do {
+                        try await streamTranslations(
+                            from: transcriber,
+                            using: translator,
+                            languages: languages,
+                            analyzer: analyzer,
+                            captureStartedAt: captureStartedAt,
+                            onEvent: onEvent
+                        )
+                        group.cancelAll()
+                        await analyzer.cancelAndFinishNow()
+                        try await group.waitForAll()
+                    } catch {
+                        group.cancelAll()
+                        await analyzer.cancelAndFinishNow()
+                        throw error
+                    }
+                }
+            } onCancel: {
+                continuation.finish()
+                Task { await analyzer.cancelAndFinishNow() }
+            }
+        } catch {
+            continuation.finish()
+            await manager.setLocalMediaFrameListener(nil)
+            throw error
+        }
+        continuation.finish()
+        await manager.setLocalMediaFrameListener(nil)
     }
 
     /// Opens an on-device translation session for the selected, installed languages.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     nonisolated private static func makeTranslationSession(
         for languages: LanguagePair
     ) -> TranslationSession {
-        TranslationSession(
-            installedSource: Locale.Language(identifier: languages.source),
-            target: Locale.Language(identifier: languages.target),
-            preferredStrategy: .lowLatency
-        )
+        let source = Locale.Language(identifier: languages.source)
+        let target = Locale.Language(identifier: languages.target)
+        if #available(macOS 26.4, *) {
+            return TranslationSession(installedSource: source, target: target, preferredStrategy: .lowLatency)
+        }
+        return TranslationSession(installedSource: source, target: target)
     }
 
     /// Drains speech independently while translating at most one phrase at a time.
-    @available(macOS 27.0, *)
+    @available(macOS 26.0, *)
     @concurrent
     private static func streamTranslations(
         from transcriber: SpeechTranscriber,
@@ -521,6 +562,102 @@ final class MicrophoneTranslation {
                 await analyzer.cancelAndFinishNow()
                 throw error
             }
+        }
+    }
+}
+
+@available(macOS 26.0, *)
+private extension MicrophoneTranslation {
+
+    /// Resamples SDK packets and places them on a continuous, session-relative speech timeline.
+    actor SpeechAudioInput {
+
+        /// The PCM format requested by the speech modules.
+        private let outputFormat: AVAudioFormat
+
+        /// The streaming resampler and its current source format.
+        private var converter: AVAudioConverter?
+
+        /// The host time used as the speech timeline's origin.
+        private var origin: CMTime?
+
+        /// The expected timestamp of the next incoming PCM packet.
+        private var nextSourceTime: CMTime?
+
+        /// The end of the last buffer accepted for speech.
+        private var nextOutputTime: CMTime?
+
+        /// Creates a converter for the selected speech format.
+        init(outputFormat: AVAudioFormat) {
+            self.outputFormat = outputFormat
+        }
+
+        /// Preserves gaps and resets resampling history when capture or delivery drops samples.
+        func convert(
+            _ frame: RealtimeAudioFrame,
+            discontinuous: Bool
+        ) throws -> (AnalyzerInput, isFirst: Bool)? {
+            let rate = Double(frame.sampleRate)
+            let channels = AVAudioChannelCount(frame.channels)
+            if converter?.inputFormat.sampleRate != rate || converter?.inputFormat.channelCount != channels {
+                guard let source = AVAudioFormat(
+                    commonFormat: .pcmFormatInt16,
+                    sampleRate: rate,
+                    channels: channels,
+                    interleaved: true
+                ), let resampler = AVAudioConverter(from: source, to: outputFormat) else {
+                    throw Failure(message: "The microphone audio format is unsupported for speech analysis.")
+                }
+                resampler.primeMethod = .none
+                converter = resampler
+                nextSourceTime = nil
+            }
+            guard let converter,
+                  let input = AVAudioPCMBuffer(
+                    pcmFormat: converter.inputFormat,
+                    frameCapacity: AVAudioFrameCount(frame.samplesPerChannel)
+                  ),
+                  let output = AVAudioPCMBuffer(
+                    pcmFormat: outputFormat,
+                    frameCapacity: AVAudioFrameCount(ceil(frame.duration.seconds * outputFormat.sampleRate)) + 64
+                  )
+            else { throw Failure(message: "Could not allocate a speech audio buffer.") }
+
+            input.frameLength = input.frameCapacity
+            guard let bytes = input.mutableAudioBufferList.pointee.mBuffers.mData,
+                  frame.data.count == input.mutableAudioBufferList.pointee.mBuffers.mDataByteSize
+            else { throw Failure(message: "The microphone returned an invalid PCM packet.") }
+            frame.data.copyBytes(to: bytes.assumingMemoryBound(to: UInt8.self), count: frame.data.count)
+
+            let timestamp = frame.presentationTimeStamp
+            let gap = nextSourceTime.map { abs(CMTimeSubtract(timestamp, $0).seconds) > 0.000_001 } ?? true
+            if discontinuous || gap { converter.reset() }
+            nextSourceTime = timestamp + frame.duration
+
+            var suppliedInput = false
+            var conversionError: NSError?
+            let status = converter.convert(to: output, error: &conversionError) { _, status in
+                if suppliedInput {
+                    status.pointee = .noDataNow
+                    return nil
+                }
+                suppliedInput = true
+                status.pointee = .haveData
+                return input
+            }
+            if status == .error {
+                if let conversionError { throw conversionError }
+                throw Failure(message: "Could not convert microphone PCM for speech analysis.")
+            }
+            guard output.frameLength > 0 else { return nil }
+
+            let isFirst = origin == nil
+            if isFirst { origin = timestamp }
+            let capturedTime = timestamp - (origin ?? timestamp)
+            let previousEnd = nextOutputTime ?? .zero
+            let time = discontinuous || gap ? max(previousEnd, capturedTime) : previousEnd
+            nextOutputTime = time + CMTime(value: Int64(output.frameLength), timescale: Int32(outputFormat.sampleRate))
+            return (AnalyzerInput(buffer: output, bufferStartTime: time), isFirst)
         }
     }
 }

@@ -3284,13 +3284,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Live translation requires macOS 27 or later."
+            "value": "Live translation requires macOS 26 or later."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "同声传译需要 macOS 27 或更高版本。"
+            "value": "同声传译需要 macOS 26 或更高版本。"
           }
         }
       }

@@ -88,7 +88,7 @@ enum GenerationStrings {
         Localization.string(
             "translation.requires_macos",
             table: "Generation",
-            defaultValue: "Live translation requires macOS 27 or later."
+            defaultValue: "Live translation requires macOS 26 or later."
         )
     }
 

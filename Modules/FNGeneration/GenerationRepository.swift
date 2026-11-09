@@ -133,9 +133,9 @@ final class GenerationRepository: ObservableObject {
         return true
     }
 
-    /// Whether this system can start the speech capture used by live translation.
+    /// Whether this system provides on-device speech analysis and translation.
     static var supportsTranslation: Bool {
-        if #available(macOS 27.0, *) { return true }
+        if #available(macOS 26.0, *) { return true }
         return false
     }
 
@@ -562,7 +562,7 @@ final class GenerationRepository: ObservableObject {
         _ kind: MicrophoneTranslation.ResourceKind,
         in window: NSWindow
     ) {
-        guard #available(macOS 27.0, *), canDownloadTranslationResource(kind) else { return }
+        guard #available(macOS 26.0, *), canDownloadTranslationResource(kind) else { return }
         let operation = lifecycleID
         let languages = translationLanguages
         translationResourceQueryRevision = UUID()
@@ -662,17 +662,19 @@ final class GenerationRepository: ObservableObject {
         synchronizeMicrophoneTranslation()
     }
 
-    /// Follows the selected input independently of the audio level meter.
+    /// Follows the SDK microphone while the realtime session is connected.
     private func synchronizeMicrophoneTranslation() {
         guard translationState != .off else { return }
-        guard sessionActive, !isClosing, !microphoneSwitching, case let .device(id) = selectedMicrophone else {
+        guard sessionActive, !isClosing, !microphoneSwitching, let manager,
+              case .device = selectedMicrophone, [.connected, .generating].contains(state.connectionState)
+        else {
             if translationState != .waitingForMicrophone { translationState = .waitingForMicrophone }
-            microphoneTranslation.setDevice(nil)
+            microphoneTranslation.stop()
             return
         }
         guard translationState == .waitingForMicrophone else { return }
         translationState = .preparing
-        microphoneTranslation.setDevice(id, languages: translationLanguages)
+        microphoneTranslation.start(using: manager, languages: translationLanguages)
     }
 
     /// Stops speech capture and clears subtitles from both outputs.
@@ -683,7 +685,7 @@ final class GenerationRepository: ObservableObject {
         for (kind, status) in translationResources where status.isDownloading {
             setTranslationResourceStatus(.needsDownload, for: kind)
         }
-        microphoneTranslation.setDevice(nil)
+        microphoneTranslation.stop()
     }
 
     /// Updates the toolbar and captions from the current speech capture.
@@ -902,6 +904,9 @@ final class GenerationRepository: ObservableObject {
         self.manager = manager
         await manager.setMicrophoneLevelListener { [weak self] level in
             guard let self, self.lifecycleID == operation, !self.isClosing else { return }
+            if level == nil, self.microphoneLevelSubject.value != nil, self.translationState == .listening {
+                self.handleTranslationEvent(.failed("The SDK microphone stopped delivering audio."))
+            }
             self.microphoneLevelSubject.send(level)
         }
         await manager.setLaunchTimingListener { [weak self] timing in
@@ -933,6 +938,7 @@ final class GenerationRepository: ObservableObject {
                 self.handleGenerationFailure(error, endsSession: true)
                 return
             }
+            if previousConnectionState != state.connectionState { self.synchronizeMicrophoneTranslation() }
             if state.connectionState == .ready {
                 Task { [weak self] in await self?.startPendingGeneration(operation: operation) }
             }
