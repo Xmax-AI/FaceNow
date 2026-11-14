@@ -542,7 +542,7 @@
 		FD6255C8E5D4462EC1B5B53F /* GenerationVideoPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationVideoPanel.swift; sourceTree = "<group>"; };
 		FDD7CBEAA64646D798CB0CD9 /* ToolbarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButton.swift; sourceTree = "<group>"; };
 		FE595473F6330AEFFC852098 /* VirtualCameraConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VirtualCameraConfiguration.swift; sourceTree = "<group>"; };
-		FF277C4EBC8CA8D1C432EDF5 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		FF277C4EBC8CA8D1C432EDF5 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = "../LICENSE"; sourceTree = "<group>"; };
 		74346EEEBB0F485F13A1860F /* GenerationFailure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationFailure.swift; sourceTree = "<group>"; };
 		ED10B7000000000000000002 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 
