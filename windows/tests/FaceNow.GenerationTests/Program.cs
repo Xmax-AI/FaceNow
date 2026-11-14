@@ -99,7 +99,7 @@ var tests = new (string Name, Func<Task> Run)[]
     {
         var expected = new Dictionary<string, string[]>
         {
-            ["charx"] = ["removed-preset-1.png", "charx_image21.png", "charx_image2.jpeg", "charx_image22.png", "charx_image23.jpeg", "charx_image24.png", "charx_image25.jpeg", "removed-preset-4.png", "removed-preset-5.png", "removed-preset-6.png", "removed-preset-2.png", "removed-preset-3.png", "removed-preset-7.png", "charx_image13.jpeg", "charx_image14.png", "removed-preset-8.png", "charx_image16.png", "charx_real_image17.jpeg", "charx_image18.png"],
+            ["charx"] = ["charx_image21.png", "charx_image2.jpeg", "charx_image22.png", "charx_image23.jpeg", "charx_image24.png", "charx_image25.jpeg", "removed-preset-5.png", "charx_image13.jpeg", "charx_image14.png", "charx_image16.png", "charx_real_image17.jpeg", "charx_image18.png"],
             ["clothx"] = ["clothx_image1.png", "clothx_image2.png", "clothx_real_image3.png", "clothx_real_image4.png", "clothx_image5.png", "clothx_image6.png", "clothx_image7.png", "clothx_image8.png", "clothx_real_image9.png", "clothx_real_image10.png", "clothx_image11.jpeg", "clothx_image12.jpeg"],
             ["vibex"] = Enumerable.Range(1, 8).Select(i => $"vibex_real_image{i}.png").ToArray(),
             ["dimx"] = Enumerable.Range(3, 6).Select(i => $"dimx_image{i}.png").ToArray()
@@ -107,7 +107,7 @@ var tests = new (string Name, Func<Task> Run)[]
         foreach (var edition in Enum.GetValues<ProductEdition>())
         {
             var profile = new ProductProfile(edition); var presets = ReferenceCatalog.Load(profile);
-            Check(presets.Count == 47 && presets.Select(item => item.Id).Distinct().Count() == 47);
+            Check(presets.Count == 40 && presets.Select(item => item.Id).Distinct().Count() == presets.Count);
             foreach (var (mode, filenames) in expected)
                 Check(presets.Where(item => item.Mode == mode && !item.IsPromptOnly).Select(item => new Uri(item.ReferenceUrl).Segments[^1]).SequenceEqual(filenames), mode);
             foreach (var item in presets.Where(item => !item.IsPromptOnly))
@@ -118,7 +118,7 @@ var tests = new (string Name, Func<Task> Run)[]
                 Check(!original.Query.Contains("imageMogr2") && thumbnail.Query.EndsWith("&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90"));
                 Check(!string.IsNullOrWhiteSpace(item.Prompt));
             }
-            Check(presets[0].Name == (profile.IsOverseas ? "removed preset 7" : "removed preset 17"));
+            Check(presets[0].Name == (profile.IsOverseas ? "Candy Girl" : "糖果少女"));
         }
         return Task.CompletedTask;
     }),
@@ -128,7 +128,7 @@ var tests = new (string Name, Func<Task> Run)[]
         {
             var profile = new ProductProfile(edition); var presets = ReferenceCatalog.Load(profile);
             ReferenceItem Find(string file) => presets.Single(item => item.ReferenceUrl.Contains("/" + file + "?"));
-            Check(Find("removed-preset-1.png").Prompt == (profile.IsOverseas ? "Become the character in the reference image" : "视频中人物替换成参考图中角色"));
+            Check(Find("charx_image21.png").Prompt == (profile.IsOverseas ? "Become the character in the reference image" : "视频中人物替换成参考图中角色"));
             Check(Find("clothx_image11.jpeg").Prompt == (profile.IsOverseas ? "Apply the cap from the reference image to the video character." : "将参考图棒球帽应用到视频角色身上"));
             Check(Find("clothx_image12.jpeg").Prompt == (profile.IsOverseas ? "Apply the glasses from the reference image to the video character." : "将参考图眼镜应用到视频角色身上"));
             Check(Find("clothx_image6.png").Prompt == (profile.IsOverseas ? "Keep the character and background unchanged, only replace the upper-body clothes with the reference‑image outfit." : "将参考图的上衣穿到视频人物身上，其他保持不变"));

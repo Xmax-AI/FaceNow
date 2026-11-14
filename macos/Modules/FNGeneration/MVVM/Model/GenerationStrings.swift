@@ -750,15 +750,6 @@ enum GenerationStrings {
     }
 
     /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset1: String {
-        Localization.string(
-            "preset.charx_elon_musk",
-            table: "Generation",
-            defaultValue: "removed preset 7"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
     static var presetCharxCandyGirl: String {
         Localization.string(
             "preset.charx_candy_girl",
@@ -813,56 +804,11 @@ enum GenerationStrings {
     }
 
     /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset2: String {
-        Localization.string(
-            "preset.charx_trendy_boy",
-            table: "Generation",
-            defaultValue: "removed preset 11"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
     static var removedPreset8: String {
         Localization.string(
             "preset.charx_tech_duck",
             table: "Generation",
             defaultValue: "removed preset 10"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset3: String {
-        Localization.string(
-            "preset.charx_alien_kitty",
-            table: "Generation",
-            defaultValue: "removed preset 5"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset4: String {
-        Localization.string(
-            "preset.charx_3d_cow",
-            table: "Generation",
-            defaultValue: "removed preset 2"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset5: String {
-        Localization.string(
-            "preset.charx_business_milk_frog",
-            table: "Generation",
-            defaultValue: "removed preset 6"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset6: String {
-        Localization.string(
-            "preset.charx_3d_milk_frog",
-            table: "Generation",
-            defaultValue: "removed preset 1"
         )
     }
 
@@ -881,15 +827,6 @@ enum GenerationStrings {
             "preset.charx_mecha_girl",
             table: "Generation",
             defaultValue: "Mecha Girl"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset7: String {
-        Localization.string(
-            "preset.charx_mecha_warrior",
-            table: "Generation",
-            defaultValue: "removed preset 8"
         )
     }
 

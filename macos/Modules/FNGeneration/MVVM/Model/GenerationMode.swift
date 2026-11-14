@@ -81,18 +81,11 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// Matches api-platform-web develop 3e7b9233's X2.1 image references and workbook order.
+    /// Uses FaceNow's selection of X2.1 Playground references in workbook order.
     var presets: [GenerationReference] {
         switch self {
         case .charx:
             [
-                .preset(
-                    .charx,
-                    version: "20261030",
-                    name: GenerationStrings.removedPreset1,
-                    reference: "removed-preset-1.png",
-                    prompt: prompt
-                ),
                 .preset(
                     .charx,
                     version: "20261030",
@@ -138,43 +131,8 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                 .preset(
                     .charx,
                     version: "20261030",
-                    name: GenerationStrings.removedPreset2,
-                    reference: "removed-preset-4.png",
-                    prompt: prompt
-                ),
-                .preset(
-                    .charx,
-                    version: "20261030",
                     name: GenerationStrings.removedPreset8,
                     reference: "removed-preset-5.png",
-                    prompt: prompt
-                ),
-                .preset(
-                    .charx,
-                    version: "20261030",
-                    name: GenerationStrings.removedPreset3,
-                    reference: "removed-preset-6.png",
-                    prompt: prompt
-                ),
-                .preset(
-                    .charx,
-                    version: "20261030",
-                    name: GenerationStrings.removedPreset4,
-                    reference: "removed-preset-2.png",
-                    prompt: prompt
-                ),
-                .preset(
-                    .charx,
-                    version: "20261030",
-                    name: GenerationStrings.removedPreset5,
-                    reference: "removed-preset-3.png",
-                    prompt: prompt
-                ),
-                .preset(
-                    .charx,
-                    version: "20261030",
-                    name: GenerationStrings.removedPreset6,
-                    reference: "removed-preset-7.png",
                     prompt: prompt
                 ),
                 .preset(
@@ -189,13 +147,6 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     version: "20261030",
                     name: GenerationStrings.presetCharxMechaGirl,
                     reference: "charx_image14.png",
-                    prompt: prompt
-                ),
-                .preset(
-                    .charx,
-                    version: "20261030",
-                    name: GenerationStrings.removedPreset7,
-                    reference: "removed-preset-8.png",
                     prompt: prompt
                 ),
                 .preset(

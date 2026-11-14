@@ -78,25 +78,9 @@
     <value>3D Cartoon</value>
     <comment>3D Cartoon</comment>
   </data>
-  <data xml:space="preserve" name="Text_D67CEDC64F9BDBBE">
-    <value>removed preset 1</value>
-    <comment>removed preset 1</comment>
-  </data>
-  <data xml:space="preserve" name="Text_065BC2DAE52CF2A6">
-    <value>removed preset 2</value>
-    <comment>removed preset 2</comment>
-  </data>
   <data xml:space="preserve" name="Text_EC65F0535D471276">
     <value>3D Cartoon</value>
     <comment>3D卡通</comment>
-  </data>
-  <data xml:space="preserve" name="Text_7930BA8DF4D432E5">
-    <value>removed preset 1</value>
-    <comment>removed preset 3</comment>
-  </data>
-  <data xml:space="preserve" name="Text_B3DB862BF9FC7B85">
-    <value>removed preset 2</value>
-    <comment>removed preset 4</comment>
   </data>
   <data xml:space="preserve" name="Text_8C466ED2A9F7538B">
     <value>AI Generation</value>
@@ -165,10 +149,6 @@
   <data xml:space="preserve" name="Text_557CDCD2445C6E6D">
     <value>Adorable Hamster</value>
     <comment>Adorable Hamster</comment>
-  </data>
-  <data xml:space="preserve" name="Text_5272E5DFE3A9656C">
-    <value>removed preset 5</value>
-    <comment>removed preset 5</comment>
   </data>
   <data xml:space="preserve" name="Text_ACCBFC31A3133DAF">
     <value>Allow Camera Access</value>
@@ -285,10 +265,6 @@
   <data xml:space="preserve" name="Text_217637909A13C689">
     <value>Why Xmax?</value>
     <comment>Why Xmax?</comment>
-  </data>
-  <data xml:space="preserve" name="Text_864B593361574D32">
-    <value>removed preset 6</value>
-    <comment>removed preset 6</comment>
   </data>
   <data xml:space="preserve" name="Text_685FE799B7802B49">
     <value>Buy Credits</value>
@@ -754,10 +730,6 @@
     <value>E2E (RTC estimate)</value>
     <comment>E2E (RTC estimate)</comment>
   </data>
-  <data xml:space="preserve" name="Text_AB56C8FCD5565362">
-    <value>removed preset 7</value>
-    <comment>removed preset 7</comment>
-  </data>
   <data xml:space="preserve" name="Text_969CCBD3CF6300EC">
     <value>Email</value>
     <comment>Email</comment>
@@ -1163,10 +1135,6 @@ This lets the app receive your FaceNow look instead of the original camera feed.
   <data xml:space="preserve" name="Text_13CCFA7F792C7B5B">
     <value>Mecha Girl</value>
     <comment>Mecha Girl</comment>
-  </data>
-  <data xml:space="preserve" name="Text_FA33F3A62EFDC523">
-    <value>removed preset 8</value>
-    <comment>removed preset 8</comment>
   </data>
   <data xml:space="preserve" name="Text_54134D6695BEC69F">
     <value>Meet Xmax X2.1</value>
@@ -1897,10 +1865,6 @@ Allow the FaceNow system extension</comment>
   <data xml:space="preserve" name="Text_71316CE74015EBF5">
     <value>Total startup</value>
     <comment>Total startup</comment>
-  </data>
-  <data xml:space="preserve" name="Text_B3A198B4299A4D9D">
-    <value>removed preset 11</value>
-    <comment>removed preset 11</comment>
   </data>
   <data xml:space="preserve" name="Text_DD52A3DEF116A271">
     <value>TroubleShooting</value>
@@ -2674,10 +2638,6 @@ Choose your video input</value>
     <value>Dreamy Girl</value>
     <comment>唯美少女</comment>
   </data>
-  <data xml:space="preserve" name="Text_365A599F468790E0">
-    <value>removed preset 6</value>
-    <comment>removed preset 12</comment>
-  </data>
   <data xml:space="preserve" name="Text_F5BCC290645099B4">
     <value>In %1$@, open the camera settings and choose “%2$@” as your video input.
 
@@ -2753,10 +2713,6 @@ This lets the app receive your FaceNow look instead of the original camera feed.
   <data xml:space="preserve" name="Text_F0602289215DFCD6">
     <value>Copy Error Details</value>
     <comment>复制错误详情</comment>
-  </data>
-  <data xml:space="preserve" name="Text_FE3110C3C273D474">
-    <value>removed preset 5</value>
-    <comment>removed preset 13</comment>
   </data>
   <data xml:space="preserve" name="Text_7CADD31546F9FCEE">
     <value>Cute Girl</value>
@@ -3294,10 +3250,6 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <value>Mecha Girl</value>
     <comment>机甲少女</comment>
   </data>
-  <data xml:space="preserve" name="Text_A8E766EE2F8F9874">
-    <value>removed preset 8</value>
-    <comment>removed preset 15</comment>
-  </data>
   <data xml:space="preserve" name="Text_234139AFDB6E1F37">
     <value>Excellent</value>
     <comment>极佳</comment>
@@ -3526,10 +3478,6 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <value>Real-time 1080P output preserves fine details and textures, with greater fidelity to the characters, clothing, and style in your reference images.</value>
     <comment>清晰呈现人物、服装与纹理细节，更好地还原参考图中的外观和风格。</comment>
   </data>
-  <data xml:space="preserve" name="Text_CF7F350E5C2F8143">
-    <value>removed preset 11</value>
-    <comment>removed preset 16</comment>
-  </data>
   <data xml:space="preserve" name="Text_3D4C1723EFCD97DD">
     <value>Designer Toy Figurines</value>
     <comment>潮玩人偶</comment>
@@ -3661,10 +3609,6 @@ This lets the app receive your FaceNow look instead of the original camera feed.
   <data xml:space="preserve" name="Text_93F6D7410F058E6A">
     <value>Short-Haired Cool Girl</value>
     <comment>短发酷姐</comment>
-  </data>
-  <data xml:space="preserve" name="Text_331FB892E7020DF3">
-    <value>removed preset 7</value>
-    <comment>removed preset 17</comment>
   </data>
   <data xml:space="preserve" name="Text_15B0826B55270DC1">
     <value>Smoothness</value>
@@ -4370,17 +4314,9 @@ Allow the FaceNow system extension</value>
     <value>Anime Boy</value>
     <comment>Anime Boy</comment>
   </data>
-  <data xml:space="preserve" name="Text_2015F0D04422412E">
-    <value>removed preset</value>
-    <comment>removed preset</comment>
-  </data>
   <data xml:space="preserve" name="Text_B4C12356496FD7AE">
     <value>Bronze Figure</value>
     <comment>Bronze Figure</comment>
-  </data>
-  <data xml:space="preserve" name="Text_EEB2D6E2ECA0ED48">
-    <value>removed preset</value>
-    <comment>removed preset</comment>
   </data>
   <data xml:space="preserve" name="Text_89E5BDF1161F4B20">
     <value>3D Kangaroo</value>

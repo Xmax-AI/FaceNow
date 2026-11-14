@@ -937,60 +937,6 @@
         }
       }
     },
-    "preset.charx_3d_cow": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 2"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 4"
-          }
-        }
-      }
-    },
-    "preset.charx_3d_milk_frog": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 1"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 3"
-          }
-        }
-      }
-    },
-    "preset.charx_alien_kitty": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 5"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 13"
-          }
-        }
-      }
-    },
     "preset.charx_anime_girl": {
       "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
@@ -1005,24 +951,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "动漫少女"
-          }
-        }
-      }
-    },
-    "preset.charx_business_milk_frog": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 6"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 12"
           }
         }
       }
@@ -1117,24 +1045,6 @@
         }
       }
     },
-    "preset.charx_elon_musk": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 7"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 17"
-          }
-        }
-      }
-    },
     "preset.charx_humanoid_robot": {
       "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
@@ -1167,24 +1077,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "机甲少女"
-          }
-        }
-      }
-    },
-    "preset.charx_mecha_warrior": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 8"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 15"
           }
         }
       }
@@ -1257,24 +1149,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "removed preset 18"
-          }
-        }
-      }
-    },
-    "preset.charx_trendy_boy": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 11"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 16"
           }
         }
       }

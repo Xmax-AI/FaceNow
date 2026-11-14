@@ -16,7 +16,7 @@ and the taskbar. Building Windows does not require access to the Mac project.
 `presets.json` is a product-owned snapshot of macOS FaceNow's
 `Modules/FNGeneration/MVVM/Model/GenerationMode.swift` and `GenerationReference.swift`
 with names from `Generation.xcstrings` (preset version `20261030`, asset version `32`).
-It includes 19 character, 12 clothing, 8 style, and 8 summon presets; the first two
+It includes 12 character, 12 clothing, 8 style, and 8 summon presets; the first two
 summon entries contain prompts without images. Original and thumbnail paths refer
 to the same Playground image. Both regional prompts are stored per preset,
 including accessory-specific clothing instructions. The Windows assembly embeds

@@ -1,15 +1,6 @@
 [
   {
     "mode": "charx",
-    "name": "removed preset 7",
-    "nameZh": "removed preset 17",
-    "reference": "/images/playground/charx/removed-preset-1.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-1.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
     "name": "Candy Girl",
     "nameZh": "糖果少女",
     "reference": "/images/playground/charx/charx_image21.png?v=32&presetVersion=20261030",
@@ -64,55 +55,10 @@
   },
   {
     "mode": "charx",
-    "name": "removed preset 11",
-    "nameZh": "removed preset 16",
-    "reference": "/images/playground/charx/removed-preset-4.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-4.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
     "name": "removed preset 10",
     "nameZh": "removed preset 18",
     "reference": "/images/playground/charx/removed-preset-5.png?v=32&presetVersion=20261030",
     "thumbnail": "/images/playground/charx/removed-preset-5.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
-    "name": "removed preset 5",
-    "nameZh": "removed preset 13",
-    "reference": "/images/playground/charx/removed-preset-6.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-6.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
-    "name": "removed preset 2",
-    "nameZh": "removed preset 4",
-    "reference": "/images/playground/charx/removed-preset-2.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-2.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
-    "name": "removed preset 6",
-    "nameZh": "removed preset 12",
-    "reference": "/images/playground/charx/removed-preset-3.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-3.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
-    "name": "removed preset 1",
-    "nameZh": "removed preset 3",
-    "reference": "/images/playground/charx/removed-preset-7.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-7.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
     "prompt": "视频中人物替换成参考图中角色",
     "promptEn": "Become the character in the reference image"
   },
@@ -131,15 +77,6 @@
     "nameZh": "机甲少女",
     "reference": "/images/playground/charx/charx_image14.png?v=32&presetVersion=20261030",
     "thumbnail": "/images/playground/charx/charx_image14.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
-    "name": "removed preset 8",
-    "nameZh": "removed preset 15",
-    "reference": "/images/playground/charx/removed-preset-8.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-8.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
     "prompt": "视频中人物替换成参考图中角色",
     "promptEn": "Become the character in the reference image"
   },
