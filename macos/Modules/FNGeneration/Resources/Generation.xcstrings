@@ -1135,24 +1135,6 @@
         }
       }
     },
-    "preset.charx_tech_duck": {
-      "comment": "Name of the matching Playground X2.1 reference image.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 10"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 18"
-          }
-        }
-      }
-    },
     "preset.clothx_baseball_cap": {
       "comment": "Name of the matching Playground X2.1 reference image.",
       "extractionState": "manual",
@@ -1473,24 +1455,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "小鼠在肩"
-          }
-        }
-      }
-    },
-    "preset.dimx_nailoong": {
-      "comment": "Playground X2.1 summon mode or preset name.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 9"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "removed preset 14"
           }
         }
       }

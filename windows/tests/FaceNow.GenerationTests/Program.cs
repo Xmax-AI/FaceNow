@@ -99,15 +99,15 @@ var tests = new (string Name, Func<Task> Run)[]
     {
         var expected = new Dictionary<string, string[]>
         {
-            ["charx"] = ["charx_image21.png", "charx_image2.jpeg", "charx_image22.png", "charx_image23.jpeg", "charx_image24.png", "charx_image25.jpeg", "removed-preset-5.png", "charx_image13.jpeg", "charx_image14.png", "charx_image16.png", "charx_real_image17.jpeg", "charx_image18.png"],
+            ["charx"] = ["charx_image21.png", "charx_image2.jpeg", "charx_image22.png", "charx_image23.jpeg", "charx_image24.png", "charx_image25.jpeg", "charx_image13.jpeg", "charx_image14.png", "charx_image16.png", "charx_real_image17.jpeg", "charx_image18.png"],
             ["clothx"] = ["clothx_image1.png", "clothx_image2.png", "clothx_real_image3.png", "clothx_real_image4.png", "clothx_image5.png", "clothx_image6.png", "clothx_image7.png", "clothx_image8.png", "clothx_real_image9.png", "clothx_real_image10.png", "clothx_image11.jpeg", "clothx_image12.jpeg"],
             ["vibex"] = Enumerable.Range(1, 8).Select(i => $"vibex_real_image{i}.png").ToArray(),
-            ["dimx"] = Enumerable.Range(3, 6).Select(i => $"dimx_image{i}.png").ToArray()
+            ["dimx"] = ["dimx_image3.png", "dimx_image4.png", "dimx_image5.png", "dimx_image7.png", "dimx_image8.png"]
         };
         foreach (var edition in Enum.GetValues<ProductEdition>())
         {
             var profile = new ProductProfile(edition); var presets = ReferenceCatalog.Load(profile);
-            Check(presets.Count == 40 && presets.Select(item => item.Id).Distinct().Count() == presets.Count);
+            Check(presets.Count == 38 && presets.Select(item => item.Id).Distinct().Count() == presets.Count);
             foreach (var (mode, filenames) in expected)
                 Check(presets.Where(item => item.Mode == mode && !item.IsPromptOnly).Select(item => new Uri(item.ReferenceUrl).Segments[^1]).SequenceEqual(filenames), mode);
             foreach (var item in presets.Where(item => !item.IsPromptOnly))
@@ -165,7 +165,7 @@ var tests = new (string Name, Func<Task> Run)[]
     ("Virtual Summon supports prompt-only selections, image selections and cross-mode selection cleanup", async () =>
     {
         var model = ActiveModel(new FakeOutput());
-        Check(model.SummonReferences.Count == 9 && model.SummonReferences[0].IsUpload);
+        Check(model.SummonReferences.Count == 8 && model.SummonReferences[0].IsUpload);
         var promptOnly = model.SummonReferences.Where(item => item.IsPromptOnly).ToArray();
         Check(promptOnly.Select(item => item.Id).SequenceEqual(new[] { "preset:dimx-little-dog", "preset:dimx-little-mouse" }));
         foreach (var item in promptOnly)

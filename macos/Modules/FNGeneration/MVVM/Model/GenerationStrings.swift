@@ -723,15 +723,6 @@ enum GenerationStrings {
     }
 
     /// The localized name of a Playground X2.1 summon preset.
-    static var removedPreset9: String {
-        Localization.string(
-            "preset.dimx_nailoong",
-            table: "Generation",
-            defaultValue: "removed preset 9"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 summon preset.
     static var presetDimxCowPlushie: String {
         Localization.string(
             "preset.dimx_cow_plushie",
@@ -800,15 +791,6 @@ enum GenerationStrings {
             "preset.charx_anime_girl",
             table: "Generation",
             defaultValue: "Anime Girl"
-        )
-    }
-
-    /// The localized name of a Playground X2.1 reference image.
-    static var removedPreset8: String {
-        Localization.string(
-            "preset.charx_tech_duck",
-            table: "Generation",
-            defaultValue: "removed preset 10"
         )
     }
 

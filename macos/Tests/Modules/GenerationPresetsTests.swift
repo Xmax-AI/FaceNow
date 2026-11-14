@@ -48,8 +48,8 @@ final class GenerationPresetsTests: XCTestCase {
         let expected: [(GenerationMode, [String])] = [
             (.charx, [
                 "charx_image21.png", "charx_image2.jpeg", "charx_image22.png", "charx_image23.jpeg",
-                "charx_image24.png", "charx_image25.jpeg", "removed-preset-5.png", "charx_image13.jpeg",
-                "charx_image14.png", "charx_image16.png", "charx_real_image17.jpeg", "charx_image18.png",
+                "charx_image24.png", "charx_image25.jpeg", "charx_image13.jpeg", "charx_image14.png",
+                "charx_image16.png", "charx_real_image17.jpeg", "charx_image18.png",
             ]),
             (.clothx, [
                 "clothx_image1.png", "clothx_image2.png", "clothx_real_image3.png", "clothx_real_image4.png",
@@ -132,7 +132,7 @@ final class GenerationPresetsTests: XCTestCase {
     func testSummonSupportsPromptOnlyAndImagePresetsInPlaygroundOrder() {
         XCTAssertEqual(GenerationMode.allCases, [.charx, .clothx, .vibex, .dimx, .free])
         let presets = GenerationMode.dimx.presets
-        XCTAssertEqual(presets.count, 8)
+        XCTAssertEqual(presets.count, 7)
         XCTAssertEqual(Array(presets.prefix(2).map(\.id)), ["preset:dimx-little-dog", "preset:dimx-little-mouse"])
         for preset in presets.prefix(2) {
             XCTAssertNil(preset.thumbnailURL)
@@ -141,7 +141,7 @@ final class GenerationPresetsTests: XCTestCase {
         }
         XCTAssertEqual(
             presets.dropFirst(2).map { URL(string: $0.referencePath)?.lastPathComponent },
-            (3...8).map { "dimx_image\($0).png" }
+            [3, 4, 5, 7, 8].map { "dimx_image\($0).png" }
         )
         XCTAssertTrue(presets.dropFirst(2).allSatisfy { $0.thumbnailURL != nil })
         #if OVERSEA

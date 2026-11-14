@@ -1144,10 +1144,6 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <value>麦克风</value>
     <comment>Microphone</comment>
   </data>
-  <data xml:space="preserve" name="Text_07C697D23796F9CA">
-    <value>removed preset 14</value>
-    <comment>removed preset 9</comment>
-  </data>
   <data xml:space="preserve" name="Text_E53C7085C97EFF51">
     <value>安装虚拟摄像头前，请将 FaceNow 移至 /Applications。</value>
     <comment>Move FaceNow to /Applications before installing Virtual Camera.</comment>
@@ -1725,10 +1721,6 @@ Allow the FaceNow system extension</comment>
   <data xml:space="preserve" name="Text_1F87F883CC7E9C47">
     <value>系统设置</value>
     <comment>System Settings</comment>
-  </data>
-  <data xml:space="preserve" name="Text_ECEFA896E784FDE2">
-    <value>removed preset 18</value>
-    <comment>removed preset 10</comment>
   </data>
   <data xml:space="preserve" name="Text_12A0015FA3221777">
     <value>使用条款</value>
@@ -2722,10 +2714,6 @@ Choose your video input</comment>
     <value>天选牛马</value>
     <comment>天选牛马</comment>
   </data>
-  <data xml:space="preserve" name="Text_47B15419203D90F5">
-    <value>removed preset 14</value>
-    <comment>removed preset 14</comment>
-  </data>
   <data xml:space="preserve" name="Text_096A1A3ECA0E1021">
     <value>奶牛玩偶</value>
     <comment>奶牛玩偶</comment>
@@ -3613,10 +3601,6 @@ Choose your video input</comment>
   <data xml:space="preserve" name="Text_15B0826B55270DC1">
     <value>磨皮</value>
     <comment>磨皮</comment>
-  </data>
-  <data xml:space="preserve" name="Text_6E482E43184D5ED7">
-    <value>removed preset 18</value>
-    <comment>removed preset 18</comment>
   </data>
   <data xml:space="preserve" name="Text_6DA6F86775C04AF9">
     <value>积分 </value>

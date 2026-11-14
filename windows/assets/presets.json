@@ -55,15 +55,6 @@
   },
   {
     "mode": "charx",
-    "name": "removed preset 10",
-    "nameZh": "removed preset 18",
-    "reference": "/images/playground/charx/removed-preset-5.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/charx/removed-preset-5.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "视频中人物替换成参考图中角色",
-    "promptEn": "Become the character in the reference image"
-  },
-  {
-    "mode": "charx",
     "name": "Chosen Workhorse",
     "nameZh": "天选牛马",
     "reference": "/images/playground/charx/charx_image13.jpeg?v=32&presetVersion=20261030",
@@ -331,15 +322,6 @@
     "nameZh": "奶白小兔",
     "reference": "/images/playground/dimx/dimx_image5.png?v=32&presetVersion=20261030",
     "thumbnail": "/images/playground/dimx/dimx_image5.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
-    "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-    "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
-  },
-  {
-    "mode": "dimx",
-    "name": "removed preset 9",
-    "nameZh": "removed preset 14",
-    "reference": "/images/playground/dimx/removed-preset-9.png?v=32&presetVersion=20261030",
-    "thumbnail": "/images/playground/dimx/removed-preset-9.png?v=32&presetVersion=20261030&imageMogr2/crop/256x256/gravity/center/format/webp/quality/90",
     "prompt": "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
     "promptEn": "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
   },

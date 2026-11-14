@@ -131,13 +131,6 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                 .preset(
                     .charx,
                     version: "20261030",
-                    name: GenerationStrings.removedPreset8,
-                    reference: "removed-preset-5.png",
-                    prompt: prompt
-                ),
-                .preset(
-                    .charx,
-                    version: "20261030",
                     name: GenerationStrings.presetCharxCorporateCow,
                     reference: "charx_image13.jpeg",
                     prompt: prompt
@@ -422,17 +415,6 @@ enum GenerationMode: String, CaseIterable, Identifiable, Sendable {
                     version: "20261030",
                     name: GenerationStrings.presetDimxCreamKitten,
                     reference: "dimx_image5.png",
-                    prompt: Self.regionalPrompt(
-                        chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
-                        english:
-                            "Summon / Add a Subject: Keep all existing subjects in the original video. Add the subject from the reference image without replacing any existing subject. Summon the small animal from the reference image onto the shoulder of the person in the video."
-                    )
-                ),
-                .preset(
-                    .dimx,
-                    version: "20261030",
-                    name: GenerationStrings.removedPreset9,
-                    reference: "removed-preset-9.png",
                     prompt: Self.regionalPrompt(
                         chinese: "召唤新增任务：保留原视频中已有的主体，额外加入参考图中的主体，不替换任何原有主体。把参考图的小动物召唤到视频人物的肩膀上",
                         english:
