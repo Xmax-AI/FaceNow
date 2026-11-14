@@ -26,7 +26,7 @@ final class GenerationToolbarView: Canvas {
     /// Lets the header place interpolation before the other result controls.
     var interpolationControl: ToolbarButton { interpolationButton }
 
-    /// Lets the header place beauty between interpolation and live translation.
+    /// Lets the header place beauty after interpolation.
     var beautyControl: ToolbarButton { beautyButton }
 
     /// Lets the header place live translation before the credit capsule.
@@ -135,7 +135,8 @@ final class GenerationToolbarView: Canvas {
     /// Applies the latest generation state without replacing controls.
     func update() {
         let previousWidth = preferredWidth
-        let previousTranslationWidth = translationButton.preferredWidth
+        let includesTranslation = GenerationRepository.isLiveTranslationAvailable
+        let previousTranslationWidth = includesTranslation ? translationButton.preferredWidth : 0
         beautyButton.isSelected = generationRepo.beautyEnabled
         beautyButton.isEnabled = generationRepo.sessionActive && !generationRepo.isClosing
         beautyButton.toolTip = GenerationStrings.beautyDescription
@@ -162,7 +163,7 @@ final class GenerationToolbarView: Canvas {
                 ? GenerationStrings.controlsSwitching
                 : generationRepo.interpolationEnabled ? GenerationStrings.on : GenerationStrings.off
         )
-        updateTranslation()
+        if includesTranslation { updateTranslation() }
         let stopTitle =
             generationRepo.isClosing ? GenerationStrings.controlsStopping : GenerationStrings.controlsStopSession
         stopButton.content = .labeled(stopTitle, icon: .vector(.stop))
@@ -170,7 +171,7 @@ final class GenerationToolbarView: Canvas {
         stopButton.isEnabled = !generationRepo.isClosing
         updateElapsed()
         needsLayout = true
-        if preferredWidth != previousWidth || translationButton.preferredWidth != previousTranslationWidth {
+        if preferredWidth != previousWidth || (includesTranslation && translationButton.preferredWidth != previousTranslationWidth) {
             onWidthChange?()
         }
     }

@@ -280,10 +280,11 @@ final class HomeViewController: NSViewController {
         [header, landing, workspace, footer].forEach(document.addSubview)
         [
             logo, homeControls, toolbar.statisticsControl, toolbar.interpolationControl, toolbar.beautyControl,
-            toolbar.translationControl, toolbar, userView,
+            toolbar, userView,
         ].forEach(
             header.addSubview
         )
+        if GenerationRepository.isLiveTranslationAvailable { header.addSubview(toolbar.translationControl) }
         homeControls.addSubview(cameraControls)
         configureLayout()
 
@@ -451,7 +452,7 @@ final class HomeViewController: NSViewController {
         toolbar.statisticsControl.isHidden = !active
         toolbar.interpolationControl.isHidden = !active
         toolbar.beautyControl.isHidden = !active
-        toolbar.translationControl.isHidden = !active
+        if GenerationRepository.isLiveTranslationAvailable { toolbar.translationControl.isHidden = !active }
         toolbar.isHidden = !active
         landing.isHidden = active
         footer.isHidden = active
@@ -488,7 +489,8 @@ final class HomeViewController: NSViewController {
 
     /// Opens live translation configuration without starting or stopping capture.
     private func showTranslationDialog() {
-        guard translationDialog == nil, generationRepo.sessionActive, !generationRepo.isClosing,
+        guard GenerationRepository.isLiveTranslationAvailable, translationDialog == nil,
+            generationRepo.sessionActive, !generationRepo.isClosing,
             !isShuttingDown, !viewModel.needsLogin, onboardingPage == nil, aboutPage == nil, rechargeDialog == nil,
             let window = view.window, window.attachedSheet == nil
         else { return }
@@ -1017,17 +1019,20 @@ final class HomeViewController: NSViewController {
             make.height.equalTo(userView)
             make.width.equalTo(toolbar.interpolationControl.preferredWidth)
         }
+        let controlAfterBeauty = GenerationRepository.isLiveTranslationAvailable ? toolbar.translationControl : userView
         toolbar.beautyControl.snp.makeConstraints { make in
-            make.trailing.equalTo(toolbar.translationControl.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            make.trailing.equalTo(controlAfterBeauty.snp.leading).offset(-ToolbarControlMetrics.spacing)
             make.centerY.equalTo(logo)
             make.height.equalTo(userView)
             make.width.equalTo(toolbar.beautyControl.preferredWidth)
         }
-        toolbar.translationControl.snp.makeConstraints { make in
-            make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
-            make.centerY.equalTo(logo)
-            make.height.equalTo(userView)
-            make.width.equalTo(toolbar.translationControl.preferredWidth)
+        if GenerationRepository.isLiveTranslationAvailable {
+            toolbar.translationControl.snp.makeConstraints { make in
+                make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
+                make.centerY.equalTo(logo)
+                make.height.equalTo(userView)
+                make.width.equalTo(toolbar.translationControl.preferredWidth)
+            }
         }
         toolbar.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
@@ -1050,9 +1055,9 @@ final class HomeViewController: NSViewController {
         let toolbarWidth = toolbar.preferredWidth
         let interpolationWidth = toolbar.interpolationControl.preferredWidth
         let beautyWidth = toolbar.beautyControl.preferredWidth
-        let translationWidth = toolbar.translationControl.preferredWidth
+        let translationWidth = GenerationRepository.isLiveTranslationAvailable ? toolbar.translationControl.preferredWidth : nil
         let signature =
-            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(interpolationWidth)|\(beautyWidth)|\(translationWidth)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
+            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(interpolationWidth)|\(beautyWidth)|\(translationWidth ?? 0)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
         guard signature != layoutSignature else { return }
         layoutSignature = signature
         let contentWidth = max(0, width - 56)
@@ -1092,7 +1097,9 @@ final class HomeViewController: NSViewController {
         toolbar.snp.updateConstraints { make in make.width.equalTo(toolbarWidth) }
         toolbar.interpolationControl.snp.updateConstraints { make in make.width.equalTo(interpolationWidth) }
         toolbar.beautyControl.snp.updateConstraints { make in make.width.equalTo(beautyWidth) }
-        toolbar.translationControl.snp.updateConstraints { make in make.width.equalTo(translationWidth) }
+        if let translationWidth {
+            toolbar.translationControl.snp.updateConstraints { make in make.width.equalTo(translationWidth) }
+        }
         errorView.place(in: root.bounds)
         if signInToastVisible { signInToast.place(in: root.bounds) }
     }

@@ -133,8 +133,12 @@ final class GenerationRepository: ObservableObject {
         return true
     }
 
-    /// Whether this system provides on-device speech analysis and translation.
+    /// Controls whether this build exposes live translation or restores a saved session preference.
+    static let isLiveTranslationAvailable = false
+
+    /// Whether this build and system support on-device live translation.
     static var supportsTranslation: Bool {
+        guard isLiveTranslationAvailable else { return false }
         if #available(macOS 26.0, *) { return true }
         return false
     }
@@ -544,7 +548,7 @@ final class GenerationRepository: ObservableObject {
 
     /// Refreshes availability without overwriting active progress or retryable failures.
     func refreshTranslationResources() async {
-        guard translationState == .off else { return }
+        guard Self.isLiveTranslationAvailable, translationState == .off else { return }
         let revision = translationResourceQueryRevision
         var statuses = await MicrophoneTranslation.resourceStatus(for: translationLanguages)
         guard !Task.isCancelled, translationResourceQueryRevision == revision else { return }
