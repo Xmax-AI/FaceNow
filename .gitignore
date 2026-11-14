@@ -1,0 +1,28 @@
+# OS metadata
+.DS_Store
+._*
+Thumbs.db
+
+# Build output and local caches
+.build/
+__pycache__/
+*.log
+
+# Local environment configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Signing keys and provisioning profiles
+*.p12
+*.pfx
+*.p8
+*.key
+*.pem
+*.mobileprovision
+*.provisionprofile
+
+# Local development files
+.local/

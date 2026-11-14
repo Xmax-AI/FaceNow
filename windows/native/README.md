@@ -11,9 +11,6 @@ Build on Windows with Visual Studio Desktop C++ tools (including ARM64 tools) an
 
 ```powershell
 ./scripts/build-camera.ps1
-./scripts/verify-camera.ps1 -Architecture arm64
-# After Install & Enable in the app:
-./scripts/verify-camera.ps1 -Architecture arm64 -Installed
 ```
 
 Defaults: VS at `C:/dev/VisualStudio2022`, output `C:/dev/FaceNow-camera/{x64,arm64}`.
@@ -23,7 +20,7 @@ The helper and source architecture must match the OS Frame Server, independently
 The source receives BGRA from the app through a per-device named pipe.
 `RemoteCameraPump` uses the independent SDK callback and a one-packet queue; `FramePublisher` serves only the latest fresh frame.
 On stop, disconnection or 1500 ms without new content, output falls back to a plain #F1F3F4 canvas matching macOS.
-The local end-to-end check is `scripts/run.ps1 -VerifyRelay`; see [frame transport](../Docs/FrameTransport.md).
+Run `scripts/run.ps1 -VerifyRelay` to verify virtual camera relay on Windows 11.
 Cloud generation and meeting reception remain separate acceptance items.
 Full installer, upgrades, reboot recovery, long running output and meeting compatibility remain separate acceptance items.
 
