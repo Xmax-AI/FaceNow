@@ -1485,7 +1485,7 @@
 				E38FFAE3C81C6C0F7882FCD7 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				06E5DCD8336A673EB16B1BDF /* XCRemoteSwiftPackageReference "HandyJSON" */,
 				263A870DB8070B0234127A40 /* XCRemoteSwiftPackageReference "Moya" */,
-				C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */,
+				C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */,
 				6A46DE71A0B66FA2AA3E2C9C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 3591BDEBAE5C7EAD0E628879 /* Products */;
@@ -2531,14 +2531,15 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../XmaxSDK;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
+		C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Xmax-AI/XmaxSDK-MacOS.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.4;
+			};
+		};
 		06E5DCD8336A673EB16B1BDF /* XCRemoteSwiftPackageReference "HandyJSON" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Miles-Matheson/HandyJSON.git";
@@ -2627,7 +2628,7 @@
 		};
 		A463B9543A0955D3174DD50D /* XmaxSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */;
+			package = C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */;
 			productName = XmaxSDK;
 		};
 		A7F488488899F50ECA5164BB /* Sparkle */ = {
@@ -2647,7 +2648,7 @@
 		};
 		DD026C4A2E5517ABACE1429F /* XmaxSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */;
+			package = C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */;
 			productName = XmaxSDK;
 		};
 		E60FF0A3452A4577CB37F1A8 /* Sparkle */ = {
@@ -2662,7 +2663,7 @@
 		};
 		ED10B7000000000000000014 /* XmaxRealtimeBeautyWorkerSupport */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C2AD2BD3A37009F3C8A899DC /* XCLocalSwiftPackageReference "../XmaxSDK" */;
+			package = C2AD2BD3A37009F3C8A899DC /* XCRemoteSwiftPackageReference "XmaxSDK-MacOS" */;
 			productName = XmaxRealtimeBeautyWorkerSupport;
 		};
 /* End XCSwiftPackageProductDependency section */
