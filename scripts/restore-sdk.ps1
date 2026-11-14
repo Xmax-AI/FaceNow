@@ -25,7 +25,7 @@ foreach ($name in $packages.Keys) {
 
     $temporary = Join-Path $feed ([Guid]::NewGuid().ToString('N') + '.download')
     try {
-        & curl.exe --fail --location --silent --show-error --connect-timeout 15 --max-time 120 --retry 2 --output $temporary "$release/$name"
+        & curl.exe --fail --location --silent --show-error --connect-timeout 15 --speed-limit 1024 --speed-time 60 --retry 2 --output $temporary "$release/$name"
         if ($LASTEXITCODE -ne 0) { throw "Could not download $name from $release (curl exit $LASTEXITCODE)." }
         if ((Get-FileHash -LiteralPath $temporary -Algorithm SHA256).Hash -ne $expectedHash) {
             throw "The GitHub Release checksum does not match for $name."
