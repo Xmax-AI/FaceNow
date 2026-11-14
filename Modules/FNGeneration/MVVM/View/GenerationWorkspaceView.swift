@@ -529,6 +529,9 @@ private final class GenerationBeautyPanelView: Canvas {
         ceil(titleLabel.intrinsicContentSize.width) + titleSpacing + disclosureSize + 2 * panelInset
     }
 
+    /// Keeps presses on the overlay background from starting a window drag.
+    override var mouseDownCanMoveWindow: Bool { false }
+
     /// Names the effect while its strength controls are expanded or collapsed.
     private lazy var titleLabel: NSTextField = {
         let view = NSTextField(labelWithString: GenerationStrings.beautyPanelTitle)
@@ -603,6 +606,19 @@ private final class GenerationBeautyPanelView: Canvas {
     required init?(
         coder: NSCoder
     ) { fatalError("init(coder:) has not been implemented") }
+
+    /// Routes hits to the controls first and keeps clicks in the gaps on the panel.
+    override func hitTest(
+        _ point: NSPoint
+    ) -> NSView? {
+        guard !isHidden, bounds.contains(convert(point, from: superview)) else { return nil }
+        return super.hitTest(point) ?? self
+    }
+
+    /// Consumes primary-button gestures that start outside the controls but within the panel.
+    override func mouseDown(with event: NSEvent) {}
+    override func mouseDragged(with event: NSEvent) {}
+    override func mouseUp(with event: NSEvent) {}
 
     /// Aligns the header and slider tracks within the panel padding.
     private func configureLayout() {
@@ -731,7 +747,7 @@ private final class GenerationBeautySliderRow: Canvas {
         slider.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel.snp.trailing).offset(6)
             make.trailing.equalTo(valueLabel.snp.leading).offset(-6)
-            make.centerY.equalToSuperview()
+            make.top.bottom.equalToSuperview()
         }
     }
 
