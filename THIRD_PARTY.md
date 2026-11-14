@@ -4,7 +4,7 @@
 - **Agora 4.6.2 / ClearVision**：生成结果美颜使用与 XmaxSDK 相同版本的 Agora 本地媒体图和 ClearVision 扩展，由 XmaxSDK 的 `Xmax.VideoBeautyWorker.exe` 调用。运行库沿用 SDK 的再分发和 notices；Slim 发布保留 `libagora_clear_vision_extension.dll`。FaceNow 不再直接编译美颜或依赖 Agora 低层头文件；对应依赖由 SDK 管理。
 - **ApiKeyStore**：Windows 凭据适配基于 XmaxSDK 的 MIT 实现，使用 FaceNow 独立的凭据条目。
 - **XLab WinUI 界面与会话逻辑**：基于 `Examples/XLabWinUI` 和 `Examples/XLabShared` 的 MIT 源码适配到产品内部，保留同款布局、控件、弹层与动画；使用 FaceNow 命名空间和独立持久化位置，不引用示例程序集。
-- **DM Sans**：来自 SDK 示例的字体，构建输出保留 `DMSans-OFL.txt`。
+- **DM Sans**：随应用分发，许可证见 `licenses/DMSans-OFL.txt`。
 - **FaceNow 应用图标**：复用 macOS FaceNow 当前发行版的黑底白色 Xmax 星标成品，转换为 Windows 多尺寸 ICO；来源见 `assets/README.md`。
 - **FaceNow 登录素材**：演示视频和海报复用 macOS `FNUser/Resources/Login`；场景品牌图标及其来源和许可证随应用部署在 `Assets/Login/Scenarios-sources.md` 与 `Assets/Login/Scenarios-Licenses.txt`。
 - **登录场景图标着色**：`Assets/Login/Scenarios/Muted` 是上述矢量图标的派生配色，以 `#6B7380` 和界面不透明度复现 macOS 的蒙版着色；原始矢量文件、署名与许可证均保留。

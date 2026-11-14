@@ -22,8 +22,7 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" PrivateAssets="all" />
     <ProjectReference Include="../FaceNow.Windows/FaceNow.Windows.csproj" />
-    <ProjectReference Include="$(XmaxSdkRoot)/Sources/XmaxSDK.WinUI/XmaxSDK.WinUI.csproj" />
-    <Content Include="$(XmaxSdkRoot)/Examples/XLab/assets/DMSans.ttf" Link="Assets/DMSans.ttf" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="$(XmaxSdkRoot)/Examples/XLab/assets/DMSans-OFL.txt" Link="DMSans-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="Xmax.SDK.WinUI" Version="[$(XmaxSdkVersion)]" />
+    <Content Include="../../assets/DMSans.ttf" Link="Assets/DMSans.ttf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

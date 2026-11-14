@@ -1,12 +1,6 @@
 # FaceNow for Windows
 
-基于 C# / .NET 10 / WinUI 3，与 `XmaxSDK` 平级开发。当前界面按 XLab WinUI 对齐：同款白色首页、Logo、标题、棋盘格启动区、顶部工具栏、双视频会话页、五种模式、圆形参考图、Free Prompt、API Key 弹层与 450 ms 页面过渡。进程和窗口名称保留 FaceNow。
-
-```text
-Windows/
-  XmaxSDK/
-  FaceNow/
-```
+基于 C# / .NET 10 / WinUI 3。当前界面按 XLab WinUI 对齐：同款白色首页、Logo、标题、棋盘格启动区、顶部工具栏、双视频会话页、五种模式、圆形参考图、Free Prompt、API Key 弹层与 450 ms 页面过渡。进程和窗口名称保留 FaceNow。
 
 已接入 SDK 摄像头、显式启动/停止生成、参考图选择、上传流程、自由提示词、统计和凭据保存。虚拟摄像头接收 SDK 远端视频，按所选比例跨进程输出，停止或断流时切回占位。Windows 11 使用 Media Foundation，Windows 10 x64 使用 [DirectShow](native/DirectShow/README.md)。真实云端到会议的完整链路、会议兼容、录制和托盘仍待验收或实现。已提供自包含 EXE 安装器。关闭窗口停止并释放 AI 会话。
 
@@ -31,10 +25,10 @@ Windows/
 # 离线检查真实美颜像素、输出水印、故障恢复、设置和区域隔离
 ./scripts/test-media.ps1 -Edition Domestic -FullHd
 # 同时检查并发布两版，要求全新的 BuildRoot
-./scripts/build-editions.ps1 -BuildRoot C:/dev/FaceNow-editions-new -NativeDirectory <SDK原生目录> -DependencyNoticesDirectory <原生依赖说明目录>
+./scripts/build-editions.ps1 -BuildRoot C:/dev/FaceNow-editions-new
 ```
 
-FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xmax.VideoBeautyWorker.exe`、Agora 4.6.2 和 ClearVision 的新版 SDK 原生目录，运行/发布通过 `-NativeDirectory` 指定。SDK 自行构建美颜所需的低层头文件及依赖，详见 SDK README。`build-media.ps1` 只构建水印画布组件，产物默认在 `C:/dev/FaceNow-media`，通过 `-MediaDirectory` 覆盖。
+Windows 版通过 NuGet 引用 GitHub Releases 上的 [XmaxSDK](https://github.com/Xmax-AI/XmaxSDK-Windows/releases)。`Directory.Build.props` 固定 SDK 版本及下载校验值。运行、测试和发布脚本自动下载两个 SDK 包并校验 SHA-256，由 NuGet 将原生 DLL、Agora 和美颜 worker 放入产物。直接使用 Visual Studio 或 `dotnet build` 前，先运行 `./scripts/restore-sdk.ps1`。`build-media.ps1` 构建 FaceNow 的水印画布组件，产物默认在 `C:/dev/FaceNow-media`，可用 `-MediaDirectory` 覆盖。
 
 `build-editions.ps1` 默认将两版安装包导出到 Git 忽略的 `.build/releases/<版本>-<构建时间>/`。国内版是 `mainland/FaceNow.exe`，海外版是 `overseas/FaceNow.exe`。`FaceNow-<版本>-windows.zip` 同时包含两版安装包和 `SHA256SUMS` 校验文件。可用 `-ReleaseDirectory` 指定新的导出目录。
 
@@ -42,7 +36,7 @@ FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xma
 
 正常启动先进入账户流程：手机号验证码、邮箱验证码和 API Key 登录按构建版本使用与 macOS 相同的国内或海外平台接口。保存的账户会先显示缓存首页并在后台验证，验证完成前不能生成。旧版保存的 API Key 只在服务确认有效记录及所属用户后迁移；登录成功后通过账户菜单选择或显式创建生成 Key，不会自动创建 Key。登录架构及验收边界见 [账户模块](Docs/Accounts.md)。
 
-需要 .NET 10 SDK、相邻 XmaxSDK 源码、带摄像头和 Agora 支持的原生 SDK 及匹配运行依赖。安全验证弹层使用 Microsoft Edge WebView2 Runtime。EXE 安装器会尝试联网补装缺失的 Runtime，失败时继续安装 FaceNow。登录时如缺少 Runtime，用户可在弹窗中前往微软官网下载，或切换到 API Key 登录。安装器支持 Windows 10 2004 及以上版本（x64）和 Windows 11（x64 或 ARM64 上的 x64 仿真）。
+需要 .NET 10 SDK。安全验证弹层使用 Microsoft Edge WebView2 Runtime。EXE 安装器会尝试联网补装缺失的 Runtime，失败时继续安装 FaceNow。登录时如缺少 Runtime，用户可在弹窗中前往微软官网下载，或切换到 API Key 登录。安装器支持 Windows 10 2004 及以上版本（x64）和 Windows 11（x64 或 ARM64 上的 x64 仿真）。
 
 ```powershell
 ./scripts/run.ps1
@@ -69,7 +63,7 @@ FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xma
 ./scripts/run.ps1 -NoBuild -VerifyRelay
 ```
 
-默认 .NET 位于 `C:/dev/dotnet/dotnet.exe`，不存在则查找 PATH；原生 SDK 默认位于 `C:/dev/XmaxSDK-build/Sources/XmaxSDK/RelWithDebInfo`。使用 `-DotNet`、`-NativeDirectory`、`-XmaxSdkRoot`、`-BuildRoot` 覆盖。构建产物放在 Windows 本地 `C:/dev/FaceNow-build`，避免在共享目录运行 XAML 编译。
+默认 .NET 位于 `C:/dev/dotnet/dotnet.exe`，不存在则查找 PATH。使用 `-DotNet` 和 `-BuildRoot` 覆盖。构建产物放在 Windows 本地 `C:/dev/FaceNow-build`，避免在共享目录运行 XAML 编译。
 
 虚拟摄像头组件需先用 Visual Studio C++ 工具构建：`./scripts/build-camera.ps1 -DirectShowBaseClasses C:/dev/baseclasses`，默认将 Media Foundation 的 x64、ARM64 组件和 DirectShow 的 x64 组件输出到 `C:/dev/FaceNow-camera`。之后 `run.ps1` 自动复制到应用的 `Camera` 目录，可用 `-CameraBuildRoot` 覆盖路径。ARM64 Windows 11 的 Frame Server 使用 ARM64 媒体源，主程序以 x64 仿真运行。缺少组件时仍能打开主程序，并显示 Not installed。
 
@@ -85,19 +79,19 @@ bash scripts/run.sh -Verify
 bash scripts/run.sh -NoBuild
 ```
 
-默认使用运行中的 `Windows 11` 虚拟机、`\\Mac\FaceNowSource` 源码共享与 `\\Mac\XmaxSDK` SDK 共享。可用 `FACENOW_WINDOWS_VM`、`FACENOW_WINDOWS_SOURCE`、`XMAX_WINDOWS_SOURCE` 覆盖。FaceNowSource 避免与 FaceNow 安装镜像重名。
+默认使用运行中的 `Windows 11` 虚拟机、`\\Mac\FaceNowSource` 源码共享。可用 `FACENOW_WINDOWS_VM`、`FACENOW_WINDOWS_SOURCE` 覆盖。FaceNowSource 避免与 FaceNow 安装镜像重名。
 
 ## 发布免安装版
 
-在 Windows 中运行 `scripts/publish.ps1 -DependencyNoticesDirectory <原生依赖说明目录>`，使用新的本地 `-BuildRoot`。脚本生成 `publish/FaceNow-版本-win-x64/FaceNow.exe` 和 `packages/FaceNow-版本-win-x64.zip`，包含 .NET、WinUI、Visual C++ 运行库、原生 SDK、Windows 10 和 Windows 11 的摄像头组件及依赖说明。解压整个 ZIP 后运行 FaceNow.exe，保留同目录的 DLL、Assets 和 Camera；无需安装开发环境。该包不携带用户 API Key，摄像头注册仍由首次使用时的 Set up camera 完成。
+在 Windows 中运行 `scripts/publish.ps1`，使用新的本地 `-BuildRoot`。脚本生成 `publish/FaceNow-版本-win-x64/FaceNow.exe` 和 `packages/FaceNow-版本-win-x64.zip`，包含 .NET、WinUI、Visual C++ 运行库、原生 SDK、Windows 10 和 Windows 11 的摄像头组件及依赖说明。解压整个 ZIP 后运行 FaceNow.exe，保留同目录的 DLL、Assets 和 Camera；无需安装开发环境。该包不携带用户 API Key，摄像头注册仍由首次使用时的 Set up camera 完成。
 
 ## EXE 安装包
 
 ```powershell
-./scripts/build-installer.ps1 -BuildRoot C:/dev/FaceNow-installer-new -NativeDirectory C:/dev/XmaxSDK-release-1.1.0/Sources/XmaxSDK/Release -NsisCompiler C:/dev/FaceNow-tools/nsis-3.12/makensis.exe -DependencyNoticesDirectory <原生依赖说明目录>
+./scripts/build-installer.ps1 -BuildRoot C:/dev/FaceNow-installer-new -NsisCompiler C:/dev/FaceNow-tools/nsis-3.12/makensis.exe
 ```
 
-使用官方 NSIS 3.12 或更新版本，编译器目录须包含 `COPYING`。`-NativeDirectory` 必须匹配相邻 SDK 源码的 `VERSION`，发布脚本会检查 DLL 版本，防止 C# 与 C++ SDK 混装。产物为 `packages/FaceNow-Setup-版本.exe`，单个文件即可分发，运行库全部内置，无需额外下载 .NET 或 WinUI。默认安装到当前用户的 `%LocalAppData%/Programs/FaceNow`，创建桌面和开始菜单快捷方式，并提供系统卸载入口；首次使用虚拟摄像头仍由应用中的 Set up camera 完成。
+使用官方 NSIS 3.12 或更新版本，编译器目录须包含 `COPYING`。发布脚本会将 SDK DLL 的版本与 NuGet 包版本核对，并验证 C ABI。产物为 `packages/FaceNow-Setup-版本.exe`，单个文件即可分发，运行库全部内置，无需额外下载 .NET 或 WinUI。默认安装到当前用户的 `%LocalAppData%/Programs/FaceNow`，创建桌面和开始菜单快捷方式，并提供系统卸载入口；首次使用虚拟摄像头仍由应用中的 Set up camera 完成。
 
 安装器采用 `publish.ps1 -Slim -SkipArchive` 构建：在 WinAppSDK 生成文件和 WinRT 注册前排除未使用的 AI、ML、Search、Widgets 组件，并去掉额外携带的 Windows ML 原生文件和未使用的 Agora 扩展。保留 RTC 主体、编解码、音频处理、VC、.NET、WinUI 和 x64/ARM64 摄像头组件，不启用可能破坏反射绑定的 .NET 裁剪。后续增加本地 AI 或 RTC 扩展功能时需重新检查这些清单。
 

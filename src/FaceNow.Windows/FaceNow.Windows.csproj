@@ -6,7 +6,7 @@
     <InternalsVisibleTo Include="FaceNow.MediaTests" />
     <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
     <ProjectReference Include="../FaceNow.Core/FaceNow.Core.csproj" />
-    <ProjectReference Include="$(XmaxSdkRoot)/Sources/XmaxSDK.Net/XmaxSDK.Net.csproj" />
+    <PackageReference Include="Xmax.SDK" Version="[$(XmaxSdkVersion)]" />
     <EmbeddedResource Include="../../assets/presets.json" LogicalName="FaceNow.presets.json" />
   </ItemGroup>
 </Project>

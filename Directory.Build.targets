@@ -14,7 +14,4 @@
                    $([System.String]::Copy('%(WindowsAppSdkComponentPackages.Identity)').ToLowerInvariant().Contains('microsoft.windowsappsdk.widgets\'))" />
     </ItemGroup>
   </Target>
-  <ItemGroup Condition="'$(MSBuildProjectName)' == 'FaceNow.App' and '$(XmaxNativeDir)' != ''">
-    <Content Include="$(XmaxNativeDir)/*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>

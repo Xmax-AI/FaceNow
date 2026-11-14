@@ -11,9 +11,10 @@
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
     <FaceNowBuildRoot Condition="'$(FaceNowBuildRoot)' == ''">$(MSBuildThisFileDirectory).build/dotnet/</FaceNowBuildRoot>
-    <XmaxDotNetBuildRoot Condition="'$(XmaxDotNetBuildRoot)' == ''">$(FaceNowBuildRoot)sdk/</XmaxDotNetBuildRoot>
     <BaseOutputPath>$(FaceNowBuildRoot)bin/$(MSBuildProjectName)/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(FaceNowBuildRoot)obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
-    <XmaxSdkRoot Condition="'$(XmaxSdkRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../XmaxSDK'))</XmaxSdkRoot>
+    <XmaxSdkVersion>1.1.2</XmaxSdkVersion>
+    <XmaxSdkPackageSHA256>6785d75c8fa4edb0c285496e597fdcc607562d00083575a73561bc41416e78c2</XmaxSdkPackageSHA256>
+    <XmaxSdkWinUIPackageSHA256>c4199a3dac07ad4d569dae4a52f992531fb1627720965c45086d08bb48e502c4</XmaxSdkWinUIPackageSHA256>
   </PropertyGroup>
 </Project>

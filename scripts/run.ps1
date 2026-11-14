@@ -2,9 +2,7 @@
 param(
     [ValidateSet('Domestic','Overseas')][string]$Edition = 'Domestic',
     [string]$MediaDirectory = 'C:\dev\FaceNow-media',
-    [string]$NativeDirectory = 'C:\dev\XmaxSDK-build\Sources\XmaxSDK\RelWithDebInfo',
     [string]$BuildRoot = 'C:\dev\FaceNow-build',
-    [string]$XmaxSdkRoot = '',
     [string]$DotNet = 'C:\dev\dotnet\dotnet.exe',
     [string]$CameraBuildRoot = 'C:\dev\FaceNow-camera',
     [switch]$Preview,
@@ -19,11 +17,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
-if (!$XmaxSdkRoot) { $XmaxSdkRoot = Join-Path (Split-Path -Parent $repo) 'XmaxSDK' }
 if (!(Test-Path $DotNet)) { $DotNet = (Get-Command dotnet -ErrorAction Stop).Source }
 if ($BuildRoot.StartsWith('\\')) { throw 'Use a local Windows build directory.' }
-if (!(Test-Path "$XmaxSdkRoot/Sources/XmaxSDK.WinUI/XmaxSDK.WinUI.csproj")) { throw 'Pass -XmaxSdkRoot pointing to the adjacent XmaxSDK.' }
-if (!(Test-Path "$NativeDirectory/XmaxSDK.dll")) { throw 'Pass -NativeDirectory containing XmaxSDK.dll and matching dependencies.' }
 $env:DOTNET_ROOT = Split-Path $DotNet
 $build = $BuildRoot.Replace('\','/').TrimEnd('/') + '/'
 $stamp = Join-Path $BuildRoot '.facenow-edition'
@@ -31,11 +26,17 @@ if ((Test-Path $stamp) -and (Get-Content $stamp -Raw).Trim() -ne $Edition) { thr
 New-Item -ItemType Directory -Force $BuildRoot | Out-Null
 Set-Content $stamp $Edition
 if (!$NoBuild) {
-    & $DotNet build "$repo/src/FaceNow.App/FaceNow.App.csproj" -c Release '-p:Platform=x64' "-p:FaceNowBuildRoot=$build" "-p:XmaxDotNetBuildRoot=${build}sdk/" "-p:XmaxSdkRoot=$XmaxSdkRoot" "-p:XmaxNativeDir=$NativeDirectory" "-p:FaceNowEdition=$Edition" "-p:FaceNowMediaDirectory=$MediaDirectory"
+    & "$PSScriptRoot/restore-sdk.ps1"
+    & $DotNet build "$repo/src/FaceNow.App/FaceNow.App.csproj" -c Release '-p:Platform=x64' "-p:FaceNowBuildRoot=$build" "-p:FaceNowEdition=$Edition" "-p:FaceNowMediaDirectory=$MediaDirectory"
     if ($LASTEXITCODE -ne 0) { throw 'FaceNow build failed.' }
 }
 $app = Join-Path $BuildRoot 'bin/FaceNow.App/x64/Release/net10.0-windows10.0.26100.0/win-x64/FaceNow.exe'
 if (!(Test-Path $app)) { throw "Build output was not found: $app" }
+foreach ($name in @('XmaxSDK.dll', 'agora_rtc_sdk.dll', 'libagora_clear_vision_extension.dll', 'Xmax.VideoBeautyWorker.exe')) {
+    if (!(Test-Path -LiteralPath (Join-Path (Split-Path $app) $name) -PathType Leaf)) {
+        throw "The app output is missing SDK runtime file $name. Rebuild with the released SDK packages."
+    }
+}
 foreach ($architecture in @('x64','arm64','directshow-x64')) {
     $nativeCamera = Join-Path $CameraBuildRoot $architecture
     if ((Test-Path "$nativeCamera/FaceNow.CameraControl.exe") -and (Test-Path "$nativeCamera/FaceNow.CameraSource.dll")) {
