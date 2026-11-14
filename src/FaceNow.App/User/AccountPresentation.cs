@@ -4,6 +4,7 @@
 //
 
 using System.Globalization;
+using FaceNow.Core.Localization;
 using FaceNow.Core.User;
 
 namespace FaceNow.App.User;

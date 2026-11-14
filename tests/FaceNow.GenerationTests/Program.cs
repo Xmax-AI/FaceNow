@@ -29,6 +29,26 @@ var tests = new (string Name, Func<Task> Run)[]
         model.ResetHomeReferences();
         Check(model.HomeSelectedReference == model.HomeReferencePresets[0]);
     }),
+    ("New catalog presets appear first at home and start in their own generation mode", async () =>
+    {
+        var model = new MainViewModel(new FakeDispatcher(), new FakeThumbnails());
+        model.ConfigurePreview(false);
+        var clothing = model.ClothingReferences.First(item => !item.IsUpload);
+        var style = model.StyleReferences.First(item => !item.IsUpload);
+        model.SelectHomeCatalogReference(clothing);
+        model.SelectHomeCatalogReference(style);
+        Check(model.HomeReferences.SequenceEqual(new[] { style, clothing }.Concat(model.HomeReferencePresets)));
+        model.SelectHomeCatalogReference(clothing);
+        Check(model.HomeSelectedReference == clothing && model.HomeReferences[1] == clothing &&
+            model.HomeReferences.Count == model.HomeReferencePresets.Count + 2);
+        await model.StartLandingAsync();
+        Check(model.Active && model.SelectedMode == "clothx" && clothing.IsSelected && !style.IsSelected);
+        await model.StopAsync();
+        Check(model.HomeSelectedReference == clothing && model.HomeReferences[1] == clothing);
+        model.ResetHomeReferences();
+        Check(model.HomeReferences.SequenceEqual(model.HomeReferencePresets) &&
+            model.HomeSelectedReference == model.HomeReferencePresets[0]);
+    }),
     ("Reset cancels pending home uploads before SDK approval and unblocks Start", async () =>
     {
         var thumbnails = new PendingThumbnails();

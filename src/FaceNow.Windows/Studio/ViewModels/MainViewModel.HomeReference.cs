@@ -16,6 +16,8 @@ internal sealed partial class MainViewModel
 
     internal IReadOnlyList<ReferenceItem> HomeReferencePresets { get; private set; } = [];
 
+    internal IReadOnlyList<ReferenceItem> HomeReferences { get; private set; } = [];
+
     internal ReferenceItem HomeSelectedReference { get; private set; } = null!;
 
     internal ReferenceItem? HomeCustomReference => pendingHomeReference ?? importedHomeReference;
@@ -26,12 +28,22 @@ internal sealed partial class MainViewModel
         ReferenceItem item
     )
     {
-        if (!CanChooseHomeReference || HomeSelectedReference == item ||
-            (item != importedHomeReference && !HomeReferencePresets.Contains(item)))
+        if (!CanChooseHomeReference || HomeSelectedReference == item || !HomeReferences.Contains(item))
             return;
         HomeSelectedReference = item;
         ClearError();
         HomeReferenceChanged();
+    }
+
+    internal void SelectHomeCatalogReference(
+        ReferenceItem item
+    )
+    {
+        if (!CanChooseHomeReference || item.IsUpload || item.LocalPath is not null || !AllReferences.Contains(item))
+            return;
+        if (!HomeReferences.Contains(item))
+            HomeReferences = [item, ..HomeReferences];
+        SelectHomeReference(item);
     }
 
     internal async Task UploadHomeReferenceAsync(
@@ -50,6 +62,8 @@ internal sealed partial class MainViewModel
         using var cancellation = new CancellationTokenSource();
         homeReferenceUpload = cancellation;
         pendingHomeReference = item;
+        var previousReferences = HomeReferences;
+        HomeReferences = [item, ..previousReferences.Where(reference => reference != importedHomeReference)];
         item.IsUploading = true;
         ClearError();
         HomeReferenceChanged();
@@ -72,6 +86,8 @@ internal sealed partial class MainViewModel
             {
                 homeReferenceUpload = null;
                 pendingHomeReference = null;
+                if (importedHomeReference != item)
+                    HomeReferences = previousReferences;
                 HomeReferenceChanged();
             }
         }
@@ -80,13 +96,14 @@ internal sealed partial class MainViewModel
     internal void ResetHomeReferences()
     {
         var original = HomeReferencePresets[0];
-        if (homeReferenceUpload is null && importedHomeReference is null &&
+        if (HomeReferences == HomeReferencePresets &&
             homeSessionReferences.Count == 0 && HomeSelectedReference == original)
             return;
 
         var cancellation = homeReferenceUpload;
         homeReferenceUpload = null;
         pendingHomeReference = importedHomeReference = null;
+        HomeReferences = HomeReferencePresets;
         HomeSelectedReference = original;
         cancellation?.Cancel();
         foreach (var item in homeSessionReferences)
@@ -107,7 +124,7 @@ internal sealed partial class MainViewModel
     {
         if (item.LocalPath is not null && homeSessionReferences.Add(item))
             CharacterReferences.Insert(1, item);
-        SelectedMode = "charx";
+        SelectedMode = item.Mode;
         MarkSelected(item);
     }
 }

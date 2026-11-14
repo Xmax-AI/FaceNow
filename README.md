@@ -34,7 +34,9 @@ Windows/
 ./scripts/build-editions.ps1 -BuildRoot C:/dev/FaceNow-editions-new -NativeDirectory <SDK原生目录> -DependencyNoticesDirectory <原生依赖说明目录>
 ```
 
-FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xmax.VideoBeautyWorker.exe`、Agora 4.6.2 和 ClearVision 的新版 SDK 原生目录，运行/发布通过 `-NativeDirectory` 指定。SDK 自行构建美颜所需的低层头文件及依赖，详见 SDK README。`build-media.ps1` 只构建水印画布组件，产物默认在 `C:/dev/FaceNow-media`，通过 `-MediaDirectory` 覆盖。两版安装包分别为 `FaceNow-Setup-1.0.0.exe` 和 `FaceNowOverseas-Setup-1.0.0.exe`。
+FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xmax.VideoBeautyWorker.exe`、Agora 4.6.2 和 ClearVision 的新版 SDK 原生目录，运行/发布通过 `-NativeDirectory` 指定。SDK 自行构建美颜所需的低层头文件及依赖，详见 SDK README。`build-media.ps1` 只构建水印画布组件，产物默认在 `C:/dev/FaceNow-media`，通过 `-MediaDirectory` 覆盖。
+
+`build-editions.ps1` 默认将两版安装包导出到 Git 忽略的 `.build/releases/<版本>-<构建时间>/`。国内版是 `mainland/FaceNow.exe`，海外版是 `overseas/FaceNow.exe`。`FaceNow-<版本>-windows.zip` 同时包含两版安装包和 `SHA256SUMS` 校验文件。可用 `-ReleaseDirectory` 指定新的导出目录。
 
 ## 运行
 
@@ -56,7 +58,7 @@ FaceNow 不再构建或分发应用自有的美颜 worker。请使用包含 `Xma
 # 生成失败、积分耗尽与清理并发回归（模拟事件，不调用原生 SDK 或云服务）
 ./scripts/test-generation.ps1
 # 在自包含发布目录中检查缓存/普通登录后的真实弹窗退出、再次登录和关闭；无截图
-./scripts/test-signout.ps1 -AppDirectory C:/dev/FaceNow-release/publish/FaceNow-1.0.0-win-x64
+./scripts/test-signout.ps1 -AppDirectory C:/dev/FaceNow-release/publish/FaceNow-1.2.0-win-x64
 # 检查登录布局并生成各窗口尺寸和输入状态的截图
 ./scripts/verify-login-layout.ps1
 # 编译并验证界面、帧显示、缺 Key 拦截和隔离的凭据恢复

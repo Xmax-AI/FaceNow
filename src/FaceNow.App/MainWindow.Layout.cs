@@ -19,6 +19,14 @@ namespace FaceNow.App;
 
 public sealed partial class MainWindow
 {
+    private static readonly (string Mode, string Label)[] ReferenceCategories =
+    [
+        ("charx", "Character Swap"),
+        ("clothx", "Virtual Try-On"),
+        ("vibex", "Style Transfer"),
+        ("dimx", "Virtual Summon")
+    ];
+
     private void BuildUi()
     {
         scroller.Content = page;
@@ -126,6 +134,7 @@ public sealed partial class MainWindow
         homeReferences.Margin = new(0, 16, 0, 0);
         homeReferences.ReferenceSelected += Model.SelectHomeReference;
         homeReferences.UploadRequested += async () => await ChooseHomeReferenceAsync();
+        homeReferences.MoreRequested += OpenHomeReferenceCatalog;
         actions.Children.Add(homeReferences);
         landingStage.Children.Add(actions);
         terms.TextAlignment = TextAlignment.Center;
@@ -163,43 +172,64 @@ public sealed partial class MainWindow
         workspace.Children.Add(videoRow);
         BuildSessionAudioControls();
         workspace.Children.Add(sessionAudioControls);
-        var tabBar = new Border
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            CornerRadius = new(21),
-            Background = Theme.Brush("#1A787880"),
-            Height = 42,
-            Padding = new(4),
-            Margin = new(0, ModeTabsTopSpacing, 0, 28)
-        };
         var tabRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2 };
-        foreach (var (mode, text) in new[] { ("charx", "Character Swap"), ("clothx", "Virtual Try-On"), ("vibex", "Style Transfer"), ("dimx", "Virtual Summon"), ("free", "Free Prompt") })
+        foreach (var (mode, text) in ReferenceCategories.Append(("free", "Free Prompt")))
         {
-            var label = Theme.Text(text, 13.5, "#6B7380");
-            label.FontFamily = new("Segoe UI");
-            label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
-            var tab = new Button
-            {
-                Template = Theme.ButtonTemplate,
-                Content = label,
-                Height = 34,
-                Padding = new(22, 0, 22, 0),
-                CornerRadius = new(17),
-                BorderThickness = new(1)
-            };
-            AutomationProperties.SetName(tab, text);
+            var tab = CreateModeTab(text);
             tab.Click += (_, _) => Model.SelectedMode = mode;
             tabs[mode] = tab;
             tabRow.Children.Add(tab);
         }
-        tabBar.Child = tabRow;
+        var tabBar = CreateModeTabBar(tabRow);
+        tabBar.Margin = new(0, ModeTabsTopSpacing, 0, 28);
         workspace.Children.Add(tabBar);
         workspace.Children.Add(referenceArea);
-        BuildReferences("charx", Model.CharacterReferences);
-        BuildReferences("clothx", Model.ClothingReferences);
-        BuildReferences("vibex", Model.StyleReferences);
-        BuildReferences("dimx", Model.SummonReferences);
+        foreach (var (mode, _) in ReferenceCategories)
+            BuildReferences(mode, Model.References(mode));
         BuildFreePrompt();
+    }
+
+    private static Border CreateModeTabBar(
+        Panel row
+    ) => new()
+    {
+        HorizontalAlignment = HorizontalAlignment.Center,
+        CornerRadius = new(21),
+        Background = Theme.Brush("#1A787880"),
+        Height = 42,
+        Padding = new(4),
+        Child = row
+    };
+
+    private static Button CreateModeTab(
+        string text
+    )
+    {
+        var label = Theme.Text(text, 13.5, "#6B7380");
+        label.FontFamily = new("Segoe UI");
+        label.FontWeight = Microsoft.UI.Text.FontWeights.Medium;
+        var tab = new Button
+        {
+            Template = Theme.ButtonTemplate,
+            Content = label,
+            Height = 34,
+            Padding = new(22, 0, 22, 0),
+            CornerRadius = new(17),
+            BorderThickness = new(1)
+        };
+        AutomationProperties.SetName(tab, label.Text);
+        return tab;
+    }
+
+    private static void StyleModeTab(
+        Button tab,
+        bool selected,
+        string inactiveColor = "#6B7380"
+    )
+    {
+        tab.Background = Theme.Brush(selected ? "#FFFFFF" : "#00FFFFFF");
+        tab.BorderBrush = Theme.Brush(selected ? "#0D000000" : "#00FFFFFF");
+        ((TextBlock)tab.Content).Foreground = Theme.Brush(selected ? "#111318" : inactiveColor);
     }
 
     private void BuildFreePrompt()
@@ -377,7 +407,7 @@ public sealed partial class MainWindow
         {
             var link = Theme.Link(
                 text,
-                () => { if (url.Length == 0) _ = ShowAboutAsync(); else OpenLink(url); }
+                () => { if (url.Length == 0) ShowAbout(); else OpenLink(url); }
             );
             if (link.Content is TextBlock label)
                 label.FontFamily = LoginTypography.Font;

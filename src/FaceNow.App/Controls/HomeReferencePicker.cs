@@ -23,7 +23,6 @@ internal sealed class HomeReferencePicker : UserControl
     internal const double AvatarSize = 52;
     private const double StripHeight = AvatarSize + 4;
     private const double Spacing = 8;
-    private const int VisiblePresets = 7;
     private const float FadeWidth = 50;
     private const double EdgeTolerance = .5;
     private const double DragThreshold = 4;
@@ -39,7 +38,8 @@ internal sealed class HomeReferencePicker : UserControl
     private readonly ScrollViewer strip;
     private readonly Image preview = new() { Stretch = Stretch.UniformToFill };
     private readonly Button upload;
-    private ReferenceTile? customTile;
+    private readonly Button more;
+    private IReadOnlyList<ReferenceItem>? displayedReferences;
     private ReferenceItem? selected;
     private ReferenceTile? pressedTile;
     private uint? dragPointerId;
@@ -50,6 +50,8 @@ internal sealed class HomeReferencePicker : UserControl
 
     internal event Action? UploadRequested;
 
+    internal event Action? MoreRequested;
+
     internal event Action<ReferenceItem>? ReferenceSelected;
 
     internal HomeReferencePicker(
@@ -58,11 +60,9 @@ internal sealed class HomeReferencePicker : UserControl
     {
         Height = StripHeight;
         HorizontalAlignment = HorizontalAlignment.Center;
-        foreach (var item in presets)
-            tiles.Children.Add(CreateTile(item));
         strip = new ScrollViewer
         {
-            Width = VisiblePresets * StripHeight + (VisiblePresets - 1) * Spacing,
+            Width = presets.Count * StripHeight + Math.Max(0, presets.Count - 1) * Spacing,
             Height = StripHeight,
             Content = tiles,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
@@ -135,6 +135,34 @@ internal sealed class HomeReferencePicker : UserControl
         string uploadLabel = AppText.Get("Upload your own reference image");
         AutomationProperties.SetName(upload, uploadLabel);
         ToolTipService.SetToolTip(upload, uploadLabel);
+
+        var moreCircle = ReferenceTile.CreateCircle(AvatarSize, 1, new SymbolIcon(Symbol.More)
+        {
+            Foreground = Theme.Brush("#6B7380"),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        });
+        more = new Button
+        {
+            Template = Theme.ButtonTemplate,
+            Content = moreCircle,
+            Width = StripHeight,
+            Height = AvatarSize,
+            Padding = new(0),
+            BorderThickness = new(0),
+            Background = Theme.Brush("#00000000"),
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            VerticalContentAlignment = VerticalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            UseSystemFocusVisuals = true
+        };
+        string moreLabel = AppText.Get("More");
+        AutomationProperties.SetName(more, moreLabel);
+        AutomationProperties.SetAutomationId(more, "home_reference_more");
+        ToolTipService.SetToolTip(more, moreLabel);
+        more.PointerEntered += (_, _) => moreCircle.BorderBrush = Theme.Brush("#C7D0F8");
+        more.PointerExited += (_, _) => moreCircle.BorderBrush = Theme.Brush("#F3F4F6");
+        more.Click += (_, _) => MoreRequested?.Invoke();
         Content = new StackPanel
         {
             Orientation = Orientation.Horizontal,
@@ -149,28 +177,30 @@ internal sealed class HomeReferencePicker : UserControl
                     VerticalAlignment = VerticalAlignment.Center,
                     Background = Theme.Brush("#40FFFFFF")
                 },
-                CreateFadedStrip()
+                new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Spacing = Spacing,
+                    Children = { CreateFadedStrip(), more }
+                }
             }
         };
     }
 
     internal void Update(
+        IReadOnlyList<ReferenceItem> references,
         ReferenceItem selection,
-        ReferenceItem? custom,
         bool enabled,
         bool dimmed
     )
     {
-        if (customTile?.Item != custom)
+        if (displayedReferences != references)
         {
-            if (customTile is not null)
-                tiles.Children.Remove(customTile);
-            customTile = custom is null ? null : CreateTile(custom);
-            if (customTile is not null)
-            {
-                tiles.Children.Insert(0, customTile);
-                strip.ChangeView(0, null, null, true);
-            }
+            displayedReferences = references;
+            tiles.Children.Clear();
+            foreach (var item in references)
+                tiles.Children.Add(CreateTile(item));
+            strip.ChangeView(0, null, null, true);
         }
         if (selected != selection)
         {
@@ -181,10 +211,22 @@ internal sealed class HomeReferencePicker : UserControl
             preview.Source = selection.Thumbnail as ImageSource;
             AutomationProperties.SetItemStatus(upload, selection.Name);
         }
-        upload.IsEnabled = enabled;
-        tiles.Opacity = dimmed ? .5 : 1;
+        upload.IsEnabled = more.IsEnabled = enabled;
+        tiles.Opacity = more.Opacity = dimmed ? .5 : 1;
         foreach (ReferenceTile tile in tiles.Children)
             tile.UpdateCompactSelection(tile.Item == selection, enabled);
+    }
+
+    internal void RevealSelection()
+    {
+        foreach (ReferenceTile tile in tiles.Children)
+        {
+            if (tile.Item == selected)
+            {
+                tile.StartBringIntoView(new() { AnimationDesired = false });
+                break;
+            }
+        }
     }
 
     private ReferenceTile CreateTile(

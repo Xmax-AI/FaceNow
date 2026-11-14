@@ -4810,4 +4810,8 @@ Generation is disabled</comment>
     <value>参考图未通过安全检测，请换一张图片。</value>
     <comment>This reference image did not pass the safety check. Choose a different image.</comment>
   </data>
+  <data name="Text_D47D7CB0E4F8FD2B" xml:space="preserve">
+    <value>更多</value>
+    <comment>More</comment>
+  </data>
 </root>

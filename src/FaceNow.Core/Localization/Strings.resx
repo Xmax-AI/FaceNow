@@ -4810,4 +4810,8 @@ Generation is disabled</comment>
     <value>This reference image did not pass the safety check. Choose a different image.</value>
     <comment>This reference image did not pass the safety check. Choose a different image.</comment>
   </data>
+  <data name="Text_D47D7CB0E4F8FD2B" xml:space="preserve">
+    <value>More</value>
+    <comment>More</comment>
+  </data>
 </root>

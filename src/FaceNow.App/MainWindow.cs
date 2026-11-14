@@ -268,7 +268,7 @@ public sealed partial class MainWindow : Window
                 return;
             closing = true;
             virtualMicrophoneDialog?.Hide();
-            DisposeAboutView();
+            DisposeModal();
             ClosePopups();
             root.IsHitTestVisible = false;
             toast.Shutdown();
@@ -355,7 +355,7 @@ public sealed partial class MainWindow : Window
         if (changed)
         {
             if (Model.Active)
-                DisposeAboutView();
+                DisposeModal();
             previousActive = Model.Active;
             ClosePopups();
             scroller.ChangeView(null, 0, null, true);
@@ -383,8 +383,8 @@ public sealed partial class MainWindow : Window
         StartButton.SetLoading(Model.Busy && !Model.IsClosing && !Model.Active);
         cameraAspect.Update(Model.SelectedFormat, Model.CanEdit);
         homeReferences.Update(
+            Model.HomeReferences,
             Model.HomeSelectedReference,
-            Model.HomeCustomReference,
             Model.CanChooseHomeReference,
             Model.Busy
         );
@@ -405,9 +405,7 @@ public sealed partial class MainWindow : Window
         {
             bool selected = mode == Model.SelectedMode;
             tab.IsEnabled = Model.CanEdit;
-            tab.Background = Theme.Brush(selected ? "#FFFFFF" : "#00FFFFFF");
-            tab.BorderBrush = Theme.Brush(selected ? "#0D000000" : "#00FFFFFF");
-            ((TextBlock)tab.Content).Foreground = Theme.Brush(selected ? "#111318" : "#6B7380");
+            StyleModeTab(tab, selected);
         }
         freePromptBox.Visibility = Model.SelectedMode == "free" ? Visibility.Visible : Visibility.Collapsed;
         freeUpload.Visibility = Model.HasFreeReference ? Visibility.Collapsed : Visibility.Visible;

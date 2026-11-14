@@ -104,7 +104,8 @@ internal sealed partial class MainViewModel
             });
         foreach (var item in ReferenceCatalog.Load())
             References(item.Mode).Add(item);
-        HomeReferencePresets = CharacterReferences.Where(item => !item.IsUpload).ToArray();
+        HomeReferencePresets = CharacterReferences.Where(item => !item.IsUpload).Take(5).ToArray();
+        HomeReferences = HomeReferencePresets;
         HomeSelectedReference = HomeReferencePresets[0];
         StartCommand = new(() => GuardAsync(StartLandingAsync), () => CanChooseHomeReference);
         SubmitPromptCommand = new(() => GuardAsync(SubmitPromptAsync), CanSubmitPrompt);
@@ -149,7 +150,7 @@ internal sealed partial class MainViewModel
         var context = ReferenceContext(selected);
         Prompt = context.Prompt;
         ReferenceImage = context.ReferencePath ?? "";
-        FaceRestoration = false;
+        FaceRestoration = selected.Mode == "clothx";
         try
         {
             await GenerateAsync();

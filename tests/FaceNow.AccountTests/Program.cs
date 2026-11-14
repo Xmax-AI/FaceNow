@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using FaceNow.App.User;
+using FaceNow.Core.Product;
 using FaceNow.Core.User;
 using FaceNow.Windows.Network;
 
@@ -69,7 +70,8 @@ var tests = new (string Name, Func<Task> Run)[]
         Check(card.AvatarText == "" && card.Credits == "869,589.123457");
         await user.SignOutAsync();
         card = AccountPresentation.From(user);
-        Check(card.Title == "Account" && card.AvatarText == "" && card.Credits == "—" && user.SessionApiKeySuffix is null);
+        string accountTitle = ProductProfile.Current.IsOverseas ? "Account" : "账号";
+        Check(card.Title == accountTitle && card.AvatarText == "" && card.Credits == "—" && user.SessionApiKeySuffix is null);
     }),
     ("Account avatar and title prioritize phone, then email", async () =>
     {

@@ -79,16 +79,7 @@ internal sealed class ReferenceTile : Button
             promptLabel.Margin = new(8);
             thumbnail.Children.Add(promptLabel);
         }
-        circle = new()
-        {
-            Width = avatar,
-            Height = avatar,
-            CornerRadius = new(avatar / 2),
-            BorderThickness = new(item.IsUpload ? 1 : 2),
-            Background = Theme.Brush("#F7F8FA"),
-            Child = thumbnail,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
+        circle = CreateCircle(avatar, item.IsUpload ? 1 : 2, thumbnail);
         RoundedClip.Attach(circle, (float)(avatar / 2));
         root.Children.Add(circle);
         if (item.IsUpload)
@@ -115,17 +106,13 @@ internal sealed class ReferenceTile : Button
         }
         Content = root;
         Click += RetryThumbnail;
-        if (!compact)
-            item.PropertyChanged += ItemChanged;
         Loaded += async (_, _) =>
         {
-            if (compact)
-                item.PropertyChanged += ItemChanged;
+            item.PropertyChanged += ItemChanged;
             Refresh();
             await LoadAsync();
         };
-        if (compact)
-            Unloaded += (_, _) => item.PropertyChanged -= ItemChanged;
+        Unloaded += (_, _) => item.PropertyChanged -= ItemChanged;
         PointerEntered += (_, _) =>
         {
             hot = true;
@@ -138,6 +125,22 @@ internal sealed class ReferenceTile : Button
         };
         Refresh();
     }
+
+    internal static Border CreateCircle(
+        double size,
+        double borderWidth,
+        UIElement child
+    ) => new()
+    {
+        Width = size,
+        Height = size,
+        CornerRadius = new(size / 2),
+        BorderThickness = new(borderWidth),
+        Background = Theme.Brush("#F7F8FA"),
+        BorderBrush = Theme.Brush("#F3F4F6"),
+        HorizontalAlignment = HorizontalAlignment.Center,
+        Child = child
+    };
 
     private void ItemChanged(
         object? sender,

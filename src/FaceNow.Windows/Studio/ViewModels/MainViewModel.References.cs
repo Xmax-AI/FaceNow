@@ -70,7 +70,7 @@ internal sealed partial class MainViewModel
 
     internal Task WaitForConditionsAsync() => updateTask ?? Task.CompletedTask;
 
-    private ObservableCollection<ReferenceItem> References(
+    internal ObservableCollection<ReferenceItem> References(
         string mode
     ) => mode switch
     {
