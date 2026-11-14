@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0-windows</TargetFramework><AllowUnsafeBlocks>true</AllowUnsafeBlocks></PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="FaceNow" />
+    <InternalsVisibleTo Include="FaceNow.GenerationTests" />
+    <InternalsVisibleTo Include="FaceNow.MediaTests" />
+    <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+    <ProjectReference Include="../FaceNow.Core/FaceNow.Core.csproj" />
+    <PackageReference Include="Xmax.SDK" Version="[$(XmaxSdkVersion)]" />
+    <EmbeddedResource Include="../../assets/presets.json" LogicalName="FaceNow.presets.json" />
+  </ItemGroup>
+</Project>

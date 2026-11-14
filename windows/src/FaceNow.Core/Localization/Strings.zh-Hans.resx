@@ -1,0 +1,4817 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data xml:space="preserve" name="Text_E3EE915A8E8C7AA0">
+    <value>和</value>
+    <comment> and </comment>
+  </data>
+  <data xml:space="preserve" name="Text_2BE1BF9634398E0B">
+    <value>%.1f 毫秒</value>
+    <comment>%.1f ms</comment>
+  </data>
+  <data xml:space="preserve" name="Text_227177D3F2252220">
+    <value>%.1f 毫秒</value>
+    <comment>%.1f 毫秒</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B407CFA1A484B8BD">
+    <value>%1$@ %2$@ 打开积分页面。</value>
+    <comment>%1$@ %2$@ Open the credits page.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D85D8770424DAD94">
+    <value>%1$@ %2$@ 打开积分页面。</value>
+    <comment>%1$@ %2$@ 打开积分页面。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B41DA2237A299D09">
+    <value>%1$@，%2$@</value>
+    <comment>%1$@, %2$@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_96CA5D2CE7FA3ABD">
+    <value>%1$@，%2$@</value>
+    <comment>%1$@，%2$@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8D2FA6F8E51AC630">
+    <value>%1$lld %2$@</value>
+    <comment>%1$lld %2$@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_842AF1687165CF10">
+    <value>%1$lld × %2$lld</value>
+    <comment>%1$lld × %2$lld</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5845A56E568F0E40">
+    <value>%@ · 视频设置</value>
+    <comment>%@ · Video Settings</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1716C59BB79E3B71">
+    <value>%@ · 视频设置</value>
+    <comment>%@ · 视频设置</comment>
+  </data>
+  <data xml:space="preserve" name="Text_873014F791C1D256">
+    <value>%@ — 点击重试</value>
+    <comment>%@ — Click to retry</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8B8FF0C89C8484DF">
+    <value>%@ — 点击重试</value>
+    <comment>%@ — 点击重试</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F3E8D9F93ABBABDF">
+    <value>%lld%%</value>
+    <comment>%lld%%</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6CF2EA723B68D77F">
+    <value>1080P (24FPS)</value>
+    <comment>1080P (24FPS)</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B595B214B5D4865E">
+    <value>2x</value>
+    <comment>2x</comment>
+  </data>
+  <data xml:space="preserve" name="Text_42A24457297D1F9F">
+    <value>已开启 2 倍补帧，点击关闭</value>
+    <comment>2× frame interpolation is on. Click to turn off</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AA5AC24E359217B4">
+    <value>3D卡通</value>
+    <comment>3D Cartoon</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D67CEDC64F9BDBBE">
+    <value>removed preset 3</value>
+    <comment>removed preset 1</comment>
+  </data>
+  <data xml:space="preserve" name="Text_065BC2DAE52CF2A6">
+    <value>removed preset 4</value>
+    <comment>removed preset 2</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC65F0535D471276">
+    <value>3D卡通</value>
+    <comment>3D卡通</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7930BA8DF4D432E5">
+    <value>removed preset 3</value>
+    <comment>removed preset 3</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3DB862BF9FC7B85">
+    <value>removed preset 4</value>
+    <comment>removed preset 4</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8C466ED2A9F7538B">
+    <value>AI生成</value>
+    <comment>AI Generation</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0249B02376A57788">
+    <value>Windows 已收到 AI 视频帧，会议对端的接收情况请在会议中确认。</value>
+    <comment>AI frames are available to Windows. This does not confirm a meeting participant has received them.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7714C1CDC14ABA26">
+    <value>AI 生成</value>
+    <comment>AI 生成</comment>
+  </data>
+  <data xml:space="preserve" name="Text_319F8F2148C29A4A">
+    <value>AI 视频仍在使用摄像头，请先停止视频，再重新设置。</value>
+    <comment>AI 视频仍在使用摄像头，请先停止视频，再重新设置。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_23189D55F6973F2C">
+    <value>API Key</value>
+    <comment>API Key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AB58401BF3291CB4">
+    <value>API Key 输入</value>
+    <comment>API Key input</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EA6B9FC7E11C86CA">
+    <value>API Key 无效，请检查后重试。</value>
+    <comment>API Key 无效，请检查后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E3533F82304D5413">
+    <value>API Key 输入</value>
+    <comment>API Key 输入</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3C159375C92FB64B">
+    <value>API 平台</value>
+    <comment>API Platform</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A127A4DDF36C6727">
+    <value>API 平台</value>
+    <comment>API 平台</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5D8C71ABC527284C">
+    <value>关于我们</value>
+    <comment>About Us</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7E1B0D5641F2640C">
+    <value>账号</value>
+    <comment>Account</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E42CC1F0613EEA1C">
+    <value>账号：%@</value>
+    <comment>Account: %@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6BA0DEB3B893171E">
+    <value>请激活虚拟摄像头以完成设置。</value>
+    <comment>Activate Virtual Camera to finish setup.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9186C43E6BE9F636">
+    <value>调节远端播放音量</value>
+    <comment>Adjust remote playback volume</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4AB3DD1346090C27">
+    <value>继续设置摄像头需要管理员授权。请批准 macOS 弹窗，或前往系统设置检查扩展。</value>
+    <comment>Administrator authorization is required to continue camera setup. Approve the macOS dialog, or review the extension in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_557CDCD2445C6E6D">
+    <value>呆萌仓鼠</value>
+    <comment>Adorable Hamster</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5272E5DFE3A9656C">
+    <value>removed preset 13</value>
+    <comment>removed preset 5</comment>
+  </data>
+  <data xml:space="preserve" name="Text_ACCBFC31A3133DAF">
+    <value>允许使用摄像头</value>
+    <comment>Allow Camera Access</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F917C694BFAC6B01">
+    <value>允许 FaceNow</value>
+    <comment>Allow FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_69FB54AAB42BBCAB">
+    <value>请在 macOS 权限弹窗中允许访问摄像头。</value>
+    <comment>Allow camera access in the macOS permission dialog.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_31E399AA9E8E2BBB">
+    <value>请在系统设置中允许 FaceNow 相机扩展。</value>
+    <comment>Allow the FaceNow camera extension in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A8AE4D94ADDD3DB9">
+    <value>在“隐私与安全性”中允许 FaceNow 系统扩展，然后返回 FaceNow。</value>
+    <comment>Allow the FaceNow system extension under Privacy &amp; Security, then return to FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AE17D26F1A3E7AFE">
+    <value>动漫少女</value>
+    <comment>Anime Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AF03DAE2D2AAE8C7">
+    <value>另一个版本的 FaceNow 正在使用虚拟摄像头，请先停止它的会话。</value>
+    <comment>Another FaceNow edition is using the virtual camera. Stop its session first.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B7A51178C6E0FFDD">
+    <value>应用于生成结果</value>
+    <comment>Applies to generated results</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3329A9BB48B9C8D4">
+    <value>正在应用…</value>
+    <comment>Applying…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9BCBF03F0CAA9A35">
+    <value>请在系统设置中批准 FaceNow 摄像头扩展。</value>
+    <comment>Approve the FaceNow camera extension in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1650AEA52BD45D05">
+    <value>联系管理员</value>
+    <comment>Ask Your Administrator</comment>
+  </data>
+  <data xml:space="preserve" name="Text_32DC17F5DE211AB2">
+    <value>此版本的 FaceNow 尚未启用自动更新。</value>
+    <comment>Automatic updates have not been enabled for this version of FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C93811A224CC5A50">
+    <value>等待批准</value>
+    <comment>Awaiting Approval</comment>
+  </data>
+  <data xml:space="preserve" name="Text_76900F1BFD16C8D4">
+    <value>返回</value>
+    <comment>Back</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6FE7D7112CAABA1B">
+    <value>较差</value>
+    <comment>Bad</comment>
+  </data>
+  <data xml:space="preserve" name="Text_871AE226C74AE575">
+    <value>棒球帽</value>
+    <comment>Baseball Cap</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5A26C5ED1EB232F5">
+    <value>Be Anyone.  Be You.</value>
+    <comment>Be Anyone.  Be You.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7D249ED4EB75246B">
+    <value>美颜</value>
+    <comment>Beauty</comment>
+  </data>
+  <data xml:space="preserve" name="Text_233904124EA1127E">
+    <value>美颜暂不可用，已关闭美颜，生成将继续。</value>
+    <comment>Beauty is unavailable and has been turned off. Generation will continue.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_83AFF8EAD1246CE0">
+    <value>美颜暂不可用，已恢复原始画面。</value>
+    <comment>Beauty unavailable. Original video has been restored.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D19AE28DBE4EBCEF">
+    <value>把实时视频生成接入你的应用</value>
+    <comment>Bring Real-Time Video to Your App</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B4569967B99A6CC7">
+    <value>黑领学院装</value>
+    <comment>Black-Collared Preppy Outfit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E5CF315366A9B0EF">
+    <value>黑白先锋装</value>
+    <comment>Black-and-White Avant-Garde Outfit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_19B336E42452A9F9">
+    <value>换下装</value>
+    <comment>Bottoms Replacement</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1511D6A077BBB258">
+    <value>美白</value>
+    <comment>Brightening</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D8CAB8E63389D443">
+    <value>将你的形象带入视频通话</value>
+    <comment>Bring Your Look To Video Calls</comment>
+  </data>
+  <data xml:space="preserve" name="Text_081CBDE105C978EC">
+    <value>今天，哪一面的你出镜？</value>
+    <comment>Bringing Your New Look into Video Calls</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BBAF8F75A97A6929">
+    <value>棕色文艺装</value>
+    <comment>Brown Artsy Outfit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_217637909A13C689">
+    <value>为什么选择 Xmax？</value>
+    <comment>Why Xmax?</comment>
+  </data>
+  <data xml:space="preserve" name="Text_864B593361574D32">
+    <value>removed preset 12</value>
+    <comment>removed preset 6</comment>
+  </data>
+  <data xml:space="preserve" name="Text_685FE799B7802B49">
+    <value>购买积分</value>
+    <comment>Buy Credits</comment>
+  </data>
+  <data xml:space="preserve" name="Text_58C4CA0F2E3722C9">
+    <value>登录即表示你同意</value>
+    <comment>By signing in, you are agreeing to the </comment>
+  </data>
+  <data xml:space="preserve" name="Text_819B7CAEE29D95E7">
+    <value>登录即表示你同意%1$@和%2$@。</value>
+    <comment>By signing in, you are agreeing to the %1$@ and %2$@.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_626CEE187B4F08FE">
+    <value>草地小牛</value>
+    <comment>Calf on Grass</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2DAEB03FBF08DAB2">
+    <value>摄像头权限</value>
+    <comment>Camera Access</comment>
+  </data>
+  <data xml:space="preserve" name="Text_82A7DC7B6E13167C">
+    <value>摄像头访问受限</value>
+    <comment>Camera Access Is Restricted</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2C4E9CCA113727C3">
+    <value>相机扩展。启用 FaceNow，然后点击“完成”。</value>
+    <comment>Camera Extensions. Enable FaceNow, then click Done.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_11099E8BAC922496">
+    <value>尚未允许访问摄像头，请在设置中授予摄像头权限。</value>
+    <comment>Camera access has not been allowed. Allow camera access in setup.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E11AFA24F8E4F16D">
+    <value>FaceNow 的摄像头权限已关闭。</value>
+    <comment>Camera access is off for FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CD2CC7CF6A1DBC8D">
+    <value>摄像头权限已关闭。请在“系统设置 → 隐私与安全性 → 摄像头”中启用 FaceNow。</value>
+    <comment>Camera access is off. Enable FaceNow in System Settings → Privacy &amp; Security → Camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D501E3449E5CFAE1">
+    <value>摄像头权限已就绪。请继续设置虚拟摄像头。</value>
+    <comment>Camera access is ready. Continue to set up Virtual Camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5E6D86113E3D7A96">
+    <value>macOS 或设备管理策略限制了摄像头访问。</value>
+    <comment>Camera access is restricted by macOS or a device-management policy.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DCB22F7D084DB3ED">
+    <value>macOS 或设备策略限制了摄像头访问。</value>
+    <comment>Camera access is restricted by macOS or device policy.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_20CE01576A41AB82">
+    <value>macOS 或设备管理员限制了摄像头访问。</value>
+    <comment>Camera access is restricted by macOS or your device administrator.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8E7BFB99EAB258CB">
+    <value>摄像头组件安装失败，尚未启用设备。</value>
+    <comment>Camera component installation failed. No device was enabled.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_707CAFA485375743">
+    <value>缺少摄像头组件，请安装包含虚拟摄像头的完整版本。</value>
+    <comment>Camera components are missing. Install a FaceNow build that includes the virtual camera component.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F4604742FDB87B1F">
+    <value>摄像头扩展已启用，请重新安装虚拟摄像头以测试设置。</value>
+    <comment>Camera extension enabled. Reinstall Virtual Camera to test setup.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_655FB6E1F1903603">
+    <value>摄像头扩展已启用，正在等待摄像头可用…</value>
+    <comment>Camera extension enabled. Waiting for the camera to become available…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9A4B468BD5458240">
+    <value>摄像头扩展未启用</value>
+    <comment>Camera extension not enabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CCD6E3EC7A3BFB71">
+    <value>摄像头扩展权限弹窗。请选择“打开系统设置”。</value>
+    <comment>Camera extension permission prompt. Choose Open System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D5B88650E12257C3">
+    <value>目前无法安装摄像头。</value>
+    <comment>Camera installation is currently unavailable.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D6FE50B5239FE700">
+    <value>已取消摄像头安装。</value>
+    <comment>Camera installation was canceled.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2A81E1FBBE980DB9">
+    <value>摄像头尚未就绪：%@ 请点击“刷新”重试。</value>
+    <comment>Camera not ready: %@ Click Refresh to retry.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C53BA65ADA37420C">
+    <value>摄像头权限 · macOS 弹窗示意图</value>
+    <comment>Camera permission · macOS dialog illustration</comment>
+  </data>
+  <data xml:space="preserve" name="Text_713B32283B98E35F">
+    <value>摄像头已就绪</value>
+    <comment>Camera ready</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2C1DCA6BCBB8C02E">
+    <value>摄像头设置已取消或中断。准备好后可继续。</value>
+    <comment>Camera setup was cancelled or interrupted. Continue when you are ready.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_36EF7CBB9895C406">
+    <value>摄像头菜单示意图 · 布局因应用而异</value>
+    <comment>Camera-menu illustration · the layout varies by app</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F3E368704ECF53F3">
+    <value>找不到 FaceNow？</value>
+    <comment>Can't find FaceNow?</comment>
+  </data>
+  <data xml:space="preserve" name="Text_19766ED6CCB2F4A3">
+    <value>取消</value>
+    <comment>Cancel</comment>
+  </data>
+  <data xml:space="preserve" name="Text_18B91050D5C2CC3F">
+    <value>糖果少女</value>
+    <comment>Candy Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_87F7D2C85DEA71D5">
+    <value>角色替换</value>
+    <comment>Character Swap</comment>
+  </data>
+  <data xml:space="preserve" name="Text_32E60E730D2E6845">
+    <value>重新检查</value>
+    <comment>Check Again</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C372F825B04EDAC5">
+    <value>检查更新…</value>
+    <comment>Check for Updates…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_17203D71D1399FE6">
+    <value>正在检查虚拟摄像头状态…</value>
+    <comment>Checking Virtual Camera status…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_100D5D1E311933B1">
+    <value>正在检查虚拟摄像头…</value>
+    <comment>Checking Virtual Camera…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_915B0D4CD8E85D07">
+    <value>正在检查可用的摄像头…</value>
+    <comment>Checking available cameras…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_14CEEA58DBEDBF8B">
+    <value>正在检查摄像头…</value>
+    <comment>Checking camera availability…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B05EFD924BBA8550">
+    <value>正在检查摄像头设置，请稍后重试。</value>
+    <comment>Checking camera setup. Please try again in a moment.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2831962D43A35142">
+    <value>正在检查虚拟摄像头连接…</value>
+    <comment>Checking the Virtual Camera connection…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_613C551DCC8EF274">
+    <value>正在检查虚拟摄像头组件…</value>
+    <comment>Checking virtual camera components…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC963FFC911B8401">
+    <value>正在检查…</value>
+    <comment>Checking…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C51B41AF5119A804">
+    <value>在 macOS 权限弹窗中选择“允许”。</value>
+    <comment>Choose Allow in the macOS permission dialog.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DF743813B5021C45">
+    <value>选择摄像头</value>
+    <comment>Choose Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_222435CC04AE3CCA">
+    <value>在视频通话应用中选择 FaceNow 作为摄像头。</value>
+    <comment>Choose FaceNow as your camera in your video calling app.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A7492C314DCF4AB2">
+    <value>选择 FaceNow 作为摄像头，让你的新形象出现在通话中。</value>
+    <comment>Choose FaceNow as your camera to bring your new look into the conversation.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_84A0908B6E40F443">
+    <value>请先在 API Key 设置中选择或创建密钥。</value>
+    <comment>Choose or create an API key in API key settings before starting.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DA137288A6903D0C">
+    <value>请先在账户中选择或创建 API Key。</value>
+    <comment>Choose or create an API key in your account menu before starting.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B676473BE902C126">
+    <value>从摄像头列表中选择“%@”。</value>
+    <comment>Choose “%@” from the camera list.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E87120F1E648B0F2">
+    <value>天选牛马</value>
+    <comment>Chosen Workhorse</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EDE19802D018C0BD">
+    <value>点击安装并启用以安装摄像头组件并注册 FaceNow，Windows 将请求管理员权限。</value>
+    <comment>Click Install &amp; Enable to install the camera component and register FaceNow. Windows will request administrator approval.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3BB706DDBACD8F56">
+    <value>点击视频按钮旁的箭头，选择“%@”作为摄像头。</value>
+    <comment>Click the arrow next to the video button and choose “%@” as your camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C5B82C457AEE92DB">
+    <value>点击右下角的“%1$@”，让 macOS 安装并启用虚拟摄像头。如果 macOS 要求批准，请按系统弹窗提示操作。</value>
+    <comment>Click “%1$@” in the bottom-right corner to let macOS install and enable Virtual Camera. If macOS asks for approval, follow the system dialog.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D498640E5155D9B0">
+    <value>点击右下角的“%1$@”以重试。FaceNow 将在此页面显示结果或下一步操作。</value>
+    <comment>Click “%1$@” in the bottom-right corner to retry the operation. FaceNow will update this page with the result or the next required step.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0EB074A39F2E667F">
+    <value>点击右下角的“%@”。</value>
+    <comment>Click “%@” in the bottom-right corner.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3577410020EA6A5D">
+    <value>点击右下角的“允许使用摄像头”，然后在 macOS 权限弹窗中选择“允许”。</value>
+    <comment>Click “Allow Camera Access” in the bottom-right corner, then choose Allow in the macOS permission dialog.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7298B7296F13EBA4">
+    <value>点击右下角的“允许使用摄像头”。</value>
+    <comment>Click “Allow Camera Access” in the bottom-right corner.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EA9D50AEEE887A4F">
+    <value>点击右下角的“重新检查”以再次检查摄像头。FaceNow 将在此页面显示检查结果。</value>
+    <comment>Click “Check Again” in the bottom-right corner to recheck the camera. FaceNow will update this page with the result.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B632B1B7A43A93EE">
+    <value>点击右下角的“复制错误详情”，并在联系 FaceNow 技术支持时提供这些信息。</value>
+    <comment>Click “Copy Error Details” in the bottom-right corner and include the details when contacting FaceNow support.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DCF338F70A83DAEC">
+    <value>点击右下角的“安装并启用”。</value>
+    <comment>Click “Install &amp; Enable” in the bottom-right corner.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3E1421960ED4B9D1">
+    <value>点击右下角的“安装”。FaceNow 将替换旧的相机扩展，并检查虚拟摄像头是否可用。</value>
+    <comment>Click “Install” in the bottom-right corner. FaceNow will replace the previous camera extension and check that Virtual Camera is available.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_65BEA338AE15B639">
+    <value>点击右下角的“打开系统设置”，打开 FaceNow 旁的开关，然后点击“完成”。返回 FaceNow 后会自动检查连接。</value>
+    <comment>Click “Open System Settings” in the bottom-right corner, turn on the switch next to FaceNow, then click “Done”. Return to FaceNow to check the connection automatically.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F12D60DCA7755D3C">
+    <value>点击右下角的“打开系统设置”。</value>
+    <comment>Click “Open System Settings” in the bottom-right corner.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_59C7410A3C980D4F">
+    <value>点击右下角的“打开系统设置”，在“相机扩展”中移除旧的 FaceNow 扩展，然后返回 FaceNow。确认移除后，安装流程会自动继续。</value>
+    <comment>Click “Open System Settings” in the bottom-right corner. In Camera Extensions, remove the previous FaceNow extension, then return to FaceNow. Installation will continue automatically once removal is confirmed.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A19F30D1067116A8">
+    <value>点击右下角的“打开系统设置”，在“相机扩展”中将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。</value>
+    <comment>Click “Open System Settings” in the bottom-right corner. In Camera Extensions, turn the switch next to FaceNow off, then back on. Return to FaceNow to check the connection automatically.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E2BEB1AAF4B97FD0">
+    <value>在 macOS 弹窗中点击“打开系统设置”。</value>
+    <comment>Click “Open System Settings” in the macOS dialog.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1BEB265D96770D3E">
+    <value>点击右下角的“重新启动 FaceNow”，重新打开应用并刷新摄像头连接。</value>
+    <comment>Click “Restart FaceNow” in the bottom-right corner to reopen the app and refresh its camera connection.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_73D27B47F4A521B2">
+    <value>点击“在访达中显示”以找到 FaceNow。将它移至“应用程序”文件夹，然后重新打开并重试。</value>
+    <comment>Click “Show in Finder” to locate FaceNow. Move it to your Applications folder, then reopen it and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7D9EB7ACB13E2462">
+    <value>关闭</value>
+    <comment>Close</comment>
+  </data>
+  <data xml:space="preserve" name="Text_789969AFBE90070F">
+    <value>关闭“关于我们”</value>
+    <comment>Close About Us</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F2B99B7BFD374C89">
+    <value>收起美颜面板</value>
+    <comment>Close beauty controls</comment>
+  </data>
+  <data xml:space="preserve" name="Text_281CD4416C5D9BC5">
+    <value>关闭设置指南</value>
+    <comment>Close setup guide</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B64D0B8BEF2131B9">
+    <value>请先完成安全验证。</value>
+    <comment>Complete security verification before continuing.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C5F300C68DB5D7E7">
+    <value>请连接实体摄像头，并从摄像头列表中选择它。</value>
+    <comment>Connect a physical camera and select it from the camera list.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D89AB8DAACFD6672">
+    <value>请先连接服务再登录。</value>
+    <comment>Connect to the service before signing in.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_98B67063CF8E584D">
+    <value>联系我们</value>
+    <comment>Contact Us</comment>
+  </data>
+  <data xml:space="preserve" name="Text_31FBEF162594DE01">
+    <value>继续</value>
+    <comment>Continue</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3CC9BFF4CA9581AC">
+    <value>复制错误详情</value>
+    <comment>Copy Error Details</comment>
+  </data>
+  <data xml:space="preserve" name="Text_49E74614BF9F0133">
+    <value>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</value>
+    <comment>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C7CBD74DD1909E3A">
+    <value>同类最低价</value>
+    <comment>Lowest Price</comment>
+  </data>
+  <data xml:space="preserve" name="Text_98CB406B0173BC55">
+    <value>无法启动摄像头安装程序。</value>
+    <comment>Could not start the camera installer.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F137EB3A0619376A">
+    <value>无法启动摄像头辅助程序。</value>
+    <comment>Could not start the native camera helper.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A3282C49F9D951C9">
+    <value>无法检查虚拟摄像头状态。</value>
+    <comment>Couldn’t check Virtual Camera status.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_417626EB572C3F38">
+    <value>无法检查可用的摄像头，请重试。</value>
+    <comment>Couldn’t check available cameras. Try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0DC429CEE549D1A5">
+    <value>无法连接虚拟摄像头，请重试。</value>
+    <comment>Couldn’t connect to Virtual Camera. Try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4E4B9DE468985757">
+    <value>无法安装虚拟摄像头，请重试。</value>
+    <comment>Couldn’t install Virtual Camera. Try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_787238AA33409DA7">
+    <value>无法移除虚拟摄像头，请重试。</value>
+    <comment>Couldn’t remove Virtual Camera. Try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_491A839C61E0290B">
+    <value>无法申请摄像头权限，请重试。</value>
+    <comment>Couldn’t request camera access. Try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A25A7E4489D109E6">
+    <value>无法重新启动 FaceNow。请退出并重新打开应用以继续。</value>
+    <comment>Couldn’t restart FaceNow. Quit and reopen the app to continue.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DB6612F43106DD78">
+    <value>无法更新虚拟摄像头，请重试。</value>
+    <comment>Couldn’t update Virtual Camera. Try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8A53844B9B4FFA22">
+    <value>奶牛玩偶</value>
+    <comment>Cow Doll</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4736018AAB6B9F92">
+    <value>奶白小兔</value>
+    <comment>Cream-White Bunny</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B14CFC3A2DB80A00">
+    <value>创建 FaceNow 密钥</value>
+    <comment>Create FaceNow key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_38B6EFA9227D165C">
+    <value>创建会话</value>
+    <comment>Create session</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62469F18B0B69A86">
+    <value>积分 </value>
+    <comment>Credits </comment>
+  </data>
+  <data xml:space="preserve" name="Text_4C733FE40CA79B2F">
+    <value>无法获取积分。</value>
+    <comment>Credits unavailable.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8E3C1202FD717C0C">
+    <value>积分：</value>
+    <comment>Credits: </comment>
+  </data>
+  <data xml:space="preserve" name="Text_6D6D298A0AA7ABEF">
+    <value>积分：%@</value>
+    <comment>Credits: %@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2A31C85E749939F6">
+    <value>大眼萌妹</value>
+    <comment>Cute Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6C287F6A506025AE">
+    <value>地狱梗图</value>
+    <comment>Dark Humor Meme</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7648AE1BB3598893">
+    <value>描述你希望视频如何变化</value>
+    <comment>Describe how you want the video to change</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4B530ED3B40608AB">
+    <value>请先描述你想看到的画面。</value>
+    <comment>Describe what you want to see first.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_55EE4DF4307E64B0">
+    <value>描述你想看到的画面…</value>
+    <comment>Describe what you want to see…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6B84669BA1FD28DB">
+    <value>潮玩人偶</value>
+    <comment>Designer Toy Figurines</comment>
+  </data>
+  <data xml:space="preserve" name="Text_48845BFF334A50A5">
+    <value>关闭</value>
+    <comment>Dismiss</comment>
+  </data>
+  <data xml:space="preserve" name="Text_564973D1E03C2FC6">
+    <value>完成，开始使用</value>
+    <comment>Done, Let's Get Started</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B86D11AF79188E58">
+    <value>已断开</value>
+    <comment>Down</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9DC8C57D67F6AE72">
+    <value>下行码率</value>
+    <comment>Downlink bitrate</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8E2AECBE94984A7F">
+    <value>下行帧率</value>
+    <comment>Downlink frame rate</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E8F4E48BE31DC647">
+    <value>下行网络与延迟</value>
+    <comment>Downlink network and latency</comment>
+  </data>
+  <data xml:space="preserve" name="Text_365346A9E848AA02">
+    <value>下行网络质量</value>
+    <comment>Downlink network quality</comment>
+  </data>
+  <data xml:space="preserve" name="Text_584AFA0EF6D27898">
+    <value>下行丢包率</value>
+    <comment>Downlink packet loss</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A2E4C2D6B818B5ED">
+    <value>下行分辨率</value>
+    <comment>Downlink resolution</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8DE1DF4E495FD605">
+    <value>下行视频统计</value>
+    <comment>Downlink video statistics</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E1785AF25BBBE514">
+    <value>唯美少女</value>
+    <comment>Dreamy Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F8173906707AF71D">
+    <value>在视频通话中打开摄像头菜单，选择“%@”。</value>
+    <comment>During a video call, open the camera menu and select “%@”.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_435400C85224EBED">
+    <value>端到端延迟（RTC 估算）</value>
+    <comment>E2E (RTC estimate)</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AB56C8FCD5565362">
+    <value>removed preset 17</value>
+    <comment>removed preset 7</comment>
+  </data>
+  <data xml:space="preserve" name="Text_969CCBD3CF6300EC">
+    <value>邮箱</value>
+    <comment>Email</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F2488FD4EF4ADBC6">
+    <value>邮箱地址</value>
+    <comment>Email address</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC7EE4BCF11166B2">
+    <value>启用 FaceNow</value>
+    <comment>Enable FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A92706FE90383199">
+    <value>请在“系统设置 → 通用 → 登录项与扩展 → 摄像头扩展”中启用 FaceNow - Xmax Virtual Camera。</value>
+    <comment>Enable FaceNow - Xmax Virtual Camera in System Settings → General → Login Items &amp; Extensions → Camera Extensions.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C7F18DE7A5201975">
+    <value>启用虚拟摄像头</value>
+    <comment>Enable Virtual Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_36B1EB49D896D318">
+    <value>极低的端到端延迟，让动作与效果都能实时呈现，带来秒开秒换的流畅体验。</value>
+    <comment>Ultra-low end-to-end latency brings movements and effects to the screen in real time, with fast startup and smooth effect switching.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8A966AF884A06484">
+    <value>请输入有效的邮箱地址。</value>
+    <comment>Enter a valid email address.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B6B87419E045130B">
+    <value>请输入有效的中国大陆手机号。</value>
+    <comment>Enter a valid mainland China phone number.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C88ACD4E363AE56A">
+    <value>请输入有效的 Xmax API Key。</value>
+    <comment>Enter an active Xmax API key.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_55AFF1273DB9BABD">
+    <value>请输入完整验证码。</value>
+    <comment>Enter the complete verification code.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_78D5714A87CB6948">
+    <value>请输入验证码</value>
+    <comment>Enter verification code</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E7851F236B2B7062">
+    <value>请输入有效的 Xmax API Key</value>
+    <comment>Enter your active Xmax API key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3FFC275E3D217A16">
+    <value>请输入邮箱地址</value>
+    <comment>Enter your email address</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BAAF8B98C19CFC29">
+    <value>请输入手机号码</value>
+    <comment>Enter your phone number</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0DC8EE555C28EC1B">
+    <value>极佳</value>
+    <comment>Excellent</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3834B155EDFDC6A">
+    <value>退出预览</value>
+    <comment>Exit Preview</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EFECA6BCE566E074">
+    <value>FaceNow 想访问摄像头</value>
+    <comment>FaceNow Would Like to Access the Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_56EB0247F17039DF">
+    <value>除了视频会议，Xmax X2.1 还可用于直播、电商试穿及其他视频互动产品，相关应用已在行业展示与合作伙伴中获得积极反馈。如果你希望将实时视频生成能力接入自己的应用，欢迎联系我们，了解接入方案与技术支持服务。</value>
+    <comment>Beyond video meetings, Xmax X2.1 can power live streaming, virtual try-on for e-commerce, and other interactive video products. Related applications have received positive feedback at industry showcases and from partners. If you would like to integrate real-time video generation into your own app, contact us to learn about integration options and technical support.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7A0EF098AB19C4FE">
+    <value>FaceNow 无法自动移除旧的相机扩展。请在系统设置中将其移除后继续。</value>
+    <comment>FaceNow couldn’t remove the previous camera extension automatically. Remove it in System Settings to continue.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AF8A3F464541BBE3">
+    <value>FaceNow 正在检查虚拟摄像头是否已安装、已启用，以及是否可供视频通话应用使用。
+
+请稍候，检查完成后此页面会自动更新。</value>
+    <comment>FaceNow is checking whether Virtual Camera is installed, enabled, and available to video calling apps.
+
+Please wait. This page will update automatically when the check finishes.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_88DC74756A61104A">
+    <value>FaceNow 已注册。启动生成后输出 AI 视频，空闲时显示占位画面。</value>
+    <comment>FaceNow is registered. Start generation to send AI video; otherwise the camera shows a placeholder.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A16F50641E6DA2E3">
+    <value>FaceNow 已注册，正在等待 AI 视频，目前显示占位画面。</value>
+    <comment>FaceNow is registered. Waiting for AI video; the camera shows a placeholder.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F6F7449E711E14AC">
+    <value>FaceNow 需要访问你的摄像头。</value>
+    <comment>FaceNow needs access to your camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6891CEDCFCEEBC10">
+    <value>FaceNow 设置示意图</value>
+    <comment>FaceNow setup illustration</comment>
+  </data>
+  <data xml:space="preserve" name="Text_03103CE4EE280C50">
+    <value>FaceNow 将你的动作实时呈现在所选形象上。</value>
+    <comment>FaceNow turns your movements into your chosen look, in real-time.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0888DA2AE0F4E30F">
+    <value>FaceNow 通过虚拟摄像头，将你选择的形象带入视频通话。</value>
+    <comment>FaceNow uses a virtual camera to bring your chosen look into video calls.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C21309A2FC96FD1C">
+    <value>FaceNow 使用摄像头呈现实时效果。</value>
+    <comment>FaceNow uses your camera for real-time effects.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2D60358A90E8F9B0">
+    <value>FaceNow 使用摄像头呈现实时效果。</value>
+    <comment>FaceNow 使用摄像头呈现实时效果。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2CEAC689BD71C85A">
+    <value>FaceNow 将你的动作实时呈现在所选形象上。</value>
+    <comment>FaceNow 将你的动作实时呈现在所选形象上。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_78E0370B409E6BBF">
+    <value>FaceNow 已注册。启动生成后输出 AI 视频，空闲时显示占位画面。</value>
+    <comment>FaceNow 已注册。启动生成后输出 AI 视频，空闲时显示占位画面。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_216D213F5040FEBE">
+    <value>FaceNow 已注册，正在等待 AI 视频，目前显示占位画面。</value>
+    <comment>FaceNow 已注册，正在等待 AI 视频，目前显示占位画面。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6E9A0D6DFEC067C7">
+    <value>FaceNow 想访问摄像头</value>
+    <comment>FaceNow 想访问摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C6371F7F8B92F77C">
+    <value>FaceNow 无法自动移除旧的相机扩展。请在系统设置中将其移除后继续。</value>
+    <comment>FaceNow 无法自动移除旧的相机扩展。请在系统设置中将其移除后继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4E6975737221640A">
+    <value>FaceNow 正在检查虚拟摄像头是否已安装、已启用，以及是否可供视频通话应用使用。
+
+请稍候，检查完成后此页面会自动更新。</value>
+    <comment>FaceNow 正在检查虚拟摄像头是否已安装、已启用，以及是否可供视频通话应用使用。
+
+请稍候，检查完成后此页面会自动更新。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B5657BFFC1DBC9CC">
+    <value>FaceNow 的摄像头权限已关闭。</value>
+    <comment>FaceNow 的摄像头权限已关闭。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8A6208DE759B6F2A">
+    <value>FaceNow 设置示意图</value>
+    <comment>FaceNow 设置示意图</comment>
+  </data>
+  <data xml:space="preserve" name="Text_292A3E39E6D6FF98">
+    <value>FaceNow 通过虚拟摄像头，将你选择的形象带入视频通话。</value>
+    <comment>FaceNow 通过虚拟摄像头，将你选择的形象带入视频通话。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_73C354D599178FCD">
+    <value>FaceNow 需要访问你的摄像头。</value>
+    <comment>FaceNow 需要访问你的摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AAC77DF347205252">
+    <value>意见反馈</value>
+    <comment>Feedback</comment>
+  </data>
+  <data xml:space="preserve" name="Text_70C0E501E54DEAC9">
+    <value>首帧</value>
+    <comment>First frame</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EAD967AC0E91CEA1">
+    <value>首帧延迟</value>
+    <comment>First frame latency</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8CFDA9FF79965B27">
+    <value>关注我们的微信</value>
+    <comment>Follow us on WeChat</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BA3829E8880AC43B">
+    <value>补帧</value>
+    <comment>Frame interpolation</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E47FCE985BEF28FC">
+    <value>补帧已关闭，点击开启</value>
+    <comment>Frame interpolation is off. Click to turn on</comment>
+  </data>
+  <data xml:space="preserve" name="Text_07523FE3E2BE555C">
+    <value>自由提示词</value>
+    <comment>Free Prompt</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F4D1F9803F051ACE">
+    <value>从提交生成指令到首个可显示的生成帧就绪的耗时</value>
+    <comment>From generation signal submission to the first display-ready result frame</comment>
+  </data>
+  <data xml:space="preserve" name="Text_99ED8AD2C1A46E4C">
+    <value>从加入 RTC 频道到连接成功的耗时</value>
+    <comment>From joining the RTC channel until the connection succeeds</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F3ADE653B6737B48">
+    <value>从摄像头就绪后开始生成，到首个可显示的生成帧就绪的耗时。不包含摄像头准备时间；总耗时直接测量，并非各阶段耗时相加。</value>
+    <comment>From starting generation after camera readiness to the first display-ready result. Camera preparation is excluded; the total is measured directly, not added from stage durations.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D039E3FCD2B6D001">
+    <value>通用 → 登录项与扩展
+相机扩展</value>
+    <comment>General → Login Items &amp; Extensions
+Camera Extensions</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D20A4476A0A85978">
+    <value>正在生成…</value>
+    <comment>Generating…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E7E3DCE6ED3BBB03">
+    <value>生成 API Key</value>
+    <comment>Generation API key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0E5A9BAE4BAAA90B">
+    <value>获取验证码</value>
+    <comment>Get Code</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F4C873CBC7404BDB">
+    <value>开始使用前的准备</value>
+    <comment>Get Ready For Use</comment>
+  </data>
+  <data xml:space="preserve" name="Text_79B9D9961119D4D7">
+    <value>从此处获取 API Key：</value>
+    <comment>Get an API key from the </comment>
+  </data>
+  <data xml:space="preserve" name="Text_9662C6039E9AEE17">
+    <value>从 Xmax 开放平台获取 API Key。</value>
+    <comment>Get an API key from the Xmax Open Platform.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D68967D2BCFE2AF1">
+    <value>准备使用 FaceNow</value>
+    <comment>Get ready to use FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C939327CA16DCF97">
+    <value>良好</value>
+    <comment>Good</comment>
+  </data>
+  <data xml:space="preserve" name="Text_31FCAB78A7C18D85">
+    <value>hello Kitty</value>
+    <comment>Hello Kitty</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DDB2317C46277FDA">
+    <value>收起帮助</value>
+    <comment>Hide help</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EDFB410332134D80">
+    <value>隐藏统计信息（仍会继续采集和记录日志）</value>
+    <comment>Hide statistics (collection and logging continue)</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FC7EC8E28B762956">
+    <value>高清画质</value>
+    <comment>High Fidelity</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D4C94669D5DB0162">
+    <value>如何在视频通话中使用 FaceNow</value>
+    <comment>How to use FaceNow in video calls</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F388F4A02EE1B767">
+    <value>人形机器</value>
+    <comment>Humanoid Robot</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3CC316E4E46CC4A8">
+    <value>如果此 Mac 由组织管理，请联系管理员，允许 FaceNow 访问摄像头。你可以在系统设置中查看当前权限。</value>
+    <comment>If this Mac is managed, ask your administrator to allow camera access for FaceNow. You can review the current permissions in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F8070A8F057C125E">
+    <value>在 %1$@ 中打开摄像头设置，选择“%2$@”作为视频输入。
+
+这样，该应用会接收你的 FaceNow 形象，而不是原始摄像头画面。如果列表中没有该摄像头，请在启用虚拟摄像头后重新打开视频通话应用。</value>
+    <comment>In %1$@, open the camera settings and choose “%2$@” as your video input.
+
+This lets the app receive your FaceNow look instead of the original camera feed. If the camera is missing from the list, reopen the video calling app after enabling Virtual Camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A61080F62CD1F0A2">
+    <value>在“相机扩展”中，打开 FaceNow 旁的开关，然后点击“完成”。</value>
+    <comment>In Camera Extensions, turn on the switch next to FaceNow, then click “Done”.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1835622AFC448B59">
+    <value>在“相机扩展”中，将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。</value>
+    <comment>In Camera Extensions, turn the switch next to FaceNow off, then back on. Return to FaceNow to check the connection automatically.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1C27FB8A14BED8E2">
+    <value>在视频通话应用中打开摄像头菜单，选择“%@”。</value>
+    <comment>In your video calling app, open the camera menu and choose “%@”.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_569CA49F4AAF7846">
+    <value>安装</value>
+    <comment>Install</comment>
+  </data>
+  <data xml:space="preserve" name="Text_789EB42963511D55">
+    <value>安装并启用</value>
+    <comment>Install &amp; Enable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B0F6CFE3C6E4DB20">
+    <value>请安装 Microsoft Edge WebView2 Runtime 以完成安全验证。</value>
+    <comment>Install Microsoft Edge WebView2 Runtime to complete security verification.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C4D94CE4F8FB7E03">
+    <value>安装虚拟摄像头</value>
+    <comment>Install Virtual Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FF1A78A081A527AA">
+    <value>安装虚拟摄像头，即可在视频通话中使用 FaceNow。</value>
+    <comment>Install Virtual Camera to use FaceNow in video calls.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DDF38561FE41DB4E">
+    <value>请先安装并启用 FaceNow 摄像头。</value>
+    <comment>Install and enable the FaceNow camera first.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DA02216349D4EC6C">
+    <value>安装失败：%@</value>
+    <comment>Installation failed: %@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F6241AFD66E7586B">
+    <value>正在安装虚拟摄像头…</value>
+    <comment>Installing Virtual Camera…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_52969114FF71C2DB">
+    <value>正在安装摄像头扩展…</value>
+    <comment>Installing camera extension…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_530BCC355F0A3CD6">
+    <value>正在安装…</value>
+    <comment>Installing…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3F215675CFE1B278">
+    <value>积分不足，请先前往 Xmax 开放平台充值。</value>
+    <comment>Insufficient credits. Please top up on the Xmax Open Platform first.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_61C7C055C2183533">
+    <value>API Key 无效，请检查后重试。</value>
+    <comment>Invalid API key. Check it and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5E00AFA18CC6EC92">
+    <value>验证码不正确。</value>
+    <comment>Invalid code.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BFDB70D5DE81186F">
+    <value>验证码无效，请检查后重试。</value>
+    <comment>Invalid code. Check it and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1A03827B4ABDDAE7">
+    <value>保持 FaceNow 运行</value>
+    <comment>Keep FaceNow Running</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4BD47101C0C04720">
+    <value>启动耗时</value>
+    <comment>Launch timing</comment>
+  </data>
+  <data xml:space="preserve" name="Text_63460B9234D26BD4">
+    <value>聊聊你的应用场景和接入需求。</value>
+    <comment>Tell us about your use case and integration needs.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5E6F862CAD47AB4A">
+    <value>美白</value>
+    <comment>Lightening</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5CD9B23FD16CEB04">
+    <value>小狗在肩</value>
+    <comment>Little Dog</comment>
+  </data>
+  <data xml:space="preserve" name="Text_371C717CFFCB2EF0">
+    <value>小鼠在肩</value>
+    <comment>Little Mouse</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3B0E7BB1A4898975">
+    <value>小兔在肩</value>
+    <comment>Little Rabbit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_57FCF08EF5B150C7">
+    <value>实时美颜暂不可用，原始视频仍在继续。</value>
+    <comment>Live beauty is unavailable. Original video is still running.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8C31E6E7223097E2">
+    <value>预览</value>
+    <comment>Local</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5025401C47CDF190">
+    <value>预览 · </value>
+    <comment>Local · </comment>
+  </data>
+  <data xml:space="preserve" name="Text_4DC2284414D25453">
+    <value>低延迟</value>
+    <comment>Low Latency</comment>
+  </data>
+  <data xml:space="preserve" name="Text_ECC39A79290BDBFA">
+    <value>积分不足</value>
+    <comment>Low credits</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CD89A9C02C781865">
+    <value>积分不足，请充值以避免中断。</value>
+    <comment>Low credits. Top up to avoid interruptions.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F2598A7DA45211BD">
+    <value>请确认摄像头已连接且可用，然后点击右下角的按钮重新检查。</value>
+    <comment>Make sure your camera is connected and available, then check again using the button in the bottom-right corner.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1057AE3C81038573">
+    <value>管理 API Key ↗</value>
+    <comment>Manage API keys ↗</comment>
+  </data>
+  <data xml:space="preserve" name="Text_13CCFA7F792C7B5B">
+    <value>机甲少女</value>
+    <comment>Mecha Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FA33F3A62EFDC523">
+    <value>removed preset 15</value>
+    <comment>removed preset 8</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54134D6695BEC69F">
+    <value>认识 Xmax X2.1</value>
+    <comment>Meet Xmax X2.1</comment>
+  </data>
+  <data xml:space="preserve" name="Text_186352A881D0550E">
+    <value>麦克风</value>
+    <comment>Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_07C697D23796F9CA">
+    <value>removed preset 14</value>
+    <comment>removed preset 9</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E53C7085C97EFF51">
+    <value>安装虚拟摄像头前，请将 FaceNow 移至 /Applications。</value>
+    <comment>Move FaceNow to /Applications before installing Virtual Camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_812A325DCC6DC9CA">
+    <value>安装扩展前，请将 FaceNow 移至 /Applications。</value>
+    <comment>Move FaceNow to /Applications before installing the extension.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B779A345CEEEB715">
+    <value>请将 FaceNow 移至“应用程序”文件夹，以设置虚拟摄像头。</value>
+    <comment>Move FaceNow to Applications to set up Virtual Camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2346F214AD56B180">
+    <value>已静音</value>
+    <comment>Muted</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B143EC691E2EAA02">
+    <value>藏青水手装</value>
+    <comment>Navy Sailor Outfit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C225CDFB755FDF38">
+    <value>需要帮助？</value>
+    <comment>Need help?</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8BA870746DF402F4">
+    <value>下一张引导图片</value>
+    <comment>Next Guide Image</comment>
+  </data>
+  <data xml:space="preserve" name="Text_42C101D1DFA0B323">
+    <value>暂无有效的 API Key，请创建后开始生成。</value>
+    <comment>No active API key. Create one to start generating.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_894E752B13B9AC27">
+    <value>未检测到摄像头，请连接摄像头后继续。</value>
+    <comment>No camera detected. Connect a camera to continue.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F680C118A2DB2241">
+    <value>没有可用摄像头，请连接摄像头后重试。</value>
+    <comment>No camera is available. Connect a camera and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_373B56A64958A9FB">
+    <value>未找到摄像头</value>
+    <comment>No cameras found</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC5BB20D91EEE6AE">
+    <value>未找到实体摄像头，请连接摄像头后重新检查。</value>
+    <comment>No physical camera was found. Connect a camera and check again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D16948E73A680090">
+    <value>尚未检查</value>
+    <comment>Not checked</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AC66106C8FC38496">
+    <value>macOS SDK 未提供此数据</value>
+    <comment>Not exposed by the macOS SDK</comment>
+  </data>
+  <data xml:space="preserve" name="Text_565339BC4D33D728">
+    <value>好</value>
+    <comment>OK</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CA7981B46ECF2C17">
+    <value>关闭</value>
+    <comment>Off</comment>
+  </data>
+  <data xml:space="preserve" name="Text_130011756125313C">
+    <value>开启</value>
+    <comment>On</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C49CF207056233ED">
+    <value>打开 FaceNow 设置指南</value>
+    <comment>Open FaceNow setup guide</comment>
+  </data>
+  <data xml:space="preserve" name="Text_18196B39B44DE54A">
+    <value>打开系统设置</value>
+    <comment>Open System Settings</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B10A7B329F8BCAD1">
+    <value>打开视频设置</value>
+    <comment>Open Video Settings</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3DE009D3660978CC">
+    <value>打开视频按钮旁的摄像头菜单，选择“%@”。</value>
+    <comment>Open the camera menu beside the video button and select “%@”.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A49B50C7DA1B76A3">
+    <value>在 %@ 中打开摄像头菜单或视频设置。</value>
+    <comment>Open the camera menu or video settings in %@.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_28C4BA5C9BEED938">
+    <value>打开积分页面。</value>
+    <comment>Open the credits page.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_97F79CFC271564ED">
+    <value>在 Google Meet 中打开“设置”→“视频”。</value>
+    <comment>Open “Settings” → “Video” in Google Meet.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4BA4B25E3E17172B">
+    <value>此 SDK 到 RTC 云端的丢包率，不代表本地预览丢帧率</value>
+    <comment>Packet loss from this SDK to the RTC cloud, not local preview loss</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F71F3E7FAB551651">
+    <value>企鹅玩偶</value>
+    <comment>Penguin Doll</comment>
+  </data>
+  <data xml:space="preserve" name="Text_63DCEB8800B2DD4A">
+    <value>手机</value>
+    <comment>Phone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_306F1BB20677A622">
+    <value>手机号码</value>
+    <comment>Phone number</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C240FAC89FE3FB74">
+    <value>写实动物</value>
+    <comment>Photorealistic Animals</comment>
+  </data>
+  <data xml:space="preserve" name="Text_96CA787011DF0EFB">
+    <value>写实人象</value>
+    <comment>Photorealistic Portrait</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8911F57F96104567">
+    <value>粉色学院装</value>
+    <comment>Pink Preppy Outfit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_818C8E61C906D751">
+    <value>播放缓冲延迟</value>
+    <comment>Playback buffer delay</comment>
+  </data>
+  <data xml:space="preserve" name="Text_371689825DB325A4">
+    <value>请重新尝试登录。</value>
+    <comment>Please try signing in again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_487F3E58FD5439C0">
+    <value>请等待 macOS 完成操作。如果出现权限弹窗，请按提示操作。FaceNow 会自动检查结果。</value>
+    <comment>Please wait for macOS to finish. If a permission dialog appears, follow its instructions. FaceNow will check the result automatically.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5D56DA44D3353484">
+    <value>请等待当前操作完成。</value>
+    <comment>Please wait for the current operation to finish.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0C4CAEB99A035D3D">
+    <value>请等待账户验证完成，或重新登录。</value>
+    <comment>Please wait for your account to be verified, or sign in again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_94DFD46D9DAE63E6">
+    <value>一般</value>
+    <comment>Poor</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4D6AE14AC578AD23">
+    <value>Powered by the world-leading real-time video editing model from Xmax.ai</value>
+    <comment>Powered by the world-leading real-time video editing model from Xmax.ai</comment>
+  </data>
+  <data xml:space="preserve" name="Text_67A6D663A1E95D75">
+    <value>正在准备虚拟摄像头…</value>
+    <comment>Preparing Virtual Camera…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_324B134F57C70C72">
+    <value>预览</value>
+    <comment>Preview</comment>
+  </data>
+  <data xml:space="preserve" name="Text_49323F0869C44004">
+    <value>预览界面</value>
+    <comment>Preview UI</comment>
+  </data>
+  <data xml:space="preserve" name="Text_78626705B53E277D">
+    <value>上一张引导图片</value>
+    <comment>Previous Guide Image</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A607760A2DFD767A">
+    <value>隐私与安全性
+允许 FaceNow 系统扩展</value>
+    <comment>Privacy &amp; Security
+Allow the FaceNow system extension</comment>
+  </data>
+  <data xml:space="preserve" name="Text_506FF394621596DD">
+    <value>隐私政策</value>
+    <comment>Privacy Policy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_46B29F4026E150E6">
+    <value>发布本地视频</value>
+    <comment>Publish local stream</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C1B501432FEC72AA">
+    <value>RTC 连接</value>
+    <comment>RTC connection</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C60727128657921B">
+    <value>RTC 入会</value>
+    <comment>RTC join</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62C3746F1DB2C298">
+    <value>RTC 入会</value>
+    <comment>RTC 入会</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7ECB23C266C623EC">
+    <value>RTC 连接</value>
+    <comment>RTC 连接</comment>
+  </data>
+  <data xml:space="preserve" name="Text_262085C8D58FC463">
+    <value>往返延迟（云端）</value>
+    <comment>RTT (cloud)</comment>
+  </data>
+  <data xml:space="preserve" name="Text_996F87B386E1A749">
+    <value>已就绪</value>
+    <comment>Ready to use</comment>
+  </data>
+  <data xml:space="preserve" name="Text_564B4BEF95D75BC0">
+    <value>高保真还原人物与服装的细节纹理，使生成结果更契合预期的形象与风格。</value>
+    <comment>Faithfully reproduces the details and textures of characters and clothing, bringing generated results closer to the intended look and style.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AF1E5DF8C8CA8744">
+    <value>红润</value>
+    <comment>Redness</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A95C2118446ACDA1">
+    <value>请在实时会话中上传参考图。</value>
+    <comment>Reference uploads require a live session.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3033640C177AFD8">
+    <value>刷新虚拟摄像头</value>
+    <comment>Refresh Virtual Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5EC0E7F1A37A924C">
+    <value>刷新相机扩展状态</value>
+    <comment>Refresh camera extension status</comment>
+  </data>
+  <data xml:space="preserve" name="Text_89BB0E92E1337AB6">
+    <value>正在刷新剩余积分。打开积分页面。</value>
+    <comment>Refreshing remaining credits. Open the credits page.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C630A782A9EB8569">
+    <value>重新安装</value>
+    <comment>Reinstall</comment>
+  </data>
+  <data xml:space="preserve" name="Text_ED762A91BAA7F95C">
+    <value>重新安装虚拟摄像头</value>
+    <comment>Reinstall Virtual Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4FFD766FB6BC608A">
+    <value>请重新安装虚拟摄像头，以匹配此版本的 FaceNow。</value>
+    <comment>Reinstall Virtual Camera to match this version of FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_33349752355E1FD5">
+    <value>请重新安装虚拟摄像头，以使用此版本的 FaceNow。</value>
+    <comment>Reinstall Virtual Camera to use this version of FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_ED8211CB0150534D">
+    <value>正在重新安装…</value>
+    <comment>Reinstalling…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3724FAE3755F9EC">
+    <value>剩余积分：%@</value>
+    <comment>Remaining credits: %@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_251058FA137ADB83">
+    <value>远端音量</value>
+    <comment>Remote volume</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4B5F29A7D199A625">
+    <value>移除失败：%@</value>
+    <comment>Removal failed: %@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_98AF5AA46507F1EF">
+    <value>移除失败：macOS 无法将已安装的摄像头与此应用匹配。请先点击“更新”，再点击“移除”，或在系统设置中将其移除。</value>
+    <comment>Removal failed: macOS could not match the installed camera to this app. Click Update, then Remove, or remove it in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C3812FC4ACB861D5">
+    <value>移除</value>
+    <comment>Remove</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CBEDA6A6BAA8C245">
+    <value>移除参考图</value>
+    <comment>Remove reference</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B079253D82A3BC9D">
+    <value>正在移除虚拟摄像头…</value>
+    <comment>Removing Virtual Camera…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0E9284E889299AFB">
+    <value>正在移除旧的相机扩展，随后安装新版本…</value>
+    <comment>Removing the previous camera extension before installing the new version…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DB486362F1A99CA1">
+    <value>正在移除虚拟摄像头…</value>
+    <comment>Removing virtual camera…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D4B09919EC929F15">
+    <value>正在移除…</value>
+    <comment>Removing…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_34414950A09D19D6">
+    <value>申请摄像头权限</value>
+    <comment>Request Camera Access</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B461F56C72FACA47">
+    <value>请求已完成</value>
+    <comment>Request completed</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AA0973DB762DD1BC">
+    <value>重新发送 (%lld秒)</value>
+    <comment>Resend (%llds)</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0C94654C9E229610">
+    <value>重新发送 ({0}秒)</value>
+    <comment>Resend ({0}s)</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DAEE7606B339F3C3">
+    <value>重置</value>
+    <comment>Reset</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0A779805E9B65BC7">
+    <value>重置美颜</value>
+    <comment>Reset beauty</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BC5B45AE7B60692A">
+    <value>恢复默认</value>
+    <comment>Reset to default</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D196E71A952BBBB7">
+    <value>重新启动 FaceNow</value>
+    <comment>Restart FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C91043DBB708933B">
+    <value>请重新启动 FaceNow，以刷新摄像头连接。</value>
+    <comment>Restart FaceNow to refresh the camera connection.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EA1C8D1773632C3E">
+    <value>重启虚拟摄像头</value>
+    <comment>Restart Virtual Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6E7D50E84F4731EF">
+    <value>AI 生成</value>
+    <comment>Result</comment>
+  </data>
+  <data xml:space="preserve" name="Text_942087CC2D41E013">
+    <value>重试</value>
+    <comment>Retry</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D747CA7DFE27E9C2">
+    <value>返回 FaceNow，点击“启动摄像头”，然后选择你的形象。</value>
+    <comment>Return to FaceNow, click “Start Camera”, and choose your look.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_47FAECD84A852C81">
+    <value>返回 FaceNow 后会自动检查就绪状态。</value>
+    <comment>Return to FaceNow. Readiness is checked automatically.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_760D8BAB8FB5911F">
+    <value>查看摄像头访问限制</value>
+    <comment>Review Camera Restrictions</comment>
+  </data>
+  <data xml:space="preserve" name="Text_61F0E96BF62F5250">
+    <value>请先查看此 Mac 的摄像头访问限制，再继续操作。</value>
+    <comment>Review the camera restrictions on this Mac before continuing.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0043107F94FBC704">
+    <value>红润</value>
+    <comment>Rosiness</comment>
+  </data>
+  <data xml:space="preserve" name="Text_282113EF98C3B854">
+    <value>价格仅为竞品的几分之一，大幅降低实时视频生成成本。</value>
+    <comment>At a fraction of the price of competing products, it significantly lowers the cost of real-time video generation.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A42A3E55527D2993">
+    <value>使用微信扫码关注我们</value>
+    <comment>Scan with WeChat to follow us</comment>
+  </data>
+  <data xml:space="preserve" name="Text_72FA5509B2F9133A">
+    <value>应用场景</value>
+    <comment>Scenarios</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FF73D328E762D2C7">
+    <value>无法加载安全验证，请检查网络。</value>
+    <comment>Security verification could not be loaded. Check your connection.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EE4D671992C24B5D">
+    <value>无法加载安全验证，请重试。</value>
+    <comment>Security verification could not be loaded. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2319A0D397D00FED">
+    <value>无法启动安全验证，请重试。</value>
+    <comment>Security verification could not be started. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_33D2EEF419DD29CF">
+    <value>安全验证失败，请重试。</value>
+    <comment>Security verification failed. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_023235994DF0E29A">
+    <value>安全验证暂不可用，请重试。</value>
+    <comment>Security verification is unavailable. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9989F8A232C38E1A">
+    <value>安全验证超时，请重试。</value>
+    <comment>Security verification timed out. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_396E917FBDBC7DBF">
+    <value>选择摄像头</value>
+    <comment>Select Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9467DF38D94EF4C2">
+    <value>选择 FaceNow 作为摄像头</value>
+    <comment>Select FaceNow As Your Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7B458C6693955FCD">
+    <value>选择 FaceNow 摄像头</value>
+    <comment>Select FaceNow Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7E9A774F84E0FD21">
+    <value>请先选择用于实时视频的实体摄像头。</value>
+    <comment>Select a camera before starting. Choose your physical camera for live video.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_473FA2182163A5F6">
+    <value>选择参考图以开始生成…</value>
+    <comment>Select a reference to generate…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_57FD7A0CF33F2666">
+    <value>已选中</value>
+    <comment>Selected</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4803C96CC8BDAE56">
+    <value>战队特摄</value>
+    <comment>Sentai Tokusatsu</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6FA36AD335469CCF">
+    <value>会话创建</value>
+    <comment>Session creation</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B7C86B9800D9FA39">
+    <value>设置摄像头</value>
+    <comment>Set up camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9C3B72815577D0C3">
+    <value>完成一次设置，即可在会议或直播应用的摄像头列表中使用 FaceNow。</value>
+    <comment>Set up once to add FaceNow to the camera list in your meeting or streaming app.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_043A2B670CCAC5F0">
+    <value>正在设置摄像头，请稍候…</value>
+    <comment>Setting up your camera. Please wait…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CE07CE5A830B3DAC">
+    <value>稍后设置</value>
+    <comment>Setup Later</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3B19DC573D484352">
+    <value>需要设置</value>
+    <comment>Setup needed</comment>
+  </data>
+  <data xml:space="preserve" name="Text_73FB568DCAB66C1A">
+    <value>锐化</value>
+    <comment>Sharpening</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6A4C00AF2DBFD09A">
+    <value>锐化</value>
+    <comment>Sharpness</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9116E8ED1D315414">
+    <value>短发酷姐</value>
+    <comment>Short-Haired Cool Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0F912E29A44B8C0F">
+    <value>显示 %@ 摄像头设置示例</value>
+    <comment>Show %@ camera example</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1449F4E1F7696AB9">
+    <value>显示或隐藏统计</value>
+    <comment>Show / hide statistics</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C2A9C77ACF9B329F">
+    <value>在访达中显示</value>
+    <comment>Show in Finder</comment>
+  </data>
+  <data xml:space="preserve" name="Text_74F5871E157E3832">
+    <value>显示统计信息</value>
+    <comment>Show statistics</comment>
+  </data>
+  <data xml:space="preserve" name="Text_68B5C89200A330B3">
+    <value>显示最近一次获取的余额。</value>
+    <comment>Showing the last known balance.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BFD402B2F6F38125">
+    <value>登录</value>
+    <comment>Sign in</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54F9715D07D21AF5">
+    <value>登录你的账号</value>
+    <comment>Sign in to your account</comment>
+  </data>
+  <data xml:space="preserve" name="Text_48F0D3D397D49F13">
+    <value>退出登录</value>
+    <comment>Sign out</comment>
+  </data>
+  <data xml:space="preserve" name="Text_45EB5B7AF0F4B433">
+    <value>登录成功</value>
+    <comment>Signed in successfully</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54816F1C90E6993A">
+    <value>银白仙侠袍</value>
+    <comment>Silver-White Xianxia Robe</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FCAE13F0E231AC7C">
+    <value>磨皮</value>
+    <comment>Smoothing</comment>
+  </data>
+  <data xml:space="preserve" name="Text_000809DA3479EED1">
+    <value>磨皮</value>
+    <comment>Smoothness</comment>
+  </data>
+  <data xml:space="preserve" name="Text_357E4BCB7A480945">
+    <value>特战士兵</value>
+    <comment>Special Forces Soldier</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B214718B58088BB2">
+    <value>启动摄像头</value>
+    <comment>Start Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C5FFEFB0F468DD17">
+    <value>先在 FaceNow 中启动摄像头，然后在会议或直播应用中选择此摄像头。</value>
+    <comment>Start Camera in FaceNow, then choose this camera in your meeting or streaming app.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DC7716C0123E1198">
+    <value>启动摄像头</value>
+    <comment>Start Your Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BBE5FC3B9EF39F99">
+    <value>正在启动…</value>
+    <comment>Starting…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_77CE4194ED91EA67">
+    <value>停止会话</value>
+    <comment>Stop Session</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DC611E00214239B4">
+    <value>停止测试视频</value>
+    <comment>Stop Test Video</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6EAFF21BB11A3385">
+    <value>请停止摄像头预览或视频生成以完成更新安装，随后 FaceNow 将自动重新启动。</value>
+    <comment>Stop camera preview or generation to finish installing the update. FaceNow will then restart automatically.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BBE8574175ABA84F">
+    <value>正在停止…</value>
+    <comment>Stopping…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3DF71E6439547B3C">
+    <value>媒体流发布</value>
+    <comment>Stream publication</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F0CE96F9701BAAE9">
+    <value>风格迁移</value>
+    <comment>Style Transfer</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5130E6A5B92752B4">
+    <value>提交提示词</value>
+    <comment>Submit prompt</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8C599A3F921CFF11">
+    <value>西装青年</value>
+    <comment>Suited Guy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_38FF6E1760496B62">
+    <value>墨镜</value>
+    <comment>Sunglasses</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A59FAE2C5B1837C6">
+    <value>超现实风</value>
+    <comment>Surrealism</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B4E39AF188FAB19C">
+    <value>正在切换</value>
+    <comment>Switching</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C1DAAC4B808E8613">
+    <value>正在切换补帧…</value>
+    <comment>Switching frame interpolation…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1F87F883CC7E9C47">
+    <value>系统设置</value>
+    <comment>System Settings</comment>
+  </data>
+  <data xml:space="preserve" name="Text_ECEFA896E784FDE2">
+    <value>removed preset 18</value>
+    <comment>removed preset 10</comment>
+  </data>
+  <data xml:space="preserve" name="Text_12A0015FA3221777">
+    <value>使用条款</value>
+    <comment>Terms of Use</comment>
+  </data>
+  <data xml:space="preserve" name="Text_28BEB77E0C9A2CE9">
+    <value>测试视频</value>
+    <comment>Test Video</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DE036004EB26E8AE">
+    <value>账号信息与此 API Key 不匹配。</value>
+    <comment>The API key does not belong to this account.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0BA0A52304655A69">
+    <value>账号信息与此 API Key 不匹配。</value>
+    <comment>The account profile does not match this API key.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2D97588774583626">
+    <value>当前账户的登录凭据已更改。</value>
+    <comment>The active account credential changed.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CA2859B38BDAC36C">
+    <value>摄像头组件已安装，请点击安装并启用以注册 FaceNow 摄像头。</value>
+    <comment>The camera component is installed. Click Install &amp; Enable to register your FaceNow camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6ADEE2C2D6268F27">
+    <value>摄像头组件需要更新，请先停止生成，再安装并启用。</value>
+    <comment>The camera component needs an update. Stop generation, then click Install &amp; Enable.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_77B5F5BE8658B60F">
+    <value>当前 FaceNow 缺少摄像头组件，请重新安装完整应用后重试。</value>
+    <comment>The camera feature is missing from this copy of FaceNow. Reinstall the full app, then try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_09AFAF20AFB71BAC">
+    <value>当前虚拟摄像头需要 Windows 11。</value>
+    <comment>The current camera backend requires Windows 11.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DC18AFE61F570B45">
+    <value>生成会话意外结束，请重试。</value>
+    <comment>The generation session ended unexpectedly. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_426CE7EED88682AE">
+    <value>已安装的虚拟摄像头属于其他 FaceNow 构建版本。请重新安装，以移除旧扩展并安装此应用附带的版本。</value>
+    <comment>The installed Virtual Camera belongs to a different FaceNow build. Reinstall it to remove the previous extension and install the version included with this app.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C61ED2B9E171D679">
+    <value>上一次会话仍在停止中，请稍后再试。</value>
+    <comment>The previous session is still stopping. Please try again in a moment.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E5893A0D55652FE7">
+    <value>请求超时，请重试。</value>
+    <comment>The request timed out. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B6ECD7851042BFB7">
+    <value>所选摄像头已断开连接，请重新连接或选择其他摄像头。</value>
+    <comment>The selected camera was disconnected. Reconnect it or select another camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4D953D17E4E0313B">
+    <value>服务暂不可用，请稍后重试。</value>
+    <comment>The service is temporarily unavailable. Please try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_28FBD7BCB49687C7">
+    <value>服务返回的 API Key 无效。</value>
+    <comment>The service returned an invalid API key.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_53AAC15D1D2687D9">
+    <value>服务返回的账户响应无效。</value>
+    <comment>The service returned an invalid account response.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F3AAAF7441599938">
+    <value>服务返回的账户信息无效。</value>
+    <comment>The service returned an invalid account.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7CF813ED2C6C307A">
+    <value>服务返回的积分数据无效。</value>
+    <comment>The service returned an invalid balance.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A980344BC72A5507">
+    <value>服务返回的会话信息无效。</value>
+    <comment>The service returned an invalid session.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_572067F0F7B557D3">
+    <value>服务返回了其他平台的账户配置。</value>
+    <comment>The service returned settings for a different account platform.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9C40E0C2B8E481BC">
+    <value>虚拟摄像头操作超时。</value>
+    <comment>The virtual camera operation timed out.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4CD1D1AD8354631A">
+    <value>此 API Key 无效或已停用。</value>
+    <comment>This API key is inactive or unavailable.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2CA31A0F96862748">
+    <value>此 API Key 无效或已停用。</value>
+    <comment>This API key is invalid or no longer active.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_119252EF8402822E">
+    <value>当前账户没有执行此操作的权限。</value>
+    <comment>This account does not have permission to perform this action.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6B8997D86E4579C8">
+    <value>验证码已过期。</value>
+    <comment>This code has expired.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_14B8A6A1513F3BD7">
+    <value>验证码已过期，请重新获取。</value>
+    <comment>This code has expired. Request a new one.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6A53E9A911D75714">
+    <value>此功能需要 Windows 11，请在 Windows 11 电脑上使用 FaceNow。</value>
+    <comment>This feature requires Windows 11. Use FaceNow on a Windows 11 computer to continue.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B76A7287D90D0659">
+    <value>验证码登录暂不可用。</value>
+    <comment>This sign-in method is currently unavailable.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_776442F656CA084C">
+    <value>创建服务端生成会话的耗时</value>
+    <comment>Time spent creating the server-side generation session</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BDBAC27F054177D3">
+    <value>将本地媒体流发布到 RTC 频道的耗时</value>
+    <comment>Time spent publishing the local media stream to the RTC channel</comment>
+  </data>
+  <data xml:space="preserve" name="Text_02F43F163768E7C0">
+    <value>请求过于频繁，请稍后重试。</value>
+    <comment>Too many requests. Please wait and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E716D6E0E277870D">
+    <value>换上衣</value>
+    <comment>Top Replacement</comment>
+  </data>
+  <data xml:space="preserve" name="Text_71316CE74015EBF5">
+    <value>启动总耗时</value>
+    <comment>Total startup</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3A198B4299A4D9D">
+    <value>removed preset 16</value>
+    <comment>removed preset 11</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DD52A3DEF116A271">
+    <value>故障排查</value>
+    <comment>TroubleShooting</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7CBFB2571FD7D7B3">
+    <value>在“隐私与安全性 → 摄像头”中，打开 FaceNow 旁的开关。</value>
+    <comment>Turn on the switch next to FaceNow under Privacy &amp; Security → Camera.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_69E2480F461C6A38">
+    <value>打开 FaceNow 旁的开关，然后点击“完成”。</value>
+    <comment>Turn on the switch next to FaceNow, then click “Done”.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DAF3B117486F923D">
+    <value>在通话中开启视频，并在通话期间保持 FaceNow 运行。如果找不到该摄像头，请重新打开视频通话应用。</value>
+    <comment>Turn on video in your call and keep FaceNow open while you talk. If the camera is missing, reopen your video calling app.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E09F6FB15D187B8C">
+    <value>请求未完成，请检查填写的信息后重试。</value>
+    <comment>Unable to complete the request. Check your details and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_06F4E468D243339B">
+    <value>无法连接，请检查网络后重试。</value>
+    <comment>Unable to connect. Check your connection and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CFC03AB9BAE26C1D">
+    <value>无法解码参考图，请选择受支持的图片文件</value>
+    <comment>Unable to decode reference image; please choose a supported image file</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A7DA24B6414BD039">
+    <value>无法恢复账户，请重新登录。</value>
+    <comment>Unable to restore your account. Please sign in again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5AC8526D7BC2EE5F">
+    <value>无法验证登录状态，请检查网络连接后重新登录。</value>
+    <comment>Unable to verify your session. Check your connection and sign in again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B764CDC0EAB71374">
+    <value>未知</value>
+    <comment>Unknown</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C1C1009D3F37EC05">
+    <value>更新</value>
+    <comment>Update</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7F6B457C9E5BD5B2">
+    <value>更新虚拟摄像头</value>
+    <comment>Update Virtual Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B26CEBC809848922">
+    <value>请更新虚拟摄像头，以使用此版本的 FaceNow。</value>
+    <comment>Update Virtual Camera to use this version of FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B4ECD419206C580E">
+    <value>更新已就绪，可以安装</value>
+    <comment>Update ready to install</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7303FBA238E37007">
+    <value>请先安装并启用最新摄像头组件。</value>
+    <comment>Update the camera component with Install &amp; Enable first.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3AC22F0A39DEF38C">
+    <value>更新暂不可用</value>
+    <comment>Updates are not available yet</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9BACEB9058DAA329">
+    <value>正在更新虚拟摄像头…</value>
+    <comment>Updating Virtual Camera…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DFE40EFE921FE88E">
+    <value>正在更新…</value>
+    <comment>Updating…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0BC396EFB09C03E7">
+    <value>上行往返延迟</value>
+    <comment>Uplink RTT</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BC2E6011BE48CD4C">
+    <value>上行码率</value>
+    <comment>Uplink bitrate</comment>
+  </data>
+  <data xml:space="preserve" name="Text_614BB70544F16996">
+    <value>上行帧率</value>
+    <comment>Uplink frame rate</comment>
+  </data>
+  <data xml:space="preserve" name="Text_444E85B28DC69305">
+    <value>上行网络与延迟</value>
+    <comment>Uplink network and latency</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9FCBED799F485516">
+    <value>上行网络质量</value>
+    <comment>Uplink network quality</comment>
+  </data>
+  <data xml:space="preserve" name="Text_24159000F14889AA">
+    <value>上行丢包率</value>
+    <comment>Uplink packet loss</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E0CE595B216B1B36">
+    <value>上行分辨率</value>
+    <comment>Uplink resolution</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1DF2DBF593B16CCC">
+    <value>上行视频统计</value>
+    <comment>Uplink video statistics</comment>
+  </data>
+  <data xml:space="preserve" name="Text_865E89DE78D94C74">
+    <value>上传</value>
+    <comment>Upload</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E6849D5346E97833">
+    <value>上传已取消，点击重试。</value>
+    <comment>Upload canceled — click to retry.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D9B4935E21918895">
+    <value>上传参考图</value>
+    <comment>Upload reference image</comment>
+  </data>
+  <data xml:space="preserve" name="Text_60DC74A189F73CB2">
+    <value>上传你自己的参考图</value>
+    <comment>Upload your own reference image</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DD2D15A20F8964C2">
+    <value>使用情况 ↗</value>
+    <comment>Usage ↗</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CB4326F2CF8527E6">
+    <value>在其他应用中使用 FaceNow</value>
+    <comment>Use FaceNow in other apps</comment>
+  </data>
+  <data xml:space="preserve" name="Text_13FE36D04165F187">
+    <value>V%@</value>
+    <comment>V%@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3EE75029C70E284C">
+    <value>验证码</value>
+    <comment>Verification code</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7B1DA4675D696DA3">
+    <value>验证码登录暂不可用。</value>
+    <comment>Verification-code login is currently unavailable.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FB873EC6D996170E">
+    <value>正在验证账户…</value>
+    <comment>Verifying account…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6D42F6E3F3207A81">
+    <value>很差</value>
+    <comment>Very bad</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E9A00206F8B281B4">
+    <value>视频通话</value>
+    <comment>Video Calls</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FE9960A4BFF251D8">
+    <value>视频通话应用</value>
+    <comment>Video calling app</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DCC839A4015C4B7D">
+    <value>查看</value>
+    <comment>View</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5F749F33B483213D">
+    <value>查看帮助</value>
+    <comment>View Help</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FE408399E8E52536">
+    <value>查看用量</value>
+    <comment>View Usage</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B99A9756EEC4D7D9">
+    <value>虚拟摄像头</value>
+    <comment>Virtual Camera</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D5FEC861BB3CE8FD">
+    <value>无法自动移除虚拟摄像头，请在系统设置中将其移除。</value>
+    <comment>Virtual Camera couldn’t be removed automatically. Remove it in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4C755DE9B7185A5C">
+    <value>此 Mac 尚未安装虚拟摄像头。它会将你的 FaceNow 形象作为摄像头输入，传送到视频通话应用中。</value>
+    <comment>Virtual Camera has not been installed on this Mac. It sends your FaceNow look to video calling apps as a camera input.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_605BB300A3DD6FCD">
+    <value>虚拟摄像头可用。</value>
+    <comment>Virtual Camera is available.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5DB2403FBE2DCE90">
+    <value>正在安装虚拟摄像头，请稍候。</value>
+    <comment>Virtual Camera is being installed. Please wait.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5C527A979FB7105F">
+    <value>正在移除虚拟摄像头，请稍候。</value>
+    <comment>Virtual Camera is being removed. Please wait.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_266FD95535571E6B">
+    <value>虚拟摄像头已停用，请在系统设置中启用。</value>
+    <comment>Virtual Camera is disabled. Enable it in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_43A63E484B806D82">
+    <value>虚拟摄像头已启用但不可用。请在“摄像头扩展”中将 FaceNow 关闭后重新开启，然后返回 FaceNow。</value>
+    <comment>Virtual Camera is enabled but unavailable. Turn FaceNow off and back on in Camera Extensions, then return to FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9A370F87618D03FD">
+    <value>虚拟摄像头已启用，但 macOS 尚未使其可用。</value>
+    <comment>Virtual Camera is enabled, but macOS has not made the camera available.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B32D91D7E84FCCBE">
+    <value>尚未安装虚拟摄像头，请在设置中安装。</value>
+    <comment>Virtual Camera is not installed. Install it in setup.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BAE290A55BDF442F">
+    <value>虚拟摄像头已就绪。请继续了解如何在视频通话中使用 FaceNow。</value>
+    <comment>Virtual Camera is ready. Continue to learn how to use FaceNow in video calls.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_07D6B9D7A3CE5B81">
+    <value>恢复后虚拟摄像头仍不可用。请复制错误详情并联系技术支持。</value>
+    <comment>Virtual Camera is still unavailable after recovery. Copy the error details and contact support.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CBC03C293892162B">
+    <value>虚拟摄像头已关闭。</value>
+    <comment>Virtual Camera is turned off.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_83B02EC94028A7B3">
+    <value>虚拟摄像头不可用。</value>
+    <comment>Virtual Camera is unavailable.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EFEB2828F77B93EF">
+    <value>虚拟摄像头尚未就绪，请重新检查。</value>
+    <comment>Virtual Camera isn’t ready yet. Check again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BF4E00BE6BF360F3">
+    <value>无法完成虚拟摄像头设置。请复制错误详情并联系技术支持。</value>
+    <comment>Virtual Camera setup couldn’t be completed. Copy the error details and contact support.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_896455DCB9C5495D">
+    <value>虚拟摄像头设置尚未完成，请重新安装后继续。</value>
+    <comment>Virtual Camera setup is incomplete. Install it again to continue.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E0503AA0819F6B59">
+    <value>虚拟召唤</value>
+    <comment>Virtual Summon</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6FF93FF93DAF1B96">
+    <value>虚拟试穿</value>
+    <comment>Virtual Try-On</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FB338AD36B3330DF">
+    <value>虚拟摄像头输出失败：%@</value>
+    <comment>Virtual camera output failed: %@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_46D0C09DCC0F921C">
+    <value>虚拟摄像头已就绪</value>
+    <comment>Virtual camera ready</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C2D7C3CBD1A7847F">
+    <value>正在等待虚拟摄像头可用，请稍候。</value>
+    <comment>Waiting for Virtual Camera to become available. Please wait.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D638D4883AD5B27D">
+    <value>正在等待摄像头权限，请回应系统提示。</value>
+    <comment>Waiting for camera permission. Please answer the system prompt.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_28EE7605BCC07C80">
+    <value>正在等待连接…</value>
+    <comment>Waiting for connection…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_612FFC5CE9D47467">
+    <value>正在等待…</value>
+    <comment>Waiting…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4203E97DC455C405">
+    <value>我们根据以下条款访问你的摄像头：</value>
+    <comment>We access your camera in accordance with our </comment>
+  </data>
+  <data xml:space="preserve" name="Text_2D280F61E8B4CFE7">
+    <value>我们会依照《%1$@》和《%2$@》使用你的摄像头。</value>
+    <comment>We access your camera in accordance with our %1$@ and %2$@.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_26061BC9B2313ECD">
+    <value>我们会依照《{0}》和《{1}》使用你的摄像头和麦克风。</value>
+    <comment>We access your camera and, when enabled, microphone in accordance with our {0} and {1}.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B5A229AC8BECC603">
+    <value>官方网站</value>
+    <comment>Website</comment>
+  </data>
+  <data xml:space="preserve" name="Text_19C62C5717627263">
+    <value>欢迎使用 FaceNow</value>
+    <comment>Welcome to FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_471664168DD0ED24">
+    <value>Windows 将请求管理员权限。</value>
+    <comment>Windows will ask for administrator permission.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BE3DF361DAC52435">
+    <value>Windows 将请求管理员权限。</value>
+    <comment>Windows 将请求管理员权限。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4763836D64EF5A87">
+    <value>Windows 已收到 AI 视频帧，会议对端的接收情况请在会议中确认。</value>
+    <comment>Windows 已收到 AI 视频帧，会议对端的接收情况请在会议中确认。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E5615FD6685F694D">
+    <value>Xmax 开放平台</value>
+    <comment>Xmax Open Platform</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CA7F85EB030A26AF">
+    <value>Xmax X2.1 是 FaceNow 背后的实时视频生成模型，也是目前世界领先的通用视频编辑模型。它能够实时重塑视频中的人物形象、服装穿搭与视觉风格，在保持高保真画质的同时，兼具同类最快的响应速度与最低的使用成本，让实时视频应用的规模化商用成为可能。</value>
+    <comment>Xmax X2.1 is the real-time video generation model behind FaceNow and one of the world's leading general-purpose video editing models. It can reshape character appearances, outfits, and visual styles in real time, combining high-fidelity visuals with the fastest response and lowest usage costs in its class to make real-time video applications commercially viable at scale.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_326579D6E5A47202">
+    <value>Xmax X2.1 是一款面向实时互动与视频编辑的模型，支持角色替换、虚拟试穿、风格迁移、触控交互等功能。它可以以比竞品便宜数倍到数十倍的成本生成清晰、流畅的视频，为可商用的实时互动应用提供支持。</value>
+    <comment>Xmax X2.1 是一款面向实时互动与视频编辑的模型，支持角色替换、虚拟试穿、风格迁移、触控交互等功能。它可以以比竞品便宜数倍到数十倍的成本生成清晰、流畅的视频，为可商用的实时互动应用提供支持。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3F0B8311FCA32371">
+    <value>Xmax 开放平台</value>
+    <comment>Xmax 开放平台</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CDB834788428581A">
+    <value>你的积分即将用尽，请充值以避免中断。</value>
+    <comment>You're running low on credits. Top up to avoid interruptions.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F24AF2C65AA2C607">
+    <value>AI 视频仍在使用摄像头，请先停止视频，再重新设置。</value>
+    <comment>Your AI video is still using the camera. Stop your AI video, then set up the camera again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9720BC9663DA4370">
+    <value>需要重新设置摄像头，才能在其他应用中使用 FaceNow。</value>
+    <comment>Your camera needs to be set up again before FaceNow can be used in other apps.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AA4A54E3093FE546">
+    <value>相见，不止一面。</value>
+    <comment>Your new look for every camera moment</comment>
+  </data>
+  <data xml:space="preserve" name="Text_67F10C979199F170">
+    <value>保存的登录信息无效。</value>
+    <comment>Your saved session is invalid.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0CC54B265D396CE7">
+    <value>保存的登录信息无效，请重新登录。</value>
+    <comment>Your saved session is invalid. Please sign in again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_35670D38F19CBF02">
+    <value>所选摄像头已断开连接。</value>
+    <comment>Your selected camera is disconnected.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B529FCE2BFAE76BD">
+    <value>登录状态已过期，请重新登录。</value>
+    <comment>Your session has expired. Please sign in again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4DDB3E96801A1EE2">
+    <value>已完成</value>
+    <comment>completed</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3D59EE1ECD6391E5">
+    <value>当前步骤</value>
+    <comment>current step</comment>
+  </data>
+  <data xml:space="preserve" name="Text_70DC70F685BD6837">
+    <value>hello Kitty</value>
+    <comment>hello Kitty</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D58DF6D2330B59A2">
+    <value>macOS SDK 未提供此数据</value>
+    <comment>macOS SDK 未提供此数据</comment>
+  </data>
+  <data xml:space="preserve" name="Text_80C9DEBC7B6C56AC">
+    <value>macOS 无法验证摄像头扩展。如果仍然失败，请重新安装最新的已签名版 FaceNow。</value>
+    <comment>macOS couldn’t validate the camera extension. If this continues, reinstall the latest signed version of FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1DF11D690CD81823">
+    <value>macOS 已刷新摄像头，但 FaceNow 仍保留旧的设备列表。请退出并重新打开 FaceNow 以继续。</value>
+    <comment>macOS has refreshed the camera, but FaceNow still has the previous device list. Quit and reopen FaceNow to continue.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7F5DD609FC66F896">
+    <value>macOS 已刷新摄像头，请退出并重新打开 FaceNow，以刷新设备列表。</value>
+    <comment>macOS has refreshed the camera. Quit and reopen FaceNow to refresh its device list.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_02113932225D5C66">
+    <value>macOS 正在等待批准或其他摄像头扩展请求完成。请在系统设置中检查摄像头扩展。</value>
+    <comment>macOS is waiting for approval or another camera extension request. Review Camera Extensions in System Settings.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B0512A3436C9CE38">
+    <value>macOS 或组织策略阻止了摄像头扩展。请联系管理员或 FaceNow 技术支持。</value>
+    <comment>macOS or your organization’s policy blocked the camera extension. Contact your administrator or FaceNow support.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D5F0F4ED7938E14D">
+    <value>macOS 已刷新摄像头，但 FaceNow 仍保留旧的设备列表。请退出并重新打开 FaceNow 以继续。</value>
+    <comment>macOS 已刷新摄像头，但 FaceNow 仍保留旧的设备列表。请退出并重新打开 FaceNow 以继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4450EDDE5BE42C36">
+    <value>macOS 已刷新摄像头，请退出并重新打开 FaceNow，以刷新设备列表。</value>
+    <comment>macOS 已刷新摄像头，请退出并重新打开 FaceNow，以刷新设备列表。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_433EA628563434B1">
+    <value>macOS 或组织策略阻止了摄像头扩展。请联系管理员或 FaceNow 技术支持。</value>
+    <comment>macOS 或组织策略阻止了摄像头扩展。请联系管理员或 FaceNow 技术支持。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_86494E95281944B1">
+    <value>macOS 或设备策略限制了摄像头访问。</value>
+    <comment>macOS 或设备策略限制了摄像头访问。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DD07C3EC767928F3">
+    <value>macOS 或设备管理员限制了摄像头访问。</value>
+    <comment>macOS 或设备管理员限制了摄像头访问。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_74D0F1E4E1D68D7E">
+    <value>macOS 或设备管理策略限制了摄像头访问。</value>
+    <comment>macOS 或设备管理策略限制了摄像头访问。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_13026205E0B7A1AB">
+    <value>macOS 无法验证摄像头扩展。如果仍然失败，请重新安装最新的已签名版 FaceNow。</value>
+    <comment>macOS 无法验证摄像头扩展。如果仍然失败，请重新安装最新的已签名版 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_26C6DF7372E2DACD">
+    <value>macOS 正在等待批准或其他摄像头扩展请求完成。请在系统设置中检查摄像头扩展。</value>
+    <comment>macOS 正在等待批准或其他摄像头扩展请求完成。请在系统设置中检查摄像头扩展。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F13982744186359E">
+    <value>待进行</value>
+    <comment>upcoming</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DEDA168503296C7D">
+    <value>20 元 / 小时</value>
+    <comment>~$6 / hour</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CF39597101B4BC2F">
+    <value>毫秒级延迟</value>
+    <comment>Millisecond Scale</comment>
+  </data>
+  <data xml:space="preserve" name="Text_37F75D61C993BE03">
+    <value>①  摄像头  ⌄
+选择视频输入</value>
+    <comment>①  Camera  ⌄
+Choose your video input</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9561E8B58A826C22">
+    <value>①  选择“允许”</value>
+    <comment>①  Choose Allow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3443BB84C4BAD2AF">
+    <value>①  摄像头  ⌄
+选择视频输入</value>
+    <comment>①  摄像头  ⌄
+选择视频输入</comment>
+  </data>
+  <data xml:space="preserve" name="Text_84C5432A4F9A2197">
+    <value>①  选择“允许”</value>
+    <comment>①  选择“允许”</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3ADF20CABF78CEBE">
+    <value>②  启用 FaceNow  →  完成</value>
+    <comment>②  Enable FaceNow  →  Done</comment>
+  </data>
+  <data xml:space="preserve" name="Text_769E1B624D813366">
+    <value>②  ✓  %@</value>
+    <comment>②  ✓  %@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1EA631443DC8111D">
+    <value>②  启用 FaceNow  →  完成</value>
+    <comment>②  启用 FaceNow  →  完成</comment>
+  </data>
+  <data xml:space="preserve" name="Text_91E25F4DDC6F6CD8">
+    <value>一般</value>
+    <comment>一般</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D0B9D4BF8A6E5E18">
+    <value>一起把你的创意变成实时互动体验。</value>
+    <comment>一起把你的创意变成实时互动体验。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B669AA107CB9C7E9">
+    <value>上一张引导图片</value>
+    <comment>上一张引导图片</comment>
+  </data>
+  <data xml:space="preserve" name="Text_63F51AFC9345658E">
+    <value>上一次会话仍在停止中，请稍后再试。</value>
+    <comment>上一次会话仍在停止中，请稍后再试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9E07E3C0532D4976">
+    <value>上传</value>
+    <comment>上传</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A7D4D4AEE6826754">
+    <value>上传你自己的参考图</value>
+    <comment>上传你自己的参考图</comment>
+  </data>
+  <data xml:space="preserve" name="Text_464D140C37A379A6">
+    <value>上传参考图</value>
+    <comment>上传参考图</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C3FB7B8109D04249">
+    <value>上传已取消，点击重试。</value>
+    <comment>上传已取消，点击重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_540C47C2FFACFB75">
+    <value>上行丢包率</value>
+    <comment>上行丢包率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_688E72BB54FD0056">
+    <value>上行分辨率</value>
+    <comment>上行分辨率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0A034A27F84C184C">
+    <value>上行帧率</value>
+    <comment>上行帧率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_80EA703FC3F0DC90">
+    <value>上行往返延迟</value>
+    <comment>上行往返延迟</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A2E8C5DA7379CF30">
+    <value>上行码率</value>
+    <comment>上行码率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_08DC2C906E8F464C">
+    <value>上行网络与延迟</value>
+    <comment>上行网络与延迟</comment>
+  </data>
+  <data xml:space="preserve" name="Text_938E4FD3769CF5B9">
+    <value>上行网络质量</value>
+    <comment>上行网络质量</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7CF8CD71FCB8FAA7">
+    <value>上行视频统计</value>
+    <comment>上行视频统计</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5818F1075EEFDB0F">
+    <value>下一张引导图片</value>
+    <comment>下一张引导图片</comment>
+  </data>
+  <data xml:space="preserve" name="Text_76FDA0A4505BB4A7">
+    <value>下行丢包率</value>
+    <comment>下行丢包率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B1749E34725F4CF8">
+    <value>下行分辨率</value>
+    <comment>下行分辨率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7C0AC6D1F0C1383B">
+    <value>下行帧率</value>
+    <comment>下行帧率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_935095562D383B3A">
+    <value>下行码率</value>
+    <comment>下行码率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3685C4C23DD20CEC">
+    <value>下行网络与延迟</value>
+    <comment>下行网络与延迟</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62D7FD29E3DFC0CF">
+    <value>下行网络质量</value>
+    <comment>下行网络质量</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8991D853D2EEFBC1">
+    <value>下行视频统计</value>
+    <comment>下行视频统计</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A4433BD24F9CCAA9">
+    <value>了解 Xmax X2.1</value>
+    <comment>了解 Xmax X2.1</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A2CA815D49EEA605">
+    <value>人形机器</value>
+    <comment>人形机器</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D06FA1D49B6DCE54">
+    <value>从 Xmax 开放平台获取 API Key。</value>
+    <comment>从 Xmax 开放平台获取 API Key。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AF6322BB25AFE014">
+    <value>从加入 RTC 频道到连接成功的耗时</value>
+    <comment>从加入 RTC 频道到连接成功的耗时</comment>
+  </data>
+  <data xml:space="preserve" name="Text_22A39DEC2A49B7AE">
+    <value>从提交生成指令到首个可显示的生成帧就绪的耗时</value>
+    <comment>从提交生成指令到首个可显示的生成帧就绪的耗时</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3AF85E6F8089CF50">
+    <value>从摄像头列表中选择“%@”。</value>
+    <comment>从摄像头列表中选择“%@”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A8C02B4EBB89B9E1">
+    <value>从摄像头就绪后开始生成，到首个可显示的生成帧就绪的耗时。不包含摄像头准备时间；总耗时直接测量，并非各阶段耗时相加。</value>
+    <comment>从摄像头就绪后开始生成，到首个可显示的生成帧就绪的耗时。不包含摄像头准备时间；总耗时直接测量，并非各阶段耗时相加。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3E752BBFAD475BC1">
+    <value>从此处获取 API Key：</value>
+    <comment>从此处获取 API Key：</comment>
+  </data>
+  <data xml:space="preserve" name="Text_994FEC11C2BA5EB4">
+    <value>从视频通话，到更多应用场景</value>
+    <comment>从视频通话，到更多应用场景</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E8207D706C7504C3">
+    <value>企鹅玩偶</value>
+    <comment>企鹅玩偶</comment>
+  </data>
+  <data xml:space="preserve" name="Text_962DA7D11C212AB8">
+    <value>会话创建</value>
+    <comment>会话创建</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CE522A454C01CFAA">
+    <value>会话已关闭</value>
+    <comment>会话已关闭</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7E8DACB43C82CADF">
+    <value>低延迟</value>
+    <comment>低延迟</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AB6C441954065F18">
+    <value>低成本</value>
+    <comment>低成本</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AB604171EC508159">
+    <value>你的积分即将用尽，请充值以避免中断。</value>
+    <comment>你的积分即将用尽，请充值以避免中断。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3058A16499650D32">
+    <value>使用情况 ↗</value>
+    <comment>使用情况 ↗</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B6E77060DB53ADE4">
+    <value>使用指南</value>
+    <comment>使用指南</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C3BC331FBFB43ED6">
+    <value>使用条款</value>
+    <comment>使用条款</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3FCF1C497DD5630E">
+    <value>保存的登录信息无效。</value>
+    <comment>保存的登录信息无效。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8EAE7977B53D4BF6">
+    <value>保存的登录信息无效，请重新登录。</value>
+    <comment>保存的登录信息无效，请重新登录。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_51EAA17A40A156AD">
+    <value>保持 FaceNow 运行</value>
+    <comment>保持 FaceNow 运行</comment>
+  </data>
+  <data xml:space="preserve" name="Text_430DE33F58051C96">
+    <value>停止会话</value>
+    <comment>停止会话</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DE1CE6393B52D443">
+    <value>停止测试视频</value>
+    <comment>停止测试视频</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2502A39B0204E06E">
+    <value>允许 FaceNow</value>
+    <comment>允许 FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_09BFF889E91724BC">
+    <value>允许使用摄像头</value>
+    <comment>允许使用摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EF6208DC70DB5EDF">
+    <value>先在 FaceNow 中启动摄像头，然后在会议或直播应用中选择此摄像头。</value>
+    <comment>先在 FaceNow 中启动摄像头，然后在会议或直播应用中选择此摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9134428DCB7B8B06">
+    <value>关于我们</value>
+    <comment>关于我们</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8333A9A6662A858A">
+    <value>关注我们的微信</value>
+    <comment>关注我们的微信</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3FD47EDCE45B3603">
+    <value>关闭</value>
+    <comment>关闭</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4AD3736E489A48AF">
+    <value>关闭“关于我们”</value>
+    <comment>关闭“关于我们”</comment>
+  </data>
+  <data xml:space="preserve" name="Text_40342C00F9BFC881">
+    <value>关闭设置指南</value>
+    <comment>关闭设置指南</comment>
+  </data>
+  <data xml:space="preserve" name="Text_44D48FCF6BE81EEF">
+    <value>写实人象</value>
+    <comment>写实人象</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5587BFA98E7BA3FF">
+    <value>写实动物</value>
+    <comment>写实动物</comment>
+  </data>
+  <data xml:space="preserve" name="Text_11A96D43F37E8E14">
+    <value>准备使用 FaceNow</value>
+    <comment>准备使用 FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1BD1893C09003D8A">
+    <value>准备就绪</value>
+    <comment>准备就绪</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D939CC4F2EDA20E4">
+    <value>创建 FaceNow 密钥</value>
+    <comment>创建 FaceNow 密钥</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DC14E5FC2897FD61">
+    <value>创建会话</value>
+    <comment>创建会话</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5B3B408273C6906E">
+    <value>创建服务端生成会话的耗时</value>
+    <comment>创建服务端生成会话的耗时</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8B7CCFD51D3EDB99">
+    <value>刷新相机扩展状态</value>
+    <comment>刷新相机扩展状态</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1F246EE95306C9E4">
+    <value>刷新虚拟摄像头</value>
+    <comment>刷新虚拟摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62AEFDFCB48A53CA">
+    <value>剩余积分：%@</value>
+    <comment>剩余积分：%@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5AA3CD1FDE537FF6">
+    <value>动漫少女</value>
+    <comment>动漫少女</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8B2106CA13719CB2">
+    <value>反馈</value>
+    <comment>反馈</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6C1E4AE8AFB1B9AB">
+    <value>发布本地视频</value>
+    <comment>发布本地视频</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2CD0F3BE8738A86C">
+    <value>取消</value>
+    <comment>取消</comment>
+  </data>
+  <data xml:space="preserve" name="Text_89EC30ADEE0FE663">
+    <value>另一个版本的 FaceNow 正在使用虚拟摄像头，请先停止它的会话。</value>
+    <comment>另一个版本的 FaceNow 正在使用虚拟摄像头，请先停止它的会话。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6FD2212335A9C7A7">
+    <value>启动总耗时</value>
+    <comment>启动总耗时</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4A45C89537B9F693">
+    <value>启动摄像头</value>
+    <comment>启动摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_30595FE375F1C15F">
+    <value>启动耗时</value>
+    <comment>启动耗时</comment>
+  </data>
+  <data xml:space="preserve" name="Text_349EE6C0BAEDE3D2">
+    <value>启用 FaceNow</value>
+    <comment>启用 FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C7445D33CC2C2E9D">
+    <value>启用虚拟摄像头</value>
+    <comment>启用虚拟摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3F412882BF9CAEC">
+    <value>呆萌仓鼠</value>
+    <comment>呆萌仓鼠</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3D7114281F5B59D9">
+    <value>和</value>
+    <comment>和</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BD65B011A9688EE0">
+    <value>唯美少女</value>
+    <comment>唯美少女</comment>
+  </data>
+  <data xml:space="preserve" name="Text_365A599F468790E0">
+    <value>removed preset 12</value>
+    <comment>removed preset 12</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F5BCC290645099B4">
+    <value>在 %1$@ 中打开摄像头设置，选择“%2$@”作为视频输入。
+
+这样，该应用会接收你的 FaceNow 形象，而不是原始摄像头画面。如果列表中没有该摄像头，请在启用虚拟摄像头后重新打开视频通话应用。</value>
+    <comment>在 %1$@ 中打开摄像头设置，选择“%2$@”作为视频输入。
+
+这样，该应用会接收你的 FaceNow 形象，而不是原始摄像头画面。如果列表中没有该摄像头，请在启用虚拟摄像头后重新打开视频通话应用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5990E51CC5E6523B">
+    <value>在 %@ 中打开摄像头菜单或视频设置。</value>
+    <comment>在 %@ 中打开摄像头菜单或视频设置。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4EA0189EE8559B0B">
+    <value>在 Google Meet 中打开“设置”→“视频”。</value>
+    <comment>在 Google Meet 中打开“设置”→“视频”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FF51FBC984835B84">
+    <value>在 macOS 弹窗中点击“打开系统设置”。</value>
+    <comment>在 macOS 弹窗中点击“打开系统设置”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7E1A8CFD00A404C1">
+    <value>在 macOS 权限弹窗中选择“允许”。</value>
+    <comment>在 macOS 权限弹窗中选择“允许”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AF6F7A1E97C56E1E">
+    <value>在“相机扩展”中，将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。</value>
+    <comment>在“相机扩展”中，将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5257233EBF96F44F">
+    <value>在“相机扩展”中，打开 FaceNow 旁的开关，然后点击“完成”。</value>
+    <comment>在“相机扩展”中，打开 FaceNow 旁的开关，然后点击“完成”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7F0C6E8929C609EC">
+    <value>在“隐私与安全性 → 摄像头”中，打开 FaceNow 旁的开关。</value>
+    <comment>在“隐私与安全性 → 摄像头”中，打开 FaceNow 旁的开关。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7EED8A5C311875C1">
+    <value>在“隐私与安全性”中允许 FaceNow 系统扩展，然后返回 FaceNow。</value>
+    <comment>在“隐私与安全性”中允许 FaceNow 系统扩展，然后返回 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3DD1F52F2FBBB61A">
+    <value>在其他应用中使用 FaceNow</value>
+    <comment>在其他应用中使用 FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C79F2BD366851174">
+    <value>在视频通话中打开摄像头菜单，选择“%@”。</value>
+    <comment>在视频通话中打开摄像头菜单，选择“%@”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8FABC82D6F9DDD2D">
+    <value>在视频通话应用中打开摄像头菜单，选择“%@”。</value>
+    <comment>在视频通话应用中打开摄像头菜单，选择“%@”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2903FC7A2C15BACA">
+    <value>在视频通话应用中选择 FaceNow 作为摄像头。</value>
+    <comment>在视频通话应用中选择 FaceNow 作为摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DED07DA9EFC6846C">
+    <value>在访达中显示</value>
+    <comment>在访达中显示</comment>
+  </data>
+  <data xml:space="preserve" name="Text_005FD61C734F9BF6">
+    <value>在通话中开启视频，并在通话期间保持 FaceNow 运行。如果找不到该摄像头，请重新打开视频通话应用。</value>
+    <comment>在通话中开启视频，并在通话期间保持 FaceNow 运行。如果找不到该摄像头，请重新打开视频通话应用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C3409920E30D8AA9">
+    <value>地狱梗图</value>
+    <comment>地狱梗图</comment>
+  </data>
+  <data xml:space="preserve" name="Text_71AE85E3F007C66E">
+    <value>墨镜</value>
+    <comment>墨镜</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F0602289215DFCD6">
+    <value>复制错误详情</value>
+    <comment>复制错误详情</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FE3110C3C273D474">
+    <value>removed preset 13</value>
+    <comment>removed preset 13</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7CADD31546F9FCEE">
+    <value>大眼萌妹</value>
+    <comment>大眼萌妹</comment>
+  </data>
+  <data xml:space="preserve" name="Text_ECFE0797E36B36F6">
+    <value>天选牛马</value>
+    <comment>天选牛马</comment>
+  </data>
+  <data xml:space="preserve" name="Text_47B15419203D90F5">
+    <value>removed preset 14</value>
+    <comment>removed preset 14</comment>
+  </data>
+  <data xml:space="preserve" name="Text_096A1A3ECA0E1021">
+    <value>奶牛玩偶</value>
+    <comment>奶牛玩偶</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0CEA72808CC381D5">
+    <value>奶白小兔</value>
+    <comment>奶白小兔</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F867F34178594F89">
+    <value>好</value>
+    <comment>好</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5CD67A2FBB3DC65E">
+    <value>如何在视频通话中使用 FaceNow</value>
+    <comment>如何在视频通话中使用 FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_08F6DB63A2984271">
+    <value>如果此 Mac 由组织管理，请联系管理员，允许 FaceNow 访问摄像头。你可以在系统设置中查看当前权限。</value>
+    <comment>如果此 Mac 由组织管理，请联系管理员，允许 FaceNow 访问摄像头。你可以在系统设置中查看当前权限。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8731C979B91EAB12">
+    <value>媒体流发布</value>
+    <comment>媒体流发布</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CDDFC9F219D67ECD">
+    <value>安全验证失败，请重试。</value>
+    <comment>安全验证失败，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B98147451646CE9A">
+    <value>安全验证暂不可用，请重试。</value>
+    <comment>安全验证暂不可用，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B9B0A7C317AAC3E3">
+    <value>安全验证超时，请重试。</value>
+    <comment>安全验证超时，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E8F88F51CCB085EA">
+    <value>安装</value>
+    <comment>安装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A1505CCC6CAC6B6F">
+    <value>安装失败：%@</value>
+    <comment>安装失败：%@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A8EF0DCC54EB1947">
+    <value>安装并启用</value>
+    <comment>安装并启用</comment>
+  </data>
+  <data xml:space="preserve" name="Text_011EA6547ED86B4B">
+    <value>安装扩展前，请将 FaceNow 移至 /Applications。</value>
+    <comment>安装扩展前，请将 FaceNow 移至 /Applications。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1BBB6664BE37A9BC">
+    <value>安装虚拟摄像头</value>
+    <comment>安装虚拟摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_56E0983EEEE71E48">
+    <value>安装虚拟摄像头前，请将 FaceNow 移至 /Applications。</value>
+    <comment>安装虚拟摄像头前，请将 FaceNow 移至 /Applications。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B9DF2D15461B7D4D">
+    <value>安装虚拟摄像头，即可在视频通话中使用 FaceNow。</value>
+    <comment>安装虚拟摄像头，即可在视频通话中使用 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A8FBF9A8089C0CE5">
+    <value>完成一次设置，即可在会议或直播应用的摄像头列表中使用 FaceNow。</value>
+    <comment>完成一次设置，即可在会议或直播应用的摄像头列表中使用 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AB4667171BFA4A64">
+    <value>完成，开始使用</value>
+    <comment>完成，开始使用</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E863518711CFFA68">
+    <value>官方网站</value>
+    <comment>官方网站</comment>
+  </data>
+  <data xml:space="preserve" name="Text_73D1CDBD73F12825">
+    <value>实时生成中</value>
+    <comment>实时生成中</comment>
+  </data>
+  <data xml:space="preserve" name="Text_960A74A3531567C5">
+    <value>实时美颜暂不可用，原始视频仍在继续。</value>
+    <comment>实时美颜暂不可用，原始视频仍在继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_73C9488CA46A3FF1">
+    <value>将你的形象带入视频通话</value>
+    <comment>将你的形象带入视频通话</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4E170B548A70C7B2">
+    <value>将本地媒体流发布到 RTC 频道的耗时</value>
+    <comment>将本地媒体流发布到 RTC 频道的耗时</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54BF7E672CA8494D">
+    <value>小兔在肩</value>
+    <comment>小兔在肩</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B85AF1BE98DAF456">
+    <value>小狗在肩</value>
+    <comment>小狗在肩</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A4268285BED90C55">
+    <value>小鼠在肩</value>
+    <comment>小鼠在肩</comment>
+  </data>
+  <data xml:space="preserve" name="Text_598A7700BE34DC57">
+    <value>尚未允许访问摄像头，请在设置中授予摄像头权限。</value>
+    <comment>尚未允许访问摄像头，请在设置中授予摄像头权限。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C63F6887F44565D7">
+    <value>尚未安装虚拟摄像头，请在设置中安装。</value>
+    <comment>尚未安装虚拟摄像头，请在设置中安装。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CDBC0434F568FC9E">
+    <value>尚未检查</value>
+    <comment>尚未检查</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54C0073DD0B20AFE">
+    <value>已取消摄像头安装。</value>
+    <comment>已取消摄像头安装。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EF9E3539FBAE674F">
+    <value>已安装的虚拟摄像头属于其他 FaceNow 构建版本。请重新安装，以移除旧扩展并安装此应用附带的版本。</value>
+    <comment>已安装的虚拟摄像头属于其他 FaceNow 构建版本。请重新安装，以移除旧扩展并安装此应用附带的版本。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F28461BB49C85647">
+    <value>已完成</value>
+    <comment>已完成</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AB27F80D046F3D7F">
+    <value>已就绪</value>
+    <comment>已就绪</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CF71733166C93280">
+    <value>已开启 2 倍补帧，点击关闭</value>
+    <comment>已开启 2 倍补帧，点击关闭</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1F0AC6953E0411C0">
+    <value>已断开</value>
+    <comment>已断开</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A737FD72B0160164">
+    <value>已选中</value>
+    <comment>已选中</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E5E4686F651FFF92">
+    <value>已静音</value>
+    <comment>已静音</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9B164488100CB08D">
+    <value>应用于生成结果</value>
+    <comment>应用于生成结果</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8DA97DDDA990E7C4">
+    <value>开启</value>
+    <comment>开启</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2EFECF57C3C57352">
+    <value>开始使用前的准备</value>
+    <comment>开始使用前的准备</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1D3D1B450E3E6838">
+    <value>当前 FaceNow 缺少摄像头组件，请重新安装完整应用后重试。</value>
+    <comment>当前 FaceNow 缺少摄像头组件，请重新安装完整应用后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E590E84F23A587DC">
+    <value>当前步骤</value>
+    <comment>当前步骤</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0A48ED02AE8D7468">
+    <value>当前虚拟摄像头需要 Windows 11。</value>
+    <comment>当前虚拟摄像头需要 Windows 11。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_836ED1042D4B9A82">
+    <value>当前账户没有执行此操作的权限。</value>
+    <comment>当前账户没有执行此操作的权限。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7390ED4524BECEA0">
+    <value>当前账户的登录凭据已更改。</value>
+    <comment>当前账户的登录凭据已更改。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3572024C3719B52B">
+    <value>往返延迟（云端）</value>
+    <comment>往返延迟（云端）</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E20F3FA2924AA880">
+    <value>待进行</value>
+    <comment>待进行</comment>
+  </data>
+  <data xml:space="preserve" name="Text_00856ED4D353FE2F">
+    <value>很差</value>
+    <comment>很差</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9BC71A1FA412B2C6">
+    <value>恢复后虚拟摄像头仍不可用。请复制错误详情并联系技术支持。</value>
+    <comment>恢复后虚拟摄像头仍不可用。请复制错误详情并联系技术支持。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BA2E93E73037C71E">
+    <value>恢复默认</value>
+    <comment>恢复默认</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EA2909C811B615AA">
+    <value>我们会依照《%1$@》和《%2$@》使用你的摄像头。</value>
+    <comment>我们会依照《%1$@》和《%2$@》使用你的摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5BECCEB51BE0D2C0">
+    <value>我们根据以下条款访问你的摄像头：</value>
+    <comment>我们根据以下条款访问你的摄像头：</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6FFE406A9C78CCE8">
+    <value>战队特摄</value>
+    <comment>战队特摄</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D95554A29AC141D5">
+    <value>所选摄像头已断开连接。</value>
+    <comment>所选摄像头已断开连接。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5AC2BB20871029E5">
+    <value>所选摄像头已断开连接，请重新连接或选择其他摄像头。</value>
+    <comment>所选摄像头已断开连接，请重新连接或选择其他摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6F52CC94DB652BAB">
+    <value>手机号</value>
+    <comment>手机号</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F8C14D85B3CD3B73">
+    <value>手机号码</value>
+    <comment>手机号码</comment>
+  </data>
+  <data xml:space="preserve" name="Text_28B1426155440B36">
+    <value>打开 FaceNow 旁的开关，然后点击“完成”。</value>
+    <comment>打开 FaceNow 旁的开关，然后点击“完成”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_514252DBA8E08FED">
+    <value>打开 FaceNow 设置指南</value>
+    <comment>打开 FaceNow 设置指南</comment>
+  </data>
+  <data xml:space="preserve" name="Text_22DC09B038AA4AC4">
+    <value>打开积分页面。</value>
+    <comment>打开积分页面。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0407DBDAF0DD84D9">
+    <value>打开系统设置</value>
+    <comment>打开系统设置</comment>
+  </data>
+  <data xml:space="preserve" name="Text_04F351243F4C1773">
+    <value>打开视频按钮旁的摄像头菜单，选择“%@”。</value>
+    <comment>打开视频按钮旁的摄像头菜单，选择“%@”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8B55B711BF983910">
+    <value>打开视频设置</value>
+    <comment>打开视频设置</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6D5976508200668D">
+    <value>找不到 FaceNow？</value>
+    <comment>找不到 FaceNow？</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8AC0F95406C2243F">
+    <value>换上衣</value>
+    <comment>换上衣</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0AB6C83D44BFA465">
+    <value>换下装</value>
+    <comment>换下装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F7511D97C47E88A9">
+    <value>描述你希望视频如何变化</value>
+    <comment>描述你希望视频如何变化</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1D62F622C5FCEBE8">
+    <value>描述你想看到的画面…</value>
+    <comment>描述你想看到的画面…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3FB63737C50F3472">
+    <value>提交提示词</value>
+    <comment>提交提示词</comment>
+  </data>
+  <data xml:space="preserve" name="Text_804C3B9A5FA1346C">
+    <value>摄像头尚未就绪：%@ 请点击“刷新”重试。</value>
+    <comment>摄像头尚未就绪：%@ 请点击“刷新”重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E8608DB328654232">
+    <value>摄像头已就绪</value>
+    <comment>摄像头已就绪</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EEE81B1536B8E2D3">
+    <value>摄像头已就绪 · 本地预览中</value>
+    <comment>摄像头已就绪 · 本地预览中</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7F359EBAECBF64E6">
+    <value>摄像头扩展已启用，正在等待摄像头可用…</value>
+    <comment>摄像头扩展已启用，正在等待摄像头可用…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E6BD969FC0DF9902">
+    <value>摄像头扩展已启用，请重新安装虚拟摄像头以测试设置。</value>
+    <comment>摄像头扩展已启用，请重新安装虚拟摄像头以测试设置。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8AFA7C41B5CEA4A5">
+    <value>摄像头扩展未启用</value>
+    <comment>摄像头扩展未启用</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1A892908D9770DEC">
+    <value>摄像头扩展权限弹窗。请选择“打开系统设置”。</value>
+    <comment>摄像头扩展权限弹窗。请选择“打开系统设置”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C877740BF3BD0966">
+    <value>摄像头权限 · macOS 弹窗示意图</value>
+    <comment>摄像头权限 · macOS 弹窗示意图</comment>
+  </data>
+  <data xml:space="preserve" name="Text_637077701A031972">
+    <value>摄像头权限已关闭。请在“系统设置 → 隐私与安全性 → 摄像头”中启用 FaceNow。</value>
+    <comment>摄像头权限已关闭。请在“系统设置 → 隐私与安全性 → 摄像头”中启用 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F3FFA369169668B6">
+    <value>摄像头权限已就绪。请继续设置虚拟摄像头。</value>
+    <comment>摄像头权限已就绪。请继续设置虚拟摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D97C78ADF7A75063">
+    <value>摄像头组件安装失败，尚未启用设备。</value>
+    <comment>摄像头组件安装失败，尚未启用设备。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_938D54401802F03F">
+    <value>摄像头组件已安装，请点击安装并启用以注册 FaceNow 摄像头。</value>
+    <comment>摄像头组件已安装，请点击安装并启用以注册 FaceNow 摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A90C192D78AB8BAA">
+    <value>摄像头组件需要更新，请先停止生成，再安装并启用。</value>
+    <comment>摄像头组件需要更新，请先停止生成，再安装并启用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_18AA63E3D715126A">
+    <value>摄像头菜单示意图 · 布局因应用而异</value>
+    <comment>摄像头菜单示意图 · 布局因应用而异</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AA7BD28C958EED18">
+    <value>摄像头设置已取消或中断。准备好后可继续。</value>
+    <comment>摄像头设置已取消或中断。准备好后可继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5EC5F907984A483F">
+    <value>摄像头访问受限</value>
+    <comment>摄像头访问受限</comment>
+  </data>
+  <data xml:space="preserve" name="Text_ECB24D34D52A2161">
+    <value>播放缓冲延迟</value>
+    <comment>播放缓冲延迟</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9596D1AC92CD443D">
+    <value>操作已取消</value>
+    <comment>操作已取消</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8B1D8AF6850C679D">
+    <value>支持消费级 GPU，降低硬件门槛和运行成本，让大规模部署更容易落地。</value>
+    <comment>支持消费级 GPU，降低硬件门槛和运行成本，让大规模部署更容易落地。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B222169BCE161FD8">
+    <value>收起帮助</value>
+    <comment>收起帮助</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DBB5727D96673D20">
+    <value>收起美颜面板</value>
+    <comment>收起美颜面板</comment>
+  </data>
+  <data xml:space="preserve" name="Text_175DA77CC2D9B0BD">
+    <value>无法加载安全验证，请检查网络。</value>
+    <comment>无法加载安全验证，请检查网络。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62473356FD1775C2">
+    <value>无法加载安全验证，请重试。</value>
+    <comment>无法加载安全验证，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A6533D3564877769">
+    <value>无法启动安全验证，请重试。</value>
+    <comment>无法启动安全验证，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D5688AB359B96DE4">
+    <value>无法启动摄像头安装程序。</value>
+    <comment>无法启动摄像头安装程序。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9D4E7149767E5852">
+    <value>无法启动摄像头辅助程序。</value>
+    <comment>无法启动摄像头辅助程序。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5182104CA0122C25">
+    <value>无法安装虚拟摄像头，请重试。</value>
+    <comment>无法安装虚拟摄像头，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A04CE7889C018EE0">
+    <value>无法完成虚拟摄像头设置。请复制错误详情并联系技术支持。</value>
+    <comment>无法完成虚拟摄像头设置。请复制错误详情并联系技术支持。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2439C9EDA8485611">
+    <value>无法恢复账户，请重新登录。</value>
+    <comment>无法恢复账户，请重新登录。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2220770B6DC429E1">
+    <value>无法更新虚拟摄像头，请重试。</value>
+    <comment>无法更新虚拟摄像头，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75C5B9677471E79D">
+    <value>无法检查可用的摄像头，请重试。</value>
+    <comment>无法检查可用的摄像头，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8F13EC378490CC8B">
+    <value>无法检查虚拟摄像头状态。</value>
+    <comment>无法检查虚拟摄像头状态。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0EB2049FD54C1626">
+    <value>无法申请摄像头权限，请重试。</value>
+    <comment>无法申请摄像头权限，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_09763B4BE4DB8E9C">
+    <value>无法移除虚拟摄像头，请重试。</value>
+    <comment>无法移除虚拟摄像头，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC5DB23E8E133738">
+    <value>无法自动移除虚拟摄像头，请在系统设置中将其移除。</value>
+    <comment>无法自动移除虚拟摄像头，请在系统设置中将其移除。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_90CC8A101E1C1E45">
+    <value>无法获取积分。</value>
+    <comment>无法获取积分。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3802488680349238">
+    <value>无法解码参考图，请选择受支持的图片文件</value>
+    <comment>无法解码参考图，请选择受支持的图片文件</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F56AA437FE770584">
+    <value>无法连接虚拟摄像头，请重试。</value>
+    <comment>无法连接虚拟摄像头，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_26464E7EDB62307D">
+    <value>无法连接，请检查网络后重试。</value>
+    <comment>无法连接，请检查网络后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3EBB15F3F7CFEA14">
+    <value>无法重新启动 FaceNow。请退出并重新打开应用以继续。</value>
+    <comment>无法重新启动 FaceNow。请退出并重新打开应用以继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_09CA89536F003E9F">
+    <value>无法验证登录状态，请检查网络连接后重新登录。</value>
+    <comment>无法验证登录状态，请检查网络连接后重新登录。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_14D504C0BDB57CB2">
+    <value>显示 %@ 摄像头设置示例</value>
+    <comment>显示 %@ 摄像头设置示例</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BF104F0BE6D9F5ED">
+    <value>显示或隐藏统计</value>
+    <comment>显示或隐藏统计</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B404758267EA9F1E">
+    <value>显示最近一次获取的余额。</value>
+    <comment>显示最近一次获取的余额。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F364399B9609BC47">
+    <value>显示统计信息</value>
+    <comment>显示统计信息</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9C6DC8EDB49CCF05">
+    <value>暂无有效的 API Key，请创建后开始生成。</value>
+    <comment>暂无有效的 API Key，请创建后开始生成。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3055A035F0EB7A8B">
+    <value>更新</value>
+    <comment>更新</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4DC5FAAB6C39312A">
+    <value>更新已就绪，可以安装</value>
+    <comment>更新已就绪，可以安装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1A7A47304550DE20">
+    <value>更新暂不可用</value>
+    <comment>更新暂不可用</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A963AFEAB249F79A">
+    <value>更新虚拟摄像头</value>
+    <comment>更新虚拟摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A57061549590E52E">
+    <value>服务暂不可用，请稍后重试。</value>
+    <comment>服务暂不可用，请稍后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3B8FAF5B77E66A5F">
+    <value>服务返回了其他平台的账户配置。</value>
+    <comment>服务返回了其他平台的账户配置。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_86AD8720803493C7">
+    <value>服务返回的 API Key 无效。</value>
+    <comment>服务返回的 API Key 无效。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_14FACA53C9DC9C83">
+    <value>服务返回的会话信息无效。</value>
+    <comment>服务返回的会话信息无效。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E4A243489CB69C95">
+    <value>服务返回的积分数据无效。</value>
+    <comment>服务返回的积分数据无效。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A6816A0F461EC836">
+    <value>服务返回的账户信息无效。</value>
+    <comment>服务返回的账户信息无效。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D7A7FF1C502BF5C2">
+    <value>服务返回的账户响应无效。</value>
+    <comment>服务返回的账户响应无效。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4DA7897D8AEA2E82">
+    <value>未找到实体摄像头，请连接摄像头后重新检查。</value>
+    <comment>未找到实体摄像头，请连接摄像头后重新检查。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_815563FB7A1A8878">
+    <value>未找到摄像头</value>
+    <comment>未找到摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3E382C36749BEDF">
+    <value>未检测到摄像头，请连接摄像头后继续。</value>
+    <comment>未检测到摄像头，请连接摄像头后继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4D8C1C5B42830791">
+    <value>未知</value>
+    <comment>未知</comment>
+  </data>
+  <data xml:space="preserve" name="Text_37E73D5702F1EAF0">
+    <value>机甲少女</value>
+    <comment>机甲少女</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A8E766EE2F8F9874">
+    <value>removed preset 15</value>
+    <comment>removed preset 15</comment>
+  </data>
+  <data xml:space="preserve" name="Text_234139AFDB6E1F37">
+    <value>极佳</value>
+    <comment>极佳</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DB8DB0530432BD15">
+    <value>查看</value>
+    <comment>查看</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C35E62A36B3AF916">
+    <value>查看帮助</value>
+    <comment>查看帮助</comment>
+  </data>
+  <data xml:space="preserve" name="Text_833C8BF6FA7D78C1">
+    <value>查看摄像头访问限制</value>
+    <comment>查看摄像头访问限制</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5073E9F5EDDC2996">
+    <value>查看用量</value>
+    <comment>查看用量</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2BA74DE12DBB974A">
+    <value>检查更新…</value>
+    <comment>检查更新…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_638C334AE1814EE3">
+    <value>棒球帽</value>
+    <comment>棒球帽</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F03998F9ADDB6F42">
+    <value>棕色文艺装</value>
+    <comment>棕色文艺装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3D34C1802660DFA3">
+    <value>欢迎使用 FaceNow</value>
+    <comment>欢迎使用 FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8A99BE840844819A">
+    <value>正在停止…</value>
+    <comment>正在停止…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A7F1469C047D13D1">
+    <value>正在关闭会话…</value>
+    <comment>正在关闭会话…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0CB3233F6FC1A80E">
+    <value>正在准备摄像头…</value>
+    <comment>正在准备摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_69FB5A782AECF3C1">
+    <value>正在准备虚拟摄像头…</value>
+    <comment>正在准备虚拟摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BAC1F7A46C5C354E">
+    <value>正在切换</value>
+    <comment>正在切换</comment>
+  </data>
+  <data xml:space="preserve" name="Text_81574F664BFA1C60">
+    <value>正在切换补帧…</value>
+    <comment>正在切换补帧…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F1E9CFD7B7E63EC4">
+    <value>正在刷新剩余积分。打开积分页面。</value>
+    <comment>正在刷新剩余积分。打开积分页面。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_43F3DC12A6077835">
+    <value>正在启动…</value>
+    <comment>正在启动…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FC08F57A54C06C12">
+    <value>正在安装…</value>
+    <comment>正在安装…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AC5C8F8C59C16422">
+    <value>正在安装摄像头扩展…</value>
+    <comment>正在安装摄像头扩展…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E601847FD7869E41">
+    <value>正在安装虚拟摄像头…</value>
+    <comment>正在安装虚拟摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_72BD5AF0DD141EEA">
+    <value>正在安装虚拟摄像头，请稍候。</value>
+    <comment>正在安装虚拟摄像头，请稍候。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7C6FB681D0B5EDE7">
+    <value>正在应用…</value>
+    <comment>正在应用…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E6442CE18F53CF99">
+    <value>正在更新…</value>
+    <comment>正在更新…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AAE9348CB68A3724">
+    <value>正在更新生成条件…</value>
+    <comment>正在更新生成条件…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FE1177AD33CBCE31">
+    <value>正在更新虚拟摄像头…</value>
+    <comment>正在更新虚拟摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6B72C3D6855CB87D">
+    <value>正在检查…</value>
+    <comment>正在检查…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4A1F72DDC89CA2BD">
+    <value>正在检查可用的摄像头…</value>
+    <comment>正在检查可用的摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_43F53E3E0E28B68F">
+    <value>正在检查摄像头…</value>
+    <comment>正在检查摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6ECD19B44BF486E6">
+    <value>正在检查摄像头设置，请稍后重试。</value>
+    <comment>正在检查摄像头设置，请稍后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_476D155037473252">
+    <value>正在检查虚拟摄像头…</value>
+    <comment>正在检查虚拟摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BB8557A249AD5AD5">
+    <value>正在检查虚拟摄像头状态…</value>
+    <comment>正在检查虚拟摄像头状态…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A29E0AB2C150721F">
+    <value>正在检查虚拟摄像头组件…</value>
+    <comment>正在检查虚拟摄像头组件…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0BC0C675C6B1B8F5">
+    <value>正在检查虚拟摄像头连接…</value>
+    <comment>正在检查虚拟摄像头连接…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A8B8730C96117E10">
+    <value>正在生成…</value>
+    <comment>正在生成…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1722F3DE9DB8521A">
+    <value>正在移除…</value>
+    <comment>正在移除…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7DEC71330C4456F1">
+    <value>正在移除旧的相机扩展，随后安装新版本…</value>
+    <comment>正在移除旧的相机扩展，随后安装新版本…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_350441E9FFC4C049">
+    <value>正在移除虚拟摄像头…</value>
+    <comment>正在移除虚拟摄像头…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_799703D14950D9B9">
+    <value>正在移除虚拟摄像头，请稍候。</value>
+    <comment>正在移除虚拟摄像头，请稍候。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3C9915F72A7A5D53">
+    <value>正在等待…</value>
+    <comment>正在等待…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D43F0DD718A2EEFA">
+    <value>正在等待摄像头权限，请回应系统提示。</value>
+    <comment>正在等待摄像头权限，请回应系统提示。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C05B73960542E881">
+    <value>正在等待虚拟摄像头可用，请稍候。</value>
+    <comment>正在等待虚拟摄像头可用，请稍候。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D8953E6AD7E37D6D">
+    <value>正在等待连接…</value>
+    <comment>正在等待连接…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C4B293A108296394">
+    <value>正在设置摄像头，请稍候…</value>
+    <comment>正在设置摄像头，请稍候…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A5C9A6CCD3F514F6">
+    <value>正在连接服务并等待首张结果帧…</value>
+    <comment>正在连接服务并等待首张结果帧…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_27DCC318EF0A41E9">
+    <value>正在重新安装…</value>
+    <comment>正在重新安装…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8807DEA1FD31F932">
+    <value>正在验证账户…</value>
+    <comment>正在验证账户…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8396CC50BC4DD23A">
+    <value>此 API Key 不属于当前账户。</value>
+    <comment>此 API Key 不属于当前账户。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_67F05FF30E672E63">
+    <value>此 API Key 无效或已停用。</value>
+    <comment>此 API Key 无效或已停用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_514973908C887914">
+    <value>此 API Key 未激活或不可用。</value>
+    <comment>此 API Key 未激活或不可用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E4ECF8ADDE4B3476">
+    <value>此 Mac 尚未安装虚拟摄像头。它会将你的 FaceNow 形象作为摄像头输入，传送到视频通话应用中。</value>
+    <comment>此 Mac 尚未安装虚拟摄像头。它会将你的 FaceNow 形象作为摄像头输入，传送到视频通话应用中。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D3A8BF8168B1058A">
+    <value>此 SDK 到 RTC 云端的丢包率，不代表本地预览丢帧率</value>
+    <comment>此 SDK 到 RTC 云端的丢包率，不代表本地预览丢帧率</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3F7FC4FE871A15D5">
+    <value>此功能需要 Windows 11，请在 Windows 11 电脑上使用 FaceNow。</value>
+    <comment>此功能需要 Windows 11，请在 Windows 11 电脑上使用 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_68AD270141577944">
+    <value>此版本的 FaceNow 尚未启用自动更新。</value>
+    <comment>此版本的 FaceNow 尚未启用自动更新。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9AB60C5A862BD965">
+    <value>此登录方式暂不可用。</value>
+    <comment>此登录方式暂不可用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D6C6C25DCD0F2E77">
+    <value>没有可用摄像头，请连接摄像头后重试。</value>
+    <comment>没有可用摄像头，请连接摄像头后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8A7B0F922231BA25">
+    <value>测试视频</value>
+    <comment>测试视频</comment>
+  </data>
+  <data xml:space="preserve" name="Text_41DE409180FB58F3">
+    <value>清晰呈现人物、服装与纹理细节，更好地还原参考图中的外观和风格。</value>
+    <comment>清晰呈现人物、服装与纹理细节，更好地还原参考图中的外观和风格。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CF7F350E5C2F8143">
+    <value>removed preset 16</value>
+    <comment>removed preset 16</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3D4C1723EFCD97DD">
+    <value>潮玩人偶</value>
+    <comment>潮玩人偶</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C8ADBDD5EE4F838E">
+    <value>点击“在访达中显示”以找到 FaceNow。将它移至“应用程序”文件夹，然后重新打开并重试。</value>
+    <comment>点击“在访达中显示”以找到 FaceNow。将它移至“应用程序”文件夹，然后重新打开并重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_72062A1DB216A9F9">
+    <value>点击右下角的“%1$@”以重试。FaceNow 将在此页面显示结果或下一步操作。</value>
+    <comment>点击右下角的“%1$@”以重试。FaceNow 将在此页面显示结果或下一步操作。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6F8A45C42368A934">
+    <value>点击右下角的“%1$@”，让 macOS 安装并启用虚拟摄像头。如果 macOS 要求批准，请按系统弹窗提示操作。</value>
+    <comment>点击右下角的“%1$@”，让 macOS 安装并启用虚拟摄像头。如果 macOS 要求批准，请按系统弹窗提示操作。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_772F5968BA9D1DA1">
+    <value>点击右下角的“%@”。</value>
+    <comment>点击右下角的“%@”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6EA50EBAEF2F6256">
+    <value>点击右下角的“允许使用摄像头”。</value>
+    <comment>点击右下角的“允许使用摄像头”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0A1FDF718BC225FB">
+    <value>点击右下角的“允许使用摄像头”，然后在 macOS 权限弹窗中选择“允许”。</value>
+    <comment>点击右下角的“允许使用摄像头”，然后在 macOS 权限弹窗中选择“允许”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_01A22B5834E9C2F1">
+    <value>点击右下角的“复制错误详情”，并在联系 FaceNow 技术支持时提供这些信息。</value>
+    <comment>点击右下角的“复制错误详情”，并在联系 FaceNow 技术支持时提供这些信息。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D5E45076D7838E62">
+    <value>点击右下角的“安装”。FaceNow 将替换旧的相机扩展，并检查虚拟摄像头是否可用。</value>
+    <comment>点击右下角的“安装”。FaceNow 将替换旧的相机扩展，并检查虚拟摄像头是否可用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_60B4544AFAA2A9D8">
+    <value>点击右下角的“安装并启用”。</value>
+    <comment>点击右下角的“安装并启用”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FFED56C88BF34ED8">
+    <value>点击右下角的“打开系统设置”。</value>
+    <comment>点击右下角的“打开系统设置”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_55640A04FE40E622">
+    <value>点击右下角的“打开系统设置”，在“相机扩展”中将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。</value>
+    <comment>点击右下角的“打开系统设置”，在“相机扩展”中将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F1421B23B62E2FA6">
+    <value>点击右下角的“打开系统设置”，在“相机扩展”中移除旧的 FaceNow 扩展，然后返回 FaceNow。确认移除后，安装流程会自动继续。</value>
+    <comment>点击右下角的“打开系统设置”，在“相机扩展”中移除旧的 FaceNow 扩展，然后返回 FaceNow。确认移除后，安装流程会自动继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5FAC2B481D6B8728">
+    <value>点击右下角的“打开系统设置”，打开 FaceNow 旁的开关，然后点击“完成”。返回 FaceNow 后会自动检查连接。</value>
+    <comment>点击右下角的“打开系统设置”，打开 FaceNow 旁的开关，然后点击“完成”。返回 FaceNow 后会自动检查连接。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B8FB76035B2C85AE">
+    <value>点击右下角的“重新启动 FaceNow”，重新打开应用并刷新摄像头连接。</value>
+    <comment>点击右下角的“重新启动 FaceNow”，重新打开应用并刷新摄像头连接。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_13A26C1B542F6C06">
+    <value>点击右下角的“重新检查”以再次检查摄像头。FaceNow 将在此页面显示检查结果。</value>
+    <comment>点击右下角的“重新检查”以再次检查摄像头。FaceNow 将在此页面显示检查结果。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DA30937587AB53CC">
+    <value>点击安装并启用以安装摄像头组件并注册 FaceNow，Windows 将请求管理员权限。</value>
+    <comment>点击安装并启用以安装摄像头组件并注册 FaceNow，Windows 将请求管理员权限。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3CEFE63958627D92">
+    <value>点击视频按钮旁的箭头，选择“%@”作为摄像头。</value>
+    <comment>点击视频按钮旁的箭头，选择“%@”作为摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_70E96497E211D5CC">
+    <value>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</value>
+    <comment>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75A9D4F34C3F31F1">
+    <value>特战士兵</value>
+    <comment>特战士兵</comment>
+  </data>
+  <data xml:space="preserve" name="Text_67B0B5C543671129">
+    <value>生成 API Key</value>
+    <comment>生成 API Key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B487DE23CC46C072">
+    <value>生成会话意外结束，请重试。</value>
+    <comment>生成会话意外结束，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4FA16D9CF7AF22F4">
+    <value>用微信扫码关注我们</value>
+    <comment>用微信扫码关注我们</comment>
+  </data>
+  <data xml:space="preserve" name="Text_95678970D0D89C34">
+    <value>申请摄像头权限</value>
+    <comment>申请摄像头权限</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1E2DF9C3075AE9E4">
+    <value>登录</value>
+    <comment>登录</comment>
+  </data>
+  <data xml:space="preserve" name="Text_034967448B182A6B">
+    <value>登录你的账号</value>
+    <comment>登录你的账号</comment>
+  </data>
+  <data xml:space="preserve" name="Text_28E862E5DC3D3B13">
+    <value>登录即表示你同意</value>
+    <comment>登录即表示你同意</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1DBA323F90DD23C8">
+    <value>登录即表示你同意%1$@和%2$@。</value>
+    <comment>登录即表示你同意%1$@和%2$@。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_18B4F39557C377E4">
+    <value>登录已过期，请重新登录。</value>
+    <comment>登录已过期，请重新登录。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_645B934DEB86C302">
+    <value>登录成功</value>
+    <comment>登录成功</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D0BE4E02A166BA63">
+    <value>目前无法安装摄像头。</value>
+    <comment>目前无法安装摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E5F9A7E5F50D29D8">
+    <value>相机扩展。启用 FaceNow，然后点击“完成”。</value>
+    <comment>相机扩展。启用 FaceNow，然后点击“完成”。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_93F6D7410F058E6A">
+    <value>短发酷姐</value>
+    <comment>短发酷姐</comment>
+  </data>
+  <data xml:space="preserve" name="Text_331FB892E7020DF3">
+    <value>removed preset 17</value>
+    <comment>removed preset 17</comment>
+  </data>
+  <data xml:space="preserve" name="Text_15B0826B55270DC1">
+    <value>磨皮</value>
+    <comment>磨皮</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6E482E43184D5ED7">
+    <value>removed preset 18</value>
+    <comment>removed preset 18</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6DA6F86775C04AF9">
+    <value>积分 </value>
+    <comment>积分 </comment>
+  </data>
+  <data xml:space="preserve" name="Text_B4A5BF3F403804E1">
+    <value>积分不足</value>
+    <comment>积分不足</comment>
+  </data>
+  <data xml:space="preserve" name="Text_535A514AC8BDB933">
+    <value>积分不足，请充值以避免中断。</value>
+    <comment>积分不足，请充值以避免中断。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C792AD1A35FBEE11">
+    <value>积分不足，请先前往 Xmax 开放平台充值。</value>
+    <comment>积分不足，请先前往 Xmax 开放平台充值。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D766B3C97E222189">
+    <value>积分：</value>
+    <comment>积分：</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6CAA89CFB04B3E68">
+    <value>积分：%@</value>
+    <comment>积分：%@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6135D4159E892541">
+    <value>移除</value>
+    <comment>移除</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A454903A7BA9B633">
+    <value>移除参考图</value>
+    <comment>移除参考图</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5005CD4DE9CB686B">
+    <value>移除失败：%@</value>
+    <comment>移除失败：%@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DF0BE017ADA94478">
+    <value>移除失败：macOS 无法将已安装的摄像头与此应用匹配。请先点击“更新”，再点击“移除”，或在系统设置中将其移除。</value>
+    <comment>移除失败：macOS 无法将已安装的摄像头与此应用匹配。请先点击“更新”，再点击“移除”，或在系统设置中将其移除。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_882574C28ED5E0A6">
+    <value>稍后设置</value>
+    <comment>稍后设置</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B065D2B4728EDD65">
+    <value>端到端延迟为百毫秒级，首帧生成与效果切换均可实现秒级响应，响应速度显著优于同类方案。</value>
+    <comment>端到端延迟为百毫秒级，首帧生成与效果切换均可实现秒级响应，响应速度显著优于同类方案。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EDB0802446A69D2A">
+    <value>端到端延迟（RTC 估算）</value>
+    <comment>端到端延迟（RTC 估算）</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1E047F37E14F09D4">
+    <value>等待批准</value>
+    <comment>等待批准</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C99CFDCA45B135A1">
+    <value>管理 API Key ↗</value>
+    <comment>管理 API Key ↗</comment>
+  </data>
+  <data xml:space="preserve" name="Text_46B9BE0A42C3C7CD">
+    <value>粉色学院装</value>
+    <comment>粉色学院装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BD6C956B3D3F3F05">
+    <value>糖果少女</value>
+    <comment>糖果少女</comment>
+  </data>
+  <data xml:space="preserve" name="Text_68EA5DD4D7AF20E6">
+    <value>系统设置</value>
+    <comment>系统设置</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3A51663251334209">
+    <value>红润</value>
+    <comment>红润</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4A7BD307E2A3001E">
+    <value>约 200 毫秒</value>
+    <comment>约 200 毫秒</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A6AE10F8314521D1">
+    <value>20 人民币 / 小时</value>
+    <comment>约 6 美元 / 小时</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7C9691192F1B7340">
+    <value>继续</value>
+    <comment>继续</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C88FA1E16FF8E729">
+    <value>继续设置摄像头需要管理员授权。请批准 macOS 弹窗，或前往系统设置检查扩展。</value>
+    <comment>继续设置摄像头需要管理员授权。请批准 macOS 弹窗，或前往系统设置检查扩展。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CFFAFDE3DE931B6E">
+    <value>缺少摄像头组件，请安装包含虚拟摄像头的完整版本。</value>
+    <comment>缺少摄像头组件，请安装包含虚拟摄像头的完整版本。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75BD738F8872C06A">
+    <value>美白</value>
+    <comment>美白</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E27233E1165BD60A">
+    <value>美颜</value>
+    <comment>美颜</comment>
+  </data>
+  <data xml:space="preserve" name="Text_592435E7A06D8C5D">
+    <value>美颜暂不可用，已关闭美颜，生成将继续。</value>
+    <comment>美颜暂不可用，已关闭美颜，生成将继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_55FFD53C63AD6D86">
+    <value>美颜暂不可用，已恢复原始画面。</value>
+    <comment>美颜暂不可用，已恢复原始画面。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C044F887B35D4C3A">
+    <value>联系我们</value>
+    <comment>联系我们</comment>
+  </data>
+  <data xml:space="preserve" name="Text_367AF5187C57B805">
+    <value>联系管理员</value>
+    <comment>联系管理员</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3BEBA11877722246">
+    <value>自由提示词</value>
+    <comment>自由提示词</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CFEA0DCE5C5D6D72">
+    <value>良好</value>
+    <comment>良好</comment>
+  </data>
+  <data xml:space="preserve" name="Text_99210C70B128CE8F">
+    <value>草地小牛</value>
+    <comment>草地小牛</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3B91D186D44EC881">
+    <value>获取验证码</value>
+    <comment>获取验证码</comment>
+  </data>
+  <data xml:space="preserve" name="Text_676EA9CE0EBDCF7F">
+    <value>藏青水手装</value>
+    <comment>藏青水手装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4CD342F8A25AAC4E">
+    <value>虚拟召唤</value>
+    <comment>虚拟召唤</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3B77A815B38A58A7">
+    <value>虚拟摄像头</value>
+    <comment>虚拟摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_88997F079AD43B27">
+    <value>虚拟摄像头不可用。</value>
+    <comment>虚拟摄像头不可用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_679B2671F50003FE">
+    <value>虚拟摄像头可用。</value>
+    <comment>虚拟摄像头可用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8C25A3AEB2AE0B5E">
+    <value>虚拟摄像头尚未就绪，请重新检查。</value>
+    <comment>虚拟摄像头尚未就绪，请重新检查。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_14D5FAC659FE1028">
+    <value>虚拟摄像头已停用，请在系统设置中启用。</value>
+    <comment>虚拟摄像头已停用，请在系统设置中启用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9AA451AB13B177EB">
+    <value>虚拟摄像头已关闭。</value>
+    <comment>虚拟摄像头已关闭。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_054FA6488C5924E7">
+    <value>虚拟摄像头已启用但不可用。请在“摄像头扩展”中将 FaceNow 关闭后重新开启，然后返回 FaceNow。</value>
+    <comment>虚拟摄像头已启用但不可用。请在“摄像头扩展”中将 FaceNow 关闭后重新开启，然后返回 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_94A07849114795A8">
+    <value>虚拟摄像头已启用，但 macOS 尚未使其可用。</value>
+    <comment>虚拟摄像头已启用，但 macOS 尚未使其可用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_031A2497602F28C7">
+    <value>虚拟摄像头已就绪</value>
+    <comment>虚拟摄像头已就绪</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1A770CBC82C03E19">
+    <value>虚拟摄像头已就绪。请继续了解如何在视频通话中使用 FaceNow。</value>
+    <comment>虚拟摄像头已就绪。请继续了解如何在视频通话中使用 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6B2FADC2D932E255">
+    <value>虚拟摄像头操作超时。</value>
+    <comment>虚拟摄像头操作超时。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_AC54E5BC4E2F6B01">
+    <value>虚拟摄像头设置尚未完成，请重新安装后继续。</value>
+    <comment>虚拟摄像头设置尚未完成，请重新安装后继续。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B52A8143902FD00B">
+    <value>虚拟摄像头输出失败：%@</value>
+    <comment>虚拟摄像头输出失败：%@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3704B664C4BCE7B">
+    <value>虚拟试穿</value>
+    <comment>虚拟试穿</comment>
+  </data>
+  <data xml:space="preserve" name="Text_68441776F8C030B9">
+    <value>补帧</value>
+    <comment>补帧</comment>
+  </data>
+  <data xml:space="preserve" name="Text_227F3128B8FBBADD">
+    <value>补帧已关闭，点击开启</value>
+    <comment>补帧已关闭，点击开启</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CFC0D29413F538F4">
+    <value>西装青年</value>
+    <comment>西装青年</comment>
+  </data>
+  <data xml:space="preserve" name="Text_613168135BF36C5C">
+    <value>视频通话</value>
+    <comment>视频通话</comment>
+  </data>
+  <data xml:space="preserve" name="Text_68031C85D7129C1E">
+    <value>视频通话应用</value>
+    <comment>视频通话应用</comment>
+  </data>
+  <data xml:space="preserve" name="Text_45978CBFE2C23CE3">
+    <value>角色替换</value>
+    <comment>角色替换</comment>
+  </data>
+  <data xml:space="preserve" name="Text_74C114A04868EB4D">
+    <value>让你以全新形象开启视频通话</value>
+    <comment>让你以全新形象开启视频通话</comment>
+  </data>
+  <data xml:space="preserve" name="Text_025DCED31D87BBF9">
+    <value>让实时互动更流畅</value>
+    <comment>让实时互动更流畅</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5DD97052FAA9C8B3">
+    <value>让每个镜头时刻都焕然一新</value>
+    <comment>让每个镜头时刻都焕然一新</comment>
+  </data>
+  <data xml:space="preserve" name="Text_70345C484F79DB67">
+    <value>设置摄像头</value>
+    <comment>设置摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_35F96D10E5117B1F">
+    <value>请停止摄像头预览或视频生成以完成更新安装，随后 FaceNow 将自动重新启动。</value>
+    <comment>请停止摄像头预览或视频生成以完成更新安装，随后 FaceNow 将自动重新启动。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8AFB8D79AB711EE6">
+    <value>请先在 API Key 设置中选择或创建密钥。</value>
+    <comment>请先在 API Key 设置中选择或创建密钥。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_898623465ED4E868">
+    <value>请先在账户中选择或创建 API Key。</value>
+    <comment>请先在账户中选择或创建 API Key。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DF6F5486FC6A0DD6">
+    <value>请先安装并启用 FaceNow 摄像头。</value>
+    <comment>请先安装并启用 FaceNow 摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_195B9021F3A9B39D">
+    <value>请先安装并启用最新摄像头组件。</value>
+    <comment>请先安装并启用最新摄像头组件。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6A907D6D0053B0E8">
+    <value>请先完成安全验证。</value>
+    <comment>请先完成安全验证。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E39C6A7076F967DF">
+    <value>请先描述你想看到的画面。</value>
+    <comment>请先描述你想看到的画面。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B3794508828EF7E1">
+    <value>请先查看此 Mac 的摄像头访问限制，再继续操作。</value>
+    <comment>请先查看此 Mac 的摄像头访问限制，再继续操作。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_57382325130A6749">
+    <value>请先连接服务再登录。</value>
+    <comment>请先连接服务再登录。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BAE6B773A9593EC1">
+    <value>请先选择用于实时视频的实体摄像头。</value>
+    <comment>请先选择用于实时视频的实体摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2CEA254E424B9B0D">
+    <value>请在 macOS 权限弹窗中允许访问摄像头。</value>
+    <comment>请在 macOS 权限弹窗中允许访问摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_617EEA7FDA198728">
+    <value>请在“系统设置 → 通用 → 登录项与扩展 → 摄像头扩展”中启用 FaceNow - Xmax Virtual Camera。</value>
+    <comment>请在“系统设置 → 通用 → 登录项与扩展 → 摄像头扩展”中启用 FaceNow - Xmax Virtual Camera。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B7833248FA888149">
+    <value>请在实时会话中上传参考图。</value>
+    <comment>请在实时会话中上传参考图。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4156AB78EE58A61F">
+    <value>请在系统设置中允许 FaceNow 相机扩展。</value>
+    <comment>请在系统设置中允许 FaceNow 相机扩展。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FC2FB42EA465F8A9">
+    <value>请在系统设置中批准 FaceNow 摄像头扩展。</value>
+    <comment>请在系统设置中批准 FaceNow 摄像头扩展。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F694ABF149F1227B">
+    <value>请安装 Microsoft Edge WebView2 Runtime 以完成安全验证。</value>
+    <comment>请安装 Microsoft Edge WebView2 Runtime 以完成安全验证。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B2F28BA95E0FD1E5">
+    <value>请将 FaceNow 移至“应用程序”文件夹，以设置虚拟摄像头。</value>
+    <comment>请将 FaceNow 移至“应用程序”文件夹，以设置虚拟摄像头。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DD2FAD59FA4288E3">
+    <value>请更新虚拟摄像头，以使用此版本的 FaceNow。</value>
+    <comment>请更新虚拟摄像头，以使用此版本的 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9EC97A6FBA87CB58">
+    <value>请求已完成</value>
+    <comment>请求已完成</comment>
+  </data>
+  <data xml:space="preserve" name="Text_41E26B0ED4342B39">
+    <value>请求未完成，请检查填写的信息后重试。</value>
+    <comment>请求未完成，请检查填写的信息后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C90CDB0CFC21D94B">
+    <value>请求超时，请重试。</value>
+    <comment>请求超时，请重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B77709F0862D877C">
+    <value>请求过于频繁，请稍后重试。</value>
+    <comment>请求过于频繁，请稍后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E01C6B70D135A16C">
+    <value>请激活虚拟摄像头以完成设置。</value>
+    <comment>请激活虚拟摄像头以完成设置。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D31C8818EE0DDC88">
+    <value>请确认摄像头已连接且可用，然后点击右下角的按钮重新检查。</value>
+    <comment>请确认摄像头已连接且可用，然后点击右下角的按钮重新检查。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_9F64DA66060E17EC">
+    <value>请等待 macOS 完成操作。如果出现权限弹窗，请按提示操作。FaceNow 会自动检查结果。</value>
+    <comment>请等待 macOS 完成操作。如果出现权限弹窗，请按提示操作。FaceNow 会自动检查结果。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2FE4282FC9811DD9">
+    <value>请等待当前操作完成。</value>
+    <comment>请等待当前操作完成。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F6669FB0409ACF3F">
+    <value>请等待账户验证完成，或重新登录。</value>
+    <comment>请等待账户验证完成，或重新登录。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7259D1DEA2E3E9FE">
+    <value>请输入完整验证码。</value>
+    <comment>请输入完整验证码。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2DA3E67D894A1161">
+    <value>请输入手机号码</value>
+    <comment>请输入手机号码</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A5804A557E6F214A">
+    <value>请输入有效的 Xmax API Key</value>
+    <comment>请输入有效的 Xmax API Key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_88158D1A9F021F9B">
+    <value>请输入有效的 Xmax API Key。</value>
+    <comment>请输入有效的 Xmax API Key。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_590C123E7EEDBA09">
+    <value>请输入有效的中国大陆手机号。</value>
+    <comment>请输入有效的中国大陆手机号。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_558CB9D9B2BB5B06">
+    <value>请输入有效的邮箱地址。</value>
+    <comment>请输入有效的邮箱地址。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_74DB7D9F074A5841">
+    <value>请输入邮箱地址</value>
+    <comment>请输入邮箱地址</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BA9192E1BB7A232A">
+    <value>请输入验证码</value>
+    <comment>请输入验证码</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D690A27378EF0BC3">
+    <value>请连接实体摄像头，并从摄像头列表中选择它。</value>
+    <comment>请连接实体摄像头，并从摄像头列表中选择它。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0C1E896BEDCC4DB8">
+    <value>请重新启动 FaceNow，以刷新摄像头连接。</value>
+    <comment>请重新启动 FaceNow，以刷新摄像头连接。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_30DC0CF4A3790AA1">
+    <value>请重新安装虚拟摄像头，以使用此版本的 FaceNow。</value>
+    <comment>请重新安装虚拟摄像头，以使用此版本的 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_402526DF7B89FF92">
+    <value>请重新安装虚拟摄像头，以匹配此版本的 FaceNow。</value>
+    <comment>请重新安装虚拟摄像头，以匹配此版本的 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8449C4B736D68F1E">
+    <value>请重新尝试登录。</value>
+    <comment>请重新尝试登录。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BB81B9A46F2B6912">
+    <value>调节远端播放音量</value>
+    <comment>调节远端播放音量</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FF886719AD622E5A">
+    <value>账号信息与此 API Key 不匹配。</value>
+    <comment>账号信息与此 API Key 不匹配。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_208E4E9CB52EF945">
+    <value>账号：%@</value>
+    <comment>账号：%@</comment>
+  </data>
+  <data xml:space="preserve" name="Text_061246BD31E084A7">
+    <value>账户</value>
+    <comment>账户</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CD8ACF48FA6DB151">
+    <value>购买积分</value>
+    <comment>购买积分</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E6A6C3557243548D">
+    <value>超现实风</value>
+    <comment>超现实风</comment>
+  </data>
+  <data xml:space="preserve" name="Text_895DCEF3F1BDA199">
+    <value>较差</value>
+    <comment>较差</comment>
+  </data>
+  <data xml:space="preserve" name="Text_572CF45BA43634B3">
+    <value>返回</value>
+    <comment>返回</comment>
+  </data>
+  <data xml:space="preserve" name="Text_39FD63B44B07A9EA">
+    <value>返回 FaceNow 后会自动检查就绪状态。</value>
+    <comment>返回 FaceNow 后会自动检查就绪状态。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7B4B4CD07D6750D8">
+    <value>返回 FaceNow，点击“启动摄像头”，然后选择你的形象。</value>
+    <comment>返回 FaceNow，点击“启动摄像头”，然后选择你的形象。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C8BF65E5B2579C6E">
+    <value>远端音量</value>
+    <comment>远端音量</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3AB8CC15939F3B5C">
+    <value>退出登录</value>
+    <comment>退出登录</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FC3D93776FADA56F">
+    <value>退出预览</value>
+    <comment>退出预览</comment>
+  </data>
+  <data xml:space="preserve" name="Text_100587977125C8C3">
+    <value>适用场景</value>
+    <comment>适用场景</comment>
+  </data>
+  <data xml:space="preserve" name="Text_78A57F3EB2C3B38F">
+    <value>选择 FaceNow 作为摄像头</value>
+    <comment>选择 FaceNow 作为摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F764DCE227AECCD3">
+    <value>选择 FaceNow 作为摄像头，让你的新形象出现在通话中。</value>
+    <comment>选择 FaceNow 作为摄像头，让你的新形象出现在通话中。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F4EEDC6474D4B940">
+    <value>选择 FaceNow 摄像头</value>
+    <comment>选择 FaceNow 摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_335BDDAA9B392F09">
+    <value>选择参考图以开始生成…</value>
+    <comment>选择参考图以开始生成…</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BFB720B9F7AF9811">
+    <value>选择摄像头</value>
+    <comment>选择摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A287A1BC41F74426">
+    <value>通用 → 登录项与扩展
+相机扩展</value>
+    <comment>通用 → 登录项与扩展
+相机扩展</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7AD72315F1F25884">
+    <value>通过 FaceNow 虚拟摄像头，你可以用全新形象参与视频会议、直播等活动。Xmax X2.1 的能力还可用于虚拟试穿、互动应用等更多场景。如果你正在探索相关产品或商业应用，欢迎联系我们，一起讨论需求和落地方案。我们也可以提供体验设计与技术支持。</value>
+    <comment>通过 FaceNow 虚拟摄像头，你可以用全新形象参与视频会议、直播等活动。Xmax X2.1 的能力还可用于虚拟试穿、互动应用等更多场景。如果你正在探索相关产品或商业应用，欢迎联系我们，一起讨论需求和落地方案。我们也可以提供体验设计与技术支持。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_73075237FD0F05F0">
+    <value>邮箱</value>
+    <comment>邮箱</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2E412E03837F7DF0">
+    <value>邮箱地址</value>
+    <comment>邮箱地址</comment>
+  </data>
+  <data xml:space="preserve" name="Text_788A2945B266A59A">
+    <value>重启虚拟摄像头</value>
+    <comment>重启虚拟摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_89D65C77F2BEEE07">
+    <value>重新发送 (%lld秒)</value>
+    <comment>重新发送 (%lld秒)</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2919CC95F01B7AC2">
+    <value>重新发送（{0}秒）</value>
+    <comment>重新发送（{0}秒）</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2ED372ED594CFCCF">
+    <value>重新启动 FaceNow</value>
+    <comment>重新启动 FaceNow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_453AD482CCEFC23E">
+    <value>重新安装</value>
+    <comment>重新安装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_93D70FBE80C48980">
+    <value>重新安装虚拟摄像头</value>
+    <comment>重新安装虚拟摄像头</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CB5D682BAC3D1A2D">
+    <value>重置</value>
+    <comment>重置</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FB158E9068C2A7E0">
+    <value>重置美颜</value>
+    <comment>重置美颜</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B8784C8DD5636FF2">
+    <value>重试</value>
+    <comment>重试</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FF161CE93E5F4048">
+    <value>银白仙侠袍</value>
+    <comment>银白仙侠袍</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FC538F246DA7A287">
+    <value>锐化</value>
+    <comment>锐化</comment>
+  </data>
+  <data xml:space="preserve" name="Text_30C5285613438CE2">
+    <value>隐私与安全性
+允许 FaceNow 系统扩展</value>
+    <comment>隐私与安全性
+允许 FaceNow 系统扩展</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E464B41FD5C45BA5">
+    <value>隐私政策</value>
+    <comment>隐私政策</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6EC19DBA320A0C80">
+    <value>隐藏统计信息（仍会继续采集和记录日志）</value>
+    <comment>隐藏统计信息（仍会继续采集和记录日志）</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7360A16979B3F527">
+    <value>需要帮助？</value>
+    <comment>需要帮助？</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7FEEECE72C38DDF5">
+    <value>需要设置</value>
+    <comment>需要设置</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2378282F25E03983">
+    <value>需要重新设置摄像头，才能在其他应用中使用 FaceNow。</value>
+    <comment>需要重新设置摄像头，才能在其他应用中使用 FaceNow。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_13D61FEA9F174905">
+    <value>预览</value>
+    <comment>预览</comment>
+  </data>
+  <data xml:space="preserve" name="Text_29E762D7CD40A92A">
+    <value>预览 · </value>
+    <comment>预览 · </comment>
+  </data>
+  <data xml:space="preserve" name="Text_EE81F87C7A59CF15">
+    <value>预览界面</value>
+    <comment>预览界面</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75D55A762D825FEC">
+    <value>风格转换</value>
+    <comment>风格转换</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0EEE51419641E031">
+    <value>首帧</value>
+    <comment>首帧</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8B334C867EBCFECE">
+    <value>首帧延迟</value>
+    <comment>首帧延迟</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BB015C60BAFC8A96">
+    <value>验证码</value>
+    <comment>验证码</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0C75325CF5F5C15C">
+    <value>验证码不正确。</value>
+    <comment>验证码不正确。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_685B27C072DD5810">
+    <value>验证码已过期。</value>
+    <comment>验证码已过期。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_372E3726A45F34BF">
+    <value>验证码已过期，请重新获取。</value>
+    <comment>验证码已过期，请重新获取。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2847D203D2961DD0">
+    <value>验证码无效，请检查后重试。</value>
+    <comment>验证码无效，请检查后重试。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DAE0790A067C1EF3">
+    <value>验证码登录暂不可用。</value>
+    <comment>验证码登录暂不可用。</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C1052E310C1ACA4D">
+    <value>高清画质</value>
+    <comment>高清画质</comment>
+  </data>
+  <data xml:space="preserve" name="Text_714CAC30E2FF8BC9">
+    <value>麦克风</value>
+    <comment>麦克风</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6051F970EB9D6AE6">
+    <value>黑白先锋装</value>
+    <comment>黑白先锋装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1E3CA8FC25324E6B">
+    <value>黑领学院装</value>
+    <comment>黑领学院装</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5B10210490294A60">
+    <value>准备就绪 · 摄像头预览不需要 API Key</value>
+    <comment>Ready · camera preview does not require an API key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_64FF3400A13FEB40">
+    <value>等待视频统计</value>
+    <comment>Waiting for video statistics</comment>
+  </data>
+  <data xml:space="preserve" name="Text_58BA8C4A25D03492">
+    <value>未发现摄像头，请检查设备和 Windows 相机权限。</value>
+    <comment>No cameras found. Check your device and Windows camera permissions.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A7D169014C39A899">
+    <value>发现 {0} 个摄像头</value>
+    <comment>Found {0} cameras</comment>
+  </data>
+  <data xml:space="preserve" name="Text_390591EA8DC1971A">
+    <value>状态：{0}</value>
+    <comment>Status: {0}</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E9413F86C25A1932">
+    <value>上行</value>
+    <comment>Uplink</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FD0D0FF944742AAB">
+    <value>下行</value>
+    <comment>Downlink</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0C4049CAA12582DC">
+    <value>{0}  {1} × {2}  ·  {3} fps  ·  {4} kbps  ·  延迟 {5} ms</value>
+    <comment>{0}  {1} × {2}  ·  {3} fps  ·  {4} kbps  ·  Latency {5} ms</comment>
+  </data>
+  <data xml:space="preserve" name="Text_026B35EF258A9F5F">
+    <value>首帧 {0:F0} ms  ·  总启动 {1:F0} ms</value>
+    <comment>First frame {0:F0} ms  ·  Total startup {1:F0} ms</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C8938690CD03E67B">
+    <value>等待视频统计</value>
+    <comment>等待视频统计</comment>
+  </data>
+  <data xml:space="preserve" name="Text_64C3BF59DFB6881C">
+    <value>古典女孩</value>
+    <comment>Classical Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B32EB1CF89701C2B">
+    <value>古典男孩</value>
+    <comment>Classical Boy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_144569AC7C18CF4E">
+    <value>现代女孩</value>
+    <comment>Modern Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_78C60A9B35453C9A">
+    <value>现代男孩</value>
+    <comment>Modern Boy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A10BEDF9FB487E42">
+    <value>金发女孩</value>
+    <comment>Blonde Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F8DE5AABB6F9368E">
+    <value>卷发男孩</value>
+    <comment>Curly-Haired Boy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8D5CDA2E9EFF313B">
+    <value>动漫男孩</value>
+    <comment>Anime Boy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2015F0D04422412E">
+    <value>removed preset</value>
+    <comment>removed preset</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B4C12356496FD7AE">
+    <value>青铜人像</value>
+    <comment>Bronze Figure</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EEB2D6E2ECA0ED48">
+    <value>3D 奶牛</value>
+    <comment>removed preset</comment>
+  </data>
+  <data xml:space="preserve" name="Text_89E5BDF1161F4B20">
+    <value>3D 袋鼠</value>
+    <comment>3D Kangaroo</comment>
+  </data>
+  <data xml:space="preserve" name="Text_012A626DD01DC48F">
+    <value>特种兵</value>
+    <comment>Special Ops</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1585C124C2B0FE29">
+    <value>悠闲水豚</value>
+    <comment>Chill Capybara</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EDD4B5C7CA7AF5AB">
+    <value>温柔熊猫</value>
+    <comment>Gentle Panda</comment>
+  </data>
+  <data xml:space="preserve" name="Text_39DB60111E860623">
+    <value>可爱仓鼠</value>
+    <comment>Cute Hamster</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CBED46832815507D">
+    <value>插画女孩</value>
+    <comment>Illustrated Girl</comment>
+  </data>
+  <data xml:space="preserve" name="Text_31040F21AC63AA3B">
+    <value>卡通男孩</value>
+    <comment>Cartoon Boy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BE00FD569ED1B251">
+    <value>职场奶牛</value>
+    <comment>Corporate Cow</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8D01B11CF1DEEA9D">
+    <value>鎏金女神</value>
+    <comment>Gilded Goddess</comment>
+  </data>
+  <data xml:space="preserve" name="Text_616D91097DECD9FE">
+    <value>黑白先锋</value>
+    <comment>Monochrome Vanguard</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C7E726A8465CF4B9">
+    <value>银色奇幻长袍</value>
+    <comment>Silver Fantasy Robe</comment>
+  </data>
+  <data xml:space="preserve" name="Text_FCA0C49DBCFE958E">
+    <value>长外套套装</value>
+    <comment>Long Coat Set</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0F91CED20D1B555F">
+    <value>粉色学院风</value>
+    <comment>Pink Academy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EBDF2E7504EB88B9">
+    <value>青铜战甲</value>
+    <comment>Bronze Warrior Armor</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CE78F687E8A902B3">
+    <value>复古棕色</value>
+    <comment>Vintage Brown</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D8682CFA680FCD8C">
+    <value>黑领学院风</value>
+    <comment>Black-Collar Academy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_21605B47DEDE67A6">
+    <value>蓝格学院风</value>
+    <comment>Blue Plaid Academy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A647200ED9973280">
+    <value>黑色背带裙</value>
+    <comment>Black Pinafore</comment>
+  </data>
+  <data xml:space="preserve" name="Text_DC325B4345788D6C">
+    <value>咖啡色开衫</value>
+    <comment>Coffee Cardigan</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EBF9476E9AA11F8F">
+    <value>丁香紫吊带裙</value>
+    <comment>Lilac Slip Dress</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A01E10AB3FA6A2F1">
+    <value>洋红科技风</value>
+    <comment>Magenta Techwear</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1CF1B1DAAA16E9BB">
+    <value>奢华西装</value>
+    <comment>Luxury Suit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_914378A31DB7DEFC">
+    <value>藏青职场装</value>
+    <comment>Navy Officewear</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D63684EDA526646D">
+    <value>酒红条纹</value>
+    <comment>Burgundy Stripes</comment>
+  </data>
+  <data xml:space="preserve" name="Text_4A3D245C4D82ECFF">
+    <value>浅蓝运动装</value>
+    <comment>Light Blue Sportswear</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D05C9BF03C4C13B2">
+    <value>银色休闲装</value>
+    <comment>Silver Casualwear</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0DC22F5F6021EE74">
+    <value>英伦棕格</value>
+    <comment>British Brown Plaid</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0D5C599C49D66D6B">
+    <value>蓝白复古</value>
+    <comment>Blue and White Retro</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B463B76D743880AA">
+    <value>全套牛仔</value>
+    <comment>All-Denim Outfit</comment>
+  </data>
+  <data xml:space="preserve" name="Text_94362DD82C6E8423">
+    <value>灰色晚礼服</value>
+    <comment>Gray Eveningwear</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6316EE6076DF9C34">
+    <value>黑色古典长袍</value>
+    <comment>Black Classical Robe</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0D3E42D3E3A95F01">
+    <value>美式卡通</value>
+    <comment>American Cartoon</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CCEE855596BD3CA9">
+    <value>校园动漫</value>
+    <comment>School Anime</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6EB809E418D93185">
+    <value>都市动漫</value>
+    <comment>Urban Anime</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BE47C6CA86F6FE06">
+    <value>日式动漫</value>
+    <comment>Japanese Anime</comment>
+  </data>
+  <data xml:space="preserve" name="Text_272E753A251C005E">
+    <value>写实动物</value>
+    <comment>Realistic Animals</comment>
+  </data>
+  <data xml:space="preserve" name="Text_E70A39519664D452">
+    <value>潮玩</value>
+    <comment>Designer Toy</comment>
+  </data>
+  <data xml:space="preserve" name="Text_728B7CBA36589E0D">
+    <value>拟人风格</value>
+    <comment>Anthropomorphic</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7263C317DA2CBF6C">
+    <value>迪士尼风格</value>
+    <comment>Disney Style</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F0D4559F7FCE0EAC">
+    <value>赛璐璐风格</value>
+    <comment>Cel Shading</comment>
+  </data>
+  <data xml:space="preserve" name="Text_3533FB9B1D9ABBF6">
+    <value>日式动画</value>
+    <comment>Japanese Animation</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C5B9A08C40511F0A">
+    <value>界面预览
+摄像头已禁用</value>
+    <comment>UI Preview
+Camera is disabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_02360E5B671B4329">
+    <value>界面预览
+生成已禁用</value>
+    <comment>UI Preview
+Generation is disabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0A72ABC98B164E3F">
+    <value>登录即表示你同意{0}和{1}。</value>
+    <comment>By signing in, you are agreeing to the {0} and {1}.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_916F1037409AA661">
+    <value>安全验证组件不完整，请重新安装 FaceNow 后重试。</value>
+    <comment>The verification component is incomplete. Reinstall FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_731ED0E551B56E3D">
+    <value>安全验证无法访问数据目录。请检查 Windows 权限，或联系管理员。</value>
+    <comment>Security verification cannot access its data folder. Check your Windows permissions or contact your administrator.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8DF81CD3CAFEDC6F">
+    <value>请关闭其他 FaceNow 窗口，再重试安全验证。</value>
+    <comment>Close other FaceNow windows, then try security verification again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2625E9ADFB2E9F49">
+    <value>请更新 Microsoft Edge WebView2 Runtime，然后重启 FaceNow 并重试。</value>
+    <comment>Update Microsoft Edge WebView2 Runtime, then restart FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_588122ACBF37D56E">
+    <value>无法启动安全验证。请重启 FaceNow 后重试。</value>
+    <comment>Security verification could not be started. Restart FaceNow and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2BCE43A9DAC71B50">
+    <value>无法打开微软下载页面。请安装 Microsoft Edge WebView2 Runtime 后重试。</value>
+    <comment>The Microsoft download page could not be opened. Install Microsoft Edge WebView2 Runtime and try again.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D1E06676CB50F6C1">
+    <value>安全验证需要 WebView2</value>
+    <comment>Security verification needs WebView2</comment>
+  </data>
+  <data xml:space="preserve" name="Text_1B5F74CA77354F5D">
+    <value>请从微软官网下载并安装 Microsoft Edge WebView2 Runtime，然后重启 FaceNow。</value>
+    <comment>Download and install Microsoft Edge WebView2 Runtime from Microsoft, then restart FaceNow.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_EC674B0964E7849E">
+    <value>如果你已有 Xmax API Key，也可以用它登录。</value>
+    <comment>You can also sign in with an existing Xmax API key.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_8EB85F8A7E66F4B7">
+    <value>下载 WebView2</value>
+    <comment>Download WebView2</comment>
+  </data>
+  <data xml:space="preserve" name="Text_7DA0CBFF274E0939">
+    <value>使用 API Key 登录</value>
+    <comment>Sign in with API Key</comment>
+  </data>
+  <data xml:space="preserve" name="Text_A3B7AE63D9580C6F">
+    <value>还没有 API Key？</value>
+    <comment>Need an API Key? </comment>
+  </data>
+  <data xml:space="preserve" name="Text_D55280814974F3AB">
+    <value>前往 Xmax 开放平台创建 ↗</value>
+    <comment>Create one on the Xmax API Platform ↗</comment>
+  </data>
+  <data xml:space="preserve" name="Text_520A1B90EAE0AD7D">
+    <value>虚拟设备</value>
+    <comment>Virtual Devices</comment>
+  </data>
+  <data xml:space="preserve" name="Text_CA184496974204A0">
+    <value>不可用</value>
+    <comment>Unavailable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_0DFE1D63C9D86896">
+    <value>检测中</value>
+    <comment>Checking</comment>
+  </data>
+  <data xml:space="preserve" name="Text_92C1CDFDF4CB9CF6">
+    <value>已启用</value>
+    <comment>Enabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_F0CAE79A3657C1DB">
+    <value>待设置</value>
+    <comment>Needs Setup</comment>
+  </data>
+  <data xml:space="preserve" name="Text_D08041A732AD8496">
+    <value>未安装</value>
+    <comment>Not Installed</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75F9C095D51E9418">
+    <value>去设置</value>
+    <comment>Set Up</comment>
+  </data>
+  <data xml:space="preserve" name="Text_C55A4E6D0A2F5B05">
+    <value>虚拟麦克风</value>
+    <comment>Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_397A58050E15207D">
+    <value>设置虚拟麦克风</value>
+    <comment>Set Up Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_BE10B2F905F868ED">
+    <value>暂未开放</value>
+    <comment>Coming Soon</comment>
+  </data>
+  <data name="Text_BD1F2D8DC29BC6AE" xml:space="preserve">
+    <value>关闭麦克风</value>
+    <comment>Microphone Off</comment>
+  </data>
+  <data name="Text_F48CDF65F0DA936F" xml:space="preserve">
+    <value>系统默认麦克风</value>
+    <comment>System Default Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B5B849B5DB9C8B40">
+    <value>虚拟麦克风输出失败，请确认 VB-CABLE 可用。</value>
+    <comment>Virtual microphone output failed. Check that VB-CABLE is available.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5342E09F2729FBC6">
+    <value>启用</value>
+    <comment>Enable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_B7E3E4AA4257B9A1">
+    <value>关闭</value>
+    <comment>Disable</comment>
+  </data>
+  <data xml:space="preserve" name="Text_75081B593D15CF6E">
+    <value>已关闭</value>
+    <comment>Disabled</comment>
+  </data>
+  <data xml:space="preserve" name="Text_331551B0DE4157C9">
+    <value>待生效</value>
+    <comment>Pending</comment>
+  </data>
+  <data xml:space="preserve" name="Text_54A0E8C17EBB21A1">
+    <value>异常</value>
+    <comment>Error</comment>
+  </data>
+  <data xml:space="preserve" name="Text_6BA2D782CB45C511">
+    <value>声音设置</value>
+    <comment>Sound Settings</comment>
+  </data>
+  <data xml:space="preserve" name="Text_32FD144C1F4B399D">
+    <value>关闭窗口</value>
+    <comment>Close Window</comment>
+  </data>
+  <data xml:space="preserve" name="Text_62332DF601467622">
+    <value>重新检测</value>
+    <comment>Recheck Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_5F814B2A9C81684E">
+    <value>请在会议软件中选择「{0}」作为麦克风。本机监听音量不影响此输出。没有音频时，虚拟麦克风保持静音。</value>
+    <comment>In your meeting app, select “{0}” as the microphone. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_645F8CFA55041549">
+    <value>如需显示为「{0}」，请打开声音设置，在「输入」下选择「{1}」并重命名。</value>
+    <comment>To show it as “{0}”, open Sound Settings, choose “{1}” under Input, and rename it.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_950C9C08767AFEAC">
+    <value>FaceNow 虚拟麦克风</value>
+    <comment>FaceNow Virtual Microphone</comment>
+  </data>
+  <data xml:space="preserve" name="Text_85AD8EB6EB07D806">
+    <value>安装 VB-CABLE 音频驱动需要管理员授权。安装完成后，请返回此处启用虚拟麦克风。</value>
+    <comment>Install the VB-CABLE audio driver. Administrator authorization is required. After installation, return here to enable the virtual microphone.</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2296A7CD3F8ACD86">
+    <value>驱动已安装，Windows 尚未提供可用的虚拟麦克风。请在声音设置中确认设备状态，再返回此处重新检测。</value>
+    <comment>The audio driver is installed, but Windows has not made the virtual microphone available. Check Sound Settings, then check again.</comment>
+  </data>
+  <data name="Text_6CB6ABD496FB7618" xml:space="preserve">
+    <value>选择麦克风</value>
+    <comment>Select Microphone</comment>
+  </data>
+  <data name="Text_7657E870E41230B0" xml:space="preserve">
+    <value>输入音量</value>
+    <comment>Input Level</comment>
+  </data>
+  <data name="Text_EB2412BB260D6A55" xml:space="preserve">
+    <value>对着麦克风说话，检查是否正常收音</value>
+    <comment>Tooltip for the generation microphone input meter</comment>
+  </data>
+  <data name="Text_8071E3516DF00F17" xml:space="preserve">
+    <value>音画调节</value>
+    <comment>Audio &amp; Video</comment>
+  </data>
+  <data name="Text_7319AD562BBA027A" xml:space="preserve">
+    <value>关闭音画调节</value>
+    <comment>Close audio and video adjustments</comment>
+  </data>
+  <data name="Text_7B00BDC7791F429C" xml:space="preserve">
+    <value>自动音画同步</value>
+    <comment>Automatic A/V Sync</comment>
+  </data>
+  <data name="Text_0E4F6D4FB31964E1" xml:space="preserve">
+    <value>自动对齐声音与生成画面</value>
+    <comment>Automatically align audio with generated video</comment>
+  </data>
+  <data name="Text_10AD4ECE9E9208B1" xml:space="preserve">
+    <value>手动同步偏移</value>
+    <comment>Manual Sync Offset</comment>
+  </data>
+  <data name="Text_D9083F31F02A5889" xml:space="preserve">
+    <value>在自动同步基础上微调</value>
+    <comment>Fine-tune the automatic synchronization</comment>
+  </data>
+  <data name="Text_9F637FC50C98AD28" xml:space="preserve">
+    <value>声音提前</value>
+    <comment>Audio earlier</comment>
+  </data>
+  <data name="Text_6539D798FABDD539" xml:space="preserve">
+    <value>声音延后</value>
+    <comment>Audio later</comment>
+  </data>
+  <data name="Text_B1A1E8E3CF7C522E" xml:space="preserve">
+    <value>偏移值</value>
+    <comment>Offset</comment>
+  </data>
+  <data name="Text_EC6214C0A5E52F47" xml:space="preserve">
+    <value>界面预览，调整暂不影响会议输出。</value>
+    <comment>Preview only. Changes do not affect meeting output.</comment>
+  </data>
+  <data name="Text_E8DE72A87A7CA477" xml:space="preserve">
+    <value>调整即时生效，仅影响会议输出。</value>
+    <comment>Changes apply immediately to meeting output.</comment>
+  </data>
+  <data name="Text_4D295847DC55B369" xml:space="preserve">
+    <value>美颜控制面板</value>
+    <comment>Beauty Controls</comment>
+  </data>
+  <data name="Text_1187C9671073919E" xml:space="preserve">
+    <value>收起美颜面板</value>
+    <comment>Hide beauty controls</comment>
+  </data>
+  <data name="Text_D7EAB3DB28E5F43F" xml:space="preserve">
+    <value>展开美颜面板</value>
+    <comment>Show beauty controls</comment>
+  </data>
+  <data name="Text_86E63929FEE2E70C" xml:space="preserve">
+    <value>参考图</value>
+    <comment>Reference images</comment>
+  </data>
+  <data name="Text_ECE62B5F534749AB" xml:space="preserve">
+    <value>虚拟摄像头需要 Windows 10 2004 或更新版本（x64），或 Windows 11。</value>
+    <comment>The virtual camera requires Windows 10 version 2004 or later (x64), or Windows 11.</comment>
+  </data>
+  <data name="Text_C0B3AC1FD3F78CD8" xml:space="preserve">
+    <value>调整实时生效，仅影响会议输出</value>
+    <comment>Adjustments apply to meeting output</comment>
+  </data>
+  <data name="Text_383A17BE18BCD3CF" xml:space="preserve">
+    <value>积分不足，充值后可继续</value>
+    <comment>Insufficient credits. Top up to continue.</comment>
+  </data>
+  <data name="Text_45E899EE8447BCAE" xml:space="preserve">
+    <value>去充值</value>
+    <comment>Top Up</comment>
+  </data>
+  <data name="Text_B9C763F3B30F4AC4" xml:space="preserve">
+    <value>参考图未通过安全检测，请换一张图片。</value>
+    <comment>This reference image did not pass the safety check. Choose a different image.</comment>
+  </data>
+  <data name="Text_D47D7CB0E4F8FD2B" xml:space="preserve">
+    <value>更多</value>
+    <comment>More</comment>
+  </data>
+</root>

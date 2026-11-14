@@ -1,0 +1,17 @@
+<Project>
+  <Target Name="ValidateFaceNowEdition" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(FaceNowEdition)' != 'Domestic' and '$(FaceNowEdition)' != 'Overseas'" Text="FaceNowEdition must be Domestic or Overseas." />
+  </Target>
+  <!-- FaceNow uses WinUI, composition and the runtime, but no local ML, AI, search or widgets APIs.
+       Filter component payloads before WinAppSDK generates both files and WinRT registrations. -->
+  <Target Name="FaceNowSelectRuntimeComponents" BeforeTargets="AddMicrosoftWindowsAppSDKPayloadFilesFromComponents"
+          Condition="'$(MSBuildProjectName)' == 'FaceNow.App' and '$(FaceNowSlimDistribution)' == 'true'">
+    <ItemGroup>
+      <WindowsAppSdkComponentPackages Remove="@(WindowsAppSdkComponentPackages)"
+        Condition="$([System.String]::Copy('%(WindowsAppSdkComponentPackages.Identity)').ToLowerInvariant().Contains('microsoft.windowsappsdk.ai\')) or
+                   $([System.String]::Copy('%(WindowsAppSdkComponentPackages.Identity)').ToLowerInvariant().Contains('microsoft.windowsappsdk.ml\')) or
+                   $([System.String]::Copy('%(WindowsAppSdkComponentPackages.Identity)').ToLowerInvariant().Contains('microsoft.windowsappsdk.search\')) or
+                   $([System.String]::Copy('%(WindowsAppSdkComponentPackages.Identity)').ToLowerInvariant().Contains('microsoft.windowsappsdk.widgets\'))" />
+    </ItemGroup>
+  </Target>
+</Project>
