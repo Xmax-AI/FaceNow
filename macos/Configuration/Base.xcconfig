@@ -1,0 +1,23 @@
+// Shared build settings. Use the same signing team for the app, extension and probe.
+MACOSX_DEPLOYMENT_TARGET = 13.0
+SWIFT_VERSION = 6.0
+SWIFT_STRICT_CONCURRENCY = complete
+MARKETING_VERSION = 1.1.0
+CURRENT_PROJECT_VERSION = 59
+FACENOW_EDITION = domestic
+FACENOW_LANGUAGE = zh-Hans
+FACENOW_CAMERA_DEVICE_NAME = FaceNow 虚拟摄像头
+FACENOW_CAMERA_USAGE_DESCRIPTION = FaceNow 使用摄像头生成虚拟摄像头视频。
+FACENOW_MICROPHONE_USAGE_DESCRIPTION = 启用麦克风采集时，FaceNow 需要使用麦克风。
+FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION = 启用 FaceNow 虚拟摄像头，以在会议应用中使用生成的视频。
+CODE_SIGN_STYLE = Automatic
+ENABLE_HARDENED_RUNTIME = YES
+ENABLE_APP_SANDBOX = YES
+REGISTER_APP_GROUPS = YES
+// Keep shared helpers in the standard product directory while Debug app targets use separate subdirectories.
+FACENOW_SHARED_PRODUCTS_DIR = $(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+// Updates stay stopped until a real HTTPS appcast and public signing key are provided.
+FACENOW_UPDATE_FEED_URL =
+FACENOW_UPDATE_PUBLIC_KEY =
+// Optional machine-specific overrides, excluded from source control.
+#include? "Local.xcconfig"

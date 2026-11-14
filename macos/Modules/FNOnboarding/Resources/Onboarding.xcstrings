@@ -1,0 +1,2598 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "guide.virtual_microphone_checking_detail": {
+      "comment": "Describes an explicit in-progress microphone device query.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking Virtual Microphone. Please wait..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检测虚拟麦克风，请稍候…"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_checked_pending_detail": {
+      "comment": "Confirms that a completed query still found no published device.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check complete. macOS still has not detected Virtual Microphone. The driver is installed. Restart your Mac and check again, or set up audio later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测完成，系统仍未识别到虚拟麦克风。驱动已安装，请重启 Mac 后再检测；也可以先跳过音频设置。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_checked_not_installed_detail": {
+      "comment": "Distinguishes a completed negative installation check from an in-progress query.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check complete. The Virtual Microphone driver was not found. Install it first, or set up audio later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测完成，尚未找到虚拟麦克风驱动。请先安装，或选择“稍后设置音频”。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_check_timed_out_detail": {
+      "comment": "Offers retry or deferral when system discovery takes too long.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The check timed out, so Virtual Microphone status could not be confirmed. Check again, or set up audio later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测超时，暂时无法确认虚拟麦克风状态。你可以重新检测，或稍后设置音频。"
+          }
+        }
+      }
+    },
+    "guide.microphone_permission_prompt": {
+      "comment": "Describes the supplied microphone-access prompt to assistive technologies.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone permission dialog. Choose Allow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风权限弹窗。请选择“允许”。"
+          }
+        }
+      }
+    },
+    "guide.audio_setup": {
+      "comment": "Groups optional microphone permission and synchronized audio output.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio Setup (Optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音频设置（可选）"
+          }
+        }
+      }
+    },
+    "guide.skip_audio_setup": {
+      "comment": "Defers the complete audio setup without leaving the video preparation flow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Up Audio Later"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍后设置音频"
+          }
+        }
+      }
+    },
+    "guide.finish_setup": {
+      "comment": "Finishes preparation without implying that camera capture has already started.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish Setup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成设置"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_install_detail": {
+      "comment": "Explains administrator installation while allowing video use before audio is ready.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install the FaceNow audio driver with the macOS installer. Administrator authorization is required. If the device has not appeared after installation, you can use video first and restart your Mac later to finish audio setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 macOS 安装器安装 FaceNow 音频驱动，需要管理员授权。如果安装后设备尚未出现，可以先使用视频功能，稍后重启 Mac 完成音频设置。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_pending_detail": {
+      "comment": "Keeps a deferred audio-driver restart from interrupting video preparation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Virtual Microphone driver is installed but not active yet. You can use video first and restart your Mac later to finish audio setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟麦克风驱动已安装，但尚未生效。你可以先使用视频功能，稍后重启 Mac 完成音频设置。"
+          }
+        }
+      }
+    },
+    "notice.camera_status_check_failed" : {
+      "comment" : "Distinguishes an unavailable status check from an activation failure.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t check Virtual Camera. Check again, or reopen FaceNow if this continues."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取虚拟摄像头状态。请重新检查；若仍失败，请重新打开 FaceNow。"
+          }
+        }
+      }
+    },
+    "guide.reinstall_application_title" : {
+      "comment" : "Names the recovery for a missing or invalid bundled camera component.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinstall FaceNow"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请重新安装 FaceNow"
+          }
+        }
+      }
+    },
+    "guide.move_application_title" : {
+      "comment" : "Explains the location prerequisite before offering virtual-camera installation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move FaceNow to Applications"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先将 FaceNow 移至“应用程序”"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone" : {
+      "comment" : "Names the optional generated-audio output step.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Microphone"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟麦克风"
+          }
+        }
+      }
+    },
+    "guide.setup_virtual_microphone" : {
+      "comment" : "Introduces explicit installation and enabling of audio output.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set Up Virtual Microphone"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置虚拟麦克风"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_introduction" : {
+      "comment" : "Explains optional synchronized audio output for video calls.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Virtual Microphone to keep audio and video in sync during video calls. You can skip this step and set it up later."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启虚拟麦克风，让视频通话的声音与画面保持同步。你也可以跳过，稍后再设置。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_enable_detail" : {
+      "comment" : "Explains enabling an already published virtual input.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The device is available. Click Enable to output synchronized audio through %1$@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备已可用。点击“启用”，通过 %1$@ 输出与画面同步的声音。"
+          }
+        }
+      }
+    },
+    "guide.virtual_microphone_step_ready" : {
+      "comment" : "Confirms device readiness without claiming audio capture or generation has started.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Microphone is enabled. Continue setup."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟麦克风已启用。继续完成设置。"
+          }
+        }
+      }
+    },
+    "guide.video_calls.microphone_title" : {
+      "comment" : "Adds microphone selection only when virtual audio output is enabled.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select FaceNow as your microphone"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择 FaceNow 作为麦克风"
+          }
+        }
+      }
+    },
+    "guide.video_calls.microphone_detail" : {
+      "comment" : "Names the stable virtual audio input to select in calling software.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In your calling app’s microphone menu, select “%1$@” to keep audio in sync with your FaceNow video."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在视频通话应用的麦克风菜单中选择“%1$@”，让声音与 FaceNow 画面保持同步。"
+          }
+        }
+      }
+    },
+    "guide.allow_microphone_access" : {
+      "comment" : "Requests system permission without starting audio capture.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Microphone Access"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许麦克风访问"
+          }
+        }
+      }
+    },
+    "guide.microphone_introduction" : {
+      "comment" : "Explains optional physical microphone input.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow FaceNow to capture your voice. You can choose an input device or turn the microphone off at any time."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许 FaceNow 使用麦克风采集声音。你可以随时选择输入设备或关闭麦克风。"
+          }
+        }
+      }
+    },
+    "guide.microphone_restricted_title" : {
+      "comment" : "Identifies microphone access restricted by system policy.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone Access Is Restricted"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风访问受限"
+          }
+        }
+      }
+    },
+    "guide.microphone_restricted_detail" : {
+      "comment" : "Explains restricted microphone access and optional continuation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone access is restricted by macOS or your administrator. You can skip this step and continue with video."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 的麦克风权限受到系统或管理员限制。你可以跳过此步骤，继续使用视频功能。"
+          }
+        }
+      }
+    },
+    "guide.microphone_settings_detail" : {
+      "comment" : "Explains how to enable a previously denied microphone permission.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In System Settings → Privacy & Security → Microphone, enable FaceNow, then return here."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“系统设置 → 隐私与安全性 → 麦克风”中开启 FaceNow，然后返回此处。"
+          }
+        }
+      }
+    },
+    "guide.microphone_request_detail" : {
+      "comment" : "Explains the explicit microphone permission prompt.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Allow Microphone Access”, then choose Allow in the permission dialog."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击“允许麦克风访问”，然后在权限弹窗中选择“允许”。"
+          }
+        }
+      }
+    },
+    "guide.microphone_step_ready" : {
+      "comment" : "Confirms permission without claiming audio capture has started.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone access is ready. Continue setup."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风权限已开启。继续完成设置。"
+          }
+        }
+      }
+    },
+    "step.state.skipped" : {
+      "comment" : "Identifies an explicitly deferred optional step for accessibility.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "skipped"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已跳过"
+          }
+        }
+      }
+    },
+    "action.copy_error_details" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Error Details"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制错误详情"
+          }
+        }
+      }
+    },
+    "action.reinstall" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinstall"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新安装"
+          }
+        }
+      }
+    },
+    "action.view" : {
+      "comment" : "Opens the onboarding guide from every visible camera status banner.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看"
+          }
+        }
+      }
+    },
+    "content.bring_your_new_look_into_video_calling_apps" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bringing Your New Look into Video Calls"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天，哪一面的你出镜？"
+          }
+        }
+      }
+    },
+    "content.camera_access" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera Access"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摄像头权限"
+          }
+        }
+      }
+    },
+    "content.copyright_2026_xmax_ai_pte_ltd_all_rights_reserved" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。"
+          }
+        }
+      }
+    },
+    "content.video_calls" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video Calls"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "视频通话"
+          }
+        }
+      }
+    },
+    "content.we_access_your_camera_in_accordance_with_our_terms" : {
+      "comment" : "%1$@ is Terms of Use; %2$@ is Privacy Policy. Preserve both legal-link labels.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We access your camera and, when enabled, microphone in accordance with our %1$@ and %2$@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们会依照《%1$@》和《%2$@》使用你的摄像头和麦克风。"
+          }
+        }
+      }
+    },
+    "guide.allow_facenow" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow FaceNow"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许 FaceNow"
+          }
+        }
+      }
+    },
+    "guide.allow_the_facenow_system_extension_under_privacy_security_then" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow the FaceNow system extension under Privacy & Security, then return to FaceNow."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“隐私与安全性”中允许 FaceNow 系统扩展，然后返回 FaceNow。"
+          }
+        }
+      }
+    },
+    "guide.ask_your_administrator" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask Your Administrator"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "联系管理员"
+          }
+        }
+      }
+    },
+    "guide.camera_access_is_restricted" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingFlowViewModel.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera Access Is Restricted"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摄像头访问受限"
+          }
+        }
+      }
+    },
+    "guide.camera_access_is_restricted_by_macos_or_a_device" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera access is restricted by macOS or a device-management policy."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 或设备管理策略限制了摄像头访问。"
+          }
+        }
+      }
+    },
+    "guide.camera_extension_permission_prompt_choose_open_system_settings" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera extension permission prompt. Choose Open System Settings."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摄像头扩展权限弹窗。请选择“打开系统设置”。"
+          }
+        }
+      }
+    },
+    "guide.camera_extensions_enable_facenow_then_click_done" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera Extensions. Enable FaceNow, then click Done."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相机扩展。启用 FaceNow，然后点击“完成”。"
+          }
+        }
+      }
+    },
+    "guide.camera_step_ready" : {
+      "comment" : "Completed physical-camera stage in setup.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera access is ready. Continue setup."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摄像头权限已开启。继续完成设置。"
+          }
+        }
+      }
+    },
+    "guide.choose_allow_in_the_macos_permission_dialog" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Allow in the permission dialog."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在权限弹窗中选择“允许”。"
+          }
+        }
+      }
+    },
+    "guide.click_allow_camera_access_in_the_bottom_right_corner" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Allow Camera Access” in the bottom-right corner."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“允许使用摄像头”。"
+          }
+        }
+      }
+    },
+    "guide.click_open_system_settings_in_the_bottom_right_corner" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Open System Settings” in the bottom-right corner."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“打开系统设置”。"
+          }
+        }
+      }
+    },
+    "guide.click_open_system_settings_in_the_macos_dialog" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Open System Settings” in the macOS dialog."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 弹窗中点击“打开系统设置”。"
+          }
+        }
+      }
+    },
+    "guide.click_primary_button" : {
+      "comment" : "Setup instruction. %@ is the exact localized footer button title.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “%@” in the bottom-right corner."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“%@”。"
+          }
+        }
+      }
+    },
+    "guide.close_setup_guide" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close setup guide"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭设置指南"
+          }
+        }
+      }
+    },
+    "guide.enable_facenow" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable FaceNow"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用 FaceNow"
+          }
+        }
+      }
+    },
+    "guide.enable_virtual_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Virtual Camera"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用虚拟摄像头"
+          }
+        }
+      }
+    },
+    "guide.explanation.check_again" : {
+      "comment" : "Explains how to repeat discovery without reinstalling the virtual camera.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Check Again” in the bottom-right corner to recheck the camera. FaceNow will update this page with the result."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“重新检查”以再次检查摄像头。FaceNow 将在此页面显示检查结果。"
+          }
+        }
+      }
+    },
+    "guide.explanation.checking" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow is checking whether Virtual Camera is installed, enabled, and available to video calling apps.\n\nPlease wait. This page will update automatically when the check finishes."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 正在检查虚拟摄像头是否已安装、已启用，以及是否可供视频通话应用使用。\n\n请稍候，检查完成后此页面会自动更新。"
+          }
+        }
+      }
+    },
+    "guide.explanation.connect_camera" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make sure your camera is connected and available, then check again using the button in the bottom-right corner."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请确认摄像头已连接且可用，然后点击右下角的按钮重新检查。"
+          }
+        }
+      }
+    },
+    "guide.explanation.contact_support" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Copy Error Details” in the bottom-right corner and include the details when contacting FaceNow support."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“复制错误详情”，并在联系 FaceNow 技术支持时提供这些信息。"
+          }
+        }
+      }
+    },
+    "guide.explanation.enable_extension" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Open System Settings” in the bottom-right corner, turn on the switch next to FaceNow, then click “Done”. Return to FaceNow to check the connection automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“打开系统设置”，打开 FaceNow 旁的开关，然后点击“完成”。返回 FaceNow 后会自动检查连接。"
+          }
+        }
+      }
+    },
+    "guide.explanation.install" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “%1$@” in the bottom-right corner to let macOS install and enable Virtual Camera. If macOS asks for approval, follow the system dialog."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“%1$@”，让 macOS 安装并启用虚拟摄像头。如果 macOS 要求批准，请按系统弹窗提示操作。"
+          }
+        }
+      }
+    },
+    "guide.explanation.manual_removal" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Open System Settings” in the bottom-right corner. In Camera Extensions, remove the previous FaceNow extension, then return to FaceNow. Installation will continue automatically once removal is confirmed."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“打开系统设置”，在“相机扩展”中移除旧的 FaceNow 扩展，然后返回 FaceNow。确认移除后，安装流程会自动继续。"
+          }
+        }
+      }
+    },
+    "guide.explanation.move_application" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Show in Finder” to locate the running FaceNow app. Move it to /Applications, quit this copy, then open FaceNow from Applications."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击“在访达中显示”找到当前运行的 FaceNow。将它移至 /Applications，退出当前 FaceNow，再从“应用程序”中打开。"
+          }
+        }
+      }
+    },
+    "guide.explanation.not_installed" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Camera has not been installed on this Mac. It sends your FaceNow look to video calling apps as a camera input."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 尚未安装虚拟摄像头。它会将你的 FaceNow 形象作为摄像头输入，传送到视频通话应用中。"
+          }
+        }
+      }
+    },
+    "guide.explanation.publication_recovery" : {
+      "comment" : "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Open System Settings” in the bottom-right corner. In Camera Extensions, turn the switch next to FaceNow off, then back on. Return to FaceNow to check the connection automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“打开系统设置”，在“相机扩展”中将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。"
+          }
+        }
+      }
+    },
+    "guide.explanation.reinstall" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Install” in the bottom-right corner. FaceNow will replace the previous camera extension and check that Virtual Camera is available."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“安装”。FaceNow 将替换旧的相机扩展，并检查虚拟摄像头是否可用。"
+          }
+        }
+      }
+    },
+    "guide.explanation.request_access" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Allow Camera Access” in the bottom-right corner, then choose Allow in the permission dialog."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“允许使用摄像头”，然后在权限弹窗中选择“允许”。"
+          }
+        }
+      }
+    },
+    "guide.explanation.restart_application" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Restart FaceNow” in the bottom-right corner to reopen the app and refresh its camera connection."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“重新启动 FaceNow”，重新打开应用并刷新摄像头连接。"
+          }
+        }
+      }
+    },
+    "guide.explanation.retry" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “%1$@” in the bottom-right corner to retry the operation. FaceNow will update this page with the result or the next required step."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击右下角的“%1$@”以重试。FaceNow 将在此页面显示结果或下一步操作。"
+          }
+        }
+      }
+    },
+    "guide.explanation.version_mismatch" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The installed Virtual Camera belongs to a different FaceNow build. Reinstall it to remove the previous extension and install the version included with this app."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已安装的虚拟摄像头属于其他 FaceNow 构建版本。请重新安装，以移除旧扩展并安装此应用附带的版本。"
+          }
+        }
+      }
+    },
+    "guide.explanation.waiting" : {
+      "comment" : "State explanation and next action shown when onboarding has no corresponding screenshot. Preserve placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please wait for macOS to finish. If a permission dialog appears, follow its instructions. FaceNow will check the result automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请等待 macOS 完成操作。如果出现权限弹窗，请按提示操作。FaceNow 会自动检查结果。"
+          }
+        }
+      }
+    },
+    "guide.facenow_setup_illustration" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow setup illustration"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 设置示意图"
+          }
+        }
+      }
+    },
+    "guide.facenow_turns_your_movements_into_your_chosen_look_in" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingFlowViewModel.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow uses your camera feed as input for real-time generation, mapping your expressions and movements to your selected appearance."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 使用摄像头画面作为实时生成的输入，将你的表情和动作同步到所选形象。"
+          }
+        }
+      }
+    },
+    "guide.facenow_uses_a_virtual_camera_to_bring_your_chosen" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow uses a virtual camera to bring your chosen look into video calls."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 通过虚拟摄像头，将你选择的形象带入视频通话。"
+          }
+        }
+      }
+    },
+    "guide.get_ready_for_use" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Ready For Use"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始使用前的准备"
+          }
+        }
+      }
+    },
+    "guide.get_ready_to_use_facenow" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get ready to use FaceNow"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "准备使用 FaceNow"
+          }
+        }
+      }
+    },
+    "guide.if_this_mac_is_managed_ask_your_administrator_to" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If this Mac is managed, ask your administrator to allow camera access for FaceNow. You can review the current permissions in System Settings."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果此 Mac 由组织管理，请联系管理员，允许 FaceNow 访问摄像头。你可以在系统设置中查看当前权限。"
+          }
+        }
+      }
+    },
+    "guide.install_virtual_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Virtual Camera"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安装虚拟摄像头"
+          }
+        }
+      }
+    },
+    "guide.next_image" : {
+      "comment" : "Accessibility label for onboarding screenshot navigation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Guide Image"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下一张引导图片"
+          }
+        }
+      }
+    },
+    "guide.previous_image" : {
+      "comment" : "Accessibility label for onboarding screenshot navigation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous Guide Image"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上一张引导图片"
+          }
+        }
+      }
+    },
+    "guide.recovery.restart_virtual_camera" : {
+      "comment" : "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restart Virtual Camera"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重启虚拟摄像头"
+          }
+        }
+      }
+    },
+    "guide.recovery.toggle_virtual_camera" : {
+      "comment" : "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Camera Extensions, turn the switch next to FaceNow off, then back on. Return to FaceNow to check the connection automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“相机扩展”中，将 FaceNow 旁的开关关闭后重新开启。返回 FaceNow 后会自动检查连接。"
+          }
+        }
+      }
+    },
+    "guide.request_camera_access" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request Camera Access"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "申请摄像头权限"
+          }
+        }
+      }
+    },
+    "guide.return_to_facenow_click_start_camera_and_choose_your" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Return to FaceNow, click “Start Camera”, and choose your look."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回 FaceNow，点击“启动摄像头”，然后选择你的形象。"
+          }
+        }
+      }
+    },
+    "guide.review_camera_restrictions" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review Camera Restrictions"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看摄像头访问限制"
+          }
+        }
+      }
+    },
+    "guide.review_the_camera_restrictions_on_this_mac_before_continuing" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingFlowViewModel.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review the camera restrictions on this Mac before continuing."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先查看此 Mac 的摄像头访问限制，再继续操作。"
+          }
+        }
+      }
+    },
+    "guide.start_your_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Your Camera"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启动摄像头"
+          }
+        }
+      }
+    },
+    "guide.turn_on_the_switch_next_to_facenow_then_click" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on the switch next to FaceNow, then click “Done”."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 FaceNow 旁的开关，然后点击“完成”。"
+          }
+        }
+      }
+    },
+    "guide.turn_on_the_switch_next_to_facenow_under_login" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Camera Extensions, turn on the switch next to FaceNow, then click “Done”."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“相机扩展”中，打开 FaceNow 旁的开关，然后点击“完成”。"
+          }
+        }
+      }
+    },
+    "guide.turn_on_the_switch_next_to_facenow_under_privacy" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on the switch next to FaceNow under Privacy & Security → Camera."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“隐私与安全性 → 摄像头”中，打开 FaceNow 旁的开关。"
+          }
+        }
+      }
+    },
+    "guide.use_facenow_in_video_calls" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bring Your Look To Video Calls"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将你的形象带入视频通话"
+          }
+        }
+      }
+    },
+    "guide.video_calls.choose_camera" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In your video calling app, open the camera menu and choose “%@”."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在视频通话应用中打开摄像头菜单，选择“%@”。"
+          }
+        }
+      }
+    },
+    "guide.video_calls.keep_running_detail" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on video in your call and keep FaceNow open while you talk. If the camera is missing, reopen your video calling app."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在通话中开启视频，并在通话期间保持 FaceNow 运行。如果找不到该摄像头，请重新打开视频通话应用。"
+          }
+        }
+      }
+    },
+    "guide.video_calls.keep_running_title" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep FaceNow Running"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保持 FaceNow 运行"
+          }
+        }
+      }
+    },
+    "guide.video_calls.lark_caption" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the camera menu beside the video button and select “%@”."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开视频按钮旁的摄像头菜单，选择“%@”。"
+          }
+        }
+      }
+    },
+    "guide.video_calls.select_title" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select FaceNow As Your Camera"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择 FaceNow 作为摄像头"
+          }
+        }
+      }
+    },
+    "guide.video_calls.show_example" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show %@ camera example"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示 %@ 摄像头设置示例"
+          }
+        }
+      }
+    },
+    "guide.video_calls.subtitle" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose FaceNow as your camera to bring your new look into the conversation."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择 FaceNow 作为摄像头，让你的新形象出现在通话中。"
+          }
+        }
+      }
+    },
+    "guide.video_calls.tencent_caption" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click the arrow next to the video button and choose “%@” as your camera."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击视频按钮旁的箭头，选择“%@”作为摄像头。"
+          }
+        }
+      }
+    },
+    "guide.video_calls.wechat_caption" : {
+      "comment" : "Third onboarding step: general instructions or caption for an original user-provided video-call screenshot. Preserve placeholders.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "During a video call, open the camera menu and select “%@”."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在视频通话中打开摄像头菜单，选择“%@”。"
+          }
+        }
+      }
+    },
+    "guide.virtual_camera_step_ready" : {
+      "comment" : "Completed virtual-output stage in setup.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Camera is ready. Continue setup."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟摄像头已就绪。继续完成设置。"
+          }
+        }
+      }
+    },
+    "landing.start_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingLandingView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Camera"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启动摄像头"
+          }
+        }
+      }
+    },
+    "landing.starting" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingLandingView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在启动…"
+          }
+        }
+      }
+    },
+    "notice.activate_camera" : {
+      "comment" : "Localized page text; preserve all placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activate Virtual Camera to finish setup."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请激活虚拟摄像头以完成设置。"
+          }
+        }
+      }
+    },
+    "notice.allow_camera_access" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Camera Access"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许使用摄像头"
+          }
+        }
+      }
+    },
+    "notice.allow_camera_access_in_the_macos_permission_dialog" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow camera access in the permission dialog."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在权限弹窗中允许访问摄像头。"
+          }
+        }
+      }
+    },
+    "notice.allow_the_facenow_camera_extension_in_system_settings" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow the FaceNow camera extension in System Settings."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在系统设置中允许 FaceNow 相机扩展。"
+          }
+        }
+      }
+    },
+    "notice.camera_access_is_off_for_facenow" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera access is off for FaceNow."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 的摄像头权限已关闭。"
+          }
+        }
+      }
+    },
+    "notice.camera_access_is_restricted_by_macos_or_your_device" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera access is restricted by macOS or your device administrator."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 或设备管理员限制了摄像头访问。"
+          }
+        }
+      }
+    },
+    "notice.camera_blocked_by_policy" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS or your organization’s policy blocked the camera extension. Contact your administrator or FaceNow support."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 或组织策略阻止了摄像头扩展。请联系管理员或 FaceNow 技术支持。"
+          }
+        }
+      }
+    },
+    "notice.camera_recovery_exhausted" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Camera is still unavailable after recovery. Copy the error details and contact support."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复后虚拟摄像头仍不可用。请复制错误详情并联系技术支持。"
+          }
+        }
+      }
+    },
+    "notice.check_again" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check Again"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新检查"
+          }
+        }
+      }
+    },
+    "notice.checking" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检查…"
+          }
+        }
+      }
+    },
+    "notice.checking_available_cameras" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking available cameras…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检查可用的摄像头…"
+          }
+        }
+      }
+    },
+    "notice.checking_the_virtual_camera_connection" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking the Virtual Camera connection…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检查虚拟摄像头连接…"
+          }
+        }
+      }
+    },
+    "notice.checking_virtual_camera_status" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking Virtual Camera status…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检查虚拟摄像头状态…"
+          }
+        }
+      }
+    },
+    "notice.choose_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Camera"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择摄像头"
+          }
+        }
+      }
+    },
+    "notice.facenow_needs_access_to_your_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow needs access to your camera."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 需要访问你的摄像头。"
+          }
+        }
+      }
+    },
+    "notice.install_virtual_camera_to_use_facenow_in_video_calls" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Virtual Camera to use FaceNow in video calls."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安装虚拟摄像头，即可在视频通话中使用 FaceNow。"
+          }
+        }
+      }
+    },
+    "notice.installation_incomplete" : {
+      "comment" : "Explains incomplete virtual-camera setup with Install as the recovery action.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Camera setup is incomplete. Install it again to continue."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟摄像头设置尚未完成，请重新安装后继续。"
+          }
+        }
+      }
+    },
+    "notice.installing" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installing…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在安装…"
+          }
+        }
+      }
+    },
+    "notice.installing_virtual_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installing Virtual Camera…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在安装虚拟摄像头…"
+          }
+        }
+      }
+    },
+    "notice.invalid_camera_bundle" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow’s camera component is missing or couldn’t be validated. Reinstall FaceNow, or copy the error details for support."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 的虚拟摄像头组件缺失或无法验证。请重新安装 FaceNow；也可复制错误详情联系支持。"
+          }
+        }
+      }
+    },
+    "notice.manual_removal" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow couldn’t remove the previous camera extension automatically. Remove it in System Settings to continue."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 无法自动移除旧的相机扩展。请在系统设置中将其移除后继续。"
+          }
+        }
+      }
+    },
+    "notice.move_facenow_to_applications_to_set_up_virtual_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move FaceNow to /Applications and open it from there before installing Virtual Camera."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请将 FaceNow 移至“应用程序”（/Applications），并从那里重新打开后再安装虚拟摄像头。"
+          }
+        }
+      }
+    },
+    "notice.no_camera_detected_connect_a_camera_to_continue" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No camera detected. Connect a camera to continue."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未检测到摄像头，请连接摄像头后继续。"
+          }
+        }
+      }
+    },
+    "notice.open_system_settings" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开系统设置"
+          }
+        }
+      }
+    },
+    "notice.reinstall_virtual_camera" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinstall Virtual Camera to use this version of FaceNow."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请重新安装虚拟摄像头，以使用此版本的 FaceNow。"
+          }
+        }
+      }
+    },
+    "notice.reinstalling" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinstalling…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在重新安装…"
+          }
+        }
+      }
+    },
+    "notice.reinstalling_virtual_camera" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removing the previous camera extension before installing the new version…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在移除旧的相机扩展，随后安装新版本…"
+          }
+        }
+      }
+    },
+    "notice.removing" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removing…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在移除…"
+          }
+        }
+      }
+    },
+    "notice.removing_virtual_camera" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removing Virtual Camera…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在移除虚拟摄像头…"
+          }
+        }
+      }
+    },
+    "notice.restart_facenow" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restart FaceNow"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新启动 FaceNow"
+          }
+        }
+      }
+    },
+    "notice.restart_facenow_to_refresh_the_camera_connection" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restart FaceNow to refresh the camera connection."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请重新启动 FaceNow，以刷新摄像头连接。"
+          }
+        }
+      }
+    },
+    "notice.setup_approval_required" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS is waiting for approval or another camera extension request. Review Camera Extensions in System Settings."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 正在等待批准或其他摄像头扩展请求完成。请在系统设置中检查摄像头扩展。"
+          }
+        }
+      }
+    },
+    "notice.setup_authorization_required" : {
+      "comment" : "Explains native administrator authorization for camera setup.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Administrator authorization is required to continue camera setup. Approve the macOS dialog, or review the extension in System Settings."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续设置摄像头需要管理员授权。请批准 macOS 弹窗，或前往系统设置检查扩展。"
+          }
+        }
+      }
+    },
+    "notice.setup_failed_with_details" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Camera setup couldn’t be completed. Copy the error details and contact support."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法完成虚拟摄像头设置。请复制错误详情并联系技术支持。"
+          }
+        }
+      }
+    },
+    "notice.setup_interrupted" : {
+      "comment" : "Virtual-camera setup action, failure, or restart recovery guidance.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera setup was cancelled or interrupted. Continue when you are ready."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摄像头设置已取消或中断。准备好后可继续。"
+          }
+        }
+      }
+    },
+    "notice.show_in_finder" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Finder"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在访达中显示"
+          }
+        }
+      }
+    },
+    "notice.virtual_camera_is_turned_off" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Camera is turned off."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟摄像头已关闭。"
+          }
+        }
+      }
+    },
+    "notice.virtual_camera_not_published" : {
+      "comment" : "Recovery guidance when the enabled virtual camera device is not published.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual Camera is enabled, but macOS has not made the camera available."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟摄像头已启用，但 macOS 尚未使其可用。"
+          }
+        }
+      }
+    },
+    "notice.waiting" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在等待…"
+          }
+        }
+      }
+    },
+    "notice.your_selected_camera_is_disconnected" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your selected camera is disconnected."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选摄像头已断开连接。"
+          }
+        }
+      }
+    },
+    "step.accessibility" : {
+      "comment" : "Localized page text; preserve all placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "step.state.completed" : {
+      "comment" : "Localized page text; preserve all placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "completed"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已完成"
+          }
+        }
+      }
+    },
+    "step.state.currentStep" : {
+      "comment" : "Localized page text; preserve all placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "current step"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前步骤"
+          }
+        }
+      }
+    },
+    "step.state.upcoming" : {
+      "comment" : "Localized page text; preserve all placeholders and product names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "upcoming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待进行"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

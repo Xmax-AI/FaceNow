@@ -1,0 +1,3372 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "beauty.applying": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applying…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在应用…"
+          }
+        }
+      }
+    },
+    "beauty.close": {
+      "comment": "Collapses the controls without changing the active beauty effect.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide beauty controls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起美颜面板"
+          }
+        }
+      }
+    },
+    "beauty.description": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies to generated results"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用于生成结果"
+          }
+        }
+      }
+    },
+    "beauty.lightening": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brightening"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美白"
+          }
+        }
+      }
+    },
+    "beauty.panel_title": {
+      "comment": "Titles the beauty controls displayed over the generated result.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beauty Controls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美颜控制面板"
+          }
+        }
+      }
+    },
+    "beauty.redness": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rosiness"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "红润"
+          }
+        }
+      }
+    },
+    "beauty.reset": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset to default"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复默认"
+          }
+        }
+      }
+    },
+    "beauty.sharpness": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharpening"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锐化"
+          }
+        }
+      }
+    },
+    "beauty.show": {
+      "comment": "Expands the controls for the active beauty effect.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show beauty controls"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展开美颜面板"
+          }
+        }
+      }
+    },
+    "beauty.smoothness": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smoothing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "磨皮"
+          }
+        }
+      }
+    },
+    "beauty.unavailable": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beauty is unavailable and has been turned off. Generation will continue."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美颜暂不可用，已关闭美颜，生成将继续。"
+          }
+        }
+      }
+    },
+    "controls.2_frame_interpolation_is_on_click_to_turn_off": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2× frame interpolation is on. Click to turn off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已开启 2 倍补帧，点击关闭"
+          }
+        }
+      }
+    },
+    "controls.2x": {
+      "comment": "Generation control state or interpolation label.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2x"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "补帧"
+          }
+        }
+      }
+    },
+    "controls.adjust_remote_playback_volume": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust remote playback volume"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调节远端播放音量"
+          }
+        }
+      }
+    },
+    "controls.audio_video_adjustments": {
+      "comment": "Opens the audio and video synchronization settings card.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio & Video"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音画调节"
+          }
+        }
+      }
+    },
+    "controls.beauty": {
+      "comment": "Result beauty control or recoverable effect status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beauty"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美颜"
+          }
+        }
+      }
+    },
+    "controls.describe_how_you_want_the_video_to_change": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe how you want the video to change"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "描述你希望视频如何变化"
+          }
+        }
+      }
+    },
+    "controls.frame_interpolation": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frame interpolation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "补帧"
+          }
+        }
+      }
+    },
+    "controls.frame_interpolation_is_off_click_to_turn_on": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frame interpolation is off. Click to turn on"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "补帧已关闭，点击开启"
+          }
+        }
+      }
+    },
+    "controls.generating": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generating…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在生成…"
+          }
+        }
+      }
+    },
+    "controls.hide_statistics_collection_and_logging_continue": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide statistics (collection and logging continue)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏统计信息（仍会继续采集和记录日志）"
+          }
+        }
+      }
+    },
+    "controls.input_level": {
+      "comment": "Heading of the physical microphone input strength indicator.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input Level"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入音量"
+          }
+        }
+      }
+    },
+    "controls.input_level_help": {
+      "comment": "Tooltip and accessibility help for the microphone input strength indicator.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speak into your microphone to check the input."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对着麦克风说话，检查是否正常收音"
+          }
+        }
+      }
+    },
+    "controls.local": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预览"
+          }
+        }
+      }
+    },
+    "controls.microphone_permission_required": {
+      "comment": "Shown after an explicit microphone request is denied or restricted.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone access is unavailable. Allow FaceNow to access your microphone in System Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风权限未开启，请在系统设置中允许 FaceNow 访问麦克风。"
+          }
+        }
+      }
+    },
+    "controls.monitoring_volume": {
+      "comment": "The volume of generated audio played on the local machine.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring Volume"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监听音量"
+          }
+        }
+      }
+    },
+    "controls.monitoring_volume_description": {
+      "comment": "Explains the separation between local monitoring and virtual microphone output.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only affects local playback; virtual microphone output is unchanged."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅调节本机播放音量，不影响虚拟麦克风输出。"
+          }
+        }
+      }
+    },
+    "controls.muted": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已静音"
+          }
+        }
+      }
+    },
+    "controls.remote_volume": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote volume"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远端音量"
+          }
+        }
+      }
+    },
+    "controls.remove_reference": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove reference"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除参考图"
+          }
+        }
+      }
+    },
+    "controls.result": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Generation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI生成"
+          }
+        }
+      }
+    },
+    "controls.show_statistics": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show statistics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示统计信息"
+          }
+        }
+      }
+    },
+    "controls.stop_session": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop Session"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止会话"
+          }
+        }
+      }
+    },
+    "controls.stopping": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopping…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在停止…"
+          }
+        }
+      }
+    },
+    "controls.submit_prompt": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Submit prompt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提交提示词"
+          }
+        }
+      }
+    },
+    "controls.switching": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在切换"
+          }
+        }
+      }
+    },
+    "controls.switching_frame_interpolation": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching frame interpolation…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在切换补帧…"
+          }
+        }
+      }
+    },
+    "controls.reference_image_uploading": {
+      "comment": "Status while the selected reference image is being uploaded and checked.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uploading and checking reference image…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在上传并检测参考图…"
+          }
+        }
+      }
+    },
+    "controls.upload": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传"
+          }
+        }
+      }
+    },
+    "controls.upload_reference_image": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload reference image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传参考图"
+          }
+        }
+      }
+    },
+    "controls.upload_your_own_reference_image": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload your own reference image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传你自己的参考图"
+          }
+        }
+      }
+    },
+    "controls.waiting_for_connection": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationWorkspaceView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for connection…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待连接…"
+          }
+        }
+      }
+    },
+    "error.connect_a_physical_camera_and_select_it_from_the": {
+      "comment": "Displayed text in Modules/FNGeneration/GenerationRepository.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect a physical camera and select it from the camera list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请连接实体摄像头，并从摄像头列表中选择它。"
+          }
+        }
+      }
+    },
+    "error.the_previous_session_is_still_stopping_please_try_again": {
+      "comment": "Displayed text in Modules/FNGeneration/GenerationRepository.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The previous session is still stopping. Please try again in a moment."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上一次会话仍在停止中，请稍后再试。"
+          }
+        }
+      }
+    },
+    "error.reference_image_rejected": {
+      "comment": "Shown after the reference image fails the content safety check.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This reference image did not pass the safety check. Choose a different image."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "参考图未通过安全检测，请换一张图片。"
+          }
+        }
+      }
+    },
+    "error.unable_to_decode_reference_image_please_choose_a_supported": {
+      "comment": "Displayed text in Modules/FNGeneration/GenerationRepository.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to decode reference image; please choose a supported image file"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法解码参考图，请选择受支持的图片文件"
+          }
+        }
+      }
+    },
+    "message.virtual_camera_output_failed_error_localizeddescription": {
+      "comment": "Complete message; preserve all format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual camera output failed: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头输出失败：%@"
+          }
+        }
+      }
+    },
+    "mode.character_swap": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Character Swap"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "角色替换"
+          }
+        }
+      }
+    },
+    "mode.free_prompt": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free Prompt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自由提示词"
+          }
+        }
+      }
+    },
+    "mode.style_transfer": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Style Transfer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "风格迁移"
+          }
+        }
+      }
+    },
+    "mode.summon": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Summon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟召唤"
+          }
+        }
+      }
+    },
+    "mode.virtual_try_on": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/Model/GenerationMode.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Try-On"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟试穿"
+          }
+        }
+      }
+    },
+    "preset.charx_3d_cow": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 4"
+          }
+        }
+      }
+    },
+    "preset.charx_3d_milk_frog": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 1"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 3"
+          }
+        }
+      }
+    },
+    "preset.charx_alien_kitty": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 5"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 13"
+          }
+        }
+      }
+    },
+    "preset.charx_anime_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anime Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "动漫少女"
+          }
+        }
+      }
+    },
+    "preset.charx_business_milk_frog": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 6"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 12"
+          }
+        }
+      }
+    },
+    "preset.charx_candy_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Candy Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "糖果少女"
+          }
+        }
+      }
+    },
+    "preset.charx_corporate_cow": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chosen Workhorse"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天选牛马"
+          }
+        }
+      }
+    },
+    "preset.charx_cute_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cute Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大眼萌妹"
+          }
+        }
+      }
+    },
+    "preset.charx_cute_hamster": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adorable Hamster"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呆萌仓鼠"
+          }
+        }
+      }
+    },
+    "preset.charx_dreamy_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dreamy Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "唯美少女"
+          }
+        }
+      }
+    },
+    "preset.charx_elon_musk": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 7"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 17"
+          }
+        }
+      }
+    },
+    "preset.charx_humanoid_robot": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Humanoid Robot"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "人形机器"
+          }
+        }
+      }
+    },
+    "preset.charx_mecha_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mecha Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "机甲少女"
+          }
+        }
+      }
+    },
+    "preset.charx_mecha_warrior": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 8"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 15"
+          }
+        }
+      }
+    },
+    "preset.charx_short_haired_cool_girl": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short-Haired Cool Girl"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "短发酷姐"
+          }
+        }
+      }
+    },
+    "preset.charx_special_ops": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Special Forces Soldier"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特战士兵"
+          }
+        }
+      }
+    },
+    "preset.charx_suited_guy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suited Guy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "西装青年"
+          }
+        }
+      }
+    },
+    "preset.charx_tech_duck": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 10"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 18"
+          }
+        }
+      }
+    },
+    "preset.charx_trendy_boy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 11"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 16"
+          }
+        }
+      }
+    },
+    "preset.clothx_baseball_cap": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baseball Cap"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棒球帽"
+          }
+        }
+      }
+    },
+    "preset.clothx_black_collar_academy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black-Collared Preppy Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑领学院装"
+          }
+        }
+      }
+    },
+    "preset.clothx_bottoms_replacement": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottoms Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换下装"
+          }
+        }
+      }
+    },
+    "preset.clothx_bottoms_replacement_2": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottoms Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换下装"
+          }
+        }
+      }
+    },
+    "preset.clothx_monochrome_vanguard": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black-and-White Avant-Garde Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑白先锋装"
+          }
+        }
+      }
+    },
+    "preset.clothx_navy_sailor_outfit": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navy Sailor Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "藏青水手装"
+          }
+        }
+      }
+    },
+    "preset.clothx_pink_academy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pink Preppy Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粉色学院装"
+          }
+        }
+      }
+    },
+    "preset.clothx_silver_fantasy_robe": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silver-White Xianxia Robe"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银白仙侠袍"
+          }
+        }
+      }
+    },
+    "preset.clothx_sunglasses": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunglasses"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "墨镜"
+          }
+        }
+      }
+    },
+    "preset.clothx_top_replacement": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换上衣"
+          }
+        }
+      }
+    },
+    "preset.clothx_top_replacement_2": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Replacement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换上衣"
+          }
+        }
+      }
+    },
+    "preset.clothx_vintage_brown": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brown Artsy Outfit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棕色文艺装"
+          }
+        }
+      }
+    },
+    "preset.dimx_cow_plushie": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cow Doll"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "奶牛玩偶"
+          }
+        }
+      }
+    },
+    "preset.dimx_cream_kitten": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cream-White Bunny"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "奶白小兔"
+          }
+        }
+      }
+    },
+    "preset.dimx_fluffy_bunny": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Little Rabbit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小兔在肩"
+          }
+        }
+      }
+    },
+    "preset.dimx_hello_kitty": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello Kitty"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hello Kitty"
+          }
+        }
+      }
+    },
+    "preset.dimx_little_dog": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Little Dog"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小狗在肩"
+          }
+        }
+      }
+    },
+    "preset.dimx_little_mouse": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Little Mouse"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小鼠在肩"
+          }
+        }
+      }
+    },
+    "preset.dimx_nailoong": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 9"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "removed preset 14"
+          }
+        }
+      }
+    },
+    "preset.dimx_penguin_plushie": {
+      "comment": "Playground X2.1 summon mode or preset name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Penguin Doll"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "企鹅玩偶"
+          }
+        }
+      }
+    },
+    "preset.vibex_3d_cartoon": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D Cartoon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D卡通"
+          }
+        }
+      }
+    },
+    "preset.vibex_american_cartoon": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calf on Grass"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "草地小牛"
+          }
+        }
+      }
+    },
+    "preset.vibex_designer_toy": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Designer Toy Figurines"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "潮玩人偶"
+          }
+        }
+      }
+    },
+    "preset.vibex_hell_meme": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark Humor Meme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地狱梗图"
+          }
+        }
+      }
+    },
+    "preset.vibex_photorealistic_portrait": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photorealistic Portrait"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写实人象"
+          }
+        }
+      }
+    },
+    "preset.vibex_realistic_animals": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photorealistic Animals"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写实动物"
+          }
+        }
+      }
+    },
+    "preset.vibex_sentai_tokusatsu": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentai Tokusatsu"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "战队特摄"
+          }
+        }
+      }
+    },
+    "preset.vibex_surrealism": {
+      "comment": "Name of the matching Playground X2.1 reference image.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surrealism"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "超现实风"
+          }
+        }
+      }
+    },
+    "reference.retry_error": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ — Click to retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ — 点击重试"
+          }
+        }
+      }
+    },
+    "statistics.downlink_bitrate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink bitrate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行码率"
+          }
+        }
+      }
+    },
+    "statistics.downlink_frame_rate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink frame rate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行帧率"
+          }
+        }
+      }
+    },
+    "statistics.downlink_network_and_latency": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink network and latency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行网络与延迟"
+          }
+        }
+      }
+    },
+    "statistics.downlink_network_quality": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink network quality"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行网络质量"
+          }
+        }
+      }
+    },
+    "statistics.downlink_packet_loss": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink packet loss"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行丢包率"
+          }
+        }
+      }
+    },
+    "statistics.downlink_resolution": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink resolution"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行分辨率"
+          }
+        }
+      }
+    },
+    "statistics.downlink_video_statistics": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downlink video statistics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下行视频统计"
+          }
+        }
+      }
+    },
+    "statistics.e2e_rtc_estimate": {
+      "comment": "Display label for a diagnostic metric; the metric ID remains stable.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E2E (RTC estimate)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端到端延迟（RTC 估算）"
+          }
+        }
+      }
+    },
+    "statistics.first_frame_latency": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First frame latency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首帧延迟"
+          }
+        }
+      }
+    },
+    "statistics.from_generation_signal_submission_to_the_first_display_ready": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From generation signal submission to the first display-ready result frame"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从提交生成指令到首个可显示的生成帧就绪的耗时"
+          }
+        }
+      }
+    },
+    "statistics.from_joining_the_rtc_channel_until_the_connection_succeeds": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From joining the RTC channel until the connection succeeds"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从加入 RTC 频道到连接成功的耗时"
+          }
+        }
+      }
+    },
+    "statistics.from_starting_generation_after_camera_readiness_to_the_first": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From starting generation after camera readiness to the first display-ready result. Camera preparation is excluded; the total is measured directly, not added from stage durations."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从摄像头就绪后开始生成，到首个可显示的生成帧就绪的耗时。不包含摄像头准备时间；总耗时直接测量，并非各阶段耗时相加。"
+          }
+        }
+      }
+    },
+    "statistics.launch_timing": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch timing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动耗时"
+          }
+        }
+      }
+    },
+    "statistics.metric": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld %2$@"
+          }
+        }
+      }
+    },
+    "statistics.milliseconds": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.1f ms"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.1f 毫秒"
+          }
+        }
+      }
+    },
+    "statistics.not_exposed_by_the_macos_sdk": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not exposed by the macOS SDK"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS SDK 未提供此数据"
+          }
+        }
+      }
+    },
+    "statistics.packet_loss_from_this_sdk_to_the_rtc_cloud": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packet loss from this SDK to the RTC cloud, not local preview loss"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 SDK 到 RTC 云端的丢包率，不代表本地预览丢帧率"
+          }
+        }
+      }
+    },
+    "statistics.playback_buffer_delay": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playback buffer delay"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放缓冲延迟"
+          }
+        }
+      }
+    },
+    "statistics.qualityBad": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bad"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "较差"
+          }
+        }
+      }
+    },
+    "statistics.qualityDown": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Down"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已断开"
+          }
+        }
+      }
+    },
+    "statistics.qualityExcellent": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excellent"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "极佳"
+          }
+        }
+      }
+    },
+    "statistics.qualityGood": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "良好"
+          }
+        }
+      }
+    },
+    "statistics.qualityPoor": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poor"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般"
+          }
+        }
+      }
+    },
+    "statistics.qualityUnknown": {
+      "comment": "Localized SDK network-quality display value; the SDK enum is unchanged.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
+          }
+        }
+      }
+    },
+    "statistics.resolution": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld × %2$lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld × %2$lld"
+          }
+        }
+      }
+    },
+    "statistics.rtc_connection": {
+      "comment": "Display label for a diagnostic metric; the metric ID remains stable.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RTC connection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RTC 连接"
+          }
+        }
+      }
+    },
+    "statistics.rtt_cloud": {
+      "comment": "Display label for a diagnostic metric; the metric ID remains stable.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RTT (cloud)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "往返延迟（云端）"
+          }
+        }
+      }
+    },
+    "statistics.session_creation": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session creation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话创建"
+          }
+        }
+      }
+    },
+    "statistics.stream_publication": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stream publication"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体流发布"
+          }
+        }
+      }
+    },
+    "statistics.time_spent_creating_the_server_side_generation_session": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time spent creating the server-side generation session"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "创建服务端生成会话的耗时"
+          }
+        }
+      }
+    },
+    "statistics.time_spent_publishing_the_local_media_stream_to_the": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time spent publishing the local media stream to the RTC channel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将本地媒体流发布到 RTC 频道的耗时"
+          }
+        }
+      }
+    },
+    "statistics.total_startup": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total startup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动总耗时"
+          }
+        }
+      }
+    },
+    "statistics.uplink_bitrate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink bitrate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行码率"
+          }
+        }
+      }
+    },
+    "statistics.uplink_frame_rate": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink frame rate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行帧率"
+          }
+        }
+      }
+    },
+    "statistics.uplink_network_and_latency": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink network and latency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行网络与延迟"
+          }
+        }
+      }
+    },
+    "statistics.uplink_network_quality": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink network quality"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行网络质量"
+          }
+        }
+      }
+    },
+    "statistics.uplink_packet_loss": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink packet loss"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行丢包率"
+          }
+        }
+      }
+    },
+    "statistics.uplink_resolution": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink resolution"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行分辨率"
+          }
+        }
+      }
+    },
+    "statistics.uplink_rtt": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink RTT"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行往返延迟"
+          }
+        }
+      }
+    },
+    "statistics.uplink_video_statistics": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uplink video statistics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上行视频统计"
+          }
+        }
+      }
+    },
+    "statistics.very_bad": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/ViewModel/GenerationStatisticsViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very bad"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "很差"
+          }
+        }
+      }
+    },
+    "sync.audio_earlier": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio earlier"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "声音提前"
+          }
+        }
+      }
+    },
+    "sync.audio_later": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio later"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "声音延后"
+          }
+        }
+      }
+    },
+    "sync.automatic_description": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically align audio with generated video"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动对齐声音与生成画面"
+          }
+        }
+      }
+    },
+    "sync.automatic_title": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic A/V Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动音画同步"
+          }
+        }
+      }
+    },
+    "sync.close": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close audio and video adjustments"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭音画调节"
+          }
+        }
+      }
+    },
+    "sync.enabled": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已启用"
+          }
+        }
+      }
+    },
+    "sync.manual_description": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fine-tune the automatic synchronization"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在自动同步基础上微调"
+          }
+        }
+      }
+    },
+    "sync.manual_title": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual Sync Offset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动同步偏移"
+          }
+        }
+      }
+    },
+    "sync.offset_milliseconds": {
+      "comment": "Manual synchronization offset in milliseconds; preserve the integer placeholder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ms"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ms"
+          }
+        }
+      }
+    },
+    "sync.offset_value": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偏移值"
+          }
+        }
+      }
+    },
+    "sync.realtime_hint": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjustments apply to meeting output"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调整实时生效，仅影响会议输出"
+          }
+        }
+      }
+    },
+    "sync.reset": {
+      "comment": "Meeting-output audio/video synchronization settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置"
+          }
+        }
+      }
+    },
+    "translation.input": {
+      "comment": "Labels the shared physical audio input.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风"
+          }
+        }
+      }
+    },
+    "translation.source_language": {
+      "comment": "Labels the language spoken into the microphone.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoken language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "识别语言"
+          }
+        }
+      }
+    },
+    "translation.target_language": {
+      "comment": "Labels the translation language used for subtitles.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subtitle language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字幕语言"
+          }
+        }
+      }
+    },
+    "translation.status": {
+      "comment": "Labels the live translation state.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行状态"
+          }
+        }
+      }
+    },
+    "translation.status_interrupted": {
+      "comment": "Shows that an active translation stopped unexpectedly.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrupted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已中断"
+          }
+        }
+      }
+    },
+    "translation.status_needs_permission": {
+      "comment": "Shows that translation needs microphone permission.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone access required"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要麦克风权限"
+          }
+        }
+      }
+    },
+    "translation.status_needs_microphone": {
+      "comment": "Shows that translation needs a selected microphone.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a microphone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择麦克风"
+          }
+        }
+      }
+    },
+    "translation.language_packs": {
+      "comment": "Labels the speech and translation resource status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language packs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言包"
+          }
+        }
+      }
+    },
+    "translation.speech_language": {
+      "comment": "Distinguishes the speech asset from the translation languages in the same list.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech pack: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测包：%@"
+          }
+        }
+      }
+    },
+    "translation.pack_direction": {
+      "comment": "Names the language pack row using the selected translation direction.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation: %1$@ → %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻译包：%1$@ → %2$@"
+          }
+        }
+      }
+    },
+    "translation.status_needs_languages": {
+      "comment": "Explains why translation cannot start until the required languages are installed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translation languages needed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需下载翻译语言"
+          }
+        }
+      }
+    },
+    "translation.resources_checking": {
+      "comment": "Shows that the app is checking language availability.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查…"
+          }
+        }
+      }
+    },
+    "translation.resources_ready": {
+      "comment": "Shows that the selected language resources are installed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已安装"
+          }
+        }
+      }
+    },
+    "translation.resources_unavailable": {
+      "comment": "Marks a resource that the system cannot use.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不可用"
+          }
+        }
+      }
+    },
+    "translation.resource_downloading": {
+      "comment": "Shows a download without a reported percentage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载中…"
+          }
+        }
+      }
+    },
+    "translation.resource_failed": {
+      "comment": "Reports an unsuccessful resource download.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载失败"
+          }
+        }
+      }
+    },
+    "translation.download_resource": {
+      "comment": "Downloads the language resource shown in a single row.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载"
+          }
+        }
+      }
+    },
+    "translation.retry_download": {
+      "comment": "Retries a failed language resource download.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "translation.resource_action": {
+      "comment": "Distinguishes identical row actions for VoiceOver.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "translation.resource_progress": {
+      "comment": "Shows the localized percentage reported by a speech download.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载中 %@"
+          }
+        }
+      }
+    },
+    "translation.start": {
+      "comment": "Starts listening and translating with the current settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Translation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启传译"
+          }
+        }
+      }
+    },
+    "translation.stop": {
+      "comment": "Stops listening and clears subtitles.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop Translation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止传译"
+          }
+        }
+      }
+    },
+    "translation.close_dialog": {
+      "comment": "Labels the close control on the translation configuration dialog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close live translation settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭同声传译设置"
+          }
+        }
+      }
+    },
+    "translation.choose_microphone": {
+      "comment": "Prompts the user to select an input before enabling translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a microphone to turn on live translation."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先选择麦克风，再开启同声传译。"
+          }
+        }
+      }
+    },
+    "translation.downloading_languages": {
+      "comment": "Identifies the first-run language download separately from microphone startup.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading language packs…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在下载语言包…"
+          }
+        }
+      }
+    },
+    "translation.listening": {
+      "comment": "Explains that live translation is listening to the selected microphone.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening to the selected microphone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在聆听所选麦克风。"
+          }
+        }
+      }
+    },
+    "translation.microphone_access": {
+      "comment": "Prompts for microphone authorization before the first translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow microphone access to start live translation."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先授权麦克风，再开启同声传译。"
+          }
+        }
+      }
+    },
+    "translation.off": {
+      "comment": "Explains that live translation is stopped.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已关闭"
+          }
+        }
+      }
+    },
+    "translation.preparing": {
+      "comment": "Shows that speech and translation resources are being prepared.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing live translation…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备同声传译…"
+          }
+        }
+      }
+    },
+    "translation.requires_macos": {
+      "comment": "Explains the minimum system version for live translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live translation requires macOS 26 or later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同声传译需要 macOS 26 或更高版本。"
+          }
+        }
+      }
+    },
+    "translation.title": {
+      "comment": "Names the live translation configuration.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Translation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同声传译"
+          }
+        }
+      }
+    },
+    "translation.unavailable": {
+      "comment": "Explains a recoverable failure of live translation.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live translation has stopped. Check your microphone and system language downloads, then try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同声传译已停止。请检查麦克风和系统语言包后重试。"
+          }
+        }
+      }
+    },
+    "translation.waiting_for_microphone": {
+      "comment": "Shows that live translation is waiting for the chosen input.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the microphone…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待麦克风…"
+          }
+        }
+      }
+    },
+    "value.percentage": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -1,0 +1,348 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "action.back": {
+      "comment": "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingGuideView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回"
+          }
+        }
+      }
+    },
+    "action.continue": {
+      "comment": "Displayed text in Modules/FNOnboarding/MVVM/ViewModel/OnboardingFlowViewModel.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
+          }
+        }
+      }
+    },
+    "action.dismiss": {
+      "comment": "Displayed text in Services/UI/ToastView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "action.install": {
+      "comment": "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装"
+          }
+        }
+      }
+    },
+    "action.retry": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationReferenceButton.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "action.update": {
+      "comment": "Displayed text in Modules/FNOnboarding/MVVM/Model/CameraNoticePresentation.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
+          }
+        }
+      }
+    },
+    "camera.virtual_camera": {
+      "comment": "Displayed text in Modules/FNOnboarding/MVVM/View/OnboardingSetupView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头"
+          }
+        }
+      }
+    },
+    "control.microphone": {
+      "comment": "Shared native-control or capture message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风"
+          }
+        }
+      }
+    },
+    "legal.privacy_policy": {
+      "comment": "Shared account-menu label.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私政策"
+          }
+        }
+      }
+    },
+    "legal.terms_of_use": {
+      "comment": "Shared account-menu label.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of Use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用条款"
+          }
+        }
+      }
+    },
+    "state.off": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "state.on": {
+      "comment": "Displayed text in Modules/FNGeneration/MVVM/View/GenerationToolbarView.swift.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启"
+          }
+        }
+      }
+    },
+    "state.selected": {
+      "comment": "Shared native-control or capture message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已选中"
+          }
+        }
+      }
+    },
+    "updates.acknowledge": {
+      "comment": "Dismisses an informational update alert.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好"
+          }
+        }
+      }
+    },
+    "updates.check": {
+      "comment": "App menu action that checks for software updates.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查更新…"
+          }
+        }
+      }
+    },
+    "updates.unavailable.details": {
+      "comment": "Explains unavailable software updates.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic updates have not been enabled for this version of FaceNow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本的 FaceNow 尚未启用自动更新。"
+          }
+        }
+      }
+    },
+    "updates.unavailable.title": {
+      "comment": "Title when this build has no update service.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates are not available yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新暂不可用"
+          }
+        }
+      }
+    },
+    "updates.waiting.details": {
+      "comment": "Explains how to complete a requested update after capture stops.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop camera preview or generation to finish installing the update. FaceNow will then restart automatically."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请停止摄像头预览或视频生成以完成更新安装，随后 FaceNow 将自动重新启动。"
+          }
+        }
+      }
+    },
+    "updates.waiting.title": {
+      "comment": "Title for an update postponed by camera usage.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update ready to install"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新已就绪，可以安装"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

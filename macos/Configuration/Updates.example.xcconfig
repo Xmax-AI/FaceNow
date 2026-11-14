@@ -1,0 +1,5 @@
+// Copy these public settings into Configuration/Local.xcconfig or pass them to xcodebuild.
+// The empty $() prevents xcconfig from treating the URL's double slash as a comment.
+// Keep the appcast URL stable across versions. Never put the Ed25519 private key here.
+FACENOW_UPDATE_FEED_URL = https:/$()/updates.your-domain.com/facenow/appcast.xml
+FACENOW_UPDATE_PUBLIC_KEY = REPLACE_WITH_GENERATED_PUBLIC_ED25519_KEY

@@ -1,0 +1,33 @@
+# macOS and local development documentation
+.DS_Store
+/Docs/
+
+# Build caches and generated distribution artifacts
+.build/
+.swiftpm/
+DerivedData/
+*.app/
+*.xcarchive/
+*.xcresult/
+*.dSYM/
+*.dmg
+*.log
+__pycache__/
+
+# Per-user Xcode state; keep shared schemes and Package.resolved tracked
+xcuserdata/
+*.xcuserstate
+
+# Local configuration and signing credentials
+Configuration/Local.xcconfig
+.env
+.env.*
+!.env.example
+!.env.sample
+*.p12
+*.pfx
+*.p8
+*.key
+*.pem
+*.mobileprovision
+*.provisionprofile

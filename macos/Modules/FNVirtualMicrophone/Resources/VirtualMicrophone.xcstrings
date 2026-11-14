@@ -1,0 +1,312 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "microphone.installer_unavailable": {
+      "comment": "Reports a missing or unopenable installer without implying generated audio has failed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t open the audio driver installer. Reinstall FaceNow and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法打开音频驱动安装器。请重新安装 FaceNow 后重试。"
+          }
+        }
+      }
+    },
+    "microphone.title": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Microphone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟麦克风"
+          }
+        }
+      }
+    },
+    "microphone.enable": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用"
+          }
+        }
+      }
+    },
+    "microphone.disable": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "microphone.install": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装"
+          }
+        }
+      }
+    },
+    "microphone.cancel": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭窗口"
+          }
+        }
+      }
+    },
+    "microphone.settings": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio MIDI Setup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音频 MIDI 设置"
+          }
+        }
+      }
+    },
+    "microphone.instructions": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In your meeting app, select %1$@ as the microphone to keep audio and video in sync. Local listening volume does not affect this output. When no audio is available, the microphone outputs silence."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在会议软件中选择 %1$@ 作为麦克风，让声音与画面保持同步。本机监听音量不影响此输出；没有音频时，虚拟麦克风保持静音。"
+          }
+        }
+      }
+    },
+    "microphone.install_instructions": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install the FaceNow audio driver with the macOS installer. Administrator authorization is required. After installation, restart your Mac if the device has not appeared, then return here to enable it. This does not change your default microphone or speakers."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 macOS 安装器安装 FaceNow 音频驱动，需要管理员授权。安装后如未出现设备，请重新启动 Mac，再返回此处启用。这不会更改默认麦克风或扬声器。"
+          }
+        }
+      }
+    },
+    "microphone.failed": {
+      "comment": "Virtual microphone setup and output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual microphone output is unavailable and has been disabled. Generation and the virtual camera will continue. Check the audio driver, then enable it again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟麦克风暂不可用，已关闭音频输出。生成和虚拟摄像头将继续。请检查音频驱动后重新启用。"
+          }
+        }
+      }
+    },
+    "microphone.uninstall": {
+      "comment": "Virtual microphone setup.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uninstall Driver"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卸载驱动"
+          }
+        }
+      }
+    },
+    "microphone.uninstall_instructions": {
+      "comment": "Virtual microphone setup.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uninstall the FaceNow audio driver? Administrator authorization is required. Restart your Mac after removal to unload the device. Only this FaceNow edition’s audio driver will be removed. The other edition and other audio drivers will not be changed."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认卸载 FaceNow 音频驱动？需要管理员授权，卸载后请重新启动 Mac，以移除已加载的设备。只会移除此版本的音频驱动，不影响另一版本或其他音频驱动。"
+          }
+        }
+      }
+    },
+    "microphone.disabled": {
+      "comment": "Virtual microphone output status.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已关闭"
+          }
+        }
+      }
+    },
+    "microphone.reinstall": {
+      "comment": "Updates the installed virtual audio driver through macOS Installer.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall Driver"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新安装驱动"
+          }
+        }
+      }
+    },
+    "microphone.pending_activation": {
+      "comment": "Distinguishes successful driver installation from system device publication.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The driver is installed, but macOS has not loaded the microphone yet. Restart your Mac, then open FaceNow again. Reinstalling or reopening FaceNow alone will not reload the system audio service."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驱动已安装成功，但 macOS 尚未加载虚拟麦克风。请重新启动 Mac，再打开 FaceNow。重复安装或仅重开 FaceNow 不会重新加载系统音频服务。"
+          }
+        }
+      }
+    },
+    "microphone.check_again": {
+      "comment": "Distinguishes successful driver installation from system device publication.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新检测"
+          }
+        }
+      }
+    },
+    "microphone.enabled": {
+      "comment": "Explicit output switch is enabled. Independent of generation and incoming audio.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已启用"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

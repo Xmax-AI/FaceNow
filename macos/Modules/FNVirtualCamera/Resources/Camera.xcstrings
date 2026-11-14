@@ -1,0 +1,672 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "status.invalid_camera_bundle": {
+      "comment": "Separates a missing app component from an unsupported installation location.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceNow’s camera component is unavailable. Reinstall FaceNow before continuing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceNow 的虚拟摄像头组件不可用。请重新安装 FaceNow 后继续。"
+          }
+        }
+      }
+    },
+    "error.installation_failed": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installation failed: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装失败：%@"
+          }
+        }
+      }
+    },
+    "error.not_ready": {
+      "comment": "Localized page text; preserve all placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera not ready: %@ Click Refresh to retry."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头尚未就绪：%@ 请点击“刷新”重试。"
+          }
+        }
+      }
+    },
+    "error.removal_failed": {
+      "comment": "Complete display message; preserve the format placeholders.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removal failed: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除失败：%@"
+          }
+        }
+      }
+    },
+    "error.removal_mismatch": {
+      "comment": "Localized page text; preserve all placeholders and product names.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removal failed: macOS could not match the installed camera to this app. Click Update, then Remove, or remove it in System Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除失败：macOS 无法将已安装的摄像头与此应用匹配。请先点击“更新”，再点击“移除”，或在系统设置中将其移除。"
+          }
+        }
+      }
+    },
+    "status.activate_virtual_camera_to_finish_setup": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activate Virtual Camera to finish setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请激活虚拟摄像头以完成设置。"
+          }
+        }
+      }
+    },
+    "status.approve_the_facenow_camera_extension_in_system_settings": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve the FaceNow camera extension in System Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在系统设置中批准 FaceNow 摄像头扩展。"
+          }
+        }
+      }
+    },
+    "status.camera_access_has_not_been_allowed_allow_camera_access": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access has not been allowed. Allow camera access in setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未允许访问摄像头，请在设置中授予摄像头权限。"
+          }
+        }
+      }
+    },
+    "status.camera_access_is_off_enable_facenow_in_system_settings": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access is off. Enable FaceNow in System Settings → Privacy & Security → Camera."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头权限已关闭。请在“系统设置 → 隐私与安全性 → 摄像头”中启用 FaceNow。"
+          }
+        }
+      }
+    },
+    "status.camera_access_is_restricted_by_macos_or_device_policy": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access is restricted by macOS or device policy."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 或设备策略限制了摄像头访问。"
+          }
+        }
+      }
+    },
+    "status.camera_extension_enabled_click_update_to_test_activation": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera extension enabled. Reinstall Virtual Camera to test setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头扩展已启用，请重新安装虚拟摄像头以测试设置。"
+          }
+        }
+      }
+    },
+    "status.camera_extension_enabled_waiting_for_the_camera_to_become": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera extension enabled. Waiting for the camera to become available…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头扩展已启用，正在等待摄像头可用…"
+          }
+        }
+      }
+    },
+    "status.camera_extension_not_enabled": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera extension not enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头扩展未启用"
+          }
+        }
+      }
+    },
+    "status.camera_ready": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera ready"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头已就绪"
+          }
+        }
+      }
+    },
+    "status.checking_camera_setup_please_try_again_in_a_moment": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking camera setup. Please try again in a moment."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查摄像头设置，请稍后重试。"
+          }
+        }
+      }
+    },
+    "status.enable_facenow_xmax_virtual_camera_in_system_settings_general": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable %1$@ in System Settings → General → Login Items & Extensions → Camera Extensions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在“系统设置 → 通用 → 登录项与扩展 → 摄像头扩展”中启用 %1$@。"
+          }
+        }
+      }
+    },
+    "status.installing_camera_extension": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installing camera extension…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在安装摄像头扩展…"
+          }
+        }
+      }
+    },
+    "status.macos_has_refreshed_the_camera_but_facenow_still_has": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS has refreshed the camera, but FaceNow still has the previous device list. Quit and reopen FaceNow to continue."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 已刷新摄像头，但 FaceNow 仍保留旧的设备列表。请退出并重新打开 FaceNow 以继续。"
+          }
+        }
+      }
+    },
+    "status.macos_has_refreshed_the_camera_quit_and_reopen_facenow": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS has refreshed the camera. Quit and reopen FaceNow to refresh its device list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 已刷新摄像头，请退出并重新打开 FaceNow，以刷新设备列表。"
+          }
+        }
+      }
+    },
+    "status.move_facenow_to_applications_before_installing_the_extension": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move FaceNow to /Applications before installing the extension."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装扩展前，请将 FaceNow 移至 /Applications。"
+          }
+        }
+      }
+    },
+    "status.move_facenow_to_applications_before_installing_virtual_camera": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move FaceNow to /Applications before installing Virtual Camera."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装虚拟摄像头前，请将 FaceNow 移至 /Applications。"
+          }
+        }
+      }
+    },
+    "status.no_physical_camera_was_found_connect_a_camera_and": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No physical camera was found. Connect a camera and check again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到实体摄像头，请连接摄像头后重新检查。"
+          }
+        }
+      }
+    },
+    "status.not_checked": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not checked"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未检查"
+          }
+        }
+      }
+    },
+    "status.removing_virtual_camera": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removing virtual camera…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在移除虚拟摄像头…"
+          }
+        }
+      }
+    },
+    "status.request_completed": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request completed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求已完成"
+          }
+        }
+      }
+    },
+    "status.the_selected_camera_was_disconnected_reconnect_it_or_select": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The selected camera was disconnected. Reconnect it or select another camera."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所选摄像头已断开连接，请重新连接或选择其他摄像头。"
+          }
+        }
+      }
+    },
+    "status.update_virtual_camera_to_match_this_version_of_facenow": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall Virtual Camera to match this version of FaceNow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请重新安装虚拟摄像头，以匹配此版本的 FaceNow。"
+          }
+        }
+      }
+    },
+    "status.virtual_camera_did_not_become_available_in_time_check": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera is enabled but unavailable. Turn FaceNow off and back on in Camera Extensions, then return to FaceNow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头已启用但不可用。请在“摄像头扩展”中将 FaceNow 关闭后重新开启，然后返回 FaceNow。"
+          }
+        }
+      }
+    },
+    "status.virtual_camera_is_being_installed_please_wait": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera is being installed. Please wait."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在安装虚拟摄像头，请稍候。"
+          }
+        }
+      }
+    },
+    "status.virtual_camera_is_being_removed_please_wait": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera is being removed. Please wait."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在移除虚拟摄像头，请稍候。"
+          }
+        }
+      }
+    },
+    "status.virtual_camera_is_disabled_enable_it_in_system_settings": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera is disabled. Enable it in System Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头已停用，请在系统设置中启用。"
+          }
+        }
+      }
+    },
+    "status.virtual_camera_is_not_installed_install_it_in_setup": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera is not installed. Install it in setup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未安装虚拟摄像头，请在设置中安装。"
+          }
+        }
+      }
+    },
+    "status.virtual_camera_needs_an_update_to_match_this_version": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall Virtual Camera to match this version of FaceNow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请重新安装虚拟摄像头，以匹配此版本的 FaceNow。"
+          }
+        }
+      }
+    },
+    "status.virtual_camera_ready": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual camera ready"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头已就绪"
+          }
+        }
+      }
+    },
+    "status.waiting_for_camera_permission_please_answer_the_system_prompt": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for camera permission. Please answer the system prompt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待摄像头权限，请回应系统提示。"
+          }
+        }
+      }
+    },
+    "status.waiting_for_virtual_camera_to_become_available_please_wait": {
+      "comment": "Camera preparation status or recovery message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for Virtual Camera to become available. Please wait."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待虚拟摄像头可用，请稍候。"
+          }
+        }
+      }
+    },
+    "status.installation_incomplete": {
+      "comment": "Explains incomplete virtual-camera setup with Install as the recovery action.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual Camera setup is incomplete. Install it again to continue."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟摄像头设置尚未完成，请重新安装后继续。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
