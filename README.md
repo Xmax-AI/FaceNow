@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/assets/facenow-banner.png" alt="FaceNow. Your New Look For every camera moment" width="880">
+  <img src="./materials/facenow-banner.png" alt="FaceNow. Real-time AI virtual camera" width="880">
 </p>
 
 <p align="center">
@@ -19,12 +19,26 @@ Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video 
 - **Adjust the effect while you're live.** Switch references or edit your prompt during the same session as you keep talking and moving.
 - **Send the result to a call or stream.** FaceNow appears as a camera source in apps that accept virtual cameras. Use the generated feed for a meeting on Zoom, Google Meet, or Tencent Meeting, a video chat on WeChat, or a Facebook Live broadcast through your streaming software.
 
-<p>
-  Available for
-  <img src="https://raw.githubusercontent.com/devicons/devicon/v2.17.0/icons/apple/apple-original.svg" width="16" height="16" alt=""> <strong>macOS</strong>
-  and
-  <img src="https://raw.githubusercontent.com/devicons/devicon/v2.17.0/icons/windows11/windows11-original.svg" width="16" height="16" alt=""> <strong>Windows</strong>.
-</p>
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="224">
+        <a href="./macos/README.md">
+          <img src="./materials/platform-macos.svg" width="56" height="56" alt=""><br>
+          <strong>macOS</strong><br>
+          Build guide &rarr;
+        </a>
+      </td>
+      <td align="center" width="224">
+        <a href="./windows/README.md">
+          <img src="./materials/platform-windows.svg" width="56" height="56" alt=""><br>
+          <strong>Windows</strong><br>
+          Build guide &rarr;
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
 
 <br>
 
