@@ -1469,7 +1469,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 991E239FA7EEC81345491C08 /* Build configuration list for PBXProject "XmaxCamera" */;
+			buildConfigurationList = 991E239FA7EEC81345491C08 /* Build configuration list for PBXProject "FaceNow" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -2465,7 +2465,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		991E239FA7EEC81345491C08 /* Build configuration list for PBXProject "XmaxCamera" */ = {
+		991E239FA7EEC81345491C08 /* Build configuration list for PBXProject "FaceNow" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				74C5E66B282E838AD9A8A958 /* Debug */,

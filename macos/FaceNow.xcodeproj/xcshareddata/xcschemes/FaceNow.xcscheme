@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "17CB8784BD0FAC4A3278BF0A"
+               BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
                BuildableName = "FaceNow.app"
-               BlueprintName = "FaceNow-oversea"
-               ReferencedContainer = "container:XmaxCamera.xcodeproj">
+               BlueprintName = "FaceNow"
+               ReferencedContainer = "container:FaceNow.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -30,10 +30,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "17CB8784BD0FAC4A3278BF0A"
+            BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
             BuildableName = "FaceNow.app"
-            BlueprintName = "FaceNow-oversea"
-            ReferencedContainer = "container:XmaxCamera.xcodeproj">
+            BlueprintName = "FaceNow"
+            ReferencedContainer = "container:FaceNow.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -53,10 +53,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "17CB8784BD0FAC4A3278BF0A"
+            BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
             BuildableName = "FaceNow.app"
-            BlueprintName = "FaceNow-oversea"
-            ReferencedContainer = "container:XmaxCamera.xcodeproj">
+            BlueprintName = "FaceNow"
+            ReferencedContainer = "container:FaceNow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -70,10 +70,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "17CB8784BD0FAC4A3278BF0A"
+            BlueprintIdentifier = "7EF4C081D4D1FA0411233A3C"
             BuildableName = "FaceNow.app"
-            BlueprintName = "FaceNow-oversea"
-            ReferencedContainer = "container:XmaxCamera.xcodeproj">
+            BlueprintName = "FaceNow"
+            ReferencedContainer = "container:FaceNow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
