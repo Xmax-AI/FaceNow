@@ -1,24 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="80" height="20" viewBox="0 0 80 20" role="img" aria-label="macOS 13+">
+<svg xmlns="http://www.w3.org/2000/svg" width="78" height="20" viewBox="0 0 78 20" role="img" aria-label="macOS 13+">
   <defs>
     <linearGradient id="shade" x2="0" y2="100%">
-      <stop stop-color="#bbb" stop-opacity=".1"/>
+      <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
       <stop offset="1" stop-opacity=".1"/>
     </linearGradient>
     <clipPath id="outline">
-      <rect width="80" height="20" rx="3"/>
+      <rect width="78" height="20" rx="3"/>
     </clipPath>
   </defs>
   <g clip-path="url(#outline)">
-    <rect width="49" height="20" fill="#302942"/>
-    <rect x="49" width="31" height="20" fill="#FF7A1A"/>
-    <rect width="80" height="20" fill="url(#shade)"/>
+    <rect width="47" height="20" fill="#302942"/>
+    <rect x="47" width="31" height="20" fill="#FF7A1A"/>
+    <rect width="78" height="20" fill="url(#shade)"/>
   </g>
   <g transform="scale(.1)" fill="#fff" text-anchor="middle" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="110" text-rendering="geometricPrecision">
     <g fill="#010101" opacity=".3" aria-hidden="true">
-      <text x="255" y="150" textLength="390">macOS</text>
-      <text x="645" y="150" textLength="230">13+</text>
+      <text x="235" y="150" textLength="390">macOS</text>
+      <text x="625" y="150" textLength="230">13+</text>
     </g>
-    <text x="255" y="140" textLength="390">macOS</text>
-    <text x="645" y="140" textLength="230">13+</text>
+    <text x="235" y="140" textLength="390">macOS</text>
+    <text x="625" y="140" textLength="230">13+</text>
   </g>
 </svg>

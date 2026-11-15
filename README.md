@@ -1,9 +1,9 @@
 <p align="center">
   <img src="./materials/facenow-banner.png" alt="FaceNow. Real-time AI virtual camera" width="880"><br>
-  <a href="https://platform.xmax.ai/"><img src="https://img.shields.io/badge/Xmax-AI-9760F0?labelColor=302942" alt="Xmax AI"></a>
+  <a href="https://platform.xmax.ai/"><img src="./materials/badge-xmax-ai.svg" alt="Xmax AI"></a>
   <a href="#what-facenow-can-do"><img src="./materials/badge-macos.svg" alt="macOS 13+"></a>
-  <a href="#what-facenow-can-do"><img src="https://img.shields.io/badge/Windows-11-168AFF?labelColor=302942" alt="Windows 11"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-4C9A2A?labelColor=302942" alt="MIT License"></a>
+  <a href="#what-facenow-can-do"><img src="./materials/badge-windows.svg" alt="Windows 11"></a>
+  <a href="./LICENSE"><img src="./materials/badge-license.svg" alt="MIT License"></a>
 </p>
 
 Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video calls and live streams via a virtual camera. It delivers real-time, high-fidelity video transformation, letting you step into a completely new character, swap outfits, and restyle your appearance on the fly using just a reference image and text prompts. Now that it’s open-source, you can easily extend it and build custom experiences for your own use cases.
