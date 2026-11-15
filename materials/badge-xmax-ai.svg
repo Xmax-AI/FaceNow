@@ -1,24 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="60" height="20" viewBox="0 0 60 20" role="img" aria-label="Xmax AI">
+<svg xmlns="http://www.w3.org/2000/svg" width="68" height="20" viewBox="0 0 68 20" role="img" aria-label="Xmax AI">
   <defs>
     <linearGradient id="shade" x2="0" y2="100%">
       <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
       <stop offset="1" stop-opacity=".1"/>
     </linearGradient>
     <clipPath id="outline">
-      <rect width="60" height="20" rx="3"/>
+      <rect width="68" height="20" rx="3"/>
     </clipPath>
   </defs>
   <g clip-path="url(#outline)">
-    <rect width="39" height="20" fill="#302942"/>
-    <rect x="39" width="21" height="20" fill="#9760F0"/>
-    <rect width="60" height="20" fill="url(#shade)"/>
+    <rect width="43" height="20" fill="#302942"/>
+    <rect x="43" width="25" height="20" fill="#9760F0"/>
+    <rect width="68" height="20" fill="url(#shade)"/>
   </g>
   <g transform="scale(.1)" fill="#fff" text-anchor="middle" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="110" text-rendering="geometricPrecision">
     <g fill="#010101" opacity=".3" aria-hidden="true">
-      <text x="195" y="150" textLength="310">Xmax</text>
-      <text x="495" y="150" textLength="130">AI</text>
+      <text x="215" y="150" textLength="310">Xmax</text>
+      <text x="555" y="150" textLength="130">AI</text>
     </g>
-    <text x="195" y="140" textLength="310">Xmax</text>
-    <text x="495" y="140" textLength="130">AI</text>
+    <text x="215" y="140" textLength="310">Xmax</text>
+    <text x="555" y="140" textLength="130">AI</text>
   </g>
 </svg>

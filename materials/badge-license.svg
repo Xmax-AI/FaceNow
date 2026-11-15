@@ -1,24 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="78" height="20" viewBox="0 0 78 20" role="img" aria-label="License MIT">
+<svg xmlns="http://www.w3.org/2000/svg" width="86" height="20" viewBox="0 0 86 20" role="img" aria-label="License MIT">
   <defs>
     <linearGradient id="shade" x2="0" y2="100%">
       <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
       <stop offset="1" stop-opacity=".1"/>
     </linearGradient>
     <clipPath id="outline">
-      <rect width="78" height="20" rx="3"/>
+      <rect width="86" height="20" rx="3"/>
     </clipPath>
   </defs>
   <g clip-path="url(#outline)">
-    <rect width="49" height="20" fill="#302942"/>
-    <rect x="49" width="29" height="20" fill="#57AC32"/>
-    <rect width="78" height="20" fill="url(#shade)"/>
+    <rect width="53" height="20" fill="#302942"/>
+    <rect x="53" width="33" height="20" fill="#57AC32"/>
+    <rect width="86" height="20" fill="url(#shade)"/>
   </g>
   <g transform="scale(.1)" fill="#fff" text-anchor="middle" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="110" text-rendering="geometricPrecision">
     <g fill="#010101" opacity=".3" aria-hidden="true">
-      <text x="245" y="150" textLength="410">License</text>
-      <text x="635" y="150" textLength="210">MIT</text>
+      <text x="265" y="150" textLength="410">License</text>
+      <text x="695" y="150" textLength="210">MIT</text>
     </g>
-    <text x="245" y="140" textLength="410">License</text>
-    <text x="635" y="140" textLength="210">MIT</text>
+    <text x="265" y="140" textLength="410">License</text>
+    <text x="695" y="140" textLength="210">MIT</text>
   </g>
 </svg>
