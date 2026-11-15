@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <a href="https://platform.xmax.ai/"><img src="https://img.shields.io/badge/Xmax-AI-FF9500" alt="Xmax AI"></a>
-  <a href="#what-facenow-can-do"><img src="https://img.shields.io/badge/macOS-13%2B-007AFF" alt="macOS 13+"></a>
-  <a href="#what-facenow-can-do"><img src="https://img.shields.io/badge/Windows-11-007AFF" alt="Windows 11"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-4C9A2A" alt="MIT License"></a>
+  <a href="https://platform.xmax.ai/"><img src="https://img.shields.io/badge/Xmax-AI-7547BE?labelColor=302942" alt="Xmax AI"></a>
+  <a href="#what-facenow-can-do"><img src="https://img.shields.io/badge/macOS-13%2B-514BAC?labelColor=302942" alt="macOS 13+"></a>
+  <a href="#what-facenow-can-do"><img src="https://img.shields.io/badge/Windows-11-2365AB?labelColor=302942" alt="Windows 11"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-4F5C77?labelColor=302942" alt="MIT License"></a>
 </p>
 
 Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video calls and live streams via a virtual camera. It delivers real-time, high-fidelity video transformation, letting you step into a completely new character, swap outfits, and restyle your appearance on the fly using just a reference image and text prompts. Now that it’s open-source, you can easily extend it and build custom experiences for your own use cases.
