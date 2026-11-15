@@ -254,8 +254,6 @@ public sealed partial class MainWindow : Window
             ArrangePage();
             VerificationProgress("Window ready");
             PageEntry.Reveal(Model.Active ? workspace : landing);
-            if (!Model.Active)
-                PageEntry.Reveal(footer);
             Ready?.Invoke();
         };
         ResizeWindow(1360, 890);
@@ -363,8 +361,6 @@ public sealed partial class MainWindow : Window
             {
                 ArrangePage();
                 PageEntry.Reveal(Model.Active ? workspace : landing);
-                if (!Model.Active)
-                    PageEntry.Reveal(footer);
             }
         }
         RequestLayout();
@@ -461,9 +457,9 @@ public sealed partial class MainWindow : Window
         videoRow.Height = Math.Max(0, (workspace.Width - VideoPanelSpacing) / 2) * 9 / 16;
         freePromptBox.Width = Math.Min(880, workspace.Width);
         double workspaceHeight = videoRow.Height + sessionAudioControls.Margin.Top + sessionAudioControls.Height + ModeTabsTopSpacing + 42 + 28 + referenceArea.Height;
-        const double homeTop = 16, landingGap = 30, footerBottom = 72;
+        const double homeTop = 16, landingGap = 30, footerBottomInset = 36;
         landing.Measure(new Size(width, double.PositiveInfinity));
-        double minimumHomeHeight = homeTop + header.Height + landingGap + landing.DesiredSize.Height + landingGap + footerBottom;
+        double minimumHomeHeight = homeTop + header.Height + landingGap + landing.DesiredSize.Height + landingGap + footer.Height + footerBottomInset;
         double minimumWorkspaceHeight = homeTop + header.Height + workspaceHeight + 48;
         page.Height = Math.Max(
             height,
@@ -485,7 +481,7 @@ public sealed partial class MainWindow : Window
         )
         );
         Canvas.SetLeft(footer, 28);
-        Canvas.SetTop(footer, page.Height - footerBottom);
+        Canvas.SetTop(footer, page.Height - footer.Height - footerBottomInset);
         previewFooter.Width = width;
         Canvas.SetTop(previewFooter, page.Height - 20);
     }

@@ -147,9 +147,6 @@ final class OnboardingRepository: ObservableObject {
     /// The product's privacy policy.
     let privacyURL = NetworkEnvironment.current.privacyURL
 
-    /// The ownership line displayed below the stage.
-    let copyright = OnboardingStrings.contentCopyright2026XMAXAIPTELTDAllRightsReserved
-
     /// Creates progress ownership with an injectable process identity for restart recovery tests.
     init(
         processID: Int32 = ProcessInfo.processInfo.processIdentifier

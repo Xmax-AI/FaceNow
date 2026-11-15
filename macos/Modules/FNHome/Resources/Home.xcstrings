@@ -541,24 +541,6 @@
         }
       }
     },
-    "home.feedback" : {
-      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feedback"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "意见反馈"
-          }
-        }
-      }
-    },
     "home.microphone_off" : {
       "comment" : "Audio input selection beneath Start Camera.",
       "extractionState" : "manual",
@@ -591,24 +573,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未找到摄像头"
-          }
-        }
-      }
-    },
-    "home.scan_with_wechat_to_follow_us" : {
-      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan with WeChat to follow us"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用微信扫码关注我们"
           }
         }
       }
@@ -667,24 +631,6 @@
         }
       }
     },
-    "home.troubleshooting" : {
-      "comment" : "Footer documentation link after the version; no click action until its URL is supplied.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TroubleShooting"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "故障排查"
-          }
-        }
-      }
-    },
     "home.version" : {
       "comment" : "Public app version at the bottom right of home. %@ is CFBundleShortVersionString, for example 1.0.0.",
       "extractionState" : "manual",
@@ -717,24 +663,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "虚拟设备"
-          }
-        }
-      }
-    },
-    "home.website" : {
-      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Website"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "官方网站"
           }
         }
       }

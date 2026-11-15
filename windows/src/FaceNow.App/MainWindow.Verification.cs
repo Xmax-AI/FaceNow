@@ -194,7 +194,7 @@ public sealed partial class MainWindow
                     Check(landingStage.Width is >= 640 and <= 1040 && Math.Abs(landingStage.Width * 1080 / 1920 - landingStage.Height) < .5,
                         "Landing proportions changed.");
                     Check(Canvas.GetTop(footer) - (Canvas.GetTop(landing) + landing.DesiredSize.Height) >= 29.5,
-                        "The landing content overlaps the footer or leaves too little space.");
+                        "The landing content must leave room above the footer.");
                     await SaveScreenshotAsync("landing-" + name);
                 }
                 ResizeWindow(1360, 890);

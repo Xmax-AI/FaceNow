@@ -23,6 +23,9 @@ public enum NetworkEnvironment: String, CaseIterable, Equatable, Sendable {
         #endif
     }()
 
+    /// The public repository shared by both FaceNow editions.
+    static let sourceRepositoryURL = URL(string: "https://github.com/Xmax-AI/FaceNow")!
+
     /// The origin without service prefixes, matching api-platform-web's regional defaults.
     public var baseURL: URL {
         switch self {

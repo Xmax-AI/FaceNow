@@ -574,10 +574,6 @@
     <value>复制错误详情</value>
     <comment>Copy Error Details</comment>
   </data>
-  <data xml:space="preserve" name="Text_49E74614BF9F0133">
-    <value>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</value>
-    <comment>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</comment>
-  </data>
   <data xml:space="preserve" name="Text_C7CBD74DD1909E3A">
     <value>同类最低价</value>
     <comment>Lowest Price</comment>
@@ -3538,10 +3534,6 @@ Choose your video input</comment>
     <value>点击视频按钮旁的箭头，选择“%@”作为摄像头。</value>
     <comment>点击视频按钮旁的箭头，选择“%@”作为摄像头。</comment>
   </data>
-  <data xml:space="preserve" name="Text_70E96497E211D5CC">
-    <value>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</value>
-    <comment>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</comment>
-  </data>
   <data xml:space="preserve" name="Text_75A9D4F34C3F31F1">
     <value>特战士兵</value>
     <comment>特战士兵</comment>
@@ -4733,5 +4725,9 @@ Generation is disabled</comment>
   <data name="Text_D47D7CB0E4F8FD2B" xml:space="preserve">
     <value>更多</value>
     <comment>More</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2143F692D0CB8F8F">
+    <value>FaceNow 现已开源， 您可以在 GitHub 上查看源码</value>
+    <comment>Shown below the startup canvas.</comment>
   </data>
 </root>

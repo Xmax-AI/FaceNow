@@ -19,6 +19,8 @@ namespace FaceNow.App;
 
 public sealed partial class MainWindow
 {
+    private const string SourceRepositoryUrl = "https://github.com/Xmax-AI/FaceNow";
+
     private static readonly (string Mode, string Label)[] ReferenceCategories =
     [
         ("charx", "Character Swap"),
@@ -160,10 +162,17 @@ public sealed partial class MainWindow
             });
         landingStage.Children.Add(terms);
         landing.Children.Add(landingStage);
-        var copyright = Theme.Text("Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.", 13, "#6B7380");
-        copyright.HorizontalAlignment = HorizontalAlignment.Center;
-        copyright.Margin = new(0, 16, 0, 0);
-        landing.Children.Add(copyright);
+
+        var openSourceNotice = Theme.Text(
+            "FaceNow is now open source. View the code on GitHub",
+            13,
+            "#6B7380"
+        );
+        openSourceNotice.HorizontalAlignment = HorizontalAlignment.Center;
+        openSourceNotice.TextAlignment = TextAlignment.Center;
+        openSourceNotice.TextWrapping = TextWrapping.Wrap;
+        openSourceNotice.Margin = new(0, 16, 0, 0);
+        landing.Children.Add(openSourceNotice);
     }
 
     private void BuildGenerationWorkspace()
@@ -366,52 +375,27 @@ public sealed partial class MainWindow
 
     private void BuildFooter()
     {
-        var socials = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 28,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-        foreach (var (glyph, name, url) in new[] { ("wechat", "WeChat", ""), ("socialX", "X", "https://x.com/XmaxAIOfficial"), ("globe", "Website", "https://www.xmaxsi.com/") })
-        {
-            Button? link = null;
-            link = Theme.Link("", () => { if (url.Length == 0) OpenWechat(link!); else OpenLink(url); });
-            double size = glyph == "socialX" ? 18 : 20;
-            link.Content = new Glyph
-            {
-                Kind = glyph,
-                Width = size,
-                Height = size,
-                Foreground = Theme.Brush("#BF6B7380")
-            };
-            link.Width = 24;
-            link.HorizontalContentAlignment = HorizontalAlignment.Center;
-            link.VerticalContentAlignment = VerticalAlignment.Center;
-            ToolTipService.SetToolTip(link, AppText.Get(name));
-            AutomationProperties.SetName(link, AppText.Get(name));
-            socials.Children.Add(link);
-        }
-        footer.Children.Add(socials);
         var links = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = 40,
             HorizontalAlignment = HorizontalAlignment.Right
         };
-        var version = Theme.Text("V" + PublicAppVersion, 13, "#6B7380");
+        var appVersion = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+        var version = Theme.Text("V" + appVersion, 13, "#6B7380");
         version.FontFamily = new("Segoe UI");
         links.Children.Add(version);
-        foreach (var (text, url) in new[] { ("TroubleShooting", "https://xmaxai.com/facenow/guide"), ("Feedback", "mailto:contact@xmaxai.com"),
-            ("About Us", ""), ("API Platform", "https://platform.xmaxsi.com/") })
+
+        foreach (var (label, url) in new[]
         {
-            var link = Theme.Link(
-                text,
-                () => { if (url.Length == 0) ShowAbout(); else OpenLink(url); }
-            );
-            if (link.Content is TextBlock label)
-                label.FontFamily = LoginTypography.Font;
-            AutomationProperties.SetName(link, AppText.Get(text));
+            ("GitHub", SourceRepositoryUrl),
+            ("API Platform", "https://platform.xmaxsi.com/")
+        })
+        {
+            var link = Theme.Link(label, () => OpenLink(url));
+            if (link.Content is TextBlock text)
+                text.FontFamily = LoginTypography.Font;
+            AutomationProperties.SetName(link, AppText.Get(label));
             links.Children.Add(link);
         }
         footer.Children.Add(links);

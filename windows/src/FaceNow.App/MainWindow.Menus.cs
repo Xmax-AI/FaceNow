@@ -16,7 +16,6 @@ using Windows.System;
 using FaceNow.Windows.Studio.ViewModels;
 using FaceNow.App.Controls;
 using FaceNow.App.Platform;
-using FaceNow.App.User;
 
 namespace FaceNow.App;
 
@@ -320,54 +319,6 @@ public sealed partial class MainWindow
                 await Model.UploadReferenceAsync(item.LocalPath, item);
             else
                 await Model.SelectReferenceAsync(item);
-        }
-        catch (Exception error)
-        {
-            Model.ReportError(error);
-        }
-    }
-
-    private async void OpenWechat(
-        FrameworkElement anchor
-    )
-    {
-        try
-        {
-            var source = await ThumbnailCache.LoadAsync("https://assets.22duck.fun/image/wechatAccount.jpg");
-            if (closing || Model.Active)
-                return;
-            // The border and padding together provide a 14-point inset.
-            var content = new Grid { Height = 214 };
-            content.RowDefinitions.Add(new()
-            {
-                Height = new(180)
-            });
-            content.RowDefinitions.Add(new()
-            {
-                Height = new(8)
-            });
-            content.RowDefinitions.Add(new()
-            {
-                Height = new(24)
-            });
-            content.RowDefinitions.Add(new()
-            {
-                Height = new(2)
-            });
-            content.Children.Add(new Image
-            {
-                Source = source,
-                Width = 180,
-                Height = 180,
-                HorizontalAlignment = HorizontalAlignment.Center
-            });
-            var caption = LoginTypography.Text("Scan with WeChat to follow us", 12);
-            caption.TextAlignment = TextAlignment.Center;
-            caption.HorizontalAlignment = HorizontalAlignment.Stretch;
-            caption.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetRow(caption, 2);
-            content.Children.Add(caption);
-            OpenPopup(anchor, content, 208, 13, above: true);
         }
         catch (Exception error)
         {

@@ -1112,12 +1112,12 @@ enum OnboardingStrings {
         )
     }
 
-    /// Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.
-    static var contentCopyright2026XMAXAIPTELTDAllRightsReserved: String {
+    /// The caption displayed below the startup canvas.
+    static var openSourceNotice: String {
         Localization.string(
-            "content.copyright_2026_xmax_ai_pte_ltd_all_rights_reserved",
+            "landing.open_source_notice",
             table: "Onboarding",
-            defaultValue: "Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved."
+            defaultValue: "FaceNow is now open source. View the code on GitHub"
         )
     }
 

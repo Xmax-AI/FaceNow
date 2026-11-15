@@ -574,10 +574,6 @@
     <value>Copy Error Details</value>
     <comment>Copy Error Details</comment>
   </data>
-  <data xml:space="preserve" name="Text_49E74614BF9F0133">
-    <value>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</value>
-    <comment>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</comment>
-  </data>
   <data xml:space="preserve" name="Text_C7CBD74DD1909E3A">
     <value>Lowest Price</value>
     <comment>Lowest Price</comment>
@@ -3538,10 +3534,6 @@ This lets the app receive your FaceNow look instead of the original camera feed.
     <value>Click the arrow next to the video button and choose “%@” as your camera.</value>
     <comment>点击视频按钮旁的箭头，选择“%@”作为摄像头。</comment>
   </data>
-  <data xml:space="preserve" name="Text_70E96497E211D5CC">
-    <value>Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved.</value>
-    <comment>版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。</comment>
-  </data>
   <data xml:space="preserve" name="Text_75A9D4F34C3F31F1">
     <value>Special Forces Soldier</value>
     <comment>特战士兵</comment>
@@ -4733,5 +4725,9 @@ Generation is disabled</comment>
   <data name="Text_D47D7CB0E4F8FD2B" xml:space="preserve">
     <value>More</value>
     <comment>More</comment>
+  </data>
+  <data xml:space="preserve" name="Text_2143F692D0CB8F8F">
+    <value>FaceNow is now open source. View the code on GitHub</value>
+    <comment>Shown below the startup canvas.</comment>
   </data>
 </root>

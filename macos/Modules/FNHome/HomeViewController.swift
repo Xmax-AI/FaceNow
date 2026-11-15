@@ -13,6 +13,10 @@ import XmaxSDK
 @MainActor
 final class HomeViewController: NSViewController {
 
+    /// The footer space reserved below the landing content.
+    private static let footerHeight: CGFloat = 80
+    private static let footerBottomInset: CGFloat = 48
+
     /// The shared credential owner consumed by the user interface and generation.
     @Injected(\.userRepo) private var userRepo: UserRepository
 
@@ -69,9 +73,6 @@ final class HomeViewController: NSViewController {
 
     /// The currently mounted modal preparation guide.
     private var onboardingPage: OnboardingViewController?
-
-    /// The company and model information modal, mutually exclusive with onboarding.
-    private var aboutPage: AboutViewController?
 
     /// Retains the centered live translation configuration while the workspace is active.
     private var translationDialog: GenerationTranslationDialogView?
@@ -212,10 +213,9 @@ final class HomeViewController: NSViewController {
         return view
     }()
 
-    /// The home-page product links and follow popover.
+    /// The home-page version and project links.
     private lazy var footer: HomeFooterView = {
         let view = HomeFooterView()
-        view.onShowAbout = { [weak self] in self?.showAbout() }
         return view
     }()
 
@@ -345,7 +345,6 @@ final class HomeViewController: NSViewController {
         virtualCameraRepo.cancelPendingOperations()
         cameraStartTask?.cancel()
         dismissOnboarding(animated: false)
-        dismissAbout(animated: false)
         accountRestore?.cancel()
         accountRestore = nil
         accountRefresh?.cancel()
@@ -360,7 +359,6 @@ final class HomeViewController: NSViewController {
         landing.closeCameraPicker()
         cameraControls.closePopover()
         userView.shutdown()
-        footer.closePopover()
         workspace.suspendImages()
         await generationRepo.shutdown()
     }
@@ -381,7 +379,7 @@ final class HomeViewController: NSViewController {
         preset: RealtimeCameraPreset,
         reference: GenerationReference
     ) {
-        guard loginPage == nil, aboutPage == nil, cameraStartTask == nil, cameraNoticeTask == nil, !isShuttingDown
+        guard loginPage == nil, cameraStartTask == nil, cameraNoticeTask == nil, !isShuttingDown
         else { return }
         virtualCameraRepo.synchronizeReadiness()
         guard viewModel.canStart else {
@@ -400,7 +398,7 @@ final class HomeViewController: NSViewController {
                 self.scheduleRender()
             }
             guard !Task.isCancelled, !self.isShuttingDown, !self.viewModel.needsLogin,
-                self.onboardingPage == nil, self.aboutPage == nil
+                self.onboardingPage == nil
             else { return }
             await self.viewModel.startCamera(
                 preset: preset,
@@ -462,7 +460,6 @@ final class HomeViewController: NSViewController {
             landing.closeCameraPicker()
             cameraControls.closePopover()
             userView.closePopover()
-            footer.closePopover()
             scroll.contentView.scroll(to: .zero)
             scroll.reflectScrolledClipView(scroll.contentView)
             view.window?.makeFirstResponder(nil)
@@ -471,7 +468,6 @@ final class HomeViewController: NSViewController {
         if pageChanged, !viewModel.needsLogin, loginPage == nil, view.window != nil {
             view.layoutSubtreeIfNeeded()
             animateEntry(active ? workspace : landing)
-            if !active { animateEntry(footer) }
         }
         if active, view.window != nil { generationRepo.resultViewDidBecomeReady() }
         synchronizeLoginPage()
@@ -491,7 +487,7 @@ final class HomeViewController: NSViewController {
     private func showTranslationDialog() {
         guard GenerationRepository.isLiveTranslationAvailable, translationDialog == nil,
             generationRepo.sessionActive, !generationRepo.isClosing,
-            !isShuttingDown, !viewModel.needsLogin, onboardingPage == nil, aboutPage == nil, rechargeDialog == nil,
+            !isShuttingDown, !viewModel.needsLogin, onboardingPage == nil, rechargeDialog == nil,
             let window = view.window, window.attachedSheet == nil
         else { return }
         userView.closePopover()
@@ -543,7 +539,6 @@ final class HomeViewController: NSViewController {
         landing.closeCameraPicker()
         cameraControls.closePopover()
         userView.closePopover()
-        footer.closePopover()
         landing.setServiceNoticeInteractionEnabled(false)
         dismissSignInToast()
         let dialog = RechargeDialogView()
@@ -592,7 +587,7 @@ final class HomeViewController: NSViewController {
             dialog.removeFromSuperview()
             self.rechargeDialog = nil
             self.userRepo.dismissRechargeNotice(id: noticeID)
-            self.landing.setServiceNoticeInteractionEnabled(self.onboardingPage == nil && self.aboutPage == nil)
+            self.landing.setServiceNoticeInteractionEnabled(self.onboardingPage == nil)
             if !self.isShuttingDown, !self.viewModel.needsLogin,
                 let previous = self.rechargePreviousResponder as? NSView,
                 previous.window === self.view.window, !previous.isHiddenOrHasHiddenAncestor
@@ -616,7 +611,7 @@ final class HomeViewController: NSViewController {
         }
         let resumeStep = onboardingModel.onboardingRepo.resumeStepAfterRelaunch
         guard userRepo.hasVerifiedSession, view.window != nil, !generationRepo.sessionActive,
-            !generationRepo.settingsLocked, aboutPage == nil, onboardingPage == nil,
+            !generationRepo.settingsLocked, onboardingPage == nil,
             rechargeDialog == nil, userRepo.rechargeNoticeID == nil,
             onboardingPresentationTask == nil, !onboardingAutoPresented || resumeStep != nil
         else { return }
@@ -629,7 +624,7 @@ final class HomeViewController: NSViewController {
             self.onboardingPresentationTask = nil
             guard !self.isShuttingDown, self.userRepo.hasVerifiedSession, !self.viewModel.needsLogin,
                 self.loginPage == nil, self.view.window != nil, !self.generationRepo.settingsLocked,
-                self.onboardingPage == nil, self.aboutPage == nil,
+                self.onboardingPage == nil,
                 self.rechargeDialog == nil, self.userRepo.rechargeNoticeID == nil
             else { return }
             let resumeStep = self.onboardingModel.onboardingRepo.resumeStepAfterRelaunch
@@ -648,7 +643,7 @@ final class HomeViewController: NSViewController {
     ) {
         guard case .showHelp = action else { return }
         guard !isShuttingDown, !viewModel.needsLogin,
-            cameraNoticeTask == nil, onboardingPage == nil, aboutPage == nil
+            cameraNoticeTask == nil, onboardingPage == nil
         else { return }
         onboardingPresentationTask?.cancel()
         onboardingPresentationTask = nil
@@ -711,50 +706,6 @@ final class HomeViewController: NSViewController {
         }
     }
 
-    /// Opens static product information without starting capture or sharing preparation progress.
-    private func showAbout() {
-        guard !isShuttingDown, !viewModel.needsLogin, !generationRepo.sessionActive,
-            cameraStartTask == nil, cameraNoticeTask == nil, view.window != nil
-        else { return }
-        onboardingPresentationTask?.cancel()
-        onboardingPresentationTask = nil
-        onboardingAutoPresented = true
-        dismissOnboarding(animated: false)
-        landing.setServiceNoticeInteractionEnabled(false)
-        landing.closeCameraPicker()
-        cameraControls.closePopover()
-        userView.closePopover()
-        footer.closePopover()
-        if let page = aboutPage {
-            page.present()
-            return
-        }
-        let page = AboutViewController()
-        page.onDismiss = { [weak self] in self?.dismissAbout() }
-        aboutPage = page
-        addChild(page)
-        root.addSubview(page.view)
-        page.view.snp.makeConstraints { make in make.edges.equalToSuperview() }
-        root.layoutSubtreeIfNeeded()
-        page.present()
-    }
-
-    /// Removes About Us after its shared modal exit or immediately for account and app lifecycle changes.
-    private func dismissAbout(
-        animated: Bool = true
-    ) {
-        guard let page = aboutPage else { return }
-        page.dismiss(animated: animated) { [weak self, weak page] in
-            guard let self, let page, self.aboutPage === page else { return }
-            page.shutdown()
-            page.view.removeFromSuperview()
-            page.removeFromParent()
-            self.aboutPage = nil
-            self.landing.setServiceNoticeInteractionEnabled(self.onboardingPage == nil)
-            self.view.window?.makeFirstResponder(nil)
-        }
-    }
-
     /// Mounts the guide at the relevant preparation step above the existing home content.
     private func showOnboarding(
         at step: OnboardingRepository.Step? = nil,
@@ -762,7 +713,6 @@ final class HomeViewController: NSViewController {
     ) {
         guard !isShuttingDown, !viewModel.needsLogin, view.window != nil else { return }
         dismissTranslationDialog()
-        dismissAbout(animated: false)
         onboardingPresentationTask?.cancel()
         onboardingPresentationTask = nil
         onboardingAutoPresented = true
@@ -770,7 +720,6 @@ final class HomeViewController: NSViewController {
         landing.closeCameraPicker()
         cameraControls.closePopover()
         userView.closePopover()
-        footer.closePopover()
         onboardingModel.refresh()
         onboardingModel.onboardingRepo.begin(
             at: step
@@ -839,7 +788,6 @@ final class HomeViewController: NSViewController {
         guard isViewLoaded, !isShuttingDown else { return }
         let needsLogin = viewModel.needsLogin
         if needsLogin, loginPage == nil {
-            dismissAbout(animated: false)
             cameraNoticeTask?.cancel()
             dismissSignInToast()
             userView.closePopover()
@@ -888,7 +836,6 @@ final class HomeViewController: NSViewController {
 
     /// Stops billable generation and virtual output before invalidating account credentials.
     private func signOut() {
-        dismissAbout(animated: false)
         dismissOnboarding()
         cameraStartTask?.cancel()
         Task { [weak self] in
@@ -984,8 +931,8 @@ final class HomeViewController: NSViewController {
         }
         footer.snp.makeConstraints { make in
             make.leading.trailing.equalTo(header)
-            make.bottom.equalToSuperview().inset(48)
-            make.height.equalTo(80)
+            make.bottom.equalToSuperview().inset(Self.footerBottomInset)
+            make.height.equalTo(Self.footerHeight)
         }
         logo.snp.makeConstraints { make in
             make.leading.equalTo(document.snp.leading).offset(24)
@@ -1070,7 +1017,7 @@ final class HomeViewController: NSViewController {
         let minimumHeight =
             active
             ? 16 + headerHeight + workspaceHeight + 48
-            : 16 + headerHeight + 30 + landingHeight + 30 + 80 + 48
+            : 16 + headerHeight + 30 + landingHeight + 30 + Self.footerHeight + Self.footerBottomInset
         let documentHeight = max(height, minimumHeight)
         let surplus = max(0, documentHeight - minimumHeight)
         document.snp.updateConstraints { make in make.height.equalTo(documentHeight).priority(490) }

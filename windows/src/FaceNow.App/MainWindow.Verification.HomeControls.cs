@@ -25,7 +25,6 @@ public sealed partial class MainWindow
             SetApiKey("facenow-ui-test-key");
             Check(keyButton.Text == "****************", "The header exposes part of the API Key.");
             await SaveScreenshotAsync("aligned-home-controls", homeControls);
-            await SaveScreenshotAsync("aligned-footer-icons", (FrameworkElement)footer.Children[0]);
             Check(modelButton.Visibility == Visibility.Collapsed, "The model selector must remain hidden.");
             var camera = cameraButton.TransformToVisual(landingStage).TransformPoint(default);
             var microphone = homeMicrophone.TransformToVisual(landingStage).TransformPoint(default);

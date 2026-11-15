@@ -595,24 +595,6 @@
         }
       }
     },
-    "content.copyright_2026_xmax_ai_pte_ltd_all_rights_reserved" : {
-      "comment" : "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。"
-          }
-        }
-      }
-    },
     "content.video_calls" : {
       "comment" : "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
       "extractionState" : "manual",
@@ -1761,6 +1743,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "虚拟摄像头已就绪。继续完成设置。"
+          }
+        }
+      }
+    },
+    "landing.open_source_notice" : {
+      "comment" : "Shown below the startup canvas.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow is now open source. View the code on GitHub"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FaceNow 现已开源， 您可以在 GitHub 上查看源码"
           }
         }
       }

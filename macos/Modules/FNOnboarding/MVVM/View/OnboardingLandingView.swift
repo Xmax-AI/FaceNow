@@ -228,16 +228,18 @@ final class OnboardingLandingView: Canvas {
         return view
     }()
 
-    /// The copyright line below the start canvas.
-    private lazy var copyright: NSTextField = {
-        let view = makeLabel(
-            onboardingRepo.copyright,
-            size: 13,
-            color: Palette.secondary
-        )
+    /// The open-source caption below the startup canvas.
+    private lazy var openSourceNotice: NSTextField = {
+        let view = NSTextField(wrappingLabelWithString: OnboardingStrings.openSourceNotice)
+        view.textColor = Palette.secondary
         view.alignment = .center
         return view
     }()
+
+    /// Keeps the caption typography consistent between measurement and layout.
+    private var openSourceNoticeFont: NSFont {
+        Typography.font(size: min(14, max(11.5, viewportWidth * 0.0028 + 9)))
+    }
 
     /// Keeps a visible preparation notice close to the headline in both layout and measurement.
     private var headlineGap: CGFloat {
@@ -250,7 +252,7 @@ final class OnboardingLandingView: Canvas {
     /// Composes the startup view from its configured native controls.
     init() {
         super.init()
-        [titleLabel, setupReminder, checkerboard, copyright].forEach(addSubview)
+        [titleLabel, setupReminder, checkerboard, openSourceNotice].forEach(addSubview)
         [startControls, serviceNotice].forEach(checkerboard.addSubview)
         [startButton, inputPickers, resolutionPicker, appearancePicker].forEach(startControls.addSubview)
         configureLayout()
@@ -277,7 +279,7 @@ final class OnboardingLandingView: Canvas {
         min(contentWidth, min(1040, max(640, viewportWidth * 0.55)))
     }
 
-    /// Measures the headline, video-shaped placeholder, and copyright line.
+    /// Measures the headline, preparation notice, and video-shaped placeholder.
     func preferredHeight(
         contentWidth: CGFloat
     ) -> CGFloat {
@@ -292,19 +294,12 @@ final class OnboardingLandingView: Canvas {
                 )
             ).height
         )
-        copyright.font = Typography.font(size: min(14, max(11.5, viewportWidth * 0.0028 + 9)))
-        let copyrightHeight = ceil(
-            Typography.size(
-                copyright.stringValue,
-                font: copyright.font!
-            ).height
-        )
         let stageWidth = preferredStageWidth(contentWidth: contentWidth)
         let stageHeight =
             stageWidth * CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
         let warningHeight = setupReminder.preferredHeight(width: stageWidth)
         return titleHeight + titleGap + (warningHeight > 0 ? warningHeight + 12 : 0)
-            + stageHeight + 16 + copyrightHeight
+            + stageHeight + 16 + openSourceNoticeHeight(width: contentWidth)
     }
 
     /// Keeps unavailable starts clickable for coordinator feedback while blocking duplicate startup requests.
@@ -460,7 +455,7 @@ final class OnboardingLandingView: Canvas {
                 CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
             )
         }
-        copyright.snp.makeConstraints { make in
+        openSourceNotice.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(checkerboard.snp.bottom).offset(16)
             make.height.equalTo(18)
@@ -582,15 +577,28 @@ final class OnboardingLandingView: Canvas {
             viewportWidth: viewportWidth,
             stageWidth: stageWidth
         )
-        let copyrightHeight = ceil(
-            Typography.size(
-                copyright.stringValue,
-                font: copyright.font!
-            ).height
-        )
-        copyright.snp.updateConstraints { make in make.height.equalTo(copyrightHeight) }
+        openSourceNotice.font = openSourceNoticeFont
+        openSourceNotice.snp.updateConstraints { make in
+            make.height.equalTo(openSourceNoticeHeight(width: bounds.width))
+        }
         // Resolve the canvas and its children together using the current viewport dimensions.
         super.layout()
+    }
+
+    /// Measures the caption at its available width.
+    private func openSourceNoticeHeight(
+        width: CGFloat
+    ) -> CGFloat {
+        let text = OnboardingStrings.openSourceNotice as NSString
+        let bounds = text.boundingRect(
+            with: NSSize(
+                width: max(1, width),
+                height: .greatestFiniteMagnitude
+            ),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: openSourceNoticeFont]
+        )
+        return ceil(bounds.height)
     }
 
     /// Measures the stable-width start button and the linked service notice.
