@@ -1,7 +1,7 @@
 <p align="center">
   <img src="./materials/facenow-banner.png" alt="FaceNow. Real-time AI virtual camera" width="880"><br>
   <a href="https://platform.xmax.ai/"><img src="https://img.shields.io/badge/Xmax-AI-9760F0?labelColor=302942" alt="Xmax AI"></a>
-  <a href="#what-facenow-can-do"><img src="https://img.shields.io/badge/macOS-13%2B-F05138?labelColor=302942" alt="macOS 13+"></a>
+  <a href="#what-facenow-can-do"><img src="./materials/badge-macos.svg" alt="macOS 13+"></a>
   <a href="#what-facenow-can-do"><img src="https://img.shields.io/badge/Windows-11-168AFF?labelColor=302942" alt="Windows 11"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-4C9A2A?labelColor=302942" alt="MIT License"></a>
 </p>
