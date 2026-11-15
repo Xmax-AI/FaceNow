@@ -53,9 +53,9 @@ FaceNow is designed for creative expression, virtual collaboration, and entertai
 
 | Topic | Details |
 | --- | --- |
-| **Consent First** | Do not use this tool to impersonate real individuals or generate likenesses without their explicit consent. |
-| **Prohibited Uses** | Generating deceptive content, non-consensual media, or engaging in harassment, fraud, or any unlawful activities is strictly prohibited. |
-| **No Liability** | The authors and contributors assume no responsibility for any misuse of the software or generated outputs. |
+| **Consent&nbsp;First** | Do not use this tool to impersonate real individuals or generate likenesses without their explicit consent. |
+| **Prohibited&nbsp;Uses** | Generating deceptive content, non-consensual media, or engaging in harassment, fraud, or any unlawful activities is strictly prohibited. |
+| **No&nbsp;Liability** | The authors and contributors assume no responsibility for any misuse of the software or generated outputs. |
 
 <br>
 
