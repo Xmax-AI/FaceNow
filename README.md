@@ -12,7 +12,9 @@ Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video 
 
 ## How It Works
 
-Virtual camera (virtual microphone is optional for audio and video sync)
+- **XmaxSDK** generates video from your camera feed in real time.
+- A **virtual camera** sends the generated video to other apps.
+- An optional **virtual microphone** keeps audio and video in sync.
 
 <br>
 
