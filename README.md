@@ -12,7 +12,7 @@ Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video 
 
 ## What FaceNow Can Do
 
-FaceNow uses a virtual camera (and a virtual microphone for audio and video sync) to stream Xmax AI-generated video to social or conferencing apps such as WeChat, Zoom, Google Meet, and Tencent Meeting. FaceNow is available on [macOS](./macos/README.md) and [Windows](./windows/README.md). First, enter your own Xmax API key, set up your look in FaceNow, and start generating. Then select the FaceNow virtual camera in third-party apps to show AI avatars.
+FaceNow uses a virtual camera (and a virtual microphone for audio and video sync) to stream Xmax AI-generated video to social or conferencing apps such as WeChat, Zoom, Google Meet, and Tencent Meeting. FaceNow is available on [macOS](./macos/README.md) and [Windows](./windows/README.md). To get started, simply enter your Xmax API key, customize your look, and begin generating. Then, select the FaceNow virtual camera in any third-party app to display your AI avatar.
 
 <br>
 
