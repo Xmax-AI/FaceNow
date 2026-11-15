@@ -69,7 +69,3 @@ Run the Swift package tests for the shared camera, audio, networking, and accoun
 ```sh
 swift test
 ```
-
-## Third-party notices
-
-See the notices for [DM Sans](App/Fonts/DMSans-OFL.txt), the [login scenario artwork](Modules/FNUser/Resources/Scenarios-Licenses.txt), and the [Core Audio driver sample](VirtualMicrophoneDriver/LICENSE-Apple.txt).
