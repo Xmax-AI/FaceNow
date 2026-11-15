@@ -1,8 +1,8 @@
 <p align="center">
   <img src="./materials/facenow-banner.png" alt="FaceNow. Real-time AI virtual camera" width="880"><br>
   <a href="https://platform.xmax.ai/"><img src="./materials/badge-xmax-ai.svg" alt="Xmax AI"></a>
-  <a href="#what-facenow-can-do"><img src="./materials/badge-macos.svg" alt="macOS 13+"></a>
-  <a href="#what-facenow-can-do"><img src="./materials/badge-windows.svg" alt="Windows 11"></a>
+  <a href="./macos/README.md"><img src="./materials/badge-macos.svg" alt="macOS 13+"></a>
+  <a href="./windows/README.md"><img src="./materials/badge-windows.svg" alt="Windows 11"></a>
   <a href="./LICENSE"><img src="./materials/badge-license.svg" alt="MIT License"></a>
 </p>
 
@@ -10,9 +10,40 @@ Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video 
 
 <br>
 
-## What FaceNow Can Do
+## How It Works
 
-FaceNow uses a virtual camera (and a virtual microphone for audio and video sync) to stream Xmax AI-generated video to social or conferencing apps such as WeChat, Zoom, Google Meet, and Tencent Meeting. FaceNow is available on [macOS](./macos/README.md) and [Windows](./windows/README.md). To get started, simply enter your Xmax API key, customize your look, and begin generating. Then, select the FaceNow virtual camera in any third-party app to display your AI avatar.
+Virtual camera (virtual microphone is optional for audio and video sync)
+
+<br>
+
+## Application Scenarios
+
+Any video conferencing or social app that supports virtual cameras.
+
+<table>
+  <tr>
+    <td align="center"><img src="./materials/application-scenarios/icons/wechat.jpg" alt="" width="42" height="42"><br>WeChat</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/zoom.jpg" alt="" width="42" height="42"><br>Zoom</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/tencent-meeting.jpg" alt="" width="42" height="42"><br>Tencent Meeting</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/feishu.jpg" alt="" width="42" height="42"><br>Feishu</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/microsoft-teams.jpg" alt="" width="42" height="42"><br>Microsoft Teams</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/google-meet.jpg" alt="" width="42" height="42"><br>Google Meet</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="./materials/application-scenarios/icons/dingtalk.jpg" alt="" width="42" height="42"><br>DingTalk</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/qq.jpg" alt="" width="42" height="42"><br>QQ</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/discord.jpg" alt="" width="42" height="42"><br>Discord</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/slack.jpg" alt="" width="42" height="42"><br>Slack</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/telegram.jpg" alt="" width="42" height="42"><br>Telegram</td>
+    <td align="center"><img src="./materials/application-scenarios/icons/whatsapp.jpg" alt="" width="42" height="42"><br>WhatsApp</td>
+  </tr>
+</table>
+
+<br>
+
+## Getting Started
+
+Set up FaceNow on [macOS](./macos/README.md) or [Windows](./windows/README.md) → Sign in with your Xmax API key → Customize your look and start generating → Select **FaceNow** as your camera in your meeting app
 
 <br>
 
