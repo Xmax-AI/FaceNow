@@ -41,7 +41,7 @@ FaceNow supports any third-party apps that are compatible with the virtual camer
 
 ## Getting Started
 
-Set up FaceNow on [macOS](./macos/README.md) or [Windows](./windows/README.md) → Sign in with your Xmax API key → Customize your look and start generating → Select **FaceNow** as your camera in your meeting app
+Set up FaceNow on [macOS](./macos/README.md) or [Windows](./windows/README.md) → Sign in with your Xmax API key → Set up the virtual camera and, if needed, the virtual microphone → Customize your look and start generating → Select **FaceNow** as your camera in your meeting app
 
 <br>
 
