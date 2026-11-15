@@ -45,7 +45,7 @@ FaceNow supports any third-party apps that are compatible with the virtual camer
 2. Sign in with your Xmax API key.
 3. Set up the virtual camera. For synced audio, set up the virtual microphone as well.
 4. Customize your look and start generating.
-5. In your meeting app’s video settings, select **FaceNow Virtual Camera**.
+5. In your meeting app, select **FaceNow Virtual Camera** as your camera and, if needed, **FaceNow Virtual Microphone** as your audio input.
 
 <br>
 
