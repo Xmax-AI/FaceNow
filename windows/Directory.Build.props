@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
-    <Version>1.2.0</Version>
+    <Version>1.0.0</Version>
     <FaceNowEdition Condition="'$(FaceNowEdition)' == ''">Domestic</FaceNowEdition>
     <FaceNowMediaDirectory Condition="'$(FaceNowMediaDirectory)' == ''">C:/dev/FaceNow-media</FaceNowMediaDirectory>
     <DefineConstants Condition="'$(FaceNowEdition)' == 'Overseas'">$(DefineConstants);FACENOW_OVERSEAS</DefineConstants>
