@@ -6,7 +6,7 @@
   <a href="./LICENSE"><img src="./materials/badge-license.svg" alt="MIT License"></a>
 </p>
 
-Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video calls and live streams via a virtual camera. It delivers real-time, high-fidelity video transformation, letting you step into a completely new character, swap outfits, and restyle your appearance on the fly using just a reference image and text prompts. Now that it’s open-source, you can easily extend it and build custom experiences for your own use cases.
+Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video calls and live streams via a virtual camera. It delivers real-time, high-fidelity video transformation, letting you step into a completely new character on the fly using just a reference image and text prompts. Now that it’s open-source, you can easily extend it and build custom experiences for your own use cases.
 
 <br>
 
