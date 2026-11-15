@@ -1,6 +1,6 @@
 # Third-party and shared components
 
-- **XmaxSDK**：通过相邻源码工程引用 `Xmax.SDK` 和 `Xmax.SDK.WinUI`；预设目录通过嵌入资源复用。SDK 许可证保存在 `licenses/XmaxSDK-MIT.txt`。原生运行时依赖按 SDK 随附的 notices 一起部署。
+- **XmaxSDK**：通过公开的 GitHub Releases 下载锁定版本的 `Xmax.SDK` 和 `Xmax.SDK.WinUI` NuGet 包。SDK 许可证保存在 `licenses/XmaxSDK-MIT.txt`。原生运行时依赖按 SDK 随附的 notices 一起部署。
 - **Agora 4.6.2 / ClearVision**：生成结果美颜使用与 XmaxSDK 相同版本的 Agora 本地媒体图和 ClearVision 扩展，由 XmaxSDK 的 `Xmax.VideoBeautyWorker.exe` 调用。运行库沿用 SDK 的再分发和 notices；Slim 发布保留 `libagora_clear_vision_extension.dll`。FaceNow 不再直接编译美颜或依赖 Agora 低层头文件；对应依赖由 SDK 管理。
 - **ApiKeyStore**：Windows 凭据适配基于 XmaxSDK 的 MIT 实现，使用 FaceNow 独立的凭据条目。
 - **XLab WinUI 界面与会话逻辑**：基于 `Examples/XLabWinUI` 和 `Examples/XLabShared` 的 MIT 源码适配到产品内部，保留同款布局、控件、弹层与动画；使用 FaceNow 命名空间和独立持久化位置，不引用示例程序集。

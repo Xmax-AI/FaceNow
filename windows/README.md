@@ -60,7 +60,7 @@ Windows 版通过 NuGet 引用 GitHub Releases 上的 [XmaxSDK](https://github.c
 3. 会话页切换 Character Swap、Virtual Try-On、Style Transfer、Virtual Summon、Free Prompt。切换分类不自动生成；选择参考图或提交提示词才更新条件。
 4. 内置参考图与 macOS `20261030` 预设一致：角色替换 11 项、虚拟试衣 12 项、风格转换 8 项、虚拟召唤 7 项。召唤前两项为小狗、小鼠的纯提示词，其余 5 项带图；缩略图和生成使用同一张原图，预设各自保留匹配的中英文提示词。帽子、眼镜、上衣及下装使用各自的专用指令。
 5. Upload 使用 macOS 对应模式的默认提示词，独立于当前选中的内置预设；虚拟召唤上传图使用保留原主体并新增参考角色到肩膀或手上的指令。Free Prompt 上传保留当前自写文本，显式提交使用编辑器当前文本。上传完成仅在选择仍有效时自动应用；服务上传和真实生成需要使用有效 Key 验收。
-6. 顶部可控制统计显示，Stop Session 返回首页并关闭会话。FaceNow 不采集麦克风，会议软件中的麦克风由用户独立选择。
+6. 顶部可控制统计显示，Stop Session 返回首页并关闭会话。可在 FaceNow 中选择采集麦克风。启用虚拟麦克风需要单独安装 VB-CABLE，并在会议软件中选择其输出端点作为麦克风。
 7. 打开 Virtual Camera，首次使用按提示 Set up camera。点击 Start Camera 后，在会议或直播软件中选择 FaceNow 虚拟摄像头。Windows 会追加本地化的设备后缀。生成开始后自动传输远端视频，Stop Session 后切回占位；生成期间安装成功也会接入已有会话。此流程已实现，真实云端与会议客户端尚需完整验收。
 
 `-Preview` 中 Start 按钮显示 Preview UI，点击只切换页面，不创建摄像头或生成会话；仍可通过 HTTPS 加载缩略图。`-PreviewCameraSetup` 打开可交互的首次摄像头设置演示：Setup needed → 权限步骤模拟 → Setting up camera… → Ready to use，支持取消与 Restart setup preview。此模式不启动真实安装、不读写 API Key、不改动摄像头注册，权限步骤明确标为模拟，不是 Windows UAC 弹窗。`-PreviewLogin` 使用内存中的模拟账户，可用模拟 Key `uk-facenow-isolated-preview` 查看登录后的首页，界面明确显示模拟说明。`XMAX_API_KEY` 仍供显式 SDK 冒烟诊断使用，普通启动的账户流程不使用它绕过身份验证或覆盖账户选择。真实生成使用当前构建版本的区域服务，可能按服务规则计费；默认验收不执行真实生成。
