@@ -18,7 +18,7 @@ Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video 
 
 <br>
 
-## Application Scenarios
+## Use Cases
 
 FaceNow supports any third-party apps that are compatible with the virtual camera interface, including WeChat, Zoom, GoogleMeet, TencentMeeting, and so on.
 
