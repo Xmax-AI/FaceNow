@@ -55,17 +55,3 @@ xcodebuild -project FaceNow.xcodeproj -scheme FaceNow \
 ```
 
 The command writes the app to `.build/domestic/Build/Products/Debug/FaceNow/FaceNow.app`. If you use the overseas scheme and directory, the app is under `.build/overseas/Build/Products/Debug/FaceNow-oversea/FaceNow.app`.
-
-## Sign and test the virtual devices
-
-Testing the virtual camera requires an Apple Developer team authorized to sign the app and its embedded targets. Configure the bundle identifiers, App Groups, and provisioning profiles consistently across the app and camera extension.
-
-For virtual microphone installer signing and packaging, see the [driver build notes](VirtualMicrophoneDriver/README.md).
-
-## Run unit tests
-
-Run the Swift package tests for the shared camera, audio, networking, and account code.
-
-```sh
-swift test
-```
