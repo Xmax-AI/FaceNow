@@ -43,7 +43,7 @@ Introducing FaceNow, a desktop app that streams Xmax AI avatars into your video 
 
 - **macOS** 13 or later.
 - **Windows 11** (x64, or ARM64 via x64 emulation).
-- **Xmax API Key**. Get your key by signing in to the Xmax API Platform. ([Mainland](https://platform.xmaxai.com/)/[Oversea](https://platform.xmax.ai/))
+- **Xmax API Key**. Get your key by signing in to the Xmax API Platform.
 
 <br>
 
