@@ -8,6 +8,8 @@
 
 FaceNow targets macOS 13 and later.
 
+<br>
+
 ## Get the source code
 
 ```sh
@@ -17,6 +19,8 @@ cd FaceNow/macos
 
 Run the remaining commands from `macos`.
 
+<br>
+
 ## Choose a build scheme
 
 | Edition | Xcode scheme | Derived data directory |
@@ -25,6 +29,8 @@ Run the remaining commands from `macos`.
 | Overseas | `FaceNow-oversea` | `.build/overseas` |
 
 Both schemes produce `FaceNow.app`. Use separate derived data directories to keep the builds independent.
+
+<br>
 
 ## Resolve Swift package dependencies
 
@@ -38,6 +44,8 @@ xcodebuild -resolvePackageDependencies \
   -derivedDataPath .build/domestic \
   -onlyUsePackageVersionsFromResolvedFile
 ```
+
+<br>
 
 ## Build FaceNow
 
