@@ -18,26 +18,22 @@ Virtual camera (virtual microphone is optional for audio and video sync)
 
 ## Application Scenarios
 
-Any video conferencing or social app that supports virtual cameras.
+Any third-party apps that are compatible with the virtual camera interface, including WeChat, Zoom, Google Meet, Tencent Meeting, and so on.
 
-<table>
-  <tr>
-    <td align="center"><img src="./materials/application-scenarios/icons/wechat.jpg" alt="" width="42" height="42"><br>WeChat</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/zoom.jpg" alt="" width="42" height="42"><br>Zoom</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/tencent-meeting.jpg" alt="" width="42" height="42"><br>Tencent Meeting</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/feishu.jpg" alt="" width="42" height="42"><br>Feishu</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/microsoft-teams.jpg" alt="" width="42" height="42"><br>Microsoft Teams</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/google-meet.jpg" alt="" width="42" height="42"><br>Google Meet</td>
-  </tr>
-  <tr>
-    <td align="center"><img src="./materials/application-scenarios/icons/dingtalk.jpg" alt="" width="42" height="42"><br>DingTalk</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/qq.jpg" alt="" width="42" height="42"><br>QQ</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/discord.jpg" alt="" width="42" height="42"><br>Discord</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/slack.jpg" alt="" width="42" height="42"><br>Slack</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/telegram.jpg" alt="" width="42" height="42"><br>Telegram</td>
-    <td align="center"><img src="./materials/application-scenarios/icons/whatsapp.jpg" alt="" width="42" height="42"><br>WhatsApp</td>
-  </tr>
-</table>
+<p>
+  <img src="./materials/application-scenarios/icons/wechat.jpg" alt="WeChat" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/zoom.jpg" alt="Zoom" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/tencent-meeting.jpg" alt="Tencent Meeting" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/feishu.jpg" alt="Feishu" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/microsoft-teams.jpg" alt="Microsoft Teams" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/google-meet.jpg" alt="Google Meet" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/dingtalk.jpg" alt="DingTalk" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/qq.jpg" alt="QQ" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/discord.jpg" alt="Discord" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/slack.jpg" alt="Slack" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/telegram.jpg" alt="Telegram" width="42" height="42">
+  <img src="./materials/application-scenarios/icons/whatsapp.jpg" alt="WhatsApp" width="42" height="42">
+</p>
 
 <br>
 
