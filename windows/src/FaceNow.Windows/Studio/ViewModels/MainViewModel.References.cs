@@ -85,7 +85,8 @@ internal sealed partial class MainViewModel
         )
     };
 
-    private IEnumerable<ReferenceItem> AllReferences => CharacterReferences.Concat(ClothingReferences).Concat(StyleReferences).Concat(SummonReferences).Concat(FreeReference is { } reference ? new[] { reference } : []);
+    private IEnumerable<ReferenceItem> AllReferences => CharacterReferences.Concat(ClothingReferences).Concat(StyleReferences).Concat(SummonReferences)
+        .Concat(HomeReferences).Concat(FreeReference is { } reference ? new[] { reference } : []).Distinct();
 
     private void MarkSelected(
         ReferenceItem selected

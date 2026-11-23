@@ -42,16 +42,43 @@ public sealed partial class MainWindow
                 appearance.Y + homeReferences.ActualHeight < notice.Y,
                 "Aspect ratio and reference controls must fit between the inputs and the service notice.");
             ratios[1].IsChecked = true;
-            Check(Model.SelectedFormat == new VideoFormat(1080, 1920) && localVideoView.ContentMode == VideoContentMode.Fit &&
+            Check(Model.SelectedFormat == new RealtimeVideoFormat(1080, 1920) && localVideoView.ContentMode == VideoContentMode.Fit &&
                 resultVideoView.ContentMode == VideoContentMode.Fit &&
                 ratios.Count(ratio => ratio.IsChecked == true) == 1, "Selecting portrait must set the camera format and fit the preview.");
             ratios[0].IsChecked = true;
-            Check(Model.SelectedFormat == new VideoFormat(1920, 1080) && localVideoView.ContentMode == VideoContentMode.Fill &&
+            Check(Model.SelectedFormat == new RealtimeVideoFormat(1920, 1080) && localVideoView.ContentMode == VideoContentMode.Fill &&
                 resultVideoView.ContentMode == VideoContentMode.Fill,
                 "Selecting landscape must restore the widescreen camera format.");
+            var angle = cameraRotation.TransformToVisual(landingStage).TransformPoint(default);
+            Check(Math.Abs(angle.Y - picker.Y) < 1 && angle.X >= picker.X + cameraAspect.ActualWidth + 9,
+                "The angle capsule must sit to the right of the aspect presets.");
+            foreach (var rotation in Enum.GetValues<CameraRotation>())
+            {
+                var anglePeer = FrameworkElementAutomationPeer.CreatePeerForElement(cameraRotation)!;
+                ((IInvokeProvider)anglePeer.GetPattern(PatternInterface.Invoke)).Invoke();
+                await UntilAsync(() => cameraRotationPopup is { IsOpen: true, Child: FrameworkElement { IsLoaded: true } });
+                var options = CameraUsageDescendants(cameraRotationPopup!.Child).OfType<Button>().ToArray();
+                Check(options.Select(AutomationProperties.GetName).SequenceEqual(new[] { "0°", "90°", "180°", "270°" }),
+                    "The rotation menu must show the four supported angles in order.");
+                var selected = options.Single(button => AutomationProperties.GetItemStatus(button) == AppText.Get("Selected"));
+                Check(AutomationProperties.GetName(selected) == $"{(int)Model.SelectedRotation}°",
+                    "The angle menu must mark the current rotation.");
+                if (rotation == CameraRotation.Clockwise90)
+                    await SaveScreenshotAsync("camera-rotation-menu", (FrameworkElement)cameraRotationPopup.Child);
+                var option = options.Single(button => AutomationProperties.GetName(button) == $"{(int)rotation}°");
+                var peer = FrameworkElementAutomationPeer.CreatePeerForElement(option)!;
+                ((IInvokeProvider)peer.GetPattern(PatternInterface.Invoke)).Invoke();
+                await UntilAsync(() => Model.SelectedRotation == rotation && cameraRotationPopup.IsOpen == false);
+                Check(cameraRotation.Text == $"{(int)rotation}°" && Model.SelectedFormat == new RealtimeVideoFormat(1920, 1080),
+                    "The selected angle must update its capsule and retain the chosen aspect.");
+            }
+            Model.SelectedRotation = CameraRotation.None;
+            await SaveScreenshotAsync("camera-format-controls", (FrameworkElement)cameraAspect.Parent);
             var references = CameraUsageDescendants(homeReferences).OfType<ReferenceTile>().ToArray();
             Check(references.Length == 5 && references.Select(tile => tile.Item).SequenceEqual(Model.HomeReferencePresets) &&
                 references.All(tile => tile.ActualHeight == 52), "Home must show five preset avatars as a compact reference strip.");
+            Check(CameraUsageDescendants(homeReferences).OfType<Button>().Count() == 6,
+                "Home must contain the five avatars and More.");
             var referencePeer = FrameworkElementAutomationPeer.CreatePeerForElement(references[2])!;
             ((IInvokeProvider)referencePeer.GetPattern(PatternInterface.Invoke)).Invoke();
             await UntilAsync(() => Model.HomeSelectedReference == references[2].Item);
@@ -89,9 +116,9 @@ public sealed partial class MainWindow
         var more = CameraUsageDescendants(homeReferences).OfType<Button>().Single(
             button => AutomationProperties.GetAutomationId(button) == "home_reference_more"
         );
-        Check(more.Content is Border { Child: SymbolIcon { Symbol: Symbol.More } } circle &&
+        Check(more.Content is Grid circle && circle.Children.OfType<Glyph>().Any(icon => icon.Kind == "plus") &&
             Math.Abs(circle.ActualWidth - circle.ActualHeight) < 1 && circle.ActualWidth > 0,
-            "More must show a circular button with an ellipsis.");
+            "The reference entry must show a circular button with a plus.");
         more.Focus(FocusState.Programmatic);
         Invoke(more);
         await UntilAsync(() => modalView?.Body is FrameworkElement { IsLoaded: true, ActualWidth: > 0 });
@@ -101,7 +128,8 @@ public sealed partial class MainWindow
         var closeOrigin = close.TransformToVisual(card).TransformPoint(default);
         Check(AutomationProperties.GetIsDialog(modalView) && !scroller.IsHitTestVisible,
             "The catalog must block interaction with the home page while open.");
-        Check(close.Content is Glyph { Kind: "close" } && closeOrigin.X > card.ActualWidth / 2 &&
+        Check(close.Content is Glyph { Kind: "close", Width: 24, Height: 24 } && close.ActualWidth >= 40 &&
+            closeOrigin.X > card.ActualWidth / 2 &&
             closeOrigin.Y >= 0 && closeOrigin.Y < card.ActualHeight / 4,
             $"The close icon must be in the upper-right corner of the card ({closeOrigin}, {card.ActualWidth} × {card.ActualHeight}).");
         foreach (var (mode, _) in ReferenceCategories)
@@ -114,11 +142,12 @@ public sealed partial class MainWindow
                 "The dialog clips the " + mode + " category at the minimum window size.");
             Invoke(tab);
             await UntilAsync(() => CatalogTiles().FirstOrDefault()?.Item.Mode == mode);
-            Check(CatalogTiles().Select(tile => tile.Item).SequenceEqual(Model.References(mode).Where(item => !item.IsUpload)),
-                "The home catalog must show every preset in the selected generation category.");
+            Check(CatalogTiles().Select(tile => tile.Item).SequenceEqual(Model.References(mode)) &&
+                CatalogTiles()[0].Item.IsUpload,
+                "The home catalog must show the mode's upload entry and every reference.");
         }
 
-        await UntilAsync(() => CatalogTiles().All(tile => tile.Item.IsPromptOnly || tile.Item.Thumbnail is not null || tile.Item.HasError));
+        await UntilAsync(() => CatalogTiles().All(tile => tile.Item.IsUpload || tile.Item.IsPromptOnly || tile.Item.Thumbnail is not null || tile.Item.HasError));
         await Task.Delay(300);
         await SaveScreenshotAsync("home-reference-catalog");
         var preset = CatalogTiles().First(tile => tile.Item.IsPromptOnly);
@@ -142,6 +171,33 @@ public sealed partial class MainWindow
         await UntilAsync(() => modalView is null);
         Check(scroller.IsHitTestVisible && Model.HomeSelectedReference == preset.Item,
             "Closing with the upper-right icon must restore the home page without changing its selection.");
+
+        Invoke(more);
+        await UntilAsync(() => modalView?.Body is FrameworkElement { IsLoaded: true });
+        catalog = (FrameworkElement)modalView!.Body!;
+        var freeTab = CameraUsageDescendants(catalog).OfType<Button>().Single(
+            button => AutomationProperties.GetAutomationId(button) == "home_catalog_free");
+        var freeOrigin = freeTab.TransformToVisual(catalog).TransformPoint(default);
+        Check(freeOrigin.X >= 0 && freeOrigin.X + freeTab.ActualWidth <= catalog.ActualWidth + 1,
+            "The fifth category must fit the minimum window.");
+        Invoke(freeTab);
+        var editor = CameraUsageDescendants(catalog).OfType<TextBox>().Single(
+            input => AutomationProperties.GetAutomationId(input) == "home_prompt_input");
+        var apply = CameraUsageDescendants(catalog).OfType<Button>().Single(
+            button => AutomationProperties.GetAutomationId(button) == "home_prompt_submit");
+        editor.Text = " ";
+        await UntilAsync(() => !apply.IsEnabled);
+        const string customPrompt = "A watercolor portrait / 水彩人物";
+        editor.Text = customPrompt;
+        await UntilAsync(() => apply.IsEnabled);
+        await Task.Delay(300);
+        await SaveScreenshotAsync("home-free-prompt");
+        Invoke(apply);
+        await UntilAsync(() => modalView is null && Model.HomeSelectedReference.Mode == "free");
+        await Model.StartLandingAsync();
+        Check(Model.SelectedMode == "free" && Model.Prompt == customPrompt && Model.FreeReference is null,
+            "The free prompt must reach generation with the user's text.");
+        await Model.StopAsync();
 
         ShowAbout();
         await UntilAsync(() => modalView is AboutView { IsLoaded: true });

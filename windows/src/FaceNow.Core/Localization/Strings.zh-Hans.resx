@@ -4730,4 +4730,12 @@ Generation is disabled</comment>
     <value>FaceNow 现已开源， 您可以在 GitHub 上查看源码</value>
     <comment>Shown below the startup canvas.</comment>
   </data>
+  <data name="Text_E0B61A2373B9417D" xml:space="preserve">
+    <value>自定义提示词</value>
+    <comment>Custom Prompt</comment>
+  </data>
+  <data name="Text_9E751EFCC89EF880" xml:space="preserve">
+    <value>画面旋转</value>
+    <comment>Camera rotation</comment>
+  </data>
 </root>

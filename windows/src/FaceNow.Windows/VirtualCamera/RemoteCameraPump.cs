@@ -42,7 +42,7 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
 
     private RemoteCameraPump(
         IVirtualCameraOutput? output,
-        VideoFormat videoFormat,
+        RealtimeVideoFormat videoFormat,
         Action<Exception> faulted,
         Action<Exception>? microphoneFaulted,
         int audioSyncOffset
@@ -62,7 +62,7 @@ internal sealed class RemoteCameraPump : IAsyncDisposable
     internal static async Task<RemoteCameraPump> StartAsync(
         IXmaxRealtimeManaging realtime,
         IVirtualCameraOutput? output,
-        VideoFormat videoFormat,
+        RealtimeVideoFormat videoFormat,
         Action<Exception> faulted,
         GenerationEffectsController? effects = null,
         Action<Exception>? beautyFailed = null,

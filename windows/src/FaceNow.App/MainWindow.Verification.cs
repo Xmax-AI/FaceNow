@@ -327,6 +327,8 @@ public sealed partial class MainWindow
                 {
                     var aspect = Environment.GetEnvironmentVariable("FACENOW_SMOKE_ASPECT") ?? "16:9";
                     Model.SelectedFormat = MainViewModel.CameraPresets.Single(preset => preset.Ratio == aspect).Format;
+                    Model.SelectedRotation = (CameraRotation)int.Parse(
+                        Environment.GetEnvironmentVariable("FACENOW_SMOKE_ROTATION") ?? "0");
                     await Model.PreviewAsync();
                 }
                 else
@@ -348,9 +350,22 @@ public sealed partial class MainWindow
                     var format = Model.SelectedFormat;
                     Check(localVideoView.VideoWidth == format.Width && localVideoView.VideoHeight == format.Height,
                         $"Camera preview delivered {localVideoView.VideoWidth}×{localVideoView.VideoHeight}; expected {format.Width}×{format.Height}.");
-                    using var cameraFrame = Model.LocalVideo?.TryAcquireFrame();
-                    Check(cameraFrame is { Mirrored: false } && localVideoView.IsMirrored && resultVideoView.IsMirrored,
-                        "Camera and result must use presentation mirroring while the camera track remains unmirrored.");
+                    var cameraTrack = Model.LocalVideo!;
+                    // SDK tracks have one frame consumer. Pause the view while inspecting a frame.
+                    localVideoView.Track = null;
+                    try
+                    {
+                        XmaxVideoFrame? cameraFrame = null;
+                        await UntilAsync(() => (cameraFrame = cameraTrack.TryAcquireFrame()) is not null);
+                        using (cameraFrame)
+                            Check(cameraFrame is { Mirrored: false } && localVideoView.IsMirrored && resultVideoView.IsMirrored,
+                                "Camera and result must use presentation mirroring while the camera track remains unmirrored.");
+                    }
+                    finally
+                    {
+                        localVideoView.Track = cameraTrack;
+                    }
+                    await UntilAsync(() => localVideoView.PresentedFrameCount >= 10);
                 }
                 if (mode == "--smoke-test-live")
                 {

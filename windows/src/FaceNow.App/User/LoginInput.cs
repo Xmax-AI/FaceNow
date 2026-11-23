@@ -239,7 +239,7 @@ internal sealed class LoginInput : UserControl
         LoginMotion.Opacity(this, IsEnabled ? 1 : .55);
     }
 
-    private static void ConfigureEditor(
+    internal static void ConfigureEditor(
         Control editor
     )
     {

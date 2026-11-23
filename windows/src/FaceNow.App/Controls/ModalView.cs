@@ -77,16 +77,16 @@ internal class ModalView : UserControl, IDisposable
         };
         card.Children.Add(surface);
         closeButton = ActionButton(closeLabel, primary: false);
-        closeButton.Width = closeButton.Height = 32;
+        closeButton.Width = closeButton.Height = 40;
         closeButton.Padding = new(0);
         closeButton.HorizontalAlignment = HorizontalAlignment.Right;
         closeButton.VerticalAlignment = VerticalAlignment.Top;
-        closeButton.Margin = new(0, 22, 22, 0);
+        closeButton.Margin = new(0, 18, 18, 0);
         closeButton.Content = new Glyph
         {
             Kind = "close",
-            Width = 16,
-            Height = 16,
+            Width = 24,
+            Height = 24,
             Foreground = Theme.Brush("#6B7380")
         };
         closeButton.Click += (_, _) => RequestDismiss();

@@ -161,9 +161,11 @@ internal sealed class FramePublisher : IAsyncDisposable
         var token = stopping.Token;
         while (!token.IsCancellationRequested)
         {
+            bool accepted = false;
             try
             {
                 await pipe.WaitForConnectionAsync(token);
+                accepted = true;
                 if (Interlocked.Increment(ref connections) == 1)
                     CameraDiagnostics.Write("First camera consumer connected");
                 while (!token.IsCancellationRequested && pipe.IsConnected)
@@ -232,6 +234,12 @@ internal sealed class FramePublisher : IAsyncDisposable
             }
             catch (Exception error) when (error is IOException or OperationCanceledException)
             {
+                if (!accepted)
+                {
+                    CameraDiagnostics.Error("Camera pipe listener failed", error);
+                    Interlocked.CompareExchange(ref Failure, error, null);
+                    break;
+                }
                 if (Interlocked.Increment(ref failedTransfers) == 1)
                     CameraDiagnostics.Error("Camera consumer disconnected or transfer timed out", error);
             }
@@ -243,9 +251,20 @@ internal sealed class FramePublisher : IAsyncDisposable
             }
             finally
             {
-                if (!token.IsCancellationRequested && pipe.IsConnected)
-                    pipe.Disconnect();
+                // A broken client sets IsConnected to false before the server instance is reusable.
+                // Disconnect every accepted connection, including failed reads and writes.
+                if (!token.IsCancellationRequested && accepted)
+                {
+                    try { pipe.Disconnect(); }
+                    catch (IOException error)
+                    {
+                        CameraDiagnostics.Error("Camera pipe reset failed", error);
+                        Interlocked.CompareExchange(ref Failure, error, null);
+                    }
+                }
             }
+            if (Volatile.Read(ref Failure) is not null)
+                break;
         }
     }
 

@@ -130,12 +130,21 @@ public sealed partial class MainWindow
         inputPickers.Children.Add(cameraButton);
         inputPickers.Children.Add(homeMicrophone);
         actions.Children.Add(inputPickers);
-        cameraAspect.Margin = new(0, 14, 0, 0);
         cameraAspect.SelectionChanged += format => Model.SelectedFormat = format;
-        actions.Children.Add(cameraAspect);
+        cameraRotation.Click += (_, _) => OpenCameraRotation();
+        AutomationProperties.SetName(cameraRotation, AppText.Get("Camera rotation"));
+        AutomationProperties.SetAutomationId(cameraRotation, "camera_rotation");
+        ToolTipService.SetToolTip(cameraRotation, AppText.Get("Camera rotation"));
+        actions.Children.Add(new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 10,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new(0, 14, 0, 0),
+            Children = { cameraAspect, cameraRotation }
+        });
         homeReferences.Margin = new(0, 16, 0, 0);
         homeReferences.ReferenceSelected += Model.SelectHomeReference;
-        homeReferences.UploadRequested += async () => await ChooseHomeReferenceAsync();
         homeReferences.MoreRequested += OpenHomeReferenceCatalog;
         actions.Children.Add(homeReferences);
         landingStage.Children.Add(actions);
@@ -182,7 +191,7 @@ public sealed partial class MainWindow
         BuildSessionAudioControls();
         workspace.Children.Add(sessionAudioControls);
         var tabRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2 };
-        foreach (var (mode, text) in ReferenceCategories.Append(("free", "Free Prompt")))
+        foreach (var (mode, text) in ReferenceCategories.Append(("free", "Custom Prompt")))
         {
             var tab = CreateModeTab(text);
             tab.Click += (_, _) => Model.SelectedMode = mode;

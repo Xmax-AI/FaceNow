@@ -24,12 +24,12 @@ internal sealed class CameraAspectPicker : UserControl
         </ControlTemplate>
         """);
 
-    private readonly Dictionary<VideoFormat, RadioButton> segments = [];
+    private readonly Dictionary<RealtimeVideoFormat, RadioButton> segments = [];
 
-    internal event Action<VideoFormat>? SelectionChanged;
+    internal event Action<RealtimeVideoFormat>? SelectionChanged;
 
     internal CameraAspectPicker(
-        IReadOnlyList<(string Ratio, VideoFormat Format)> options
+        IReadOnlyList<(string Ratio, RealtimeVideoFormat Format)> options
     )
     {
         Height = 34;
@@ -112,7 +112,7 @@ internal sealed class CameraAspectPicker : UserControl
     }
 
     internal void Update(
-        VideoFormat format,
+        RealtimeVideoFormat format,
         bool enabled
     )
     {

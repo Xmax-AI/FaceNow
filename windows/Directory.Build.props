@@ -13,8 +13,8 @@
     <FaceNowBuildRoot Condition="'$(FaceNowBuildRoot)' == ''">$(MSBuildThisFileDirectory).build/dotnet/</FaceNowBuildRoot>
     <BaseOutputPath>$(FaceNowBuildRoot)bin/$(MSBuildProjectName)/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(FaceNowBuildRoot)obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
-    <XmaxSdkVersion>1.1.2</XmaxSdkVersion>
-    <XmaxSdkPackageSHA256>6785d75c8fa4edb0c285496e597fdcc607562d00083575a73561bc41416e78c2</XmaxSdkPackageSHA256>
-    <XmaxSdkWinUIPackageSHA256>c4199a3dac07ad4d569dae4a52f992531fb1627720965c45086d08bb48e502c4</XmaxSdkWinUIPackageSHA256>
+    <XmaxSdkVersion>1.1.4</XmaxSdkVersion>
+    <XmaxSdkPackageSHA256>7be1f432e874725694982e682208785bc8fe4f475485e5350f9374213465f840</XmaxSdkPackageSHA256>
+    <XmaxSdkWinUIPackageSHA256>82a26360f591a5fca30794dee1de032682ad78e6b358f6b243d61b9f25afe015</XmaxSdkWinUIPackageSHA256>
   </PropertyGroup>
 </Project>

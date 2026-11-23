@@ -2,7 +2,7 @@
 
 Windows 11 software virtual camera prototype, adapted from Microsoft's MIT VirtualCamera sample.
 
-- `CameraSource/`: native COM activation, source, stream and 1280×720 RGB32/NV12 output with a plain #F1F3F4 waiting canvas.
+- `CameraSource/`: native COM activation, source, stream and RGB32/NV12 output with a white waiting canvas and centered FaceNow artwork.
 - `CameraControl.cpp`: architecture-matched helper for install, enable, remove, status and frame verification.
 - `Identity.h`: shared fixed CLSID and friendly name.
 - `third_party/wil/`: vendored WIL headers; licenses are in `../licenses`.
@@ -19,7 +19,7 @@ The helper and source architecture must match the OS Frame Server, independently
 
 The source receives BGRA from the app through a per-device named pipe.
 `RemoteCameraPump` uses the independent SDK callback and a one-packet queue; `FramePublisher` serves only the latest fresh frame.
-On stop, disconnection or 1500 ms without new content, output falls back to a plain #F1F3F4 canvas matching macOS.
+On stop, disconnection or 1500 ms without new content, output falls back to white with the macOS commercial FaceNow artwork centered at 28% of the shorter canvas edge. Both Media Foundation and production DirectShow embed the PNG in the camera DLL, decode and resize it once per negotiated format, and retain it independently of the application.
 Run `scripts/run.ps1 -VerifyRelay` to verify virtual camera relay on Windows 11.
 Cloud generation and meeting reception remain separate acceptance items.
 Full installer, upgrades, reboot recovery, long running output and meeting compatibility remain separate acceptance items.

@@ -37,7 +37,6 @@ public sealed partial class MainWindow
     {
         beautyButton.IsSelected = Model.Beauty.Enabled;
         beautyButton.IsEnabled = !Model.Busy;
-        beautyButton.Text = AppText.Get("Beauty") + (Model.BeautyApplying ? "…" : "");
         bool show = Model.Active && Model.Beauty.Enabled;
         beautyPanel.Update(Model.Beauty, show && !Model.IsClosing);
         if (beautyPresented == show)

@@ -129,6 +129,17 @@ public sealed partial class MainWindow : Window
     internal readonly CameraStartButton StartButton = new();
     private readonly LandingInputButton cameraButton = new("Select Camera");
     private readonly CameraAspectPicker cameraAspect = new(MainViewModel.CameraPresets);
+    private readonly Pill cameraRotation = new()
+    {
+        Text = "0°",
+        Height = 34,
+        MinWidth = 0,
+        Padding = new(10, 0, 10, 0),
+        Translucent = true,
+        FontFamily = User.LoginTypography.Font,
+        FontSize = 13.5,
+        FontWeight = Microsoft.UI.Text.FontWeights.Medium
+    };
     private readonly HomeReferencePicker homeReferences;
     private readonly ToolbarButton modelButton = new(ToolbarButtonRole.Menu)
     {
@@ -378,6 +389,9 @@ public sealed partial class MainWindow : Window
         StartButton.Text = Model.StartLabel;
         StartButton.SetLoading(Model.Busy && !Model.IsClosing && !Model.Active);
         cameraAspect.Update(Model.SelectedFormat, Model.CanEdit);
+        cameraRotation.Text = $"{(int)Model.SelectedRotation}°";
+        cameraRotation.IsEnabled = Model.CanEdit;
+        AutomationProperties.SetItemStatus(cameraRotation, cameraRotation.Text);
         homeReferences.Update(
             Model.HomeReferences,
             Model.HomeSelectedReference,

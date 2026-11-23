@@ -15,13 +15,14 @@ try
     }
     MFGetAttributeSize(pMediaType, MF_MT_FRAME_SIZE, &m_width, &m_height);
     m_frames.Configure(sourceAttributes);
+    RETURN_IF_FAILED(m_waiting.Configure(m_width, m_height));
 
     return S_OK;
 } CATCH_RETURN()
 
 /*:
    Writes to a buffer representing a 2D image.
-   Receives the latest video frame, or fills a neutral gray waiting image.
+   Receives the latest video frame, or draws the white branded waiting image.
    pBuf points to the first displayed row; pitch can be negative for bottom-up RGB buffers.
    Param:
    pBuf - pointer to beginning of buffer
@@ -78,11 +79,7 @@ HRESULT SimpleFrameGenerator::_CreateRGB32Frame(
 
     if (m_frames.Draw(pBuf, len, pitch, width, height)) return S_OK;
 
-    // Fill the waiting canvas with RGB (241, 243, 244).
-    for (DWORD y = 0; y < height; ++y) {
-        auto row = reinterpret_cast<uint32_t*>(pBuf + int64_t(y) * pitch);
-        std::fill_n(row, width, 0xfff1f3f4);
-    }
+    m_waiting.Draw(pBuf, pitch);
 
     return S_OK;
 }

@@ -33,15 +33,17 @@ public sealed partial class MainWindow
         double width,
         double padding = 10,
         bool? above = false,
-        double cornerRadius = 12
+        double cornerRadius = 12,
+        string background = "#FFFFFF",
+        string border = "#E5E7EB"
     )
     {
         ClosePopups();
         var surface = new Border
         {
             Width = width,
-            Background = Theme.Brush("#FFFFFF"),
-            BorderBrush = Theme.Brush("#E5E7EB"),
+            Background = Theme.Brush(background),
+            BorderBrush = Theme.Brush(border),
             BorderThickness = new(1),
             CornerRadius = new(cornerRadius),
             Padding = new(padding),
@@ -281,20 +283,23 @@ public sealed partial class MainWindow
         }
     }
 
-    private async Task ChooseHomeReferenceAsync()
+    private async Task<bool> ChooseHomeReferenceAsync(
+        string mode
+    )
     {
         if (Model.IsPreview || !Model.CanChooseHomeReference)
-            return;
+            return false;
         try
         {
             if (await PickReferencePathAsync() is { } path && !closing && accountRepository?.CanAccessHome != false)
-                await Model.UploadHomeReferenceAsync(path);
+                return await Model.UploadHomeReferenceAsync(path, mode, Model.Prompt);
         }
         catch (Exception error)
         {
             if (!closing)
                 Model.ReportError(error);
         }
+        return false;
     }
 
     private async Task<string?> PickReferencePathAsync()

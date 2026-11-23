@@ -4730,4 +4730,12 @@ Generation is disabled</comment>
     <value>FaceNow is now open source. View the code on GitHub</value>
     <comment>Shown below the startup canvas.</comment>
   </data>
+  <data name="Text_E0B61A2373B9417D" xml:space="preserve">
+    <value>Custom Prompt</value>
+    <comment>Custom Prompt</comment>
+  </data>
+  <data name="Text_9E751EFCC89EF880" xml:space="preserve">
+    <value>Camera rotation</value>
+    <comment>Camera rotation</comment>
+  </data>
 </root>

@@ -149,7 +149,7 @@ public sealed partial class MainWindow
 
     private sealed class VideoVerificationSource : IRealtimeExternalVideoSource
     {
-        public VideoFormat VideoFormat => new(16, 8);
+        public RealtimeVideoFormat VideoFormat => new(16, 8);
 
         public IRealtimeExternalFrameSink? Sink { get; private set; }
 

@@ -1,6 +1,6 @@
 # Windows 11 虚拟摄像头注册
 
-当前已实现：原生 COM 媒体源、纯灰占位生成、组件安装、CurrentUser 设备注册/移除和状态查询。Windows 11 ARM64 虚拟机已通过系统 Frame Server 读取 10 帧验收。SDK AI 视频回调已接入受限命名管道，使用本地合成帧通过系统传输检查；真实云端和会议兼容性尚未验收。
+当前已实现：原生 COM 媒体源、白底居中 FaceNow 图标的占位图、组件安装、CurrentUser 设备注册/移除和状态查询。Windows 11 ARM64 虚拟机已通过系统 Frame Server 读取 10 帧验收。SDK AI 视频回调已接入受限命名管道，使用本地合成帧通过系统传输检查；真实云端和会议兼容性尚未验收。
 
 ## 应用内操作
 
@@ -54,6 +54,6 @@ System 生命周期使设备保留至显式移除；关闭 FaceNow 不移除设�
 ./FaceNow.CameraControl.exe --self-test local-test.bmp
 ```
 
-`--verify` 与 `--self-test` 检查 10 帧、递增时间戳和非均匀视频或预期灰色占位像素，并可保存最后一帧 BMP。它们不等于会议对端接收、帧率或长期稳定性验收。额外的 `scripts/run.ps1 -VerifyRelay` 验证真实系统管线的像素、无黑边铺满、断流、停止和重启行为。
+`--verify` 与 `--self-test` 检查 10 帧、递增时间戳和非均匀视频或白底居中 FaceNow 图标的占位图，并可保存最后一帧 BMP。它们不等于会议对端接收、帧率或长期稳定性验收。额外的 `scripts/run.ps1 -VerifyRelay` 验证真实系统管线的像素、无黑边铺满、断流、停止和重启行为。
 
 参考：[微软 VirtualCamera 示例](https://github.com/microsoft/Windows-Camera/tree/master/Samples/VirtualCamera)、[MFCreateVirtualCamera](https://learn.microsoft.com/en-us/windows/win32/api/mfvirtualcamera/nf-mfvirtualcamera-mfcreatevirtualcamera)、[IMFVirtualCamera::Start](https://learn.microsoft.com/en-us/windows/win32/api/mfvirtualcamera/nf-mfvirtualcamera-imfvirtualcamera-start)。

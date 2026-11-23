@@ -36,11 +36,20 @@ public sealed partial class MainWindow
         byte[] data
     )
     {
-        // RGB/NV12 round trips can introduce rounding in the neutral placeholder.
+        if (data.Length == 0 || data.Length % 4 != 0)
+            return false;
+        int colored = 0, purple = 0;
+        // RGB/NV12 conversion can slightly alter the white canvas and purple artwork.
         for (int i = 0; i < data.Length; i += 4)
-            if (Math.Abs(data[i] - 244) > 4 || Math.Abs(data[i + 1] - 243) > 4 || Math.Abs(data[i + 2] - 241) > 4)
-                return false;
-        return data.Length > 0;
+        {
+            if (data[i] >= 248 && data[i + 1] >= 248 && data[i + 2] >= 248)
+                continue;
+            ++colored;
+            if (data[i] > 160 && data[i] > data[i + 1] + 20 && data[i] > data[i + 2] + 10)
+                ++purple;
+        }
+        int pixels = data.Length / 4;
+        return colored > pixels / 100 && colored < pixels / 12 && purple > colored * .95;
     }
 
     private async Task<(byte[] Pixels, uint Width, uint Height)> CaptureCameraDiagnosticAsync(
@@ -80,7 +89,7 @@ public sealed partial class MainWindow
         await using var sdkPump = await RemoteCameraPump.StartAsync(
             realtime,
             virtualCameraOutput,
-            new VideoFormat(1920, 1080),
+            new RealtimeVideoFormat(1920, 1080),
             Model.ReportError
         );
         VerificationProgress("Relay publisher started");
@@ -198,7 +207,7 @@ public sealed partial class MainWindow
             var expired = await CaptureCameraDiagnosticAsync("camera-relay-expired");
             Check(
                 IsWaitingCanvas(expired.Pixels),
-                "Producer silence did not select the plain gray waiting canvas."
+                "Producer silence did not select the white canvas with the centered FaceNow icon."
             );
             await UntilAsync(() => virtualCameraOutput.Status.State == CameraOutputState.Stopped);
             await virtualCameraOutput.StopAsync();
@@ -216,7 +225,7 @@ public sealed partial class MainWindow
             var stopped = await CaptureCameraDiagnosticAsync("camera-relay-stopped");
             Check(
                 IsWaitingCanvas(stopped.Pixels),
-                "Stopped camera output did not select the plain gray waiting canvas."
+                "Stopped camera output did not select the white canvas with the centered FaceNow icon."
             );
             Guid second = Guid.NewGuid();
             await virtualCameraOutput.StartAsync(new(1920, 1080, 30, second));

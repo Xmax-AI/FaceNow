@@ -3,9 +3,7 @@
 //  FaceNow
 //
 
-using System.ComponentModel;
 using System.Numerics;
-using FaceNow.App.User;
 using FaceNow.Windows.Studio.ViewModels;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
@@ -14,6 +12,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 using Windows.Foundation;
 
 namespace FaceNow.App.Controls;
@@ -26,8 +25,6 @@ internal sealed class HomeReferencePicker : UserControl
     private const float FadeWidth = 50;
     private const double EdgeTolerance = .5;
     private const double DragThreshold = 4;
-    private const string UploadRestingFill = "#6B000000";
-    private const string UploadHoverFill = "#94000000";
     private readonly StackPanel tiles = new()
     {
         Orientation = Orientation.Horizontal,
@@ -36,8 +33,6 @@ internal sealed class HomeReferencePicker : UserControl
         Background = Theme.Brush("#00000000")
     };
     private readonly ScrollViewer strip;
-    private readonly Image preview = new() { Stretch = Stretch.UniformToFill };
-    private readonly Button upload;
     private readonly Button more;
     private IReadOnlyList<ReferenceItem>? displayedReferences;
     private ReferenceItem? selected;
@@ -47,8 +42,6 @@ internal sealed class HomeReferencePicker : UserControl
     private double dragX;
     private double dragOffset;
     private bool isDragging;
-
-    internal event Action? UploadRequested;
 
     internal event Action? MoreRequested;
 
@@ -79,69 +72,30 @@ internal sealed class HomeReferencePicker : UserControl
         strip.AddHandler(UIElement.PointerWheelChangedEvent, new PointerEventHandler(ScrollWithMouse), true);
         AutomationProperties.SetName(strip, AppText.Get("Reference images"));
 
-        var portrait = new Grid
+        var moreCircle = new Grid
         {
             Width = AvatarSize,
             Height = AvatarSize,
-            VerticalAlignment = VerticalAlignment.Center,
-            Background = Theme.Brush("#F7F8FA")
-        };
-        RoundedClip.Attach(portrait, (float)(AvatarSize / 2));
-        portrait.Children.Add(preview);
-        var uploadFill = Theme.Brush(UploadRestingFill);
-        portrait.Children.Add(new Border
-        {
-            CornerRadius = new(AvatarSize / 2),
-            BorderThickness = new(1),
-            BorderBrush = Theme.Brush("#8CFFFFFF"),
-            Background = uploadFill,
-            Child = new Glyph
+            Opacity = .85,
+            Children =
             {
-                Kind = "plus",
-                Width = 17,
-                Height = 17,
-                Foreground = Theme.Brush("#FFFFFF"),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            },
-            IsHitTestVisible = false
-        });
-        upload = new Button
-        {
-            Template = Theme.ButtonTemplate,
-            Width = AvatarSize,
-            Height = AvatarSize,
-            CornerRadius = new(0),
-            Content = portrait,
-            Background = Theme.Brush("#00000000"),
-            VerticalAlignment = VerticalAlignment.Center,
-            HorizontalContentAlignment = HorizontalAlignment.Center,
-            VerticalContentAlignment = VerticalAlignment.Center,
-            BorderThickness = new(0),
-            Padding = new(0),
-            UseSystemFocusVisuals = true
+                new Ellipse
+                {
+                    Stroke = Theme.Brush("#FFFFFF"),
+                    StrokeThickness = 1.5,
+                    StrokeDashArray = new DoubleCollection { 3, 3 }
+                },
+                new Glyph
+                {
+                    Kind = "plus",
+                    Width = 22,
+                    Height = 22,
+                    Foreground = Theme.Brush("#FFFFFF"),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                }
+            }
         };
-        void SetUploadHover(
-            bool hovered
-        ) => LoginMotion.Color(upload, uploadFill, hovered ? UploadHoverFill : UploadRestingFill);
-        upload.PointerEntered += (_, _) => SetUploadHover(upload.IsEnabled);
-        upload.PointerExited += (_, _) => SetUploadHover(false);
-        upload.RegisterPropertyChangedCallback(Control.IsEnabledProperty, (_, _) =>
-        {
-            if (!upload.IsEnabled)
-                SetUploadHover(false);
-        });
-        upload.Click += (_, _) => UploadRequested?.Invoke();
-        string uploadLabel = AppText.Get("Upload your own reference image");
-        AutomationProperties.SetName(upload, uploadLabel);
-        ToolTipService.SetToolTip(upload, uploadLabel);
-
-        var moreCircle = ReferenceTile.CreateCircle(AvatarSize, 1, new SymbolIcon(Symbol.More)
-        {
-            Foreground = Theme.Brush("#6B7380"),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        });
         more = new Button
         {
             Template = Theme.ButtonTemplate,
@@ -156,34 +110,18 @@ internal sealed class HomeReferencePicker : UserControl
             VerticalAlignment = VerticalAlignment.Center,
             UseSystemFocusVisuals = true
         };
-        string moreLabel = AppText.Get("More");
+        string moreLabel = AppText.Get("Reference images");
         AutomationProperties.SetName(more, moreLabel);
         AutomationProperties.SetAutomationId(more, "home_reference_more");
         ToolTipService.SetToolTip(more, moreLabel);
-        more.PointerEntered += (_, _) => moreCircle.BorderBrush = Theme.Brush("#C7D0F8");
-        more.PointerExited += (_, _) => moreCircle.BorderBrush = Theme.Brush("#F3F4F6");
+        more.PointerEntered += (_, _) => moreCircle.Opacity = 1;
+        more.PointerExited += (_, _) => moreCircle.Opacity = .85;
         more.Click += (_, _) => MoreRequested?.Invoke();
         Content = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = 12,
-            Children =
-            {
-                upload,
-                new Border
-                {
-                    Width = 1,
-                    Height = 32,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Background = Theme.Brush("#40FFFFFF")
-                },
-                new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    Spacing = Spacing,
-                    Children = { CreateFadedStrip(), more }
-                }
-            }
+            Spacing = Spacing,
+            Children = { more, CreateFadedStrip() }
         };
     }
 
@@ -202,16 +140,8 @@ internal sealed class HomeReferencePicker : UserControl
                 tiles.Children.Add(CreateTile(item));
             strip.ChangeView(0, null, null, true);
         }
-        if (selected != selection)
-        {
-            if (selected is not null)
-                selected.PropertyChanged -= SelectedChanged;
-            selected = selection;
-            selected.PropertyChanged += SelectedChanged;
-            preview.Source = selection.Thumbnail as ImageSource;
-            AutomationProperties.SetItemStatus(upload, selection.Name);
-        }
-        upload.IsEnabled = more.IsEnabled = enabled;
+        selected = selection;
+        more.IsEnabled = enabled;
         tiles.Opacity = more.Opacity = dimmed ? .5 : 1;
         foreach (ReferenceTile tile in tiles.Children)
             tile.UpdateCompactSelection(tile.Item == selection, enabled);
@@ -300,15 +230,6 @@ internal sealed class HomeReferencePicker : UserControl
             source.Opacity = 0;
         };
         return viewport;
-    }
-
-    private void SelectedChanged(
-        object? sender,
-        PropertyChangedEventArgs args
-    )
-    {
-        if (args.PropertyName == nameof(ReferenceItem.Thumbnail))
-            preview.Source = selected?.Thumbnail as ImageSource;
     }
 
     private void BeginMouseDrag(

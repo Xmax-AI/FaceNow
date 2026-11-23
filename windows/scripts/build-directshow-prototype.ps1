@@ -27,7 +27,9 @@ $commands = @(
     "@cd /d `"$out`"",
     "cl $flags /I`"$BaseClasses`" /c `"$BaseClasses\*.cpp`"",
     '@if errorlevel 1 exit /b 1',
-    "cl $flags /utf-8 /DNOMINMAX $filterFlags $includes /LD `"$source\CameraFilter.cpp`" $($objects -join ' ') /link /DEF:`"$source\CameraFilter.def`" /OUT:$dll strmiids.lib mfuuid.lib ole32.lib oleaut32.lib advapi32.lib crypt32.lib cfgmgr32.lib winmm.lib user32.lib gdi32.lib",
+    "rc /nologo /I`"$repo/assets`" /fo CameraPlaceholder.res `"$repo/native/CameraPlaceholder.rc`"",
+    '@if errorlevel 1 exit /b 1',
+    "cl $flags /utf-8 /DNOMINMAX $filterFlags $includes /LD `"$source\CameraFilter.cpp`" $($objects -join ' ') CameraPlaceholder.res /link /DEF:`"$source\CameraFilter.def`" /OUT:$dll strmiids.lib mfuuid.lib ole32.lib oleaut32.lib advapi32.lib crypt32.lib cfgmgr32.lib winmm.lib user32.lib gdi32.lib windowscodecs.lib",
     '@if errorlevel 1 exit /b 1'
 )
 if ($Production) {

@@ -5,6 +5,12 @@ using System.Text;
 using FaceNow.Core.VirtualCamera;
 using FaceNow.Windows.VirtualCamera;
 
+if (args is ["--peer-disconnect"])
+{
+    await VerifyPeerDisconnectAsync();
+    return;
+}
+
 if (args is ["--idle-timeout"])
 {
     await VerifyIdleTimeoutAsync();
@@ -152,4 +158,42 @@ static void VerifyPixels(byte[] image, int offset, int width, int height)
         if (image[top + 2] < 230 || image[top] > 25 || image[bottom] < 230 || image[bottom + 2] > 25)
             throw new Exception("Native source output had bars, was inverted or had incorrect colors.");
     }
+}
+
+static async Task VerifyPeerDisconnectAsync()
+{
+    string endpoint = "FaceNow-aborted-relay-" + Guid.NewGuid().ToString("N");
+    string name = "FaceNow.Camera.v1." + Convert.ToHexStringLower(SHA256.HashData(Encoding.Unicode.GetBytes(endpoint.ToLowerInvariant())));
+    Guid session = Guid.NewGuid();
+    const int width = 1920, height = 1080;
+    byte[] pixels = new byte[width * height * 4];
+    pixels[0] = 27; pixels[^1] = 255;
+    await using var publisher = new FramePublisher(endpoint, new(width, height, 30, session));
+    publisher.TrySubmit(new(pixels, width, height, width * 4, 1, session));
+    using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+    byte[] request = [0x46, 0x43, 0x4e, 0x31, 1, 0, 0, 0];
+    // Drop every client after the header, while its full-HD payload is still being written.
+    for (int i = 0; i < 4; ++i)
+    {
+        using var abandoned = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
+        await abandoned.ConnectAsync(deadline.Token);
+        publisher.TrySubmit(new(pixels, width, height, width * 4, i + 2, session));
+        await abandoned.WriteAsync(request, deadline.Token);
+        byte[] header = new byte[64];
+        await abandoned.ReadExactlyAsync(header, deadline.Token);
+        if (BitConverter.ToInt32(header, 20) != pixels.Length)
+            throw new Exception("The disconnect fixture did not interrupt a full-HD frame.");
+        abandoned.Dispose();
+        await Task.Delay(50, deadline.Token);
+    }
+    using var recovered = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
+    await recovered.ConnectAsync(deadline.Token);
+    publisher.TrySubmit(new(pixels, width, height, width * 4, 10, session));
+    await recovered.WriteAsync(request, deadline.Token);
+    byte[] reply = new byte[64], actual = new byte[pixels.Length];
+    await recovered.ReadExactlyAsync(reply, deadline.Token);
+    await recovered.ReadExactlyAsync(actual, deadline.Token);
+    if (!actual.AsSpan().SequenceEqual(pixels) || publisher.Failure is not null)
+        throw new Exception("Camera output did not recover intact after client disconnects.");
+    Console.WriteLine("PASS: Full-HD video delivery recovers after four mid-frame client disconnects.");
 }

@@ -3,14 +3,11 @@
 //  FaceNow
 //
 
-using Xmax.SDK;
-
 namespace FaceNow.Windows.Studio.ViewModels;
 
 internal sealed partial class MainViewModel
 {
     private CancellationTokenSource? homeReferenceUpload;
-    private ReferenceItem? importedHomeReference;
     private ReferenceItem? pendingHomeReference;
     private readonly HashSet<ReferenceItem> homeSessionReferences = [];
 
@@ -20,7 +17,7 @@ internal sealed partial class MainViewModel
 
     internal ReferenceItem HomeSelectedReference { get; private set; } = null!;
 
-    internal ReferenceItem? HomeCustomReference => pendingHomeReference ?? importedHomeReference;
+    internal ReferenceItem? HomeCustomReference => pendingHomeReference;
 
     internal bool CanChooseHomeReference => !Active && !Busy && homeReferenceUpload is null;
 
@@ -31,6 +28,12 @@ internal sealed partial class MainViewModel
         if (!CanChooseHomeReference || HomeSelectedReference == item || !HomeReferences.Contains(item))
             return;
         HomeSelectedReference = item;
+        if (item.Mode == "free")
+        {
+            Prompt = item.Prompt ?? "";
+            FreeReference = item.ReferenceUrl.Length > 0 ? item : null;
+            Changed(nameof(Prompt));
+        }
         ClearError();
         HomeReferenceChanged();
     }
@@ -39,40 +42,83 @@ internal sealed partial class MainViewModel
         ReferenceItem item
     )
     {
-        if (!CanChooseHomeReference || item.IsUpload || item.LocalPath is not null || !AllReferences.Contains(item))
+        if (!CanChooseHomeReference || item.IsUpload || item.IsUploading ||
+            (item.LocalPath is not null && item.ReferenceUrl.Length == 0) || !AllReferences.Contains(item))
             return;
+        AddHomeReference(item);
+    }
+
+    private void AddHomeReference(
+        ReferenceItem item
+    )
+    {
         if (!HomeReferences.Contains(item))
             HomeReferences = [item, ..HomeReferences];
         SelectHomeReference(item);
     }
 
-    internal async Task UploadHomeReferenceAsync(
-        string path
+    internal bool SelectHomeFreePrompt(
+        string prompt
+    )
+    {
+        if (!CanChooseHomeReference || string.IsNullOrWhiteSpace(prompt) || !FreeReferenceReady)
+            return false;
+        prompt = prompt.Trim();
+        string referenceUrl = FreeReference?.ReferenceUrl ?? "";
+        var item = HomeReferences.FirstOrDefault(reference =>
+            reference.Mode == "free" && reference.Prompt == prompt && reference.ReferenceUrl == referenceUrl
+        ) ?? new ReferenceItem
+        {
+            Id = Guid.NewGuid().ToString("N"),
+            Mode = "free",
+            Name = AppText.Get("Custom Prompt"),
+            Prompt = prompt,
+            ReferenceUrl = referenceUrl,
+            ThumbnailUrl = FreeReference?.ThumbnailUrl ?? "",
+            Thumbnail = FreeReference?.Thumbnail,
+            LocalPath = FreeReference?.LocalPath
+        };
+        AddHomeReference(item);
+        return true;
+    }
+
+    internal async Task<bool> UploadHomeReferenceAsync(
+        string path,
+        string mode = "charx",
+        string freePrompt = ""
     )
     {
         if (!CanChooseHomeReference || IsPreview)
-            return;
+            return false;
         if (string.IsNullOrWhiteSpace(ApiKey))
         {
             RequireKey();
-            return;
+            return false;
         }
+        var references = mode == "free" ? null : References(mode);
         string key = generationAccess?.GetVerifiedGenerationKey() ?? ApiKey;
-        var item = ReferenceItem.FromUpload(path, "charx", "");
+        var item = ReferenceItem.FromUpload(path, mode, freePrompt);
+        var previousFreeReference = FreeReference;
         using var cancellation = new CancellationTokenSource();
         homeReferenceUpload = cancellation;
         pendingHomeReference = item;
-        var previousReferences = HomeReferences;
-        HomeReferences = [item, ..previousReferences.Where(reference => reference != importedHomeReference)];
         item.IsUploading = true;
+        if (mode == "free")
+            FreeReference = item;
+        else
+        {
+            homeSessionReferences.Add(item);
+            references!.Insert(1, item);
+        }
         ClearError();
         HomeReferenceChanged();
+        bool uploaded = false;
         try
         {
             item.ReferenceUrl = await UploadApprovedReferenceAsync(item, path, key, cancellation.Token);
             cancellation.Token.ThrowIfCancellationRequested();
             item.UploadProgress = 1;
-            importedHomeReference = HomeSelectedReference = item;
+            uploaded = true;
         }
         catch (Exception failure)
         {
@@ -82,33 +128,37 @@ internal sealed partial class MainViewModel
         finally
         {
             item.IsUploading = false;
+            if (!uploaded)
+            {
+                references?.Remove(item);
+                homeSessionReferences.Remove(item);
+            }
             if (homeReferenceUpload == cancellation)
             {
                 homeReferenceUpload = null;
                 pendingHomeReference = null;
-                if (importedHomeReference != item)
-                    HomeReferences = previousReferences;
+                if (!uploaded && mode == "free")
+                    FreeReference = previousFreeReference;
+                if (uploaded && mode != "free")
+                    AddHomeReference(item);
                 HomeReferenceChanged();
             }
         }
+        return uploaded;
     }
 
     internal void ResetHomeReferences()
     {
-        var original = HomeReferencePresets[0];
-        if (HomeReferences == HomeReferencePresets &&
-            homeSessionReferences.Count == 0 && HomeSelectedReference == original)
-            return;
-
         var cancellation = homeReferenceUpload;
         homeReferenceUpload = null;
-        pendingHomeReference = importedHomeReference = null;
+        pendingHomeReference = null;
         HomeReferences = HomeReferencePresets;
-        HomeSelectedReference = original;
+        HomeSelectedReference = HomeReferencePresets[0];
         cancellation?.Cancel();
         foreach (var item in homeSessionReferences)
-            CharacterReferences.Remove(item);
+            References(item.Mode).Remove(item);
         homeSessionReferences.Clear();
+        RemoveFreeReference();
         HomeReferenceChanged();
     }
 
@@ -122,8 +172,12 @@ internal sealed partial class MainViewModel
         ReferenceItem item
     )
     {
-        if (item.LocalPath is not null && homeSessionReferences.Add(item))
-            CharacterReferences.Insert(1, item);
+        if (item.Mode == "free")
+        {
+            FreeReference = item.ReferenceUrl.Length > 0 ? item : null;
+            Prompt = item.Prompt ?? "";
+            Changed(nameof(Prompt));
+        }
         SelectedMode = item.Mode;
         MarkSelected(item);
     }

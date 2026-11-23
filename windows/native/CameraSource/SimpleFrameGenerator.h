@@ -6,6 +6,7 @@
 #ifndef SIMPLE_FRAME_GENERATOR_H
 #define SIMPLE_FRAME_GENERATOR_H
 #include "FramePipe.h"
+#include "../CameraPlaceholder.h"
 
 class SimpleFrameGenerator
 {
@@ -30,6 +31,7 @@ public:
 
 private: 
     FramePipe m_frames;
+    FaceNowFrames::WaitingCanvas m_waiting;
     HRESULT _CreateRGB32Frame(
         _Inout_updates_bytes_(len) BYTE* pBuf,
         _In_ DWORD len,

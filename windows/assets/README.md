@@ -1,4 +1,6 @@
-# FaceNow application icon
+# FaceNow artwork
+
+## Application icon
 
 FaceNow uses the purple icon with two camera frames across macOS and Windows.
 The source artwork is [FaceNow.png](../../macos/Shared/AppIcon.icon/Assets/FaceNow.png).
@@ -22,3 +24,13 @@ to the same Playground image. Both regional prompts are stored per preset,
 including accessory-specific clothing instructions. The Windows assembly embeds
 this file directly. Building and running require neither the SDK demo's preset
 list nor macOS sources. Uploaded-image defaults live in `GenerationPrompts.cs`.
+
+## Virtual camera waiting image
+
+`FaceNowCameraPlaceholder.png` is the shared FaceNow waiting artwork used by the
+commercial macOS and Windows editions. Both native Windows camera backends embed
+it in their DLL, center it on white at 28% of the shorter canvas edge, and cache
+the resized image per negotiated format. The image remains available when the
+app is closed. Building Windows requires only the copy in this directory.
+
+SHA-256: `4c6bcb3f1997489ce559d06bff85b2717a42fcb5b4f539bbf4415d5cb31b8307`.

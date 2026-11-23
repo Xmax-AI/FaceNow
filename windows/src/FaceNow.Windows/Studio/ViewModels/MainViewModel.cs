@@ -38,7 +38,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
     private CameraDevice? camera;
     private string? preferredCameraId;
 
-    internal static IReadOnlyList<(string Ratio, VideoFormat Format)> CameraPresets { get; } =
+    internal static IReadOnlyList<(string Ratio, RealtimeVideoFormat Format)> CameraPresets { get; } =
     [
         ("16:9", new(1920, 1080)),
         ("9:16", new(1080, 1920)),
@@ -47,13 +47,15 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         ("4:3", new(1536, 1152)),
     ];
 
-    private VideoFormat format = CameraPresets[0].Format;
+    private RealtimeVideoFormat format = CameraPresets[0].Format;
+    private CameraRotation rotation;
     private string sessionKey = "", sessionCamera = "";
 
     private static XmaxEnvironment ServiceEnvironment => FaceNow.Core.Product.ProductProfile.Current.IsOverseas ? XmaxEnvironment.Global : XmaxEnvironment.China;
 
     private const RealtimeModel ServiceModel = RealtimeModel.X2_1;
-    private VideoFormat sessionFormat;
+    private RealtimeVideoFormat sessionFormat;
+    private CameraRotation sessionRotation;
     private RealtimeVideoTrack? local, remote;
 
     public ObservableCollection<CameraDevice> Cameras { get; } = [];
@@ -92,7 +94,7 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         }
     }
 
-    public VideoFormat SelectedFormat
+    public RealtimeVideoFormat SelectedFormat
     {
         get => format;
         set
@@ -100,6 +102,20 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
             if (format == value)
                 return;
             format = value;
+            Changed();
+        }
+    }
+
+    public CameraRotation SelectedRotation
+    {
+        get => rotation;
+        set
+        {
+            if (!Enum.IsDefined(value))
+                throw new ArgumentOutOfRangeException(nameof(value));
+            if (rotation == value)
+                return;
+            rotation = value;
             Changed();
         }
     }
@@ -276,8 +292,12 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
             throw new InvalidOperationException("Select a camera before starting. Choose your physical camera for live video.");
         }
         var requestedFormat = SelectedFormat;
+        var requestedCamera = SelectedCamera;
+        var requestedMicrophone = Microphone;
+        var requestedRotation = SelectedRotation;
         if (session is not null && localStream is not null && sessionKey == ApiKey &&
-            sessionCamera == SelectedCamera.Id && sessionFormat == requestedFormat)
+            sessionCamera == requestedCamera.Id && sessionFormat == requestedFormat &&
+            sessionRotation == requestedRotation)
             return;
         await StopAsync();
         int current = ++revision;
@@ -294,8 +314,9 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
         });
         session = next;
         sessionKey = ApiKey;
-        sessionCamera = SelectedCamera.Id;
+        sessionCamera = requestedCamera.Id;
         sessionFormat = requestedFormat;
+        sessionRotation = requestedRotation;
         LocalVideo = RemoteVideo = null;
         foreach (var row in TimingRows.Concat(UplinkRows).Concat(UplinkNetworkRows).Concat(DownlinkRows).Concat(DownlinkNetworkRows))
             row.Value = "—";
@@ -331,10 +352,10 @@ internal sealed partial class MainViewModel : INotifyPropertyChanged, IAsyncDisp
             preparationToken.ThrowIfCancellationRequested();
             var cameraStream = await next.CreateLocalCameraStreamAsync(
                 videoFormat: requestedFormat,
-                camera: RealtimeCamera.Device(SelectedCamera.Id),
+                camera: RealtimeCamera.Device(requestedCamera.Id),
+                microphone: requestedMicrophone,
                 mirror: false,
-                microphone: Microphone,
-                cancellationToken: preparationToken
+                rotation: requestedRotation
             );
             if (current != revision)
                 throw new OperationCanceledException(preparationToken);

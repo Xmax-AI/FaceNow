@@ -67,6 +67,55 @@ var tests = new (string Name, Func<Task> Run)[]
         Check(model.HomeCustomReference is null && model.HomeSelectedReference == model.HomeReferencePresets[0]);
         Check(model.StartCommand.CanExecute(null) && model.Error.Length == 0);
     }),
+    ("Home uploads keep their mode and prompt and are canceled by account reset", async () =>
+    {
+        foreach (string mode in new[] { "charx", "clothx", "vibex", "dimx", "free" })
+        {
+            var thumbnails = new PendingThumbnails();
+            var model = new MainViewModel(new FakeDispatcher(), thumbnails) { ApiKey = "isolated-test-key" };
+            const string freePrompt = "Keep my exact instruction / 保留用户输入";
+            var upload = model.UploadHomeReferenceAsync("test-image.png", mode, freePrompt);
+            var item = model.HomeCustomReference!;
+            Check(item.Mode == mode && item.Prompt == (mode == "free" ? freePrompt : GenerationPrompts.ForMode(mode)));
+            Check(mode == "free" ? model.FreeReference == item : model.References(mode)[1] == item);
+            Check(!model.CanChooseHomeReference && !model.SelectHomeFreePrompt("still uploading"));
+            model.ResetHomeReferences();
+            thumbnails.Result.SetResult(new object());
+            Check(!await upload && model.HomeCustomReference is null && model.FreeReference is null);
+            Check(model.HomeReferences.Count == 5 && model.CanChooseHomeReference && model.Error.Length == 0);
+            if (mode != "free")
+                Check(!model.References(mode).Contains(item));
+        }
+    }),
+    ("A home free prompt preserves its text and optional image through generation and reopening", async () =>
+    {
+        var model = new MainViewModel(new FakeDispatcher(), new FakeThumbnails());
+        model.ConfigurePreview(false);
+        Check(!model.SelectHomeFreePrompt("  "));
+        const string prompt = "A custom watercolor scene / 自定义水彩场景";
+        var image = ReferenceItem.FromUpload("approved-image.png", "free", "an earlier draft");
+        image.ReferenceUrl = "https://example.invalid/approved.png";
+        typeof(MainViewModel).GetProperty(nameof(MainViewModel.FreeReference))!.SetValue(model, image);
+        Check(model.SelectHomeFreePrompt(prompt));
+        var saved = model.HomeSelectedReference;
+        Check(model.HomeReferences[0] == saved && saved.Mode == "free" &&
+            model.ReferenceContext(saved).Prompt == prompt && saved.ReferenceUrl == image.ReferenceUrl);
+        model.Prompt = "A later draft";
+        await model.StartLandingAsync();
+        Check(model.Active && model.SelectedMode == "free" && model.Prompt == prompt &&
+            model.FreeReference == saved && saved.IsSelected);
+        await model.StopAsync();
+        Check(!saved.IsSelected && model.HomeSelectedReference == saved);
+        Check(model.SelectHomeFreePrompt(prompt) && model.HomeReferences.Count == 6);
+        model.RemoveFreeReference();
+        Check(model.SelectHomeFreePrompt("Text without an image"));
+        var textOnly = model.HomeSelectedReference;
+        Check(textOnly.IsPromptOnly && model.ReferenceContext(textOnly).ReferencePath is null);
+        await model.StartLandingAsync();
+        Check(model.SelectedMode == "free" && model.FreeReference is null && textOnly.IsSelected);
+        await model.StopAsync();
+        model.ResetHomeReferences();
+    }),
     ("Elapsed time starts at Generating, survives condition updates and resets on stop", async () =>
     {
         var dispatcher = new FakeDispatcher();

@@ -46,6 +46,15 @@ foreach ($architecture in @('x64','arm64','directshow-x64')) {
     }
 }
 if ($BuildOnly) { Write-Output $app; exit }
+foreach ($existing in @(Get-Process -Name FaceNow -ErrorAction SilentlyContinue)) {
+    if ($existing.HasExited) { continue }
+    if (!$existing.CloseMainWindow() -or !$existing.WaitForExit(30000)) {
+        throw "Close the existing FaceNow instance (PID $($existing.Id)) before opening another build."
+    }
+}
+if (@(Get-Process -Name FaceNow -ErrorAction SilentlyContinue).Count -gt 0) {
+    throw 'FaceNow is still running. Close it before opening another build.'
+}
 if ($Verify -or $VerifyCamera -or $VerifyRelay) {
     $previous = $env:FACENOW_SMOKE_OUTPUT
     $previousCredential = $env:FACENOW_SMOKE_CREDENTIAL_ID

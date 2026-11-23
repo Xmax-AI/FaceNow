@@ -15,6 +15,7 @@
 #include <optional>
 #include "../CameraSource/FramePipe.h"
 #include "../Identity.h"
+#include "../CameraPlaceholder.h"
 
 namespace {
 #ifdef FACENOW_DIRECTSHOW_PROTOTYPE
@@ -26,7 +27,6 @@ constexpr uint32_t Placeholder = 0xff303030;
 constexpr auto FilterId = DirectShowId;
 constexpr auto& FilterName = CameraName;
 constexpr UINT DefaultWidth = 1920, DefaultHeight = 1080;
-constexpr uint32_t Placeholder = 0xfff1f3f4;
 #endif
 constexpr REFERENCE_TIME TicksPerSecond = 10'000'000;
 constexpr REFERENCE_TIME FastestInterval = TicksPerSecond / 30;
@@ -41,6 +41,7 @@ class CameraPin final : public CSourceStream, public IAMStreamConfig, public IKs
     UINT width = DefaultWidth, height = DefaultHeight;
     bool negotiating = false;
     std::optional<FramePipe> frames;
+    FaceNowFrames::WaitingCanvas waiting;
     ULONGLONG startedAt = 0;
     REFERENCE_TIME preferredInterval = FastestInterval;
     REFERENCE_TIME connectedInterval = FastestInterval;
@@ -138,6 +139,10 @@ public:
     HRESULT SetMediaType(const CMediaType* type) override {
         HRESULT result = CSourceStream::SetMediaType(type);
         if (FAILED(result)) return result;
+#ifndef FACENOW_DIRECTSHOW_PROTOTYPE
+        result = waiting.Configure(width, height);
+        if (FAILED(result)) return result;
+#endif
         auto interval = reinterpret_cast<const VIDEOINFOHEADER*>(type->pbFormat)->AvgTimePerFrame;
         connectedInterval = interval ? interval : preferredInterval;
         return S_OK;
@@ -191,8 +196,13 @@ public:
         if (elapsed < nextSample) Sleep(static_cast<DWORD>((nextSample - elapsed + 9'999) / 10'000));
         try {
             // Positive DIB height stores the bottom row first. FramePipe reads top-down BGRA.
-            if (!frames->Draw(data + (height - 1) * Pitch(), ImageBytes(), -Pitch(), width, height))
+            if (!frames->Draw(data + (height - 1) * Pitch(), ImageBytes(), -Pitch(), width, height)) {
+#ifdef FACENOW_DIRECTSHOW_PROTOTYPE
                 std::fill_n(reinterpret_cast<uint32_t*>(data), ImageBytes() / 4, Placeholder);
+#else
+                waiting.Draw(data + (height - 1) * Pitch(), -Pitch());
+#endif
+            }
         } catch (const std::bad_alloc&) { return E_OUTOFMEMORY; }
 
         auto start = std::max(nextSample, elapsed);
