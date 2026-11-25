@@ -168,10 +168,10 @@ public sealed partial class MainWindow
         if (home && !accountRepository.HasVerifiedSession)
             StartButton.Text = AppText.Get("Verifying account…");
         homeCredits.IsEnabled = sessionCredits.IsEnabled = accountRepository.HasVerifiedSession;
-        if (accountRepository.HasVerifiedSession)
-            creditsRefreshTimer.Start();
-        else
+        if (!accountRepository.HasVerifiedSession)
             creditsRefreshTimer.Stop();
+        else if (!creditsRefreshTimer.IsEnabled)
+            creditsRefreshTimer.Start();
     }
 
     private async void RefreshCreditsTick(

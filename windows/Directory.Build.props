@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
-    <Version>1.0.0</Version>
+    <Version>1.5.0</Version>
     <FaceNowEdition Condition="'$(FaceNowEdition)' == ''">Domestic</FaceNowEdition>
     <FaceNowMediaDirectory Condition="'$(FaceNowMediaDirectory)' == ''">C:/dev/FaceNow-media</FaceNowMediaDirectory>
     <DefineConstants Condition="'$(FaceNowEdition)' == 'Overseas'">$(DefineConstants);FACENOW_OVERSEAS</DefineConstants>
@@ -13,8 +13,8 @@
     <FaceNowBuildRoot Condition="'$(FaceNowBuildRoot)' == ''">$(MSBuildThisFileDirectory).build/dotnet/</FaceNowBuildRoot>
     <BaseOutputPath>$(FaceNowBuildRoot)bin/$(MSBuildProjectName)/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(FaceNowBuildRoot)obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
-    <XmaxSdkVersion>1.1.4</XmaxSdkVersion>
-    <XmaxSdkPackageSHA256>7be1f432e874725694982e682208785bc8fe4f475485e5350f9374213465f840</XmaxSdkPackageSHA256>
-    <XmaxSdkWinUIPackageSHA256>82a26360f591a5fca30794dee1de032682ad78e6b358f6b243d61b9f25afe015</XmaxSdkWinUIPackageSHA256>
+    <XmaxSdkVersion>1.1.7</XmaxSdkVersion>
+    <XmaxSdkPackageSHA256>0b08cbf82fd25ffd3e144cecd023a7f1affd789229e27effcc1a807033718a17</XmaxSdkPackageSHA256>
+    <XmaxSdkWinUIPackageSHA256>e53d8470198225da2a3b5cb519f60bf54fd032747af6ce8afb058131333fd480</XmaxSdkWinUIPackageSHA256>
   </PropertyGroup>
 </Project>

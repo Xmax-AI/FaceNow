@@ -51,7 +51,7 @@ public sealed partial class MainWindow
             Spacing = 8,
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = new(-8, 8, 0, 0)
+            Margin = new(-8, HeaderTopInset, 0, 0)
         };
         brandName.FontFamily = new("Segoe UI");
         brandName.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
@@ -148,6 +148,7 @@ public sealed partial class MainWindow
         homeReferences.MoreRequested += OpenHomeReferenceCatalog;
         actions.Children.Add(homeReferences);
         landingStage.Children.Add(actions);
+        terms.RequestedTheme = ElementTheme.Dark;
         terms.TextAlignment = TextAlignment.Center;
         terms.TextWrapping = TextWrapping.Wrap;
         terms.HorizontalAlignment = HorizontalAlignment.Center;
@@ -171,12 +172,7 @@ public sealed partial class MainWindow
             });
         landingStage.Children.Add(terms);
         landing.Children.Add(landingStage);
-
-        var openSourceNotice = Theme.Text(
-            "FaceNow is now open source. View the code on GitHub",
-            13,
-            "#6B7380"
-        );
+        var openSourceNotice = Theme.Text("FaceNow is now open source. View the code on GitHub", 13, "#6B7380");
         openSourceNotice.HorizontalAlignment = HorizontalAlignment.Center;
         openSourceNotice.TextAlignment = TextAlignment.Center;
         openSourceNotice.TextWrapping = TextWrapping.Wrap;
@@ -359,7 +355,7 @@ public sealed partial class MainWindow
         var viewer = new ScrollViewer
         {
             Content = panel,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             HorizontalScrollMode = ScrollMode.Disabled
         };

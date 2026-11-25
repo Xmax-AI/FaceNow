@@ -7,6 +7,7 @@ FACENOW_EDITION = oversea
 FACENOW_LANGUAGE = en
 FACENOW_CAMERA_DEVICE_NAME = FaceNow Virtual Camera
 FACENOW_CAMERA_USAGE_DESCRIPTION = FaceNow uses your camera to generate video for your virtual camera.
+FACENOW_AUDIO_CAPTURE_USAGE_DESCRIPTION = FaceNow uses audio from your selected playback device to remove microphone echo on this Mac.
 FACENOW_MICROPHONE_USAGE_DESCRIPTION = FaceNow uses your microphone when you enable microphone capture.
 FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION = Enable FaceNow Virtual Camera to use generated video in meeting apps.
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) OVERSEA

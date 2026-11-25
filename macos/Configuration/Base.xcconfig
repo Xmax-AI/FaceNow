@@ -2,12 +2,13 @@
 MACOSX_DEPLOYMENT_TARGET = 13.0
 SWIFT_VERSION = 6.0
 SWIFT_STRICT_CONCURRENCY = complete
-MARKETING_VERSION = 1.0.0
+MARKETING_VERSION = 1.2.0
 CURRENT_PROJECT_VERSION = 59
 FACENOW_EDITION = domestic
 FACENOW_LANGUAGE = zh-Hans
 FACENOW_CAMERA_DEVICE_NAME = FaceNow 虚拟摄像头
 FACENOW_CAMERA_USAGE_DESCRIPTION = FaceNow 使用摄像头生成虚拟摄像头视频。
+FACENOW_AUDIO_CAPTURE_USAGE_DESCRIPTION = FaceNow 在本机使用所选播放设备的声音来消除麦克风回声。
 FACENOW_MICROPHONE_USAGE_DESCRIPTION = 启用麦克风采集时，FaceNow 需要使用麦克风。
 FACENOW_SYSTEM_EXTENSION_USAGE_DESCRIPTION = 启用 FaceNow 虚拟摄像头，以在会议应用中使用生成的视频。
 CODE_SIGN_STYLE = Automatic
@@ -21,3 +22,5 @@ FACENOW_UPDATE_FEED_URL =
 FACENOW_UPDATE_PUBLIC_KEY =
 // Optional machine-specific overrides, excluded from source control.
 #include? "Local.xcconfig"
+
+HEADER_SEARCH_PATHS = $(inherited) "$(SRCROOT)/Services/Media/EchoCancellation/SpeexDSP/include"

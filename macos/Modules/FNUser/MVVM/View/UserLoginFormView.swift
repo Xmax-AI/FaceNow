@@ -67,7 +67,13 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     /// The last accessory width, avoiding animation restarts on unrelated form updates.
     private var sendButtonWidth: CGFloat?
 
-    /// Places sign-in below the single credential field in API-key mode.
+    /// The gap from the API-key input to its platform link.
+    private static let apiKeyHelpGap: CGFloat = 8
+
+    /// The measured height of the API-key help text at the current form width.
+    private var apiKeyHelpHeight: CGFloat = 18
+
+    /// Places sign-in below the key creation link in API-key mode.
     private var apiKeyLoginTop: Constraint?
 
     /// Places sign-in below the verification field in phone and email modes.
@@ -123,6 +129,36 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
 
     /// The masked native editor retains the alternate sign-in draft.
     private var apiKeyField: NSTextField { apiKeyInput.textField }
+
+    /// Opens the regional key management page directly from API-key sign-in.
+    private lazy var apiKeyHelp: NSTextView = {
+        let view = NSTextView()
+        view.isEditable = false
+        view.isSelectable = true
+        view.drawsBackground = false
+        view.isHorizontallyResizable = false
+        view.isVerticallyResizable = false
+        view.textContainerInset = .zero
+        view.textContainer?.lineFragmentPadding = 0
+        view.textContainer?.widthTracksTextView = true
+        view.linkTextAttributes = [
+            .foregroundColor: Palette.accent,
+            .underlineStyle: 0,
+            .cursor: NSCursor.pointingHand,
+        ]
+        view.isHidden = true
+        let text = UserStrings.apiKeyHelp
+        let value = NSMutableAttributedString(
+            string: text,
+            attributes: [.font: Typography.font(size: 13), .foregroundColor: Palette.secondary]
+        )
+        let range = (text as NSString).range(of: UserStrings.apiKeyHelpLink)
+        if range.location != NSNotFound {
+            value.addAttribute(.link, value: userRepo.apiKeysURL, range: range)
+        }
+        view.textStorage?.setAttributedString(value)
+        return view
+    }()
 
     /// The shared verification input reserves space for its inline resend action.
     private lazy var codeInput: InputField = {
@@ -234,7 +270,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
     init() {
         super.init()
         [
-            methods, accountInput, codeInput, loginButton, terms, apiKeyInput,
+            methods, accountInput, apiKeyInput, apiKeyHelp, codeInput, loginButton, terms,
         ].forEach(addSubview)
         [sendButton, sendDivider].forEach(codeInput.addSubview)
         configureLayout()
@@ -271,18 +307,22 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
             size: 16 * scale,
             weight: .medium
         )
-        terms.textStorage?.addAttribute(
-            .font,
-            value: Typography.font(size: 14 * scale),
-            range: NSRange(
-                location: 0,
-                length: terms.textStorage?.length ?? 0
+        for (view, fontSize) in [(terms, 14 * scale), (apiKeyHelp, 13 * scale)] {
+            guard let storage = view.textStorage else { continue }
+            storage.addAttribute(
+                .font,
+                value: Typography.font(size: fontSize),
+                range: NSRange(location: 0, length: storage.length)
             )
-        )
+        }
         methods.snp.updateConstraints { make in make.height.equalTo(52 * scale) }
         accountInput.snp.updateConstraints { make in
             make.top.equalTo(methods.snp.bottom).offset(24 * scale)
             make.height.equalTo(54 * scale)
+        }
+        apiKeyHelp.snp.updateConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(8 * scale)
+            make.top.equalTo(apiKeyInput.snp.bottom).offset(Self.apiKeyHelpGap * scale)
         }
         codeInput.snp.updateConstraints { make in
             make.top.equalTo(accountInput.snp.bottom).offset(16 * scale)
@@ -352,6 +392,11 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         apiKeyInput.snp.makeConstraints { make in
             make.edges.equalTo(accountInput)
         }
+        apiKeyHelp.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(8)
+            make.top.equalTo(apiKeyInput.snp.bottom).offset(Self.apiKeyHelpGap)
+            make.height.equalTo(apiKeyHelpHeight)
+        }
         codeInput.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(accountInput.snp.bottom).offset(16)
@@ -374,7 +419,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
             make.height.equalTo(54)
         }
         loginButton.snp.prepareConstraints { make in
-            apiKeyLoginTop = make.top.equalTo(apiKeyInput.snp.bottom).offset(20).constraint
+            apiKeyLoginTop = make.top.equalTo(apiKeyHelp.snp.bottom).offset(20).constraint
         }
         terms.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
@@ -384,19 +429,35 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         }
     }
 
-    /// Measures wrapped legal text so centering follows the visible form instead of reserved blank space.
+    /// Fits legal and API-key links to the current width, including wrapped lines.
     override func layout() {
-        let height = ceil(
-            terms.attributedString().boundingRect(
+        if bounds.width > 0 {
+            let termsHeight = linkTextHeight(terms, width: bounds.width)
+            terms.snp.updateConstraints { make in make.height.equalTo(termsHeight) }
+            let helpHeight = linkTextHeight(apiKeyHelp, width: bounds.width - 16 * layoutScale)
+            if apiKeyHelpHeight != helpHeight {
+                apiKeyHelpHeight = helpHeight
+                apiKeyHelp.snp.updateConstraints { make in make.height.equalTo(helpHeight) }
+                updateTermsBottom()
+            }
+        }
+        super.layout()
+    }
+
+    /// Measures the space needed for the full text and its native link ranges.
+    private func linkTextHeight(
+        _ view: NSTextView,
+        width: CGFloat
+    ) -> CGFloat {
+        ceil(
+            view.attributedString().boundingRect(
                 with: NSSize(
-                    width: max(1, bounds.width),
+                    width: max(1, width),
                     height: .greatestFiniteMagnitude
                 ),
                 options: [.usesLineFragmentOrigin, .usesFontLeading]
             ).height
         )
-        terms.snp.updateConstraints { make in make.height.equalTo(height) }
-        super.layout()
     }
 
     /// Moves unused API-key row space below the actions so the selector and first input stay anchored.
@@ -408,8 +469,13 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
             apiKeyLoginTop?.deactivate()
             codeLoginTop?.activate()
         }
-        let unusedRowHeight: CGFloat = usesAPIKey ? 54 + 16 : 0
-        termsBottom?.update(inset: unusedRowHeight * layoutScale)
+        updateTermsBottom()
+    }
+
+    /// Reserves the remainder of the hidden code row after accounting for the link.
+    private func updateTermsBottom() {
+        let unusedRowHeight = (54 + 16 - Self.apiKeyHelpGap) * layoutScale - apiKeyHelpHeight
+        termsBottom?.update(inset: usesAPIKey ? max(0, unusedRowHeight) : 0)
     }
 
     /// Updates enablement from actual work and tenant capabilities without replacing inputs.
@@ -432,6 +498,7 @@ final class UserLoginFormView: Canvas, NSTextFieldDelegate {
         accountInput.prefix = method == .sms ? "+86" : nil
         apiKeyInput.isEnabled = !busy
         apiKeyInput.isHidden = !usesAPIKey
+        apiKeyHelp.isHidden = !usesAPIKey
         codeInput.isHidden = usesAPIKey
         codeInput.isEnabled = !busy
         apiKeyInput.validationMessage = viewModel.apiKeyValidationMessage

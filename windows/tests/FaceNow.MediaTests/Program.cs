@@ -21,8 +21,9 @@ Check(AppText.GetFor("Start Camera", domestic) == "启动摄像头" && AppText.G
 Check(overseas.ResolveLink("https://platform.xmaxsi.com/credits") == "https://platform.xmax.ai/credits" && domestic.ResolveLink("https://platform.xmax.ai/usage") == "https://platform.xmaxai.com/usage", "All browser links follow edition");
 Check(overseas.ResolveAsset("https://cdn.22duck.cn/test.jpg") == "https://cdn.xmax.ai/test.jpg", "Regional preset assets");
 Check(GenerationPrompts.ForMode("charx", overseas) == "Become the character in the reference image" && GenerationPrompts.ForMode("vibex", domestic).StartsWith("参考图角色"), "Generation modes have regional default prompts");
-new BeautySettings().Validate();
-Check(new BeautySettings().Enabled && new BeautySettings().Smoothness == 0 && new BeautySettings().Lightening == 0 && new BeautySettings().Sharpness == 0, "Beauty is enabled with zero default strengths");
+var defaultBeauty = new BeautySettings();
+defaultBeauty.Validate();
+Check(defaultBeauty == new BeautySettings(false, 0, 0, 0, 0), "Beauty is off with zero default strengths");
 try { new BeautySettings(true, float.NaN).Validate(); throw new Exception("NaN accepted"); } catch (ArgumentOutOfRangeException) { Check(true, "Invalid beauty strengths rejected"); }
 
 var timing = new MeetingOutputTiming(0);
@@ -108,8 +109,8 @@ if (args.Length > 0)
     await using (var binding = new SdkBeautyBinding(settings, options => {
         configured.Enqueue(options); return Task.CompletedTask;
     }, _ => failures++)) {
-        await WaitUntil(() => !settings.IsApplying);
-        Check(configured.TryPeek(out var defaults) && defaults == new RealtimeVideoBeautyOptions(), "UI defaults map to the default SDK options");
+        await binding.Ready.WaitAsync(TimeSpan.FromSeconds(5));
+        Check(configured.TryPeek(out var defaults) && defaults is null, "A fresh session starts with SDK beauty disabled");
         for (int i = 1; i <= 20; i++) settings.Update(new(true, i / 20f, .3f));
         await WaitUntil(() => !settings.IsApplying);
         Check(configured.Last() == new RealtimeVideoBeautyOptions(1, .3f) && configured.Count <= 3, "Slider changes coalesce into SDK configuration");

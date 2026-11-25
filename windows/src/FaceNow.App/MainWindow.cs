@@ -38,6 +38,7 @@ public sealed partial class MainWindow : Window
         HorizontalScrollMode = ScrollMode.Disabled
     };
     private readonly Canvas page = new() { Background = Theme.Brush("#FFFFFF") };
+    private const double HeaderTopInset = 8;
     private readonly Grid header = new() { Height = 60 };
     private readonly Image brand = new()
     {
@@ -245,6 +246,7 @@ public sealed partial class MainWindow : Window
             Model
         );
         root.SizeChanged += (_, _) => RequestLayout();
+        workspace.SizeChanged += (_, _) => RequestLayout();
         scroller.ViewChanged += (_, _) => RequestLayout();
         root.Loaded += async (_, _) =>
         {
@@ -265,6 +267,8 @@ public sealed partial class MainWindow : Window
             ArrangePage();
             VerificationProgress("Window ready");
             PageEntry.Reveal(Model.Active ? workspace : landing);
+            if (!Model.Active)
+                PageEntry.Reveal(footer);
             Ready?.Invoke();
         };
         ResizeWindow(1360, 890);
@@ -372,6 +376,8 @@ public sealed partial class MainWindow : Window
             {
                 ArrangePage();
                 PageEntry.Reveal(Model.Active ? workspace : landing);
+                if (!Model.Active)
+                    PageEntry.Reveal(footer);
             }
         }
         RequestLayout();
@@ -454,15 +460,15 @@ public sealed partial class MainWindow : Window
         double wordmarkHeight = Math.Clamp(width * .008 + 24, 34, 52);
         brand.Height = brand.Width = wordmarkHeight + 6;
         brandName.FontSize = wordmarkHeight * .7;
-        header.Height = brand.Height + 32;
+        header.Height = brand.Height + (Model.Active ? 24 : 32);
         homeControls.Margin = sessionControls.Margin = new(
             0,
-            8 + (brand.Height - homeVirtualCamera.Height) / 2,
+            HeaderTopInset + (brand.Height - homeVirtualCamera.Height) / 2,
             0,
             0
         );
         title.FontSize = Math.Clamp(width * .01 + 18, 27, 45);
-        landingStage.Margin = new(0, Math.Clamp(width * .011 + 17, 26, 40), 0, 0);
+        landingStage.Margin = new(0, Math.Clamp(width * .011 + 7, 16, 30), 0, 0);
         landingStage.Width = Math.Min(width - 56, Math.Clamp(width * .55, 640, 1040));
         landingStage.Height = landingStage.Width * 1080 / 1920;
         terms.Width = Math.Max(0, landingStage.Width - 40);
@@ -470,19 +476,20 @@ public sealed partial class MainWindow : Window
         StartButton.SetViewportWidth(width);
         videoRow.Height = Math.Max(0, (workspace.Width - VideoPanelSpacing) / 2) * 9 / 16;
         freePromptBox.Width = Math.Min(880, workspace.Width);
-        double workspaceHeight = videoRow.Height + sessionAudioControls.Margin.Top + sessionAudioControls.Height + ModeTabsTopSpacing + 42 + 28 + referenceArea.Height;
-        const double homeTop = 16, landingGap = 30, footerBottomInset = 36;
+        const double homeTop = 16, landingGap = 30, footerBottom = 72;
+        workspace.Measure(new Size(workspace.Width, double.PositiveInfinity));
+        double sessionHeight = header.Height - HeaderTopInset + workspace.DesiredSize.Height;
+        double sessionMargin = Model.IsPreview ? 24 : 16;
         landing.Measure(new Size(width, double.PositiveInfinity));
-        double minimumHomeHeight = homeTop + header.Height + landingGap + landing.DesiredSize.Height + landingGap + footer.Height + footerBottomInset;
-        double minimumWorkspaceHeight = homeTop + header.Height + workspaceHeight + 48;
+        double minimumHomeHeight = homeTop + header.Height + landingGap + landing.DesiredSize.Height + landingGap + footerBottom;
         page.Height = Math.Max(
             height,
-            Model.Active ? minimumWorkspaceHeight : Math.Max(
+            Model.Active ? sessionHeight + 2 * sessionMargin : Math.Max(
             760,
             minimumHomeHeight
         )
         );
-        double contentTop = homeTop + (Model.Active ? (page.Height - minimumWorkspaceHeight) / 2 : 0);
+        double contentTop = Model.Active ? (page.Height - sessionHeight) / 2 - HeaderTopInset : homeTop;
         Canvas.SetLeft(header, 28);
         Canvas.SetTop(header, contentTop);
         Canvas.SetLeft(workspace, 28);
@@ -495,7 +502,7 @@ public sealed partial class MainWindow : Window
         )
         );
         Canvas.SetLeft(footer, 28);
-        Canvas.SetTop(footer, page.Height - footer.Height - footerBottomInset);
+        Canvas.SetTop(footer, page.Height - footerBottom);
         previewFooter.Width = width;
         Canvas.SetTop(previewFooter, page.Height - 20);
     }

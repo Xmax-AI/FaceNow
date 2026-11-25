@@ -24,6 +24,12 @@ struct AudioTimelineBuffer {
     double ticksToSeconds;
     /// The worker-written target hold in sample frames, limited to five seconds.
     _Atomic uint32_t targetDelay;
+    /// Worker-written Float32 bits; integer atomics keep gain updates lock-free on both architectures.
+    _Atomic uint32_t targetGainBits;
+    /// Gain ramp state belongs exclusively to the serialized render callback.
+    float currentGain;
+    float renderTargetGain;
+    uint32_t gainRemaining;
     /// Render-owned read positions; only the serialized AudioUnit callback accesses these fields.
     uint32_t currentDelay;
     uint32_t previousDelay;
@@ -48,6 +54,10 @@ AudioTimelineBuffer* AudioTimelineBufferCreate(double sampleRate) {
     }
     atomic_init(&buffer->epoch, 1);
     atomic_init(&buffer->targetDelay, 0);
+    float unity = 1;
+    uint32_t unityBits;
+    memcpy(&unityBits, &unity, sizeof(unityBits));
+    atomic_init(&buffer->targetGainBits, unityBits);
     return buffer;
 }
 
@@ -58,6 +68,14 @@ void AudioTimelineBufferSetPlaybackDelay(AudioTimelineBuffer* buffer, double sec
     if (!buffer) return;
     double delay = isfinite(seconds) ? fmin(5, fmax(0, seconds)) : 0;
     atomic_store(&buffer->targetDelay, (uint32_t)llround(delay * buffer->sampleRate));
+}
+
+void AudioTimelineBufferSetOutputGain(AudioTimelineBuffer* buffer, float gain) {
+    if (!buffer || !isfinite(gain)) return;
+    float bounded = fminf(AUDIO_TIMELINE_BUFFER_MAX_OUTPUT_GAIN, fmaxf(0, gain));
+    uint32_t bits;
+    memcpy(&bits, &bounded, sizeof(bits));
+    atomic_store(&buffer->targetGainBits, bits);
 }
 
 /// Reads one timestamp-tagged stereo slot; epoch changes and missing history always produce silence.
@@ -130,6 +148,16 @@ OSStatus AudioTimelineBufferRender(void* context, AudioUnitRenderActionFlags* fl
     uint64_t epoch = atomic_load(&buffer->epoch);
     uint32_t target = atomic_load(&buffer->targetDelay);
     uint32_t fadeFrames = (uint32_t)llround(buffer->sampleRate * 0.02);
+    uint32_t gainBits = atomic_load(&buffer->targetGainBits);
+    float targetGain;
+    memcpy(&targetGain, &gainBits, sizeof(targetGain));
+    if (buffer->renderEpoch != epoch) {
+        buffer->currentGain = buffer->renderTargetGain = targetGain;
+        buffer->gainRemaining = 0;
+    } else if (targetGain != buffer->renderTargetGain) {
+        buffer->renderTargetGain = targetGain;
+        buffer->gainRemaining = fadeFrames;
+    }
     if (buffer->renderEpoch != epoch) {
         buffer->renderEpoch = epoch;
         buffer->currentDelay = buffer->previousDelay = target;
@@ -157,6 +185,14 @@ OSStatus AudioTimelineBufferRender(void* context, AudioUnitRenderActionFlags* fl
         } else {
             samples[i * 2] = current[0];
             samples[i * 2 + 1] = current[1];
+        }
+        if (buffer->gainRemaining) {
+            buffer->currentGain += (buffer->renderTargetGain - buffer->currentGain) / (float)buffer->gainRemaining;
+            --buffer->gainRemaining;
+        }
+        for (uint32_t channel = 0; channel < 2; ++channel) {
+            float value = samples[i * 2 + channel] * buffer->currentGain;
+            samples[i * 2 + channel] = fminf(1, fmaxf(-1, value));
         }
         count += found;
     }

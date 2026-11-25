@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Xmax-AI/XmaxSDK-MacOS.git",
       "state" : {
-        "revision" : "3e5a259493c6c49f49bd68caf2f727a77220dd5a",
-        "version" : "1.1.4"
+        "revision" : "9a44432bb80b21445657d13caae473d99819304d",
+        "version" : "1.1.6"
       }
     }
   ],

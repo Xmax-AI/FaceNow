@@ -21,6 +21,10 @@ public sealed partial class MainWindow
 {
     private void VerifyGenerationLayout()
     {
+        double topGap = brand.TransformToVisual(page).TransformPoint(default).Y;
+        double bottomGap = page.ActualHeight - (referenceArea.TransformToVisual(page).TransformPoint(default).Y + referenceArea.ActualHeight);
+        Check(Math.Abs(topGap - bottomGap) <= 2,
+            $"Session content must be vertically centered (top {topGap:F1}, bottom {bottomGap:F1}).");
         var local = localVideoPanel.TransformToVisual(videoRow).TransformPoint(default);
         var result = resultVideoPanel.TransformToVisual(videoRow).TransformPoint(default);
         Check(Math.Abs(local.Y - result.Y) < 1 && Math.Abs(localVideoPanel.ActualWidth - resultVideoPanel.ActualWidth) < 1 &&

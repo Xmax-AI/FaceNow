@@ -4,6 +4,7 @@
 //
 
 import Factory
+import Combine
 import AppKit
 import SnapKit
 import UniformTypeIdentifiers
@@ -16,11 +17,8 @@ final class OnboardingLandingView: Canvas {
     /// The first-launch content supplied by the module's data boundary.
     @Injected(\.onboardingRepo) private var onboardingRepo: OnboardingRepository
 
-    /// Approves home reference uploads through the generation repository.
-    @Injected(\.generationRepo) private var generationRepo: GenerationRepository
-
     /// Starts capture with the chosen resolution and appearance.
-    var onStart: ((RealtimeCameraPreset, GenerationReference) -> Void)?
+    var onStart: ((RealtimeCameraFormat, GenerationReference, CameraRotation) -> Void)?
 
     /// Reports a reference image that could not be imported or approved.
     var onReferenceImportError: ((String) -> Void)?
@@ -74,7 +72,7 @@ final class OnboardingLandingView: Canvas {
     }()
 
     /// Maps the visible aspect ratios to the X2.1 camera presets in display order.
-    private static let resolutionOptions: [(title: String, preset: RealtimeCameraPreset)] = [
+    private static let resolutionOptions: [(title: String, preset: RealtimeCameraFormat)] = [
         ("16:9", .resolution1920x1080),
         ("9:16", .resolution1080x1920),
         ("1:1", .resolution1408x1408),
@@ -82,66 +80,30 @@ final class OnboardingLandingView: Canvas {
         ("4:3", .resolution1536x1152),
     ]
 
-    /// The appearance presets offered on the landing page.
-    private let referencePresets = GenerationMode.charx.presets
-
-    /// The confirmed reference passed to generation.
-    private var selectedReference: GenerationReference?
-
-    /// The latest approved custom appearance.
-    private var importedReference: GenerationReference?
-
-    /// The pending upload displayed in the list while approval runs.
-    private var uploadingReference: GenerationReference?
-
-    /// The active upload, cancelled when the account's selection is cleared.
+    /// Shared selection and upload state for the strip and its catalog dialog.
+    let referenceModel = HomeReferenceViewModel()
+    var onShowReferenceCatalog: (() -> Void)?
+    var onReferenceImported: ((GenerationMode) -> Void)?
+    private var referenceObservation: AnyCancellable?
     private var referenceImport: Task<Void, Never>?
-
-    /// Whether camera startup locks the reference controls.
+    private var referencePanel: NSOpenPanel?
     private var isStarting = false
 
-    /// Keeps the selected appearance beside the independently scrolling list.
     private lazy var appearancePicker: NSView = {
         let view = NSView()
-        [previewImage, previewUpload, appearanceDivider, referenceList].forEach { view.addSubview($0) }
+        [moreReferences, referenceList].forEach { view.addSubview($0) }
         return view
     }()
 
-    /// Separates the upload preview from the scrollable presets.
-    private lazy var appearanceDivider: Canvas = {
-        let view = Canvas(color: .white.withAlphaComponent(0.25))
-        view.setAccessibilityElement(false)
+    private lazy var moreReferences: HomeReferenceMoreButton = {
+        let view = HomeReferenceMoreButton()
+        view.onClick = { [weak self] in self?.onShowReferenceCatalog?() }
         return view
     }()
 
-    /// Displays the confirmed appearance beside the list.
-    private lazy var previewImage: GenerationThumbnailView = {
-        let view = GenerationThumbnailView()
-        return view
-    }()
-
-    /// Makes the current avatar the upload target.
-    private lazy var previewUpload: Button = {
-        let view = Button(icon: .plus, style: .plain)
-        view.iconSize = 17
-        view.foregroundColor = .white
-        view.disabledOpacity = 1
-        view.backgroundInset = -0.5
-        view.restingBackgroundColor = .black.withAlphaComponent(0.42)
-        view.hoverBackgroundColor = .black.withAlphaComponent(0.58)
-        view.layer?.cornerRadius = GenerationReferenceListView.singleRowAvatarSize / 2
-        view.layer?.borderWidth = 1
-        view.layer?.borderColor = NSColor.white.withAlphaComponent(0.55).cgColor
-        view.toolTip = GenerationStrings.controlsUploadYourOwnReferenceImage
-        view.setAccessibilityLabel(GenerationStrings.controlsUploadYourOwnReferenceImage)
-        view.onClick = { [weak self] in self?.chooseReferenceImage() }
-        return view
-    }()
-
-    /// Displays home appearances and reports explicit selections.
     private lazy var referenceList: GenerationReferenceListView = {
         let view = GenerationReferenceListView(singleRow: true)
-        view.onSelect = { [weak self] reference in self?.selectReference(reference) }
+        view.onSelect = { [weak self] reference in self?.referenceModel.select(reference) }
         return view
     }()
 
@@ -157,10 +119,10 @@ final class OnboardingLandingView: Canvas {
         view.centersTitleVisually = true
         view.loadingOpacity = 0.65
         view.onClick = { [weak self] in
-            guard let self, self.referenceImport == nil,
-                let index = self.resolutionPicker.selectedIndex, let selectedReference
+            guard let self, self.referenceModel.canEdit,
+                let index = self.resolutionPicker.selectedIndex
             else { return }
-            self.onStart?(Self.resolutionOptions[index].preset, selectedReference)
+            self.onStart?(Self.resolutionOptions[index].preset, self.referenceModel.selected, self.rotationPicker.rotation)
         }
         return view
     }()
@@ -202,6 +164,19 @@ final class OnboardingLandingView: Canvas {
         return view
     }()
 
+    private lazy var rotationPicker: HomeCameraRotationView = {
+        let view = HomeCameraRotationView()
+        return view
+    }()
+
+    private lazy var formatPickers: NSStackView = {
+        let view = NSStackView(views: [resolutionPicker, rotationPicker])
+        view.orientation = .horizontal
+        view.alignment = .centerY
+        view.spacing = 10
+        return view
+    }()
+
     /// The selectable service notice with independent terms and privacy links.
     private lazy var serviceNotice: NSTextView = {
         let view = NSTextView()
@@ -228,35 +203,36 @@ final class OnboardingLandingView: Canvas {
         return view
     }()
 
-    /// The open-source caption below the startup canvas.
-    private lazy var openSourceNotice: NSTextField = {
-        let view = NSTextField(wrappingLabelWithString: OnboardingStrings.openSourceNotice)
-        view.textColor = Palette.secondary
+    /// The open-source notice below the start canvas.
+    private lazy var copyright: NSTextField = {
+        let view = makeLabel(
+            OnboardingStrings.openSourceNotice,
+            size: 13,
+            color: Palette.secondary
+        )
         view.alignment = .center
         return view
     }()
 
-    /// Keeps the caption typography consistent between measurement and layout.
-    private var openSourceNoticeFont: NSFont {
-        Typography.font(size: min(14, max(11.5, viewportWidth * 0.0028 + 9)))
-    }
-
-    /// Keeps a visible preparation notice close to the headline in both layout and measurement.
+    /// Shares the headline's spacing to the canvas or preparation notice with page measurement.
     private var headlineGap: CGFloat {
         if !setupReminder.isHidden {
-            return min(24, max(16, viewportWidth * 0.006 + 10))
+            return min(22, max(14, viewportWidth * 0.006 + 8))
         }
-        return min(40, max(26, viewportWidth * 0.011 + 17))
+        return min(32, max(18, viewportWidth * 0.011 + 9))
     }
 
     /// Composes the startup view from its configured native controls.
     init() {
         super.init()
-        [titleLabel, setupReminder, checkerboard, openSourceNotice].forEach(addSubview)
+        [titleLabel, setupReminder, checkerboard, copyright].forEach(addSubview)
         [startControls, serviceNotice].forEach(checkerboard.addSubview)
-        [startButton, inputPickers, resolutionPicker, appearancePicker].forEach(startControls.addSubview)
+        [startButton, inputPickers, formatPickers, appearancePicker].forEach(startControls.addSubview)
         configureLayout()
-        selectReference(referencePresets.first)
+        referenceObservation = referenceModel.objectWillChange.sink { [weak self] in
+            DispatchQueue.main.async { [weak self] in self?.updateReferenceSelection() }
+        }
+        updateReferenceSelection()
     }
 
     /// Storyboard decoding is unsupported for this programmatic view.
@@ -279,7 +255,7 @@ final class OnboardingLandingView: Canvas {
         min(contentWidth, min(1040, max(640, viewportWidth * 0.55)))
     }
 
-    /// Measures the headline, preparation notice, and video-shaped placeholder.
+    /// Measures the headline, video-shaped placeholder, and copyright line.
     func preferredHeight(
         contentWidth: CGFloat
     ) -> CGFloat {
@@ -294,12 +270,19 @@ final class OnboardingLandingView: Canvas {
                 )
             ).height
         )
+        copyright.font = Typography.font(size: min(14, max(11.5, viewportWidth * 0.0028 + 9)))
+        let copyrightHeight = ceil(
+            Typography.size(
+                copyright.stringValue,
+                font: copyright.font!
+            ).height
+        )
         let stageWidth = preferredStageWidth(contentWidth: contentWidth)
         let stageHeight =
             stageWidth * CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
         let warningHeight = setupReminder.preferredHeight(width: stageWidth)
         return titleHeight + titleGap + (warningHeight > 0 ? warningHeight + 12 : 0)
-            + stageHeight + 16 + openSourceNoticeHeight(width: contentWidth)
+            + stageHeight + 16 + copyrightHeight
     }
 
     /// Keeps unavailable starts clickable for coordinator feedback while blocking duplicate startup requests.
@@ -313,108 +296,63 @@ final class OnboardingLandingView: Canvas {
         startButton.title = isStarting ? OnboardingStrings.landingStarting : OnboardingStrings.landingStartCamera
         startButton.loading = isStarting
         startButton.toolTip = canStart ? OnboardingStrings.landingStartCamera : unavailableMessage
-        if startingChanged { updateReferenceSelection() }
+        if startingChanged {
+            referenceModel.isStarting = isStarting
+            updateReferenceSelection()
+        }
         resolutionPicker.isEnabled = !isStarting
+        rotationPicker.isEnabled = !isStarting
         cameraPicker.update()
         microphonePicker.update()
     }
 
-    /// Clears the previous account's images and cancels any pending upload.
+    /// Clears account-owned drafts and rejects late upload completion after navigation.
     func resetReferenceSelection() {
         referenceImport?.cancel()
         referenceImport = nil
-        uploadingReference = nil
-        importedReference = nil
-        selectReference(referencePresets.first)
-    }
-
-    /// Commits a new appearance and refreshes the home controls.
-    private func selectReference(
-        _ reference: GenerationReference?
-    ) {
-        selectedReference = reference
+        referencePanel?.cancel(nil)
+        referencePanel = nil
+        referenceModel.reset()
         updateReferenceSelection()
     }
 
-    /// Keeps the confirmed preview stable while an upload is pending.
     private func updateReferenceSelection() {
-        let importing = referenceImport != nil
-        let enabled = !isStarting && !importing
-        let currentUpload = uploadingReference ?? importedReference
-        let references = currentUpload.map { [$0] + referencePresets } ?? referencePresets
         referenceList.update(
-            references: references,
-            selectedID: selectedReference?.id,
-            enabled: enabled,
+            references: referenceModel.references,
+            selectedID: referenceModel.selected.id,
+            enabled: referenceModel.canEdit,
             dimmed: isStarting
         )
-        previewImage.configure(selectedReference)
-        previewUpload.isEnabled = enabled
-        previewUpload.setAccessibilityValue(selectedReference?.name)
-        startButton.isEnabled = enabled && selectedReference != nil
+        moreReferences.isEnabled = referenceModel.canEdit
+        startButton.isEnabled = referenceModel.canEdit
     }
 
-    /// Opens the file picker for a single reference image.
-    private func chooseReferenceImage() {
-        guard !isStarting, referenceImport == nil, let window else { return }
+    /// The native sheet grants file access while the categorized modal remains mounted.
+    func chooseReferenceImage(
+        mode: GenerationMode
+    ) {
+        guard referenceModel.canEdit, referencePanel == nil, let window else { return }
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
+        referencePanel = panel
         panel.beginSheetModal(for: window) { [weak self] response in
-            guard response == .OK, let url = panel.url else { return }
-            self?.importReferenceImage(at: url)
-        }
-    }
-
-    /// Shows the pending image while the SDK uploads and checks it.
-    private func importReferenceImage(
-        at url: URL
-    ) {
-        guard !isStarting, referenceImport == nil else { return }
-        referenceImport = Task { [weak self, generationRepo] in
-            let result: Result<GenerationReference, Error>
-            do {
-                var reference = try await Task.detached {
-                    try GenerationReference.localImage(
-                        at: url,
-                        mode: .charx,
-                        prompt: GenerationMode.charx.prompt
-                    )
-                }.value
-                try Task.checkCancellation()
-                reference.uploadState = .uploading
-                self?.uploadingReference = reference
-                self?.updateReferenceSelection()
-                let id = reference.id
-                let approved = try await generationRepo.approveHomeReference(reference) { [weak self] progress in
-                    let fraction = progress.fractionCompleted
-                    Task { @MainActor in
-                        guard let self, var pending = self.uploadingReference,
-                            pending.id == id, fraction > pending.uploadProgress
-                        else { return }
-                        pending.uploadProgress = fraction
-                        self.uploadingReference = pending
-                        self.updateReferenceSelection()
-                    }
+            guard let self, self.referencePanel === panel else { return }
+            self.referencePanel = nil
+            guard response == .OK, let url = panel.url, self.referenceModel.canEdit else { return }
+            self.referenceImport = Task { [weak self] in
+                guard let self else { return }
+                let imported = await self.referenceModel.importImage(at: url, mode: mode)
+                guard !Task.isCancelled else { return }
+                self.referenceImport = nil
+                if imported {
+                    self.onReferenceImported?(mode)
+                } else if let error = self.referenceModel.error {
+                    self.onReferenceImportError?(error)
                 }
-                result = .success(approved)
-            } catch {
-                result = .failure(error)
-            }
-            guard let self, !Task.isCancelled else { return }
-            self.referenceImport = nil
-            self.uploadingReference = nil
-            switch result {
-            case .success(let reference):
-                self.importedReference = reference
-                self.selectReference(reference)
-            case .failure(let error):
-                self.updateReferenceSelection()
-                self.onReferenceImportError?(error.localizedDescription)
             }
         }
-        updateReferenceSelection()
     }
 
     /// Opens the relocated selector for the shared Choose Camera action.
@@ -424,6 +362,7 @@ final class OnboardingLandingView: Canvas {
     func closeCameraPicker() {
         cameraPicker.closePicker()
         microphonePicker.closePicker()
+        rotationPicker.closePicker()
     }
 
     /// Shows a persistent reason only for denied permissions or confirmed device unavailability.
@@ -449,13 +388,13 @@ final class OnboardingLandingView: Canvas {
         }
         checkerboard.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            normalCanvasTop = make.top.equalTo(titleLabel.snp.bottom).offset(32).constraint
+            normalCanvasTop = make.top.equalTo(titleLabel.snp.bottom).offset(headlineGap).constraint
             make.width.equalTo(640)
             make.height.equalTo(checkerboard.snp.width).multipliedBy(
                 CGFloat(VirtualCameraConfiguration.height) / CGFloat(VirtualCameraConfiguration.width)
             )
         }
-        openSourceNotice.snp.makeConstraints { make in
+        copyright.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(checkerboard.snp.bottom).offset(16)
             make.height.equalTo(18)
@@ -478,17 +417,20 @@ final class OnboardingLandingView: Canvas {
             make.trailing.lessThanOrEqualToSuperview().inset(16)
         }
         resolutionPicker.snp.makeConstraints { make in
+            make.width.equalTo(resolutionPicker.preferredWidth)
+            make.height.equalTo(34)
+        }
+        formatPickers.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.top.equalTo(inputPickers.snp.bottom).offset(14)
             make.leading.greaterThanOrEqualToSuperview().offset(16)
             make.trailing.lessThanOrEqualToSuperview().inset(16)
-            make.width.equalTo(resolutionPicker.preferredWidth).priority(490)
             make.height.equalTo(34)
         }
         configureAppearanceLayout()
         setupReminder.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(titleLabel.snp.bottom).offset(32)
+            make.top.equalTo(titleLabel.snp.bottom).offset(headlineGap)
             make.width.equalTo(640)
             make.height.equalTo(44)
         }
@@ -504,33 +446,22 @@ final class OnboardingLandingView: Canvas {
 
     /// Fits a whole number of avatar cells at the preferred strip width.
     private func configureAppearanceLayout() {
-        let dividerSpacing: CGFloat = 12
-        let dividerWidth: CGFloat = 1
-        let previewWidth = GenerationReferenceListView.singleRowAvatarSize
-        let listWidth = GenerationReferenceListView.singleRowWidth(itemCount: 7)
+        let listWidth = GenerationReferenceListView.singleRowWidth(itemCount: 5)
         appearancePicker.snp.makeConstraints { make in
             make.centerX.bottom.equalToSuperview()
-            make.top.equalTo(resolutionPicker.snp.bottom).offset(16)
+            make.top.equalTo(formatPickers.snp.bottom).offset(16)
             make.leading.greaterThanOrEqualToSuperview().offset(24)
             make.trailing.lessThanOrEqualToSuperview().inset(24)
-            make.width.equalTo(previewWidth + dividerSpacing * 2 + dividerWidth + listWidth).priority(490)
+            make.width.equalTo(56 + 8 + listWidth).priority(490)
             make.height.equalTo(GenerationReferenceListView.singleRowHeight)
         }
-        previewImage.snp.makeConstraints { make in
+        moreReferences.snp.makeConstraints { make in
             make.leading.centerY.equalToSuperview()
-            make.size.equalTo(previewWidth)
-        }
-        previewUpload.snp.makeConstraints { make in
-            make.edges.equalTo(previewImage)
-        }
-        appearanceDivider.snp.makeConstraints { make in
-            make.leading.equalTo(previewImage.snp.trailing).offset(dividerSpacing)
-            make.centerY.equalToSuperview()
-            make.width.equalTo(dividerWidth)
-            make.height.equalTo(32)
+            make.width.equalTo(56)
+            make.height.equalTo(52)
         }
         referenceList.snp.makeConstraints { make in
-            make.leading.equalTo(appearanceDivider.snp.trailing).offset(dividerSpacing)
+            make.leading.equalTo(moreReferences.snp.trailing).offset(8)
             make.trailing.top.bottom.equalToSuperview()
         }
     }
@@ -577,28 +508,15 @@ final class OnboardingLandingView: Canvas {
             viewportWidth: viewportWidth,
             stageWidth: stageWidth
         )
-        openSourceNotice.font = openSourceNoticeFont
-        openSourceNotice.snp.updateConstraints { make in
-            make.height.equalTo(openSourceNoticeHeight(width: bounds.width))
-        }
+        let copyrightHeight = ceil(
+            Typography.size(
+                copyright.stringValue,
+                font: copyright.font!
+            ).height
+        )
+        copyright.snp.updateConstraints { make in make.height.equalTo(copyrightHeight) }
         // Resolve the canvas and its children together using the current viewport dimensions.
         super.layout()
-    }
-
-    /// Measures the caption at its available width.
-    private func openSourceNoticeHeight(
-        width: CGFloat
-    ) -> CGFloat {
-        let text = OnboardingStrings.openSourceNotice as NSString
-        let bounds = text.boundingRect(
-            with: NSSize(
-                width: max(1, width),
-                height: .greatestFiniteMagnitude
-            ),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            attributes: [.font: openSourceNoticeFont]
-        )
-        return ceil(bounds.height)
     }
 
     /// Measures the stable-width start button and the linked service notice.

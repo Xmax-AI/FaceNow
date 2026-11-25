@@ -4738,4 +4738,8 @@ Generation is disabled</comment>
     <value>Camera rotation</value>
     <comment>Camera rotation</comment>
   </data>
+  <data name="Text_36E6A66BCC0B6F08" xml:space="preserve">
+    <value>The service returned an invalid response (HTTP {0}). Please try again.</value>
+    <comment>The service returned an invalid response (HTTP {0}). Please try again.</comment>
+  </data>
 </root>

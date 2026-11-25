@@ -14,7 +14,7 @@ namespace FaceNow.Core.Media;
 /// <param name="Sharpness">The sharpening strength, from zero through one.</param>
 /// <param name="Redness">The redness strength, from zero through one.</param>
 public sealed record BeautySettings(
-    bool Enabled = true,
+    bool Enabled = false,
     float Smoothness = 0,
     float Lightening = 0,
     float Sharpness = 0,

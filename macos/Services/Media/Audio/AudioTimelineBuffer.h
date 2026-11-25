@@ -14,6 +14,11 @@ void AudioTimelineBufferReset(AudioTimelineBuffer* _Nullable buffer);
 /// Sets an additional 0...5000 ms playback delay without moving queued samples; invalid values select zero.
 /// One serialized render callback crossfades delay changes over 20 ms. Direct reads remain unshifted.
 void AudioTimelineBufferSetPlaybackDelay(AudioTimelineBuffer* _Nullable buffer, double seconds);
+/// The maximum linear gain accepted for virtual microphone output.
+#define AUDIO_TIMELINE_BUFFER_MAX_OUTPUT_GAIN 3
+/// Sets an output gain from zero to the maximum (default 1), ramped over 20 ms with peak limiting at render time.
+/// Direct reads and buffered source samples remain unchanged. Nonfinite values are ignored.
+void AudioTimelineBufferSetOutputGain(AudioTimelineBuffer* _Nullable buffer, float gain);
 /// Stores interleaved stereo at an absolute sample index; frames beyond capacity are rejected.
 void AudioTimelineBufferWrite(AudioTimelineBuffer* _Nullable buffer, uint64_t firstFrame, const float* _Nullable samples, uint32_t frames, float gain);
 /// Reads exact tagged slots. Missing, expired, or concurrently replaced samples become silence.

@@ -14,11 +14,20 @@ final class VirtualMicrophoneRepository: ObservableObject {
     /// Queries device publication and the installed bundle outside the main actor.
     typealias DeviceQuery = @Sendable () -> (available: Bool, installed: Bool)
 
+    /// The highest linear gain accepted by the virtual microphone output.
+    static let maximumVolume = VirtualMicrophoneOutput.maximumGain
+
     /// The generation-owned transport, shared independently from local monitoring volume.
     let output = VirtualMicrophoneOutput()
 
     /// Remembers output intent within each app edition's preferences.
     @Published private(set) var enabled = UserDefaults.standard.bool(forKey: "virtualMicrophone.enabled")
+
+    /// Remembers linear output gain per edition; existing installations retain unity gain.
+    @Published private(set) var volume: Float = {
+        let saved = (UserDefaults.standard.object(forKey: "virtualMicrophone.volume") as? NSNumber)?.floatValue ?? 1
+        return saved.isFinite ? min(maximumVolume, max(0, saved)) : 1
+    }()
 
     /// Reports actual AUHAL activation rather than inferring it from an enabled switch.
     @Published private(set) var running = false
@@ -76,6 +85,7 @@ final class VirtualMicrophoneRepository: ObservableObject {
                 }
             }
         }
+        output.setOutputGain(volume)
         output.setEnabled(enabled)
         refreshDeviceAvailability()
     }
@@ -87,6 +97,18 @@ final class VirtualMicrophoneRepository: ObservableObject {
         self.enabled = enabled
         UserDefaults.standard.set(enabled, forKey: "virtualMicrophone.enabled")
         output.setEnabled(enabled)
+    }
+
+    /// Saves and applies bounded output gain without changing local speaker monitoring.
+    func setVolume(
+        _ volume: Float
+    ) {
+        guard volume.isFinite else { return }
+        let bounded = min(Self.maximumVolume, max(0, volume))
+        guard self.volume != bounded else { return }
+        self.volume = bounded
+        UserDefaults.standard.set(bounded, forKey: "virtualMicrophone.volume")
+        output.setOutputGain(bounded)
     }
 
     /// Refreshes system enumeration after launch or returning from installation/settings.

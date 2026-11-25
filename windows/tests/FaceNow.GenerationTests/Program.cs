@@ -14,6 +14,81 @@ using FaceNow.Windows.Studio.Services;
 
 var tests = new (string Name, Func<Task> Run)[]
 {
+    ("A reference upload retries an invalid service response and returns only approved results", async () =>
+    {
+        int calls = 0;
+        var approved = new UploadedFile("https://example.invalid/approved.png", "reference", "test-etag");
+        var result = await MainViewModel.UploadApprovedReferenceWithRetryAsync(_ =>
+        {
+            calls++;
+            return calls == 1
+                ? Task.FromException<UploadedFile>(new XmaxException(XmaxErrorCode.ApiError, "Xmax API returned invalid JSON", httpStatus: 502))
+                : Task.FromResult(approved);
+        }, CancellationToken.None);
+        Check(calls == 2 && result == approved);
+    }),
+    ("Reference upload retries are bounded and preserve HTTP details", async () =>
+    {
+        int calls = 0;
+        var failure = new XmaxException(XmaxErrorCode.ApiError, "Xmax API returned invalid JSON", httpStatus: 503);
+        try
+        {
+            await MainViewModel.UploadApprovedReferenceWithRetryAsync(_ =>
+            {
+                calls++;
+                return Task.FromException<UploadedFile>(failure);
+            }, CancellationToken.None);
+            throw new Exception("Expected the upload to fail.");
+        }
+        catch (XmaxException error) when (ReferenceEquals(error, failure))
+        {
+            Check(calls == 3 && error.HttpStatus == 503);
+        }
+    }),
+    ("Reference upload approval, authentication, and business failures fail immediately", async () =>
+    {
+        foreach (var failure in new[]
+        {
+            new XmaxException(XmaxErrorCode.UnsafeImage, "The image did not pass the safety check"),
+            new XmaxException(XmaxErrorCode.ApiError, "Unauthorized", httpStatus: 401),
+            new XmaxException(XmaxErrorCode.ApiError, "Insufficient credits", apiCode: 43001, httpStatus: 503)
+        })
+        {
+            int calls = 0;
+            try
+            {
+                await MainViewModel.UploadApprovedReferenceWithRetryAsync(_ =>
+                {
+                    calls++;
+                    return Task.FromException<UploadedFile>(failure);
+                }, CancellationToken.None);
+                throw new Exception("Expected the upload to fail.");
+            }
+            catch (XmaxException error) when (ReferenceEquals(error, failure))
+            {
+                Check(calls == 1);
+            }
+        }
+    }),
+    ("Canceling a reference upload stops its retry delay", async () =>
+    {
+        using var cancellation = new CancellationTokenSource();
+        int calls = 0;
+        try
+        {
+            await MainViewModel.UploadApprovedReferenceWithRetryAsync(_ =>
+            {
+                calls++;
+                cancellation.Cancel();
+                return Task.FromException<UploadedFile>(new XmaxException(XmaxErrorCode.ApiError, "Xmax API returned invalid JSON", httpStatus: 502));
+            }, cancellation.Token);
+            throw new Exception("Expected upload cancellation.");
+        }
+        catch (OperationCanceledException)
+        {
+            Check(calls == 1);
+        }
+    }),
     ("The selected home appearance becomes the initial generation reference", async () =>
     {
         var model = new MainViewModel(new FakeDispatcher(), new FakeThumbnails());
@@ -290,6 +365,8 @@ var tests = new (string Name, Func<Task> Run)[]
         Check(model.Active && output.Stops == 0 && model.Error == AppText.Get("Request timed out"));
         model.ReportError(new XmaxException(XmaxErrorCode.InvalidConfiguration, "Insufficient credits"));
         Check(model.Active && output.Stops == 0 && model.Error == AppText.Get("Insufficient credits"));
+        model.ReportError(new XmaxException(XmaxErrorCode.ApiError, "Xmax API returned invalid JSON", httpStatus: 503));
+        Check(model.Active && output.Stops == 0 && model.Error.Contains("HTTP 503"));
         return Task.CompletedTask;
     }),
     ("Cleanup faults cannot overwrite the initiating error or leave restart disabled", async () =>

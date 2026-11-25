@@ -255,7 +255,7 @@
     <comment>Bring Your Look To Video Calls</comment>
   </data>
   <data xml:space="preserve" name="Text_081CBDE105C978EC">
-    <value>今天，哪一面的你出镜？</value>
+    <value>换一种形象出镜</value>
     <comment>Bringing Your New Look into Video Calls</comment>
   </data>
   <data xml:space="preserve" name="Text_BBAF8F75A97A6929">
@@ -2183,7 +2183,7 @@ Allow the FaceNow system extension</comment>
     <comment>Your camera needs to be set up again before FaceNow can be used in other apps.</comment>
   </data>
   <data xml:space="preserve" name="Text_AA4A54E3093FE546">
-    <value>相见，不止一面。</value>
+    <value>换一种形象出镜</value>
     <comment>Your new look for every camera moment</comment>
   </data>
   <data xml:space="preserve" name="Text_67F10C979199F170">
@@ -4737,5 +4737,9 @@ Generation is disabled</comment>
   <data name="Text_9E751EFCC89EF880" xml:space="preserve">
     <value>画面旋转</value>
     <comment>Camera rotation</comment>
+  </data>
+  <data name="Text_36E6A66BCC0B6F08" xml:space="preserve">
+    <value>服务返回了异常响应（HTTP {0}），请重试。</value>
+    <comment>The service returned an invalid response (HTTP {0}). Please try again.</comment>
   </data>
 </root>

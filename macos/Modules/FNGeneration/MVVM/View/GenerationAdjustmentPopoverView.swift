@@ -7,7 +7,7 @@ import AppKit
 import Combine
 import SnapKit
 
-/// Adjusts timestamp-based meeting output while leaving local monitoring silent.
+/// Adjusts microphone echo cancellation, virtual microphone volume, and meeting output timing.
 @MainActor
 final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
 
@@ -19,6 +19,9 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
 
     /// Keeps reopened and currently displayed controls aligned with the saved setting.
     private var offsetObservation: AnyCancellable?
+
+    /// Keeps the volume control synchronized with shared output preferences.
+    private var volumeObservation: AnyCancellable?
 
     /// Names the settings card.
     private lazy var heading: NSTextField = {
@@ -38,6 +41,12 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         view.foregroundColor = Palette.secondary
         view.setAccessibilityLabel(GenerationStrings.adjustmentsClose)
         view.onClick = { [weak self] in self?.onClose?() }
+        return view
+    }()
+
+    /// Selects the playback reference for microphone echo cancellation.
+    private lazy var echoSection: GenerationEchoCancellationView = {
+        let view = GenerationEchoCancellationView(settings: viewModel.echoCancellation)
         return view
     }()
 
@@ -87,7 +96,7 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
     /// Edits relative meeting-output timing within minus 5000 through plus 5000 milliseconds.
     private lazy var offsetSlider: NSSlider = {
         let view = NSSlider()
-        view.cell = GenerationOffsetSliderCell()
+        view.cell = GenerationAdjustmentSliderCell()
         view.minValue = -5000
         view.maxValue = 5000
         view.doubleValue = 0
@@ -162,6 +171,37 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         return view
     }()
 
+    /// Separates output volume from the synchronization controls.
+    private lazy var volumeSeparator: Canvas = {
+        let view = Canvas(color: Palette.border)
+        return view
+    }()
+
+    private lazy var volumeTitle: NSTextField = {
+        let view = Self.label(GenerationStrings.virtualMicrophoneVolume, size: 16, weight: .semibold)
+        return view
+    }()
+
+    private lazy var volumeLabel: NSTextField = {
+        let view = Self.label(GenerationStrings.volumePercentage(value: 100), weight: .medium)
+        view.alignment = .right
+        return view
+    }()
+
+    /// Edits linear virtual microphone output gain in percent.
+    private lazy var volumeSlider: NSSlider = {
+        let view = NSSlider()
+        view.cell = GenerationAdjustmentSliderCell()
+        view.minValue = 0
+        view.maxValue = viewModel.maximumVirtualMicrophonePercentage
+        view.doubleValue = 100
+        view.isContinuous = true
+        view.target = self
+        view.action = #selector(volumeChanged)
+        view.setAccessibilityLabel(GenerationStrings.virtualMicrophoneVolume)
+        return view
+    }()
+
     /// Explains that live adjustments apply to meeting output.
     private lazy var footer: NSTextField = {
         let view = Self.label(GenerationStrings.syncRealtimeHint, secondary: true)
@@ -172,10 +212,11 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
     init() {
         super.init(color: .white, radius: 16)
         [
-            heading, closeButton, automaticTitle, enabledBadge, automaticDescription,
+            heading, closeButton, echoSection, automaticTitle, enabledBadge, automaticDescription,
             separator,
             manualTitle, manualDescription, offsetSlider, earlierLabel, offsetLabel,
-            laterLabel, valueTitle, inputContainer, resetButton, footer,
+            laterLabel, valueTitle, inputContainer, resetButton,
+            volumeSeparator, volumeTitle, volumeLabel, volumeSlider, footer,
         ].forEach(addSubview)
         enabledBadge.addSubview(enabledLabel)
         inputContainer.addSubview(offsetInput)
@@ -183,6 +224,9 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         installConstraints()
         offsetObservation = viewModel.audioSyncOffsets.removeDuplicates().sink { [weak self] value in
             self?.displayOffset(value)
+        }
+        volumeObservation = viewModel.virtualMicrophoneVolumes.removeDuplicates().sink { [weak self] value in
+            self?.displayVolume(value)
         }
     }
 
@@ -203,8 +247,12 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
             make.centerY.equalTo(heading)
             make.size.equalTo(30)
         }
+        echoSection.snp.makeConstraints { make in
+            make.top.equalTo(heading.snp.bottom).offset(24)
+            make.leading.trailing.equalToSuperview().inset(24)
+        }
         automaticTitle.snp.makeConstraints { make in
-            make.top.equalTo(heading.snp.bottom).offset(30)
+            make.top.equalTo(echoSection.snp.bottom).offset(18)
             make.leading.equalToSuperview().inset(24)
         }
         enabledBadge.snp.makeConstraints { make in
@@ -275,8 +323,27 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
             make.width.equalTo(82)
             make.trailing.lessThanOrEqualToSuperview().inset(24)
         }
-        footer.snp.makeConstraints { make in
+        volumeSeparator.snp.makeConstraints { make in
             make.top.equalTo(inputContainer.snp.bottom).offset(24)
+            make.leading.trailing.equalTo(automaticDescription)
+            make.height.equalTo(1)
+        }
+        volumeTitle.snp.makeConstraints { make in
+            make.top.equalTo(volumeSeparator.snp.bottom).offset(18)
+            make.leading.equalTo(automaticDescription)
+            make.trailing.lessThanOrEqualTo(volumeLabel.snp.leading).offset(-16)
+        }
+        volumeLabel.snp.makeConstraints { make in
+            make.centerY.equalTo(volumeTitle)
+            make.trailing.equalTo(automaticDescription)
+        }
+        volumeSlider.snp.makeConstraints { make in
+            make.top.equalTo(volumeTitle.snp.bottom).offset(12)
+            make.leading.trailing.equalTo(automaticDescription)
+            make.height.equalTo(26)
+        }
+        footer.snp.makeConstraints { make in
+            make.top.equalTo(volumeSlider.snp.bottom).offset(18)
             make.leading.trailing.equalTo(automaticDescription)
             make.bottom.equalToSuperview().inset(24)
         }
@@ -315,6 +382,20 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
         offsetLabel.stringValue = GenerationStrings.syncOffsetMilliseconds(value: value)
     }
 
+    /// Reflects saved gain as a whole percentage without changing the audio setting.
+    private func displayVolume(
+        _ volume: Float
+    ) {
+        let percent = Int((volume * 100).rounded())
+        volumeSlider.integerValue = percent
+        volumeLabel.stringValue = GenerationStrings.volumePercentage(value: percent)
+        volumeSlider.setAccessibilityValueDescription(volumeLabel.stringValue)
+    }
+
+    @objc private func volumeChanged() {
+        viewModel.setVirtualMicrophoneVolume(Float(volumeSlider.doubleValue.rounded()) / 100)
+    }
+
     /// Applies pointer and keyboard slider edits to meeting output.
     @objc private func sliderChanged() {
         setOffset(Int(offsetSlider.doubleValue.rounded()))
@@ -336,9 +417,139 @@ final class GenerationAdjustmentPopoverView: Canvas, NSTextFieldDelegate {
     }
 }
 
+/// Presents the echo filter and its reference device in the audio settings card.
+@MainActor
+private final class GenerationEchoCancellationView: NSView {
+
+    private let settings: PlaybackEchoCancellation
+    private var observation: AnyCancellable?
+
+    private lazy var toggle: NSSwitch = {
+        let view = NSSwitch()
+        view.setAccessibilityLabel(GenerationStrings.echoCancellation)
+        view.target = self
+        view.action = #selector(changeEnabled)
+        return view
+    }()
+
+    private lazy var devicePicker: NSPopUpButton = {
+        let view = NSPopUpButton(frame: .zero, pullsDown: false)
+        view.setAccessibilityLabel(GenerationStrings.echoPlaybackDevice)
+        view.target = self
+        view.action = #selector(changeDevice)
+        view.autoenablesItems = false
+        return view
+    }()
+
+    private lazy var statusLabel: NSTextField = {
+        let view = NSTextField(wrappingLabelWithString: "")
+        view.textColor = Palette.secondary
+        view.font = .systemFont(ofSize: 13)
+        view.maximumNumberOfLines = 0
+        return view
+    }()
+
+    init(
+        settings: PlaybackEchoCancellation
+    ) {
+        self.settings = settings
+        super.init(frame: .zero)
+
+        let title = NSTextField(labelWithString: GenerationStrings.echoCancellation)
+        title.font = .systemFont(ofSize: 16, weight: .semibold)
+        title.textColor = Palette.text
+        let deviceLabel = NSTextField(labelWithString: GenerationStrings.echoPlaybackDevice)
+        deviceLabel.textColor = Palette.secondary
+        let divider = Canvas(color: Palette.border)
+        [title, toggle, deviceLabel, devicePicker, statusLabel, divider].forEach(addSubview)
+
+        toggle.snp.makeConstraints { make in make.top.trailing.equalToSuperview() }
+        title.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.centerY.equalTo(toggle)
+        }
+        devicePicker.snp.makeConstraints { make in
+            make.top.equalTo(toggle.snp.bottom).offset(9)
+            make.trailing.equalToSuperview()
+            make.width.equalTo(246)
+        }
+        deviceLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.centerY.equalTo(devicePicker)
+            make.trailing.lessThanOrEqualTo(devicePicker.snp.leading).offset(-10)
+        }
+        statusLabel.snp.makeConstraints { make in
+            make.top.equalTo(devicePicker.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview()
+        }
+        divider.snp.makeConstraints { make in
+            make.top.equalTo(statusLabel.snp.bottom).offset(16)
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(1)
+        }
+
+        observation = settings.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.refresh() }
+        refresh()
+    }
+
+    required init?(
+        coder: NSCoder
+    ) { fatalError("init(coder:) has not been implemented") }
+
+    private func refresh() {
+        toggle.isEnabled = settings.isSupported
+        toggle.state = settings.enabled && settings.isSupported ? .on : .off
+        devicePicker.isEnabled = settings.isSupported
+        devicePicker.removeAllItems()
+        devicePicker.addItem(withTitle: GenerationStrings.echoFollowSystem)
+        var titles = Set([GenerationStrings.echoFollowSystem, GenerationStrings.echoDeviceUnavailable])
+        for device in settings.devices {
+            var title = device.name
+            var suffix = 2
+            while !titles.insert(title).inserted {
+                title = "\(device.name) (\(suffix))"
+                suffix += 1
+            }
+            devicePicker.addItem(withTitle: title)
+            devicePicker.lastItem?.representedObject = device.uid
+        }
+        devicePicker.selectItem(at: 0)
+        if let uid = settings.deviceUID {
+            if let item = devicePicker.itemArray.first(where: { ($0.representedObject as? String) == uid }) {
+                devicePicker.select(item)
+            } else {
+                devicePicker.addItem(withTitle: GenerationStrings.echoDeviceUnavailable)
+                let unavailableItem = devicePicker.lastItem
+                unavailableItem?.isEnabled = false
+                devicePicker.select(unavailableItem)
+            }
+        }
+        statusLabel.stringValue = switch settings.status {
+        case .off: GenerationStrings.echoOff
+        case .waitingForMicrophone: GenerationStrings.echoWaiting
+        case .starting: GenerationStrings.echoStarting
+        case .waitingForReference: GenerationStrings.echoWaitingForReference
+        case .listening: GenerationStrings.echoListening
+        case .noDevice: GenerationStrings.echoNoDevice
+        case .unavailable: GenerationStrings.echoUnavailable
+        case .failed: GenerationStrings.echoFailed
+        }
+    }
+
+    @objc private func changeEnabled() {
+        settings.setEnabled(toggle.state == .on)
+    }
+
+    @objc private func changeDevice() {
+        settings.selectDevice(devicePicker.selectedItem?.representedObject as? String)
+    }
+}
+
 /// Draws the reference slider's blue track and outlined white knob using native slider tracking.
 @MainActor
-private final class GenerationOffsetSliderCell: NSSliderCell {
+private final class GenerationAdjustmentSliderCell: NSSliderCell {
 
     /// Draws the inactive track and the blue segment preceding the current value.
     override func drawBar(

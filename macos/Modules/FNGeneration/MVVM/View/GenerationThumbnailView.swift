@@ -20,7 +20,8 @@ final class GenerationThumbnailView: NSImageView {
         view.textColor = Palette.secondary
         view.alignment = .center
         view.maximumNumberOfLines = 3
-        view.lineBreakMode = .byTruncatingTail
+        view.lineBreakMode = .byWordWrapping
+        view.cell?.truncatesLastVisibleLine = true
         view.isHidden = true
         return view
     }()

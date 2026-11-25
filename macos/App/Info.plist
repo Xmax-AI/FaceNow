@@ -34,6 +34,8 @@
 	<string>$(FACENOW_CAMERA_USAGE_DESCRIPTION)</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>$(FACENOW_AUDIO_CAPTURE_USAGE_DESCRIPTION)</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>$(FACENOW_MICROPHONE_USAGE_DESCRIPTION)</string>
 	<key>NSPrincipalClass</key>

@@ -1,6 +1,42 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "audio.virtual_microphone_volume": {
+      "comment": "Generated audio volume delivered to the virtual microphone.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Virtual microphone volume"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚拟麦克风音量"
+          }
+        }
+      }
+    },
+    "audio.volume_percentage": {
+      "comment": "Linear output gain: 100 percent represents the original amplitude.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
     "beauty.applying": {
       "comment": "Result beauty control or recoverable effect status.",
       "extractionState": "manual",
@@ -3201,6 +3237,222 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "controls.echo.device_unavailable": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected device unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所选设备不可用"
+          }
+        }
+      }
+    },
+    "controls.echo.failed": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playback unavailable. Check audio recording permission in System Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法获取播放音频。请检查系统设置中的录音权限。"
+          }
+        }
+      }
+    },
+    "controls.echo.follow_system": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow System"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟随系统"
+          }
+        }
+      }
+    },
+    "controls.echo.listening": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processing microphone audio before it is sent."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在处理麦克风上行音频。"
+          }
+        }
+      }
+    },
+    "controls.echo.no_device": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect the selected device or choose another one."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请连接所选播放设备，或切换到其他设备。"
+          }
+        }
+      }
+    },
+    "controls.echo.off": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses playback audio to reduce echo in your microphone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用播放设备的声音来减少麦克风回声。"
+          }
+        }
+      }
+    },
+    "controls.echo.playback_device": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playback device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放设备"
+          }
+        }
+      }
+    },
+    "controls.echo.starting": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting to the playback device…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在连接播放设备…"
+          }
+        }
+      }
+    },
+    "controls.echo.title": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Echo Cancellation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回声消除"
+          }
+        }
+      }
+    },
+    "controls.echo.unavailable": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requires macOS 14.2 or later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要 macOS 14.2 或更高版本。"
+          }
+        }
+      }
+    },
+    "controls.echo.waiting": {
+      "comment": "Echo cancellation controls and playback reference status in audio and video settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select an active microphone to use echo cancellation."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择可用的麦克风以开启回声消除。"
+          }
+        }
+      }
+    },
+    "controls.echo.waiting_for_reference": {
+      "comment": "Waiting for the selected playback device to provide aligned reference audio.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for matching audio from the playback device."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待可用的播放参考音频。"
           }
         }
       }

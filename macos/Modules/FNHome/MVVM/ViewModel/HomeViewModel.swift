@@ -36,8 +36,9 @@ final class HomeViewModel {
 
     /// Opens local capture after validating permission; cloud generation validates its own credentials.
     func startCamera(
-        preset: RealtimeCameraPreset,
+        preset: RealtimeCameraFormat,
         reference: GenerationReference,
+        rotation: CameraRotation,
         requestedAt: UInt64
     ) async {
         virtualCameraRepo.synchronizeReadiness()
@@ -48,6 +49,7 @@ final class HomeViewModel {
         await generationRepo.start(
             preset: preset,
             initialReference: reference,
+            rotation: rotation,
             requestedAt: requestedAt
         )
     }

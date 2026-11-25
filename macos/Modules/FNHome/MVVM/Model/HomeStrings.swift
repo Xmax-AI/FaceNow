@@ -11,6 +11,30 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum HomeStrings {
 
+    static var cameraRotation: String {
+        Localization.string(
+            "home.camera_rotation",
+            table: "Home",
+            defaultValue: "Camera rotation"
+        )
+    }
+
+    static var referenceImages: String {
+        Localization.string(
+            "home.reference_images",
+            table: "Home",
+            defaultValue: "Reference images"
+        )
+    }
+
+    static var closeReferenceImages: String {
+        Localization.string(
+            "home.reference_images_close",
+            table: "Home",
+            defaultValue: "Close reference images"
+        )
+    }
+
     /// The home-toolbar entry and popover title for virtual media devices.
     static var virtualDevices: String {
         Localization.string(
@@ -128,6 +152,15 @@ enum HomeStrings {
         )
     }
 
+    /// The footer documentation entry awaiting its destination URL.
+    static var troubleshooting: String {
+        Localization.string(
+            "home.troubleshooting",
+            table: "Home",
+            defaultValue: "TroubleShooting"
+        )
+    }
+
     /// Displayed text in Modules/FNHome/HomeViewController.swift.
     static var homeCouldnTRestartFaceNowQuitAndReopenTheApp: String {
         Localization.string(
@@ -174,11 +207,38 @@ enum HomeStrings {
     }
 
     /// Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.
+    static var homeWebsite: String {
+        Localization.string(
+            "home.website",
+            table: "Home",
+            defaultValue: "Website"
+        )
+    }
+
+    /// Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.
+    static var homeFeedback: String {
+        Localization.string(
+            "home.feedback",
+            table: "Home",
+            defaultValue: "Feedback"
+        )
+    }
+
+    /// Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.
     static var homeAPIPlatform: String {
         Localization.string(
             "home.api_platform",
             table: "Home",
             defaultValue: "API Platform"
+        )
+    }
+
+    /// Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.
+    static var homeScanWithWeChatToFollowUs: String {
+        Localization.string(
+            "home.scan_with_wechat_to_follow_us",
+            table: "Home",
+            defaultValue: "Scan with WeChat to follow us"
         )
     }
 

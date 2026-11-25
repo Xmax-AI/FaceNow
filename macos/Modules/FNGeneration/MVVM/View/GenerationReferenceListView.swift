@@ -87,6 +87,13 @@ final class GenerationReferenceListView: Canvas, NSCollectionViewDataSource, NSC
     /// Requests generation with the selected existing reference.
     var onSelect: ((GenerationReference) -> Void)?
 
+    /// Lets a hosting modal keep keyboard navigation inside its currently visible reference controls.
+    var focusControls: [NSView] {
+        collection.indexPathsForVisibleItems().sorted { $0.item < $1.item }.compactMap {
+            (collection.item(at: $0) as? GenerationReferenceItem)?.button
+        }
+    }
+
     /// Measures the strip width for a whole number of cells.
     static func singleRowWidth(
         itemCount: Int

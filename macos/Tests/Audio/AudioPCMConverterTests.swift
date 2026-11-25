@@ -1,3 +1,8 @@
+//
+//  AudioPCMConverterTests.swift
+//  FaceNow
+//
+
 import XCTest
 import AVFoundation
 import AudioTimelineBuffer
@@ -63,6 +68,63 @@ final class AudioPCMConverterTests: XCTestCase {
         XCTAssertEqual(reset.last!, 0.8, accuracy: 0.001)
         AudioTimelineBufferReset(ring)
         XCTAssertTrue(render(ring, at: 100.36).allSatisfy { $0 == 0 })
+    }
+
+    func testOutputGainAmplifiesStereoAndLimitsPeaks() throws {
+        let ring = try XCTUnwrap(AudioTimelineBufferCreate(48_000))
+        defer { AudioTimelineBufferDestroy(ring) }
+        AudioTimelineBufferSetOutputGain(ring, 3)
+        let source: [Float] = [0.25, -0.25, 0.75, -0.75]
+        source.withUnsafeBufferPointer {
+            AudioTimelineBufferSchedule(ring, 100, $0.baseAddress, 2)
+        }
+        let output = render(ring, at: 100, frames: 2)
+        XCTAssertEqual(output, [0.75, -0.75, 1, -1])
+        var stored = [Float](repeating: 0, count: 4)
+        stored.withUnsafeMutableBufferPointer {
+            XCTAssertEqual(AudioTimelineBufferRead(ring, 4_800_000, $0.baseAddress, 2), 2)
+        }
+        XCTAssertEqual(stored, source, "Output gain must not alter buffered source audio or direct reads")
+    }
+
+    func testVolumeChangesRampImmediatelyAcrossDelayedAudioAndCanMute() throws {
+        for rate in [44_100.0, 48_000.0] {
+            let ring = try XCTUnwrap(AudioTimelineBufferCreate(rate))
+            defer { AudioTimelineBufferDestroy(ring) }
+            AudioTimelineBufferSetPlaybackDelay(ring, 5)
+            let source = [Float](repeating: 0.25, count: Int(rate) * 2)
+            source.withUnsafeBufferPointer {
+                AudioTimelineBufferSchedule(ring, 100, $0.baseAddress, UInt32(rate))
+            }
+            XCTAssertEqual(render(ring, at: 105)[0], 0.25, accuracy: 0.0001)
+            AudioTimelineBufferSetOutputGain(ring, 2)
+            let rampFrames = UInt32((rate * 0.02).rounded())
+            let louder = render(ring, at: 105.01, frames: rampFrames + 1)
+            XCTAssertEqual(louder[0], 0.25, accuracy: 0.001)
+            XCTAssertEqual(louder.last!, 0.5, accuracy: 0.0001)
+            for index in stride(from: 2, to: louder.count, by: 2) {
+                XCTAssertGreaterThanOrEqual(louder[index], louder[index - 2])
+                XCTAssertLessThan(louder[index] - louder[index - 2], 0.001)
+                XCTAssertEqual(louder[index], louder[index + 1])
+            }
+            AudioTimelineBufferSetOutputGain(ring, 0)
+            let muted = render(ring, at: 105.04, frames: rampFrames + 1)
+            XCTAssertEqual(muted.last!, 0)
+            XCTAssertTrue(render(ring, at: 105.07).allSatisfy { $0 == 0 })
+        }
+    }
+
+    func testOutputGainRejectsNonfiniteValuesAndBoundsSavedSettings() throws {
+        for (gain, expected) in [(Float.nan, Float(0.25)), (.infinity, 0.25), (-1, 0), (9, 0.75)] {
+            let ring = try XCTUnwrap(AudioTimelineBufferCreate(48_000))
+            defer { AudioTimelineBufferDestroy(ring) }
+            AudioTimelineBufferSetOutputGain(ring, gain)
+            let source = [Float](repeating: 0.25, count: 96)
+            source.withUnsafeBufferPointer {
+                AudioTimelineBufferSchedule(ring, 100, $0.baseAddress, 48)
+            }
+            XCTAssertTrue(render(ring, at: 100).allSatisfy { abs($0 - expected) < 0.0001 })
+        }
     }
 
     private func render(

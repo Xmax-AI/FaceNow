@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C2B3F6EDC99047F6A8EDC6DB /* PlaybackEchoCancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115845F16F564EC79483C912 /* PlaybackEchoCancellation.swift */; };
+		A975825E59E04501A096E68D /* PlaybackEchoCancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115845F16F564EC79483C912 /* PlaybackEchoCancellation.swift */; };
+		147CD17BE63A41A98E44E37E /* EchoCanceller.c in Sources */ = {isa = PBXBuildFile; fileRef = D6F650B784434D6289AD72A2 /* EchoCanceller.c */; };
+		FB15DEBF8CBE4983857F5591 /* EchoCanceller.c in Sources */ = {isa = PBXBuildFile; fileRef = D6F650B784434D6289AD72A2 /* EchoCanceller.c */; };
+		405B01E979C343838C89E5C3 /* mdf.c in Sources */ = {isa = PBXBuildFile; fileRef = C4E80C283C7C4B62B4A40B3B /* mdf.c */; settings = {COMPILER_FLAGS = "-DFLOATING_POINT -DUSE_SMALLFT -DEXPORT="; }; };
+		4B997CDBE9CA44C48CE305E6 /* mdf.c in Sources */ = {isa = PBXBuildFile; fileRef = C4E80C283C7C4B62B4A40B3B /* mdf.c */; settings = {COMPILER_FLAGS = "-DFLOATING_POINT -DUSE_SMALLFT -DEXPORT="; }; };
+		BAC5FAEFB3A84430973351B9 /* fftwrap.c in Sources */ = {isa = PBXBuildFile; fileRef = 19A15B5D185243BAAD1FC206 /* fftwrap.c */; settings = {COMPILER_FLAGS = "-DFLOATING_POINT -DUSE_SMALLFT -DEXPORT="; }; };
+		0392E65456584446867E7806 /* fftwrap.c in Sources */ = {isa = PBXBuildFile; fileRef = 19A15B5D185243BAAD1FC206 /* fftwrap.c */; settings = {COMPILER_FLAGS = "-DFLOATING_POINT -DUSE_SMALLFT -DEXPORT="; }; };
+		8250DF75619A43E9B592257F /* smallft.c in Sources */ = {isa = PBXBuildFile; fileRef = AB0ED6B287DB47DBBC40E38B /* smallft.c */; settings = {COMPILER_FLAGS = "-DFLOATING_POINT -DUSE_SMALLFT -DEXPORT="; }; };
+		4D2D0B2C55A841E9ACF25BE6 /* smallft.c in Sources */ = {isa = PBXBuildFile; fileRef = AB0ED6B287DB47DBBC40E38B /* smallft.c */; settings = {COMPILER_FLAGS = "-DFLOATING_POINT -DUSE_SMALLFT -DEXPORT="; }; };
+		BDC156EAD3F6402FB7AE6D0F /* SpeexDSP-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5E9AEE5B4382460AA409E953 /* SpeexDSP-LICENSE.txt */; };
+		9262AECC015E4F808DAB8DDF /* SpeexDSP-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5E9AEE5B4382460AA409E953 /* SpeexDSP-LICENSE.txt */; };
 		0335F177752D7A8B336DC92E /* UserLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A938E5E34943DD696B3ADE /* UserLoginViewModel.swift */; };
 		03C01E35152EC83D64123095 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514DED5EAE346D143F942D77 /* HomeViewController.swift */; };
 		03D7E9F275CA49AAB9F1C611 /* Camera.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 768A7C5543BA47F9967814CF /* Camera.xcstrings */; };
@@ -324,6 +336,14 @@
 		9FEB046115F549A983AF1470 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
 		9FAE18E9222E419291727849 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
 		71E3B2D795044D86BFA56A80 /* FaceNowCameraPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */; };
+		DCDFBEB7652C4D63A60DFB59 /* HomeReferenceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4919EC6A8874ECEA22ABDD7 /* HomeReferenceViewModel.swift */; };
+		D863D07223E64E0D91111E33 /* HomeReferenceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4919EC6A8874ECEA22ABDD7 /* HomeReferenceViewModel.swift */; };
+		9DC7E45B92F84A59B2C73FDE /* HomeReferenceCatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D9CDE856E11434B92605399 /* HomeReferenceCatalogView.swift */; };
+		5E6889AA1BE446E4A5E60049 /* HomeReferenceCatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D9CDE856E11434B92605399 /* HomeReferenceCatalogView.swift */; };
+		E5449E21AF194FF4B841CCDA /* HomeCameraRotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4ADD4FB3DC41CD8745A9D8 /* HomeCameraRotationView.swift */; };
+		BAAFD7B78C1340FEB4E67ED4 /* HomeCameraRotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4ADD4FB3DC41CD8745A9D8 /* HomeCameraRotationView.swift */; };
+		1C8A7E27167741D9800D57EC /* HomeReferenceMoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314561D5BC4D4089B5C9E745 /* HomeReferenceMoreButton.swift */; };
+		867E6C157930488A8660528D /* HomeReferenceMoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314561D5BC4D4089B5C9E745 /* HomeReferenceMoreButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -413,6 +433,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		115845F16F564EC79483C912 /* PlaybackEchoCancellation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlaybackEchoCancellation.swift; path = PlaybackEchoCancellation.swift; sourceTree = "<group>"; };
+		D6F650B784434D6289AD72A2 /* EchoCanceller.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = EchoCanceller.c; path = EchoCancellation/EchoCanceller.c; sourceTree = "<group>"; };
+		80D40494352142A183CBAC20 /* EchoCanceller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EchoCanceller.h; path = EchoCancellation/EchoCanceller.h; sourceTree = "<group>"; };
+		C4E80C283C7C4B62B4A40B3B /* mdf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = mdf.c; path = EchoCancellation/SpeexDSP/mdf.c; sourceTree = "<group>"; };
+		19A15B5D185243BAAD1FC206 /* fftwrap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = fftwrap.c; path = EchoCancellation/SpeexDSP/fftwrap.c; sourceTree = "<group>"; };
+		AB0ED6B287DB47DBBC40E38B /* smallft.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = smallft.c; path = EchoCancellation/SpeexDSP/smallft.c; sourceTree = "<group>"; };
+		5E9AEE5B4382460AA409E953 /* SpeexDSP-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = SpeexDSP-LICENSE.txt; path = EchoCancellation/SpeexDSP/SpeexDSP-LICENSE.txt; sourceTree = "<group>"; };
 		01F524530A0CBFD115F8EEFD /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
 		0278174DAC185E0B46A11241 /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
 		0E6C8273D5743EC3BF39839E /* GenerationStatisticsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationStatisticsRow.swift; sourceTree = "<group>"; };
@@ -576,6 +603,10 @@
 		1AF4B30260714AA0B8FD9928 /* FaceNowOverseaCameraProbe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FaceNowOverseaCameraProbe; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDC47C9D4593458CA68FE501 /* RechargeDialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RechargeDialogView.swift; sourceTree = "<group>"; };
 		5627FCC087674A02AEBDDFFB /* FaceNowCameraPlaceholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FaceNowCameraPlaceholder.png; sourceTree = "<group>"; };
+		B4919EC6A8874ECEA22ABDD7 /* HomeReferenceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeReferenceViewModel.swift; sourceTree = "<group>"; };
+		8D9CDE856E11434B92605399 /* HomeReferenceCatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeReferenceCatalogView.swift; sourceTree = "<group>"; };
+		ED4ADD4FB3DC41CD8745A9D8 /* HomeCameraRotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCameraRotationView.swift; sourceTree = "<group>"; };
+		314561D5BC4D4089B5C9E745 /* HomeReferenceMoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeReferenceMoreButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -647,6 +678,7 @@
 			children = (
 				3E9077E937E14964A9AC931A /* AboutViewModel.swift */,
 				547F224791C8B782CD96C133 /* HomeViewModel.swift */,
+				B4919EC6A8874ECEA22ABDD7 /* HomeReferenceViewModel.swift */,
 				126C4E4239C34FEA9C1581A0 /* HomeVirtualDevicesViewModel.swift */,
 			);
 			path = ViewModel;
@@ -1010,6 +1042,9 @@
 			children = (
 				C45C0924FF47468CAC16A675 /* HomeInputPickerView.swift */,
 				C0A2FBA9EDB36F5032B54189 /* HomeCameraControlsView.swift */,
+				314561D5BC4D4089B5C9E745 /* HomeReferenceMoreButton.swift */,
+				ED4ADD4FB3DC41CD8745A9D8 /* HomeCameraRotationView.swift */,
+				8D9CDE856E11434B92605399 /* HomeReferenceCatalogView.swift */,
 				DBECE18BA0754959878551E5 /* HomeVirtualDevicesPopoverView.swift */,
 				33181E771D7849B6961719E0 /* AboutView.swift */,
 				E6DF3DE892E7D9E93FDC6E2E /* HomeFooterView.swift */,
@@ -1095,6 +1130,13 @@
 			isa = PBXGroup;
 			children = (
 				3410073D737477C50BC1B8EB /* AudioPCMConverter.swift */,
+				115845F16F564EC79483C912 /* PlaybackEchoCancellation.swift */,
+				D6F650B784434D6289AD72A2 /* EchoCanceller.c */,
+				80D40494352142A183CBAC20 /* EchoCanceller.h */,
+				C4E80C283C7C4B62B4A40B3B /* mdf.c */,
+				19A15B5D185243BAAD1FC206 /* fftwrap.c */,
+				AB0ED6B287DB47DBBC40E38B /* smallft.c */,
+				5E9AEE5B4382460AA409E953 /* SpeexDSP-LICENSE.txt */,
 				8E8678811F8DC1AC2B52130C /* Audio */,
 				DE4B9F38C31DC3D19A784638 /* ScheduledFrameStore.swift */,
 				218B9A910B81E9158ECB7A49 /* VideoFrameRenderer.swift */,
@@ -1514,6 +1556,7 @@
 				2CAB5C069C0382B757753C16 /* FaceNowLoginPoster.png in Resources */,
 				03D7E9F275CA49AAB9F1C611 /* Camera.xcstrings in Resources */,
 				6E4362283CDA4644AA567E70 /* Generation.xcstrings in Resources */,
+				BDC156EAD3F6402FB7AE6D0F /* SpeexDSP-LICENSE.txt in Resources */,
 				B8884C2563764AC9BDB98D16 /* Home.xcstrings in Resources */,
 				14EAA48E5208435EADA4B92B /* Onboarding.xcstrings in Resources */,
 				41562EDA736E43A39E8A402D /* User.xcstrings in Resources */,
@@ -1548,6 +1591,7 @@
 				7CA9B8B28C4F00FBF661BD58 /* FaceNowLoginPoster.png in Resources */,
 				867CE081E6DAECA66D853CCE /* Camera.xcstrings in Resources */,
 				EE65329E1992F98F5B26A8CE /* Generation.xcstrings in Resources */,
+				9262AECC015E4F808DAB8DDF /* SpeexDSP-LICENSE.txt in Resources */,
 				B197E9B5F0F78715C79B002D /* Home.xcstrings in Resources */,
 				D44BC668A3F826ABB6AB082A /* Onboarding.xcstrings in Resources */,
 				91BE72199DA795EFF4743071 /* User.xcstrings in Resources */,
@@ -1645,6 +1689,11 @@
 				63EABC13A672E3CC27AAB323 /* VirtualMicrophoneSetupViewController.swift */,
 				321CDB904DD25FBEBCE14644 /* AudioPCMConverter.swift */,
 				6CDD2F067708DDE43D5C4F53 /* AudioTimelineBuffer.c */,
+				C2B3F6EDC99047F6A8EDC6DB /* PlaybackEchoCancellation.swift in Sources */,
+				147CD17BE63A41A98E44E37E /* EchoCanceller.c in Sources */,
+				405B01E979C343838C89E5C3 /* mdf.c in Sources */,
+				BAC5FAEFB3A84430973351B9 /* fftwrap.c in Sources */,
+				8250DF75619A43E9B592257F /* smallft.c in Sources */,
 				D19B28B958160BE4BBB59603 /* VirtualMicrophoneStrings.swift */,
 				B3AE16D349576A51E45B4EBF /* VirtualMicrophoneOutput.swift */,
 				0F61489BE99CD2ABC6C8A658 /* VirtualMicrophoneRepository.swift */,
@@ -1670,6 +1719,7 @@
 				C3919CB75BC32F3E16B873AC /* UserLoginDraft.swift in Sources */,
 				2710787A2131E0139BF94725 /* AboutViewModel.swift in Sources */,
 				793D5757B61B0375CE9B84E7 /* HomeViewModel.swift in Sources */,
+				DCDFBEB7652C4D63A60DFB59 /* HomeReferenceViewModel.swift in Sources */,
 				F285E81DCC5C429383110A44 /* HomeVirtualDevicesViewModel.swift in Sources */,
 				617A0BD93B4DC326A53EB272 /* GenerationThumbnailView.swift in Sources */,
 				51B92D8C258349013500EB39 /* GenerationReferenceLayout.swift in Sources */,
@@ -1711,6 +1761,9 @@
 				22221881296C7A34A0BAE2C3 /* GenerationWorkspaceView.swift in Sources */,
 				266EDFC1E1DDAAF2EE480DB6 /* HomeInputPickerView.swift in Sources */,
 				79A8885D67BDEE86390E4A90 /* HomeCameraControlsView.swift in Sources */,
+				867E6C157930488A8660528D /* HomeReferenceMoreButton.swift in Sources */,
+				BAAFD7B78C1340FEB4E67ED4 /* HomeCameraRotationView.swift in Sources */,
+				5E6889AA1BE446E4A5E60049 /* HomeReferenceCatalogView.swift in Sources */,
 				E9998472923C41CEB7DB1DBF /* HomeVirtualDevicesPopoverView.swift in Sources */,
 				50318AC1E0D02B4A32810AA2 /* ToastView.swift in Sources */,
 				E05213100BF3AEBB521AC2DD /* AboutView.swift in Sources */,
@@ -1790,6 +1843,11 @@
 				A24FC412B1B84B94DC44F4B7 /* VirtualMicrophoneSetupViewController.swift */,
 				F1E02F5813B4BAA172F4BAC4 /* AudioPCMConverter.swift */,
 				4AC298EC30117BC57CC38F16 /* AudioTimelineBuffer.c */,
+				A975825E59E04501A096E68D /* PlaybackEchoCancellation.swift in Sources */,
+				FB15DEBF8CBE4983857F5591 /* EchoCanceller.c in Sources */,
+				4B997CDBE9CA44C48CE305E6 /* mdf.c in Sources */,
+				0392E65456584446867E7806 /* fftwrap.c in Sources */,
+				4D2D0B2C55A841E9ACF25BE6 /* smallft.c in Sources */,
 				82901F3D40B7B76D476E46D6 /* VirtualMicrophoneStrings.swift */,
 				3435B7E97D4B662D4CB9D27A /* VirtualMicrophoneOutput.swift */,
 				3569FE20AC0AE959A5E5525D /* VirtualMicrophoneRepository.swift */,
@@ -1815,6 +1873,7 @@
 				AED0F5F4E004E75635F16DDF /* UserLoginDraft.swift in Sources */,
 				761CFD83E5C8439992D1268C /* AboutViewModel.swift in Sources */,
 				F09AA32C1ABB14280CA850C2 /* HomeViewModel.swift in Sources */,
+				D863D07223E64E0D91111E33 /* HomeReferenceViewModel.swift in Sources */,
 				C4F1771E74084BEFA4A25224 /* HomeVirtualDevicesViewModel.swift in Sources */,
 				7EDAAE42C3E3166B399DB4E0 /* GenerationThumbnailView.swift in Sources */,
 				4E9DABE7602FE00D53C21BF9 /* GenerationReferenceLayout.swift in Sources */,
@@ -1856,6 +1915,9 @@
 				8AE2364A8A6CBAFE13319C39 /* GenerationWorkspaceView.swift in Sources */,
 				7B40BF71B83B42AD86AE3C58 /* HomeInputPickerView.swift in Sources */,
 				5B770C916864127B5715935A /* HomeCameraControlsView.swift in Sources */,
+				1C8A7E27167741D9800D57EC /* HomeReferenceMoreButton.swift in Sources */,
+				E5449E21AF194FF4B841CCDA /* HomeCameraRotationView.swift in Sources */,
+				9DC7E45B92F84A59B2C73FDE /* HomeReferenceCatalogView.swift in Sources */,
 				20EB706074D642A08993D8B9 /* HomeVirtualDevicesPopoverView.swift in Sources */,
 				7DD3892CF0363949D2DC1D72 /* ToastView.swift in Sources */,
 				0DED128F63A7483BAB0A3B3D /* AboutView.swift in Sources */,
@@ -2537,7 +2599,7 @@
 			repositoryURL = "https://github.com/Xmax-AI/XmaxSDK-MacOS.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.1.4;
+				version = 1.1.6;
 			};
 		};
 		06E5DCD8336A673EB16B1BDF /* XCRemoteSwiftPackageReference "HandyJSON" */ = {

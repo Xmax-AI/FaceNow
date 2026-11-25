@@ -4,6 +4,7 @@
 //
 
 using System.Collections.ObjectModel;
+using FaceNow.Windows.VirtualCamera;
 using Xmax.SDK;
 
 namespace FaceNow.Windows.Studio.ViewModels;
@@ -278,12 +279,38 @@ internal sealed partial class MainViewModel
             if (item.IsUploading && !cancellation.IsCancellationRequested && value.Total > 0)
                 item.UploadProgress = Math.Clamp((double)value.Completed / value.Total, 0, 1);
         });
-        var uploaded = await storage.UploadImageWithSafetyCheckAsync(
-            path,
-            progress: progress,
-            cancellationToken: cancellation
+        var uploaded = await UploadApprovedReferenceWithRetryAsync(
+            token => storage.UploadImageWithSafetyCheckAsync(path, progress: progress, cancellationToken: token),
+            cancellation
         );
         return uploaded.Url;
+    }
+
+    internal static async Task<UploadedFile> UploadApprovedReferenceWithRetryAsync(
+        Func<CancellationToken, Task<UploadedFile>> upload,
+        CancellationToken cancellation
+    )
+    {
+        for (int attempt = 0; ; attempt++)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            try
+            {
+                return await upload(cancellation);
+            }
+            catch (XmaxException failure)
+            {
+                bool retry = attempt < 2 && failure.ApiCode == 0 &&
+                    (failure.Code is XmaxErrorCode.ApiError or XmaxErrorCode.UploadError) &&
+                    (failure.HttpStatus is 408 or 429 or 500 or 502 or 503 or 504 ||
+                        failure.Code == XmaxErrorCode.ApiError && failure.Message == "Xmax API returned invalid JSON" &&
+                        (failure.HttpStatus == 0 || failure.HttpStatus is >= 200 and < 300));
+                CameraDiagnostics.Write($"Reference upload attempt={attempt + 1} code={failure.Result} api={failure.ApiCode} http={failure.HttpStatus} retry={retry}");
+                if (!retry)
+                    throw;
+                await Task.Delay(TimeSpan.FromMilliseconds(500 * (attempt + 1)), cancellation);
+            }
+        }
     }
 
     public void RemoveFreeReference()

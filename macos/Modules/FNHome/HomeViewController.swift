@@ -13,9 +13,8 @@ import XmaxSDK
 @MainActor
 final class HomeViewController: NSViewController {
 
-    /// The footer space reserved below the landing content.
-    private static let footerHeight: CGFloat = 80
-    private static let footerBottomInset: CGFloat = 48
+    /// The minimum gap from the home toolbar to the landing headline.
+    private static let landingTopGap: CGFloat = 12
 
     /// The shared credential owner consumed by the user interface and generation.
     @Injected(\.userRepo) private var userRepo: UserRepository
@@ -47,7 +46,7 @@ final class HomeViewController: NSViewController {
     /// Allows application installation only after capture, generation, and native camera work stop.
     var canInstallApplicationUpdate: Bool {
         !isShuttingDown && !generationRepo.settingsLocked && !generationRepo.isClosing
-            && rechargeDialog == nil && userRepo.rechargeNoticeID == nil
+            && rechargeDialog == nil && referenceCatalog == nil && userRepo.rechargeNoticeID == nil
             && !virtualCameraRepo.isBusy && !virtualCameraRepo.hasPendingSystemRequest
             && !virtualCameraRepo.isRequestingCameraAccess
             && virtualCameraRepo.operation == nil && cameraStartTask == nil && cameraNoticeTask == nil
@@ -70,6 +69,9 @@ final class HomeViewController: NSViewController {
 
     /// Owns only the initiating UI task; the repository retains native device workflows.
     private var cameraNoticeTask: Task<Void, Never>?
+
+    /// The home appearance catalog, closed whenever navigation covers the landing page.
+    private var referenceCatalog: HomeReferenceCatalogView?
 
     /// The currently mounted modal preparation guide.
     private var onboardingPage: OnboardingViewController?
@@ -193,11 +195,16 @@ final class HomeViewController: NSViewController {
     /// The initial camera-start experience owned by FNOnboarding.
     private lazy var landing: OnboardingLandingView = {
         let view = OnboardingLandingView()
-        view.onStart = { [weak self] preset, reference in
+        view.onStart = { [weak self] preset, reference, rotation in
             self?.startCamera(
                 preset: preset,
-                reference: reference
+                reference: reference,
+                rotation: rotation
             )
+        }
+        view.onShowReferenceCatalog = { [weak self] in self?.showReferenceCatalog() }
+        view.onReferenceImported = { [weak self] mode in
+            if mode != .free { self?.dismissReferenceCatalog(animated: true) }
         }
         view.onReferenceImportError = { [weak self] message in self?.generationRepo.showSetupError(message) }
         view.onShowCameraSetup = { [weak self] in self?.showOnboarding(at: .camera) }
@@ -280,11 +287,10 @@ final class HomeViewController: NSViewController {
         [header, landing, workspace, footer].forEach(document.addSubview)
         [
             logo, homeControls, toolbar.statisticsControl, toolbar.interpolationControl, toolbar.beautyControl,
-            toolbar, userView,
+            toolbar.translationControl, toolbar, userView,
         ].forEach(
             header.addSubview
         )
-        if GenerationRepository.isLiveTranslationAvailable { header.addSubview(toolbar.translationControl) }
         homeControls.addSubview(cameraControls)
         configureLayout()
 
@@ -302,7 +308,7 @@ final class HomeViewController: NSViewController {
                     self.scheduleRender()
                 }
             }.store(in: &observations)
-        userRepo.signInCompleted.sink { [weak self] in
+        userRepo.signInCompleted.sink { [weak self] _ in
             // The profile's queued render finishes the login-to-home transition first.
             DispatchQueue.main.async { [weak self] in self?.showSignInToast() }
         }.store(in: &observations)
@@ -339,6 +345,8 @@ final class HomeViewController: NSViewController {
     func shutdown() async {
         isShuttingDown = true
         dismissTranslationDialog()
+        dismissReferenceCatalog()
+        landing.resetReferenceSelection()
         dismissRechargeDialog()
         cameraNoticeTask?.cancel()
         cameraNoticeTask = nil
@@ -376,8 +384,9 @@ final class HomeViewController: NSViewController {
 
     /// Checks permission and the cached balance without requesting credits during camera startup.
     private func startCamera(
-        preset: RealtimeCameraPreset,
-        reference: GenerationReference
+        preset: RealtimeCameraFormat,
+        reference: GenerationReference,
+        rotation: CameraRotation
     ) {
         guard loginPage == nil, cameraStartTask == nil, cameraNoticeTask == nil, !isShuttingDown
         else { return }
@@ -403,6 +412,7 @@ final class HomeViewController: NSViewController {
             await self.viewModel.startCamera(
                 preset: preset,
                 reference: reference,
+                rotation: rotation,
                 requestedAt: requestedAt
             )
         }
@@ -450,13 +460,14 @@ final class HomeViewController: NSViewController {
         toolbar.statisticsControl.isHidden = !active
         toolbar.interpolationControl.isHidden = !active
         toolbar.beautyControl.isHidden = !active
-        if GenerationRepository.isLiveTranslationAvailable { toolbar.translationControl.isHidden = !active }
+        toolbar.translationControl.isHidden = !active
         toolbar.isHidden = !active
         landing.isHidden = active
         footer.isHidden = active
         workspace.isHidden = !active
         if pageChanged {
             displayedSession = active
+            dismissReferenceCatalog()
             landing.closeCameraPicker()
             cameraControls.closePopover()
             userView.closePopover()
@@ -468,6 +479,7 @@ final class HomeViewController: NSViewController {
         if pageChanged, !viewModel.needsLogin, loginPage == nil, view.window != nil {
             view.layoutSubtreeIfNeeded()
             animateEntry(active ? workspace : landing)
+            if !active { animateEntry(footer) }
         }
         if active, view.window != nil { generationRepo.resultViewDidBecomeReady() }
         synchronizeLoginPage()
@@ -483,10 +495,46 @@ final class HomeViewController: NSViewController {
         onUpdateInstallationAvailabilityChanged?()
     }
 
+    /// Presents the home catalog without starting capture or generation.
+    private func showReferenceCatalog() {
+        guard referenceCatalog == nil, !generationRepo.sessionActive, !generationRepo.settingsLocked,
+            !isShuttingDown, !viewModel.needsLogin, onboardingPage == nil,
+            rechargeDialog == nil, landing.referenceModel.canEdit,
+            let window = view.window, window.attachedSheet == nil
+        else { return }
+        landing.closeCameraPicker()
+        userView.closePopover()
+        cameraControls.closePopover()
+        let dialog = HomeReferenceCatalogView(model: landing.referenceModel)
+        dialog.onClose = { [weak self] in self?.dismissReferenceCatalog(animated: true) }
+        dialog.onSelected = { [weak self] in self?.dismissReferenceCatalog(animated: true) }
+        dialog.onUpload = { [weak self] mode in self?.landing.chooseReferenceImage(mode: mode) }
+        referenceCatalog = dialog
+        root.addSubview(dialog)
+        dialog.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        landing.setServiceNoticeInteractionEnabled(false)
+        root.layoutSubtreeIfNeeded()
+        dialog.present()
+    }
+
+    /// Releases modal input and image work when home navigation changes.
+    private func dismissReferenceCatalog(
+        animated: Bool = false
+    ) {
+        guard let dialog = referenceCatalog else { return }
+        dialog.dismiss(animated: animated) { [weak self, weak dialog] in
+            guard let self, let dialog, self.referenceCatalog === dialog else { return }
+            self.referenceCatalog = nil
+            dialog.shutdown()
+            dialog.removeFromSuperview()
+            self.landing.setServiceNoticeInteractionEnabled(true)
+            self.view.window?.makeFirstResponder(nil)
+        }
+    }
+
     /// Opens live translation configuration without starting or stopping capture.
     private func showTranslationDialog() {
-        guard GenerationRepository.isLiveTranslationAvailable, translationDialog == nil,
-            generationRepo.sessionActive, !generationRepo.isClosing,
+        guard translationDialog == nil, generationRepo.sessionActive, !generationRepo.isClosing,
             !isShuttingDown, !viewModel.needsLogin, onboardingPage == nil, rechargeDialog == nil,
             let window = view.window, window.attachedSheet == nil
         else { return }
@@ -536,6 +584,7 @@ final class HomeViewController: NSViewController {
         }
         guard let window = view.window, window.isVisible, window.attachedSheet == nil else { return }
         dismissTranslationDialog()
+        dismissReferenceCatalog()
         landing.closeCameraPicker()
         cameraControls.closePopover()
         userView.closePopover()
@@ -711,6 +760,7 @@ final class HomeViewController: NSViewController {
         at step: OnboardingRepository.Step? = nil,
         dismissesOnBackdropClick: Bool = true
     ) {
+        dismissReferenceCatalog()
         guard !isShuttingDown, !viewModel.needsLogin, view.window != nil else { return }
         dismissTranslationDialog()
         onboardingPresentationTask?.cancel()
@@ -788,6 +838,7 @@ final class HomeViewController: NSViewController {
         guard isViewLoaded, !isShuttingDown else { return }
         let needsLogin = viewModel.needsLogin
         if needsLogin, loginPage == nil {
+            dismissReferenceCatalog()
             cameraNoticeTask?.cancel()
             dismissSignInToast()
             userView.closePopover()
@@ -921,7 +972,7 @@ final class HomeViewController: NSViewController {
         }
         landing.snp.makeConstraints { make in
             make.leading.trailing.equalTo(header)
-            make.top.equalTo(header.snp.bottom).offset(30)
+            make.top.equalTo(header.snp.bottom).offset(Self.landingTopGap)
             make.height.equalTo(0).priority(490)
         }
         workspace.snp.makeConstraints { make in
@@ -931,8 +982,8 @@ final class HomeViewController: NSViewController {
         }
         footer.snp.makeConstraints { make in
             make.leading.trailing.equalTo(header)
-            make.bottom.equalToSuperview().inset(Self.footerBottomInset)
-            make.height.equalTo(Self.footerHeight)
+            make.bottom.equalToSuperview().inset(48)
+            make.height.equalTo(80)
         }
         logo.snp.makeConstraints { make in
             make.leading.equalTo(document.snp.leading).offset(24)
@@ -966,20 +1017,17 @@ final class HomeViewController: NSViewController {
             make.height.equalTo(userView)
             make.width.equalTo(toolbar.interpolationControl.preferredWidth)
         }
-        let controlAfterBeauty = GenerationRepository.isLiveTranslationAvailable ? toolbar.translationControl : userView
         toolbar.beautyControl.snp.makeConstraints { make in
-            make.trailing.equalTo(controlAfterBeauty.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            make.trailing.equalTo(toolbar.translationControl.snp.leading).offset(-ToolbarControlMetrics.spacing)
             make.centerY.equalTo(logo)
             make.height.equalTo(userView)
             make.width.equalTo(toolbar.beautyControl.preferredWidth)
         }
-        if GenerationRepository.isLiveTranslationAvailable {
-            toolbar.translationControl.snp.makeConstraints { make in
-                make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
-                make.centerY.equalTo(logo)
-                make.height.equalTo(userView)
-                make.width.equalTo(toolbar.translationControl.preferredWidth)
-            }
+        toolbar.translationControl.snp.makeConstraints { make in
+            make.trailing.equalTo(userView.snp.leading).offset(-ToolbarControlMetrics.spacing)
+            make.centerY.equalTo(logo)
+            make.height.equalTo(userView)
+            make.width.equalTo(toolbar.translationControl.preferredWidth)
         }
         toolbar.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
@@ -1002,9 +1050,9 @@ final class HomeViewController: NSViewController {
         let toolbarWidth = toolbar.preferredWidth
         let interpolationWidth = toolbar.interpolationControl.preferredWidth
         let beautyWidth = toolbar.beautyControl.preferredWidth
-        let translationWidth = GenerationRepository.isLiveTranslationAvailable ? toolbar.translationControl.preferredWidth : nil
+        let translationWidth = toolbar.translationControl.preferredWidth
         let signature =
-            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(interpolationWidth)|\(beautyWidth)|\(translationWidth ?? 0)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
+            "\(width)|\(height)|\(active)|\(cameraWidth)|\(userWidth)|\(toolbarWidth)|\(interpolationWidth)|\(beautyWidth)|\(translationWidth)|\(displayedError ?? "")|\(displayedCameraWarning?.message ?? "")|\(displayedCameraWarning?.buttonTitle ?? "")"
         guard signature != layoutSignature else { return }
         layoutSignature = signature
         let contentWidth = max(0, width - 56)
@@ -1017,7 +1065,7 @@ final class HomeViewController: NSViewController {
         let minimumHeight =
             active
             ? 16 + headerHeight + workspaceHeight + 48
-            : 16 + headerHeight + 30 + landingHeight + 30 + Self.footerHeight + Self.footerBottomInset
+            : 16 + headerHeight + Self.landingTopGap + landingHeight + 30 + 80 + 48
         let documentHeight = max(height, minimumHeight)
         let surplus = max(0, documentHeight - minimumHeight)
         document.snp.updateConstraints { make in make.height.equalTo(documentHeight).priority(490) }
@@ -1026,7 +1074,7 @@ final class HomeViewController: NSViewController {
             make.height.equalTo(headerHeight).priority(490)
         }
         landing.snp.updateConstraints { make in
-            make.top.equalTo(header.snp.bottom).offset(30 + surplus / 2)
+            make.top.equalTo(header.snp.bottom).offset(Self.landingTopGap + surplus / 2)
             make.height.equalTo(landingHeight).priority(490)
         }
         workspace.snp.updateConstraints { make in make.height.equalTo(workspaceHeight).priority(490) }
@@ -1044,9 +1092,7 @@ final class HomeViewController: NSViewController {
         toolbar.snp.updateConstraints { make in make.width.equalTo(toolbarWidth) }
         toolbar.interpolationControl.snp.updateConstraints { make in make.width.equalTo(interpolationWidth) }
         toolbar.beautyControl.snp.updateConstraints { make in make.width.equalTo(beautyWidth) }
-        if let translationWidth {
-            toolbar.translationControl.snp.updateConstraints { make in make.width.equalTo(translationWidth) }
-        }
+        toolbar.translationControl.snp.updateConstraints { make in make.width.equalTo(translationWidth) }
         errorView.place(in: root.bounds)
         if signInToastVisible { signInToast.place(in: root.bounds) }
     }

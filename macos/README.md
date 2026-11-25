@@ -34,7 +34,7 @@ Both schemes produce `FaceNow.app`. Use separate derived data directories to kee
 
 ## Resolve Swift package dependencies
 
-Xcode resolves the packages automatically when you open `FaceNow.xcodeproj`. For a terminal build, resolve them first with the command below. It downloads XmaxSDK and the other dependencies at the versions recorded in the project's [Package.resolved](FaceNow.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved).
+Xcode resolves the packages automatically when you open `FaceNow.xcodeproj`. The project uses the published [Xmax SDK 1.1.6](https://github.com/Xmax-AI/XmaxSDK-MacOS/releases/tag/1.1.6), with no local SDK checkout required. For a terminal build, resolve the dependencies first with the command below. Package versions and revisions are recorded in the project's [Package.resolved](FaceNow.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved).
 
 The terminal commands use the Mainland China scheme. For the overseas edition, substitute its scheme and derived data directory in both commands.
 

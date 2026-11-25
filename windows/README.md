@@ -26,7 +26,7 @@ Run the remaining commands from the `windows` directory.
 .\scripts\restore-sdk.ps1
 ```
 
-This downloads the Xmax SDK packages and verifies their SHA-256 checksums against [Directory.Build.props](Directory.Build.props). The app build restores the remaining NuGet packages using [NuGet.Config](NuGet.Config).
+This downloads the published Xmax SDK **1.1.7** packages and verifies their SHA-256 checksums against [Directory.Build.props](Directory.Build.props). The app build restores the remaining NuGet packages using [NuGet.Config](NuGet.Config).
 
 <br>
 
@@ -57,3 +57,38 @@ Use the same compositor for both editions and a separate build directory for eac
 ```
 
 Each command builds a Release x64 app and prints the path to `FaceNow.exe`. The virtual camera helpers are built separately. See the [native camera guide](native/README.md).
+
+<br>
+
+## Run regression checks
+
+```powershell
+.\scripts\test-generation.ps1 -Edition Domestic
+.\scripts\test-media.ps1 -Edition Domestic -MediaDirectory "$PWD\.build\media" -FullHd
+.\scripts\test-accounts.ps1 -Edition Domestic
+```
+
+Use `Overseas` to check the other edition. `run.ps1` closes existing FaceNow
+instances before launching a new app or a GUI check, and waits for each GUI
+check to finish before starting the next one.
+
+<br>
+
+## Build installers
+
+The release scripts build both regional installers and include the published
+SDK runtimes, architecture-matched camera components, and dependency notices.
+Prepare NSIS 3.12, the Visual C++ redistributable DLLs, the compositor, and all
+three native camera builds (`x64`, `arm64`, and `directshow-x64`). The installer
+script prepares Microsoft's WebView2 bootstrapper for machines that need it.
+
+```powershell
+.\scripts\build-editions.ps1 `
+  -BuildRoot 'C:\dev\FaceNow-release-build' `
+  -MediaDirectory "$PWD\.build\media" `
+  -CameraBuildRoot 'C:\dev\FaceNow-camera'
+```
+
+Use a fresh local `BuildRoot`. The final regional packages and checksums are
+written under `.build/releases`. All Windows SDK dependencies come from the
+locked public release packages; a local XmaxSDK source checkout is not required.

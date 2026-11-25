@@ -698,7 +698,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "相见，不止一面。"
+            "value" : "换一种形象出镜"
           }
         }
       }
@@ -879,6 +879,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "无法验证登录状态，请检查网络连接后重新登录。"
+          }
+        }
+      }
+    },
+    "login.api_key_help" : {
+      "comment" : "Help below the API-key sign-in field. %@ is the clickable platform link. Preserve the placeholder.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Need an API Key? %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有 API Key？%@"
+          }
+        }
+      }
+    },
+    "login.api_key_help.link" : {
+      "comment" : "Clickable phrase that opens the regional API-key management page in the browser.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create one on the Xmax API Platform ↗"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前往 Xmax 开放平台创建 ↗"
           }
         }
       }

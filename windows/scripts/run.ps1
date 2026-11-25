@@ -46,15 +46,7 @@ foreach ($architecture in @('x64','arm64','directshow-x64')) {
     }
 }
 if ($BuildOnly) { Write-Output $app; exit }
-foreach ($existing in @(Get-Process -Name FaceNow -ErrorAction SilentlyContinue)) {
-    if ($existing.HasExited) { continue }
-    if (!$existing.CloseMainWindow() -or !$existing.WaitForExit(30000)) {
-        throw "Close the existing FaceNow instance (PID $($existing.Id)) before opening another build."
-    }
-}
-if (@(Get-Process -Name FaceNow -ErrorAction SilentlyContinue).Count -gt 0) {
-    throw 'FaceNow is still running. Close it before opening another build.'
-}
+& "$PSScriptRoot/close-running.ps1"
 if ($Verify -or $VerifyCamera -or $VerifyRelay) {
     $previous = $env:FACENOW_SMOKE_OUTPUT
     $previousCredential = $env:FACENOW_SMOKE_CREDENTIAL_ID
@@ -67,10 +59,11 @@ if ($Verify -or $VerifyCamera -or $VerifyRelay) {
         if ($VerifyCamera) { $modes += '--smoke-test-virtual-camera' }
         if ($VerifyRelay) { $modes += '--smoke-test-camera-relay' }
         foreach ($mode in $modes) {
+            & "$PSScriptRoot/close-running.ps1"
             $report = Join-Path $env:FACENOW_SMOKE_OUTPUT ($mode.TrimStart('-') + '.json')
             Remove-Item $report -ErrorAction SilentlyContinue
             $process = Start-Process $app -ArgumentList $mode -WorkingDirectory (Split-Path $app) -PassThru
-            if (!$process.WaitForExit(120000)) { Stop-Process -Id $process.Id -Force; throw "$mode timed out." }
+            if (!$process.WaitForExit(120000)) { Stop-Process -Id $process.Id -Force; $process.WaitForExit(); throw "$mode timed out." }
             if (!(Test-Path $report)) { throw "$mode did not produce a report (exit $($process.ExitCode))." }
             $result = Get-Content $report -Raw | ConvertFrom-Json
             if (!$result.passed) { throw "$mode failed: $($result.error)" }

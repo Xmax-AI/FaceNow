@@ -572,7 +572,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今天，哪一面的你出镜？"
+            "value" : "换一种形象出镜"
           }
         }
       }
@@ -2589,6 +2589,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "待进行"
+          }
+        }
+      }
+    },
+    "content.copyright_2026_xmax_ai_pte_ltd_all_rights_reserved" : {
+      "comment" : "Displayed text in Modules/FNOnboarding/OnboardingRepository.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2026 XMAX.AI PTE.LTD. All rights reserved."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版权所有 © 2026 XMAX.AI PTE.LTD. 保留所有权利。"
           }
         }
       }

@@ -119,6 +119,25 @@ enum UserStrings {
         )
     }
 
+    /// The help sentence below the API-key input, including its platform link.
+    static var apiKeyHelp: String {
+        Localization.format(
+            "login.api_key_help",
+            table: "User",
+            defaultValue: "Need an API Key? %@",
+            arguments: [apiKeyHelpLink]
+        )
+    }
+
+    /// The clickable phrase that opens the API-key management page.
+    static var apiKeyHelpLink: String {
+        Localization.string(
+            "login.api_key_help.link",
+            table: "User",
+            defaultValue: "Create one on the Xmax API Platform ↗"
+        )
+    }
+
     /// Accessibility label for the verification-code input.
     static var codeLabel: String {
         Localization.string(

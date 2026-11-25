@@ -24,6 +24,9 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
     /// The hidden output endpoint used only to deliver generated audio to the public microphone.
     static let writerDeviceUID = VirtualMicrophoneConfiguration.writerDeviceUID
 
+    /// Matches the gain cap enforced by the render callback's timeline.
+    static let maximumGain = Float(AUDIO_TIMELINE_BUFFER_MAX_OUTPUT_GAIN)
+
     /// Retains native failure codes for troubleshooting without exposing PCM or account data.
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.xmax.facenow",
@@ -77,6 +80,9 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
 
     /// The output intent owned by the worker.
     private var enabled = false
+
+    /// The saved linear output gain, applied after any timing delay.
+    private var outputGain: Float = 1
 
     /// The running Core Audio unit, owned by the worker.
     private var unit: AudioUnit?
@@ -171,6 +177,17 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
             guard self.producer == producer else { return }
             playbackDelay = delay.isFinite ? min(5, max(0, delay)) : 0
             AudioTimelineBufferSetPlaybackDelay(ring, playbackDelay)
+        }
+    }
+
+    /// Updates final output gain without rewriting buffered PCM or starting an audio device.
+    func setOutputGain(
+        _ gain: Float
+    ) {
+        guard gain.isFinite else { return }
+        worker.async { [self] in
+            outputGain = min(Self.maximumGain, max(0, gain))
+            AudioTimelineBufferSetOutputGain(ring, outputGain)
         }
     }
 
@@ -419,6 +436,7 @@ final class VirtualMicrophoneOutput: @unchecked Sendable {
             )
             guard let ring = AudioTimelineBufferCreate(sampleRate) else { throw OutputError.format }
             self.ring = ring
+            AudioTimelineBufferSetOutputGain(ring, outputGain)
             AudioTimelineBufferSetPlaybackDelay(ring, playbackDelay)
             var callback = AURenderCallbackStruct(
                 inputProc: AudioTimelineBufferRender,

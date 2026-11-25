@@ -13,6 +13,20 @@ final class GenerationAudioControlsViewModel {
     /// Owns the selection, input discovery, and runtime switch operation.
     @Injected(\.generationRepo) private var generationRepo: GenerationRepository
 
+    /// Owns saved virtual microphone output settings across sessions.
+    @Injected(\.virtualMicrophoneRepo) private var virtualMicrophoneRepo: VirtualMicrophoneRepository
+
+    /// Owns the echo-cancellation setting and the playback reference route.
+    var echoCancellation: PlaybackEchoCancellation { generationRepo.echoCancellation }
+
+    /// The upper bound for the virtual microphone slider in percent.
+    var maximumVirtualMicrophonePercentage: Double { Double(VirtualMicrophoneRepository.maximumVolume) * 100 }
+
+    /// Publishes the saved linear output gain, with unity represented as 100% in the view.
+    var virtualMicrophoneVolumes: AnyPublisher<Float, Never> {
+        virtualMicrophoneRepo.$volume.eraseToAnyPublisher()
+    }
+
     /// Observes existing capture without requesting permission or starting microphone input.
     var microphoneLevels: AnyPublisher<Float?, Never> {
         generationRepo.microphoneLevels
@@ -35,6 +49,13 @@ final class GenerationAudioControlsViewModel {
     /// Keeps an open adjustment card synchronized with repository-owned settings.
     var audioSyncOffsets: AnyPublisher<Int, Never> {
         generationRepo.$audioSyncOffsetMilliseconds.eraseToAnyPublisher()
+    }
+
+    /// Applies virtual microphone volume independently from speaker monitoring.
+    func setVirtualMicrophoneVolume(
+        _ volume: Float
+    ) {
+        virtualMicrophoneRepo.setVolume(volume)
     }
 
     /// Changes relative meeting-output timing without changing local monitoring or input capture.

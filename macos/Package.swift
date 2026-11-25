@@ -49,7 +49,10 @@ let package = Package(
             name: "CameraCore",
             dependencies: ["Localization"],
             path: "Services",
-            exclude: ["Storage", "UI", "Localization", "Media/Audio", "Media/MicrophoneTranslation.swift"]
+            exclude: [
+                "Storage", "UI", "Localization", "Media/Audio", "Media/EchoCancellation",
+                "Media/MicrophoneTranslation.swift", "Media/PlaybackEchoCancellation.swift",
+            ]
         ),
         .target(
             name: "FNUser",

@@ -11,6 +11,59 @@ import Foundation
 /// Provides module-owned English defaults and stable localization keys for page presentation.
 enum GenerationStrings {
 
+    static var echoCancellation: String {
+        Localization.string("controls.echo.title", table: "Generation", defaultValue: "Echo Cancellation")
+    }
+
+    static var echoPlaybackDevice: String {
+        Localization.string("controls.echo.playback_device", table: "Generation", defaultValue: "Playback device")
+    }
+
+    static var echoFollowSystem: String {
+        Localization.string("controls.echo.follow_system", table: "Generation", defaultValue: "Follow System")
+    }
+
+    static var echoDeviceUnavailable: String {
+        Localization.string("controls.echo.device_unavailable", table: "Generation", defaultValue: "Selected device unavailable")
+    }
+
+    static var echoOff: String {
+        Localization.string("controls.echo.off", table: "Generation", defaultValue: "Uses playback audio to reduce echo in your microphone.")
+    }
+
+    static var echoWaiting: String {
+        Localization.string("controls.echo.waiting", table: "Generation", defaultValue: "Select an active microphone to use echo cancellation.")
+    }
+
+    static var echoStarting: String {
+        Localization.string("controls.echo.starting", table: "Generation", defaultValue: "Connecting to the playback device…")
+    }
+
+    static var echoWaitingForReference: String {
+        Localization.string(
+            "controls.echo.waiting_for_reference",
+            table: "Generation",
+            defaultValue: "Waiting for matching audio from the playback device."
+        )
+    }
+
+    static var echoListening: String {
+        Localization.string("controls.echo.listening", table: "Generation", defaultValue: "Processing microphone audio before it is sent.")
+    }
+
+    static var echoNoDevice: String {
+        Localization.string("controls.echo.no_device", table: "Generation", defaultValue: "Connect the selected device or choose another one.")
+    }
+
+    static var echoUnavailable: String {
+        Localization.string("controls.echo.unavailable", table: "Generation", defaultValue: "Requires macOS 14.2 or later.")
+    }
+
+    static var echoFailed: String {
+        Localization.string("controls.echo.failed", table: "Generation", defaultValue: "Playback unavailable. Check audio recording permission in System Settings.")
+    }
+
+
     /// Explains a denied or restricted microphone permission after an explicit request.
     static var microphonePermissionRequired: String {
         Localization.string(
@@ -338,6 +391,27 @@ enum GenerationStrings {
             "controls.audio_video_adjustments",
             table: "Generation",
             defaultValue: "Audio & Video"
+        )
+    }
+
+    /// Names the generated-audio gain control.
+    static var virtualMicrophoneVolume: String {
+        Localization.string(
+            "audio.virtual_microphone_volume",
+            table: "Generation",
+            defaultValue: "Virtual microphone volume"
+        )
+    }
+
+    /// Formats the complete output volume including its percent sign.
+    static func volumePercentage(
+        value: Int
+    ) -> String {
+        Localization.format(
+            "audio.volume_percentage",
+            table: "Generation",
+            defaultValue: "%lld%%",
+            arguments: [Int64(value)]
         )
     }
 
@@ -722,6 +796,8 @@ enum GenerationStrings {
         )
     }
 
+
+
     /// The localized name of a Playground X2.1 summon preset.
     static var presetDimxCowPlushie: String {
         Localization.string(
@@ -739,6 +815,8 @@ enum GenerationStrings {
             defaultValue: "Hello Kitty"
         )
     }
+
+
 
     /// The localized name of a Playground X2.1 reference image.
     static var presetCharxCandyGirl: String {
@@ -794,6 +872,18 @@ enum GenerationStrings {
         )
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
     /// The localized name of a Playground X2.1 reference image.
     static var presetCharxCorporateCow: String {
         Localization.string(
@@ -811,6 +901,8 @@ enum GenerationStrings {
             defaultValue: "Mecha Girl"
         )
     }
+
+
 
     /// The localized name of a Playground X2.1 reference image.
     static var presetCharxHumanoidRobot: String {

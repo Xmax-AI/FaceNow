@@ -18,6 +18,9 @@ import Foundation
 @MainActor
 final class UserRepository: ObservableObject {
 
+    /// The regional platform page where users can create a key for sign-in.
+    let apiKeysURL = NetworkEnvironment.current.platformURL.appendingPathComponent("api-keys")
+
     /// The account credit page opened from the header balance.
     let creditsURL = NetworkEnvironment.current.platformURL.appendingPathComponent("credits")
 

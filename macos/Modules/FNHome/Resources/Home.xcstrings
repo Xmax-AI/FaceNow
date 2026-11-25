@@ -666,6 +666,132 @@
           }
         }
       }
+    },
+    "home.camera_rotation" : {
+      "comment" : "Home camera and reference selection controls.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera rotation"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摄像头旋转"
+          }
+        }
+      }
+    },
+    "home.feedback" : {
+      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedback"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "意见反馈"
+          }
+        }
+      }
+    },
+    "home.reference_images" : {
+      "comment" : "Home camera and reference selection controls.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reference images"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "参考图"
+          }
+        }
+      }
+    },
+    "home.reference_images_close" : {
+      "comment" : "Home camera and reference selection controls.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close reference images"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭参考图"
+          }
+        }
+      }
+    },
+    "home.scan_with_wechat_to_follow_us" : {
+      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan with WeChat to follow us"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用微信扫码关注我们"
+          }
+        }
+      }
+    },
+    "home.troubleshooting" : {
+      "comment" : "Footer documentation link after the version; no click action until its URL is supplied.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TroubleShooting"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "故障排查"
+          }
+        }
+      }
+    },
+    "home.website" : {
+      "comment" : "Displayed text in Modules/FNHome/MVVM/View/HomeFooterView.swift.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Website"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "官方网站"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

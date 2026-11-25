@@ -58,9 +58,16 @@ final class GenerationRepository: ObservableObject {
     /// The sentinel disabling microphone permission and capture for this session.
     static let disabledMicrophoneID = "disabled"
 
+    /// Captures the selected playback reference for the physical microphone upstream.
+    let echoCancellation = PlaybackEchoCancellation()
+
     /// The saved input UID; an empty or legacy selection is resolved during device discovery.
     @Published var microphoneID = UserDefaults.standard.string(forKey: "generation.microphone.id") ?? "" {
-        didSet { UserDefaults.standard.set(microphoneID, forKey: "generation.microphone.id") }
+        didSet {
+            UserDefaults.standard.set(microphoneID, forKey: "generation.microphone.id")
+            if oldValue != microphoneID { echoCancellation.microphoneChanged() }
+            synchronizeEchoCancellation()
+        }
     }
 
     /// The SDK input selection corresponding to the saved picker choice.
@@ -70,7 +77,9 @@ final class GenerationRepository: ObservableObject {
     }
 
     /// The current system authorization used by input selectors independently of device discovery.
-    @Published private(set) var microphoneAuthorization = AVCaptureDevice.authorizationStatus(for: .audio)
+    @Published private(set) var microphoneAuthorization = AVCaptureDevice.authorizationStatus(for: .audio) {
+        didSet { synchronizeEchoCancellation() }
+    }
 
     /// Shares one explicit system permission request across microphone selectors.
     private var microphonePermissionTask: Task<Bool, Never>?
@@ -133,12 +142,8 @@ final class GenerationRepository: ObservableObject {
         return true
     }
 
-    /// Controls whether this build exposes live translation or restores a saved session preference.
-    static let isLiveTranslationAvailable = false
-
-    /// Whether this build and system support on-device live translation.
+    /// Whether this system provides on-device speech analysis and translation.
     static var supportsTranslation: Bool {
-        guard isLiveTranslationAvailable else { return false }
         if #available(macOS 26.0, *) { return true }
         return false
     }
@@ -201,7 +206,9 @@ final class GenerationRepository: ObservableObject {
     // MARK: - State
 
     /// Whether local capture has opened the preview workspace, independently of cloud or virtual output.
-    @Published private(set) var sessionActive = false
+    @Published private(set) var sessionActive = false {
+        didSet { synchronizeEchoCancellation() }
+    }
 
     /// The local camera stream retained through preview and asynchronous cleanup.
     @Published private(set) var localStream: RealtimeMediaStream?
@@ -340,7 +347,7 @@ final class GenerationRepository: ObservableObject {
     private var microphoneFailureObservation: AnyCancellable?
 
     /// Creates the SDK manager, allowing dependency-controlled construction.
-    private let makeManager: (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging
+    private let makeManager: (XmaxClient, RealtimeConfiguration, RealtimeMicrophoneAudioProcessor?) -> any XmaxRealtimeManaging
 
     /// Uploads prepared reference pixels and returns the approved image URL.
     private let uploadImage: (XmaxClient, Data, String, XmaxStorageProgressHandler?) async throws -> URL
@@ -348,8 +355,8 @@ final class GenerationRepository: ObservableObject {
     /// Creates the generation owner with shared credentials and injectable service factories.
     init(
         user: UserRepository? = nil,
-        makeManager: @escaping (XmaxClient, RealtimeConfiguration) -> any XmaxRealtimeManaging = {
-            $0.createRealtimeManager(options: $1)
+        makeManager: @escaping (XmaxClient, RealtimeConfiguration, RealtimeMicrophoneAudioProcessor?) -> any XmaxRealtimeManaging = {
+            $0.createRealtimeManager(options: $1, microphoneAudioProcessor: $2)
         },
         uploadImage: @escaping (XmaxClient, Data, String, XmaxStorageProgressHandler?) async throws -> URL = {
             client,
@@ -410,6 +417,15 @@ final class GenerationRepository: ObservableObject {
 
     /// Setup changes are disabled while capture or virtual output is in use.
     var settingsLocked: Bool { isBusy || sessionActive }
+
+    /// Starts reference capture only while the current session uses a physical microphone.
+    private func synchronizeEchoCancellation() {
+        guard sessionActive, microphoneAuthorization == .authorized, case .device = selectedMicrophone else {
+            echoCancellation.setMicrophoneActive(false)
+            return
+        }
+        echoCancellation.setMicrophoneActive(true)
+    }
 
     /// Discovers physical inputs without opening a capture session.
     func refreshCameras() {
@@ -548,7 +564,7 @@ final class GenerationRepository: ObservableObject {
 
     /// Refreshes availability without overwriting active progress or retryable failures.
     func refreshTranslationResources() async {
-        guard Self.isLiveTranslationAvailable, translationState == .off else { return }
+        guard translationState == .off else { return }
         let revision = translationResourceQueryRevision
         var statuses = await MicrophoneTranslation.resourceStatus(for: translationLanguages)
         guard !Task.isCancelled, translationResourceQueryRevision == revision else { return }
@@ -845,8 +861,9 @@ final class GenerationRepository: ObservableObject {
 
     /// Creates and binds camera preview before starting generation when the SDK reports ready.
     func start(
-        preset: RealtimeCameraPreset,
+        preset: RealtimeCameraFormat,
         initialReference: GenerationReference,
+        rotation: CameraRotation = .degrees0,
         requestedAt: UInt64 = DispatchTime.now().uptimeNanoseconds
     ) async {
         guard !isClosing else {
@@ -897,12 +914,14 @@ final class GenerationRepository: ObservableObject {
         downlinkStatistics = nil
         networkQuality = nil
         let client = makeClient()
+        let echoProcessor = echoCancellation.processor
         let manager = makeManager(
             client,
             RealtimeConfiguration(
                 model: model,
                 isFrameInterpolationEnabled: interpolationEnabled
-            )
+            ),
+            { frame in echoProcessor.process(frame) }
         )
         self.client = client
         self.manager = manager
@@ -990,9 +1009,10 @@ final class GenerationRepository: ObservableObject {
                 operation: operation
             )
             let stream = try await manager.createLocalCameraStream(
-                preset: preset,
+                videoFormat: preset,
                 camera: .device(id: cameraID),
                 microphone: selectedMicrophone,
+                rotation: rotation,
                 mirror: false
             )
             guard lifecycleID == operation else {
@@ -1000,6 +1020,11 @@ final class GenerationRepository: ObservableObject {
                 return
             }
             localStream = stream
+            if initialReference.mode == .free {
+                // Seed the editor from the home selection before the workspace becomes visible.
+                prompt = initialReference.prompt ?? initialReference.mode.prompt
+                uploadedReferences.removeAll { $0.mode == .free }
+            }
             if initialReference.thumbnailData != nil {
                 uploadedReferences = [initialReference] + uploadedReferences.filter { $0.id != initialReference.id }
             }

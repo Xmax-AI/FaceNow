@@ -106,9 +106,14 @@ internal sealed partial class MainViewModel
 
     private static string GenerationErrorMessage(
         Exception failure
-    ) => failure is XmaxException { Code: XmaxErrorCode.UnsafeImage }
-        ? "This reference image did not pass the safety check. Choose a different image."
-        : failure.Message;
+    ) => failure switch
+    {
+        XmaxException { Code: XmaxErrorCode.UnsafeImage } =>
+            "This reference image did not pass the safety check. Choose a different image.",
+        XmaxException { Message: "Xmax API returned invalid JSON", HttpStatus: > 0 } sdk =>
+            AppText.Format("The service returned an invalid response (HTTP {0}). Please try again.", sdk.HttpStatus),
+        _ => failure.Message
+    };
 
     private void NotifyAuthenticationFailure(
         Exception failure,
